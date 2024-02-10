@@ -1,18 +1,48 @@
-import ApplicationLogo from '@/Components/ApplicationLogo';
-import { Link } from '@inertiajs/react';
+import {Grid} from "@mui/material";
+import logo from "@/../images/logo.png";
+import Container from "@mui/material/Container";
+import Paper from "@mui/material/Paper";
+import Typography from "@mui/material/Typography";
 
-export default function Guest({ children }) {
+export default function GuestLayout({children}) {
+
     return (
-        <div className="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
-            <div>
-                <Link href="/">
-                    <ApplicationLogo className="w-20 h-20 fill-current text-gray-500" />
-                </Link>
-            </div>
-
-            <div className="w-full sm:max-w-md mt-6 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg">
-                {children}
-            </div>
-        </div>
+        <Container sx={{
+            minHeight: "calc(100dvh - 50px)",
+            display: "flex",
+            alignContent: "center",
+            justifyItems: "center",
+            alignItems: "center",
+            justifyContent: "center",
+            maxWidth: "700px"
+        }} maxWidth="700px">
+            <Paper elevation={10} sx={{padding: "50px", borderRadius: "20px", bgcolor:"#e7e7e7"}}>
+                <Grid container
+                      direction="row"
+                      justifyContent="center"
+                      spacing={5}>
+                    <Grid item
+                          xs={12}
+                          md={5}
+                          sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-evenly",
+                              flexDirection: "column",
+                              gap: "50px"
+                          }}>
+                        <img src={logo}
+                             alt="Bion Genetic Lab"
+                             width="100%"/>
+                        <Typography variant="h1"
+                                    fontSize="25px"
+                                    fontWeight="bold"> Provider Panel</Typography>
+                    </Grid>
+                    <Grid item xs={12} md={7}>
+                        {children}
+                    </Grid>
+                </Grid>
+            </Paper>
+        </Container>
     );
 }
