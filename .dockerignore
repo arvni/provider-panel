@@ -1,0 +1,8 @@
+vendor
+node_modules
+public/build
+.env
+composer.lock
+Dockerfile
+storage/app/*
+!storage/app/public
