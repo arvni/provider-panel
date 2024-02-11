@@ -6,6 +6,7 @@ import {forgetPasswordValidator} from "@/Services/validate";
 import ReCAPTCHA from "react-google-recaptcha";
 import LoadingButton from "@/Components/LoadingButton.jsx";
 
+const siteKey=import.meta.env.VITE_GOOGLE_CAPTCHA_SITE_KEY;
 const ForgetPasswordForm = () => {
 
     const {
@@ -69,7 +70,7 @@ const ForgetPasswordForm = () => {
             <Grid item xs={12} sx={{width: "100%"}}>
                 <ReCAPTCHA
                     ref={recaptchaRef}
-                    sitekey={import.meta.env.VITE_GOOGLE_CAPTCHA_SITE_KEY}
+                    sitekey={siteKey}
                     onChange={handleCaptchaChanged}
                     onExpired={resetCaptcha}/>
                 {errors.captcha && <FormHelperText error={!!errors.captcha}>{errors.captcha}</FormHelperText>}
