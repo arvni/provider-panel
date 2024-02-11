@@ -2,7 +2,7 @@ import React, {useState} from "react";
 import {IconButton, Paper} from "@mui/material";
 import PageHeader from "@/Components/PageHeader";
 import TableLayout from "@/Layouts/TableLayout";
-import {usePageReload} from "@/services/api";
+import {usePageReload} from "@/Services/api";
 import AdminLayout from "@/Layouts/AuthenticatedLayout";
 import {RemoveRedEye} from "@mui/icons-material";
 import {Download} from "@mui/icons-material";

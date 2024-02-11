@@ -1,7 +1,7 @@
 import React from "react";
 import {Alert, Paper} from "@mui/material";
 import TestMethodForm from "./Components/TestMethodForm";
-import {useSubmitForm} from "@/services/api";
+import {useSubmitForm} from "@/Services/api";
 import {testMethodValidate} from "@/services/validate";
 import ClientLayout from "@/Layouts/AuthenticatedLayout";
 

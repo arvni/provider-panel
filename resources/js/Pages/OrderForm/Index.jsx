@@ -4,7 +4,7 @@ import AddIcon from '@mui/icons-material/Add';
 import {Delete, Edit, RemoveRedEye} from "@mui/icons-material";
 import PageHeader from "@/Components/PageHeader";
 import TableLayout from "@/Layouts/TableLayout";
-import {usePageReload} from "@/services/api";
+import {usePageReload} from "@/Services/api";
 import DeleteForm from "@/Components/DeleteForm";
 import AdminLayout from "@/Layouts/AuthenticatedLayout";
 import {router} from "@inertiajs/react";

@@ -4,7 +4,7 @@ import React, {useState} from "react";
 import AddForm from "./Components/AddForm";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import {useForm, usePage} from "@inertiajs/react";
-import {usePageReload} from "@/Services/api.js";
+import {usePageReload} from "@/Services/api";
 import {Button, IconButton, Stack} from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import PageHeader from "@/Components/PageHeader";

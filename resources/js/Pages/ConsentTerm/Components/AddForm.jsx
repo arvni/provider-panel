@@ -1,6 +1,6 @@
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
-import {CircularProgress, DialogActions, DialogContent, FormControlLabel, Switch, TextField} from "@mui/material";
+import { DialogActions, DialogContent, FormControlLabel, Switch, TextField} from "@mui/material";
 import Grid from "@mui/material/Grid";
 import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";

@@ -1,6 +1,5 @@
 import React from "react";
-import {useSubmitForm} from "@/services/api";
-import routes from "@/routes";
+import {useSubmitForm} from "@/Services/api";
 import EditLayout from "@/Pages/Order/EditLayout";
 import SampleDetailsForm from "@/Pages/Order/Components/SampleDetailsForm";
 

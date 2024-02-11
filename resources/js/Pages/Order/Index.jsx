@@ -5,7 +5,7 @@ import AddIcon from '@mui/icons-material/Add';
 import {Edit as EditIcon, RemoveRedEye} from "@mui/icons-material";
 import ClientLayout from "@/Layouts/AuthenticatedLayout";
 import PageHeader from "@/Components/PageHeader";
-import {usePageReload} from "@/services/api";
+import {usePageReload} from "@/Services/api";
 import TableLayout from "../../Layouts/TableLayout";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";

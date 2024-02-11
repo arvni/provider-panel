@@ -4,7 +4,7 @@ import AddIcon from '@mui/icons-material/Add';
 import {Edit, PasswordOutlined} from "@mui/icons-material";
 import PageHeader from "@/Components/PageHeader";
 import TableLayout from "@/Layouts/TableLayout";
-import {usePageReload} from "@/services/api";
+import {usePageReload} from "@/Services/api";
 import ChangePasswordForm from "@/Components/ChangePasswordForm";
 import AdminLayout from "@/Layouts/AuthenticatedLayout";
 import {router} from "@inertiajs/react";
