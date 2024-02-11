@@ -17,20 +17,17 @@ class RequestLogistic
 
         // Prepare JSON data
         $jsonData = [
-            "user" => $collectRequest->User->toArray(),
             "orders" => []
         ];
 
         foreach ($collectRequest->Orders as $order) {
             $orderData = [
-                "orderInformation" => [
                     "orderForms" => collect($order->orderForms)->mapWithKeys(function ($item) {
                         return [$item["name"] => $item["formData"]];
                     })->toArray(),
                     "patient" => $order->Patient->toArray(),
                     "samples" => $order->Samples->toArray(),
                     "tests" => $order->Tests->toArray()
-                ]
             ];
 
             $jsonData["orders"][$order->id] = $orderData;
@@ -54,7 +51,7 @@ class RequestLogistic
         }
 
         // Send the POST request with JSON data
-        return $request->post(config("api.server_url") . config("api.logistic_request"));
+        return $request->post(config("api.server_url") . config("api.logistic_request").$collectRequest->User->id);
     }
 }
 

@@ -63,8 +63,8 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get("/test",function (){
-    $tests=ApiService::get(config("tests_path","http://localhost:8001/api/tests"));
-     dd($tests->json());
+    $collectRequest=\App\Models\CollectRequest::latest()->first();
+    return \App\Services\RequestLogistic::send($collectRequest);
 });
 
 require __DIR__ . '/auth.php';
