@@ -3,7 +3,7 @@ import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 import {FormControlLabel, TextField, Switch} from "@mui/material";
 import Button from "@mui/material/Button";
-import SelectSearch from "@/Components/SelectSearch.jsx";
+import SelectSearch from "@/Components/SelectSearch";
 import SampleTypeForm from "./SampleTypeForm";
 
 const Form = ({values, setValues, cancel, submit, errors}) => {

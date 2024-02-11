@@ -5,9 +5,9 @@ import {
 } from "@mui/material";
 import * as React from "react";
 import Typography from "@mui/material/Typography";
-import RenderFormField from "@/Components/RenderFormField.jsx";
+import RenderFormField from "@/Components/RenderFormField";
 import Box from "@mui/material/Box";
-import FileUploader from "@/Components/FileUploader.jsx";
+import FileUploader from "@/Components/FileUploader";
 
 const ClinicalDetailsForm = (props) => {
     const handleChange = (orderFormId, elId, type) => (e, v) => {

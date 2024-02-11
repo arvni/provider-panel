@@ -3,7 +3,7 @@ import {Head} from '@inertiajs/react';
 import {Box, FormHelperText, Grid, TextField} from "@mui/material";
 import GuestLayout from "@/Layouts/GuestLayout";
 import {useSubmitForm} from "@/Services/api";
-import {resetPasswordValidator} from "@/services/validate";
+import {resetPasswordValidator} from "@/Services/validate";
 import PasswordField from "@/Components/PasswordField";
 import ReCAPTCHA from "react-google-recaptcha";
 import LoadingButton from "@/Components/LoadingButton.jsx";

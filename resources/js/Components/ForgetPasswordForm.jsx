@@ -1,8 +1,8 @@
 import React, {useEffect} from "react";
 import {Box, FormHelperText, Grid, TextField} from "@mui/material";
 
-import {useSubmitForm} from "@/services/api";
-import {forgetPasswordValidator} from "@/services/validate";
+import {useSubmitForm} from "@/Services/api";
+import {forgetPasswordValidator} from "@/Services/validate";
 import ReCAPTCHA from "react-google-recaptcha";
 import LoadingButton from "@/Components/LoadingButton.jsx";
 

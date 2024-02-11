@@ -6,7 +6,7 @@ import React from "react";
 import List from "@mui/material/List";
 import ListItemText from "@mui/material/ListItemText";
 import {RemoveRedEye} from "@mui/icons-material";
-import RequirementForm from "@/Pages/OrderForm/Components/RequirementForm.jsx";
+import RequirementForm from "@/Pages/OrderForm/Components/RequirementForm";
 
 const Form = ({values, setValues, cancel, submit, errors, edit}) => {
     const handleChange = (e) => setValues(prevValues => ({...prevValues, [e.target.name]: e.target.value}));

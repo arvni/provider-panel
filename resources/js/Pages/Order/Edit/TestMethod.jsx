@@ -1,7 +1,7 @@
 import React from "react";
-import TestMethodForm from "@/Pages/Order/Components/TestMethodForm";
+import TestMethodForm from "../Components/TestMethodForm";
 import {useSubmitForm} from "@/Services/api";
-import EditLayout from "@/Pages/Order/EditLayout";
+import EditLayout from "../EditLayout";
 
 const TestMethod = ({auth, order, step}) => {
     const {

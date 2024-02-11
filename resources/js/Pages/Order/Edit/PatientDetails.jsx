@@ -1,7 +1,7 @@
 import React from "react";
 import {useSubmitForm} from "@/Services/api";
-import PatientDetailsForm from "@/Pages/Order/Components/PatientDetailsForm";
-import EditLayout from "@/Pages/Order/EditLayout";
+import PatientDetailsForm from "../Components/PatientDetailsForm";
+import EditLayout from "../EditLayout";
 import {patientDetailsValidate} from "@/services/validate";
 
 const PatientDetails = ({auth, order,step}) => {

@@ -1,6 +1,6 @@
 import {useEffect} from "react";
 import {Box, Button, Dialog, DialogContent, DialogTitle, Grid} from "@mui/material";
-import {useSubmitForm} from "@/services/api";
+import {useSubmitForm} from "@/Services/api";
 import {changePasswordValidator} from "@/services/validate";
 import PasswordField from "@/Components/PasswordField";
 import LoadingButton from "@/Components/LoadingButton.jsx";

@@ -1,7 +1,7 @@
 import TableLayout from "@/Layouts/TableLayout";
 import DeleteForm from "@/Components/DeleteForm";
 import React, {useState} from "react";
-import AddForm from "@/Pages/ConsentTerm/Components/AddForm";
+import AddForm from "./Components/AddForm";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import {useForm, usePage} from "@inertiajs/react";
 import {usePageReload} from "@/Services/api";

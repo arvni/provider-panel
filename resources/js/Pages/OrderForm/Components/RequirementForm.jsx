@@ -1,5 +1,4 @@
 import {
-    Alert,
     Grid,
     IconButton,
     List,
@@ -13,7 +12,7 @@ import DeleteButton from "@/Components/DeleteButton";
 import React, {useState} from "react";
 
 import AddRequirementForm from "./AddRequirementForm";
-import {makeId} from "@/services/makeUUID";
+import {makeId} from "@/Services/makeUUID";
 
 const RequirementForm = ({errors, requirements, onChange}) => {
     const [requirement, setRequirement] = useState({

@@ -9,8 +9,8 @@ import {
     Stack,
     TextField,
 } from "@mui/material";
-import {loginFormValidator} from "@/services/validate";
-import {useSubmitForm} from "@/services/api";
+import {loginFormValidator} from "@/Services/validate";
+import {useSubmitForm} from "@/Services/api";
 import PasswordField from "@/Components/PasswordField";
 import ReCAPTCHA from "react-google-recaptcha";
 import LoadingButton from "@/Components/LoadingButton.jsx";

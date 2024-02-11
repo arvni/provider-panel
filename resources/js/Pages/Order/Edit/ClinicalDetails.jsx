@@ -1,7 +1,7 @@
 import React from "react";
 import {useSubmitForm} from "@/Services/api";
 import EditLayout from "@/Pages/Order/EditLayout";
-import ClinicalDetailsForm from "@/Pages/Order/Components/ClinicalDetailsForm";
+import ClinicalDetailsForm from "../Components/ClinicalDetailsForm";
 
 
 const ClinicalDetails = ({auth, order, step, forms = []}) => {

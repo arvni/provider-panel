@@ -6,11 +6,11 @@ import MenuIcon from "@mui/icons-material/Menu";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
-import AppBar from "@/Layouts/Components/AppBar.jsx";
+import AppBar from "@/Layouts/Components/AppBar";
 import React from "react";
-import Breadcrumb from "@/Layouts/Components/Breadcrumb.jsx";
-import ChangePassword from "@/Pages/User/Components/ChangePassword.jsx";
-import {changePasswordValidator} from "@/Services/validate.js";
+import Breadcrumb from "@/Layouts/Components/Breadcrumb";
+import ChangePassword from "@/Pages/User/Components/ChangePassword";
+import {changePasswordValidator} from "@/Services/validate";
 import {useSnackbar} from "notistack";
 
 export default function Header({toggleDrawer, auth, breadcrumbs, open}) {

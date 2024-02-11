@@ -2,7 +2,7 @@ import React from "react";
 import {Alert, Paper} from "@mui/material";
 import TestMethodForm from "./Components/TestMethodForm";
 import {useSubmitForm} from "@/Services/api";
-import {testMethodValidate} from "@/services/validate";
+import {testMethodValidate} from "@/Services/validate";
 import ClientLayout from "@/Layouts/AuthenticatedLayout";
 
 const Add = ({auth, ...rest}) => {

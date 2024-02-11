@@ -1,7 +1,7 @@
 import Breadcrumbs from "@mui/material/Breadcrumbs";
 import Typography from "@mui/material/Typography";
 import {Head, Link} from "@inertiajs/react";
-import HomeIcon from "@mui/icons-material/Home.js";
+import HomeIcon from "@mui/icons-material/Home";
 import React from "react";
 
 export default function Breadcrumb({breadcrumbs}) {

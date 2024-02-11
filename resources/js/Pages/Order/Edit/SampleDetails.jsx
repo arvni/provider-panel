@@ -1,7 +1,7 @@
 import React from "react";
 import {useSubmitForm} from "@/Services/api";
-import EditLayout from "@/Pages/Order/EditLayout";
-import SampleDetailsForm from "@/Pages/Order/Components/SampleDetailsForm";
+import EditLayout from "../EditLayout";
+import SampleDetailsForm from "../Components/SampleDetailsForm";
 
 const SampleDetails = ({auth, order, step, sampleTypes}) => {
     const {

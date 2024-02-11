@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import {Delete as DeleteIcon} from "@mui/icons-material";
 import React, {useState} from "react";
-import {useDelete} from "@/services/api";
+import {useDelete} from "@/Services/api";
 
 
 const DeleteButton = ({url , onConfirm }) => {

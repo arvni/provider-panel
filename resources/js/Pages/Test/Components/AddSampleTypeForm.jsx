@@ -7,7 +7,7 @@ import {
 } from "@mui/material";
 import React, {useState} from "react";
 import {Save} from "@mui/icons-material";
-import SelectSearch from "@/Components/SelectSearch.jsx";
+import SelectSearch from "@/Components/SelectSearch";
 
 const AddSampleTypeForm = ({data, setData, open, onClose, onSubmit}) => {
     const [errors, setErrors] = useState();

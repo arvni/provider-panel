@@ -12,7 +12,7 @@ import {Add as AddIcon, Edit} from "@mui/icons-material";
 import DeleteButton from "@/Components/DeleteButton";
 import React, {useState} from "react";
 import AddSampleTypeForm from "./AddSampleTypeForm";
-import {makeId} from "@/Services/makeUUID.js";
+import {makeId} from "@/Services/makeUUID";
 
 const SampleTypeForm = ({error, sampleTypes, onChange}) => {
 
