@@ -94,14 +94,14 @@ const LoginForm = () => {
                     fullwidth
                 />
             </Grid>
-            <Grid item xs={12} sx={{width: "100%"}}>
+            {siteKey&&<Grid item xs={12} sx={{width: "100%"}}>
                 <ReCAPTCHA
                     ref={recaptchaRef}
                     sitekey={siteKey}
                     onChange={handleCaptchaChanged}
                     onExpired={resetCaptcha}/>
                 {errors.captcha && <FormHelperText error={!!errors.captcha}>{errors.captcha}</FormHelperText>}
-            </Grid>
+            </Grid>}
             <Grid item xs={12} sx={{width: "100%"}}>
                 <FormControlLabel
                     onChange={handleRememberChange}
