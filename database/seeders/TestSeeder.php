@@ -17,7 +17,7 @@ class TestSeeder extends Seeder
      */
     public function run(): void
     {
-        $tests = ApiService::get(config("tests_path", "http://localhost:8001/api/tests"));
+        $tests = ApiService::get(config("api.tests_path", "http://localhost:8001/api/tests"));
         foreach ($tests->json() as $test) {
             $t = Test::where("server_id", $test["id"])->first();
             if (!$t)

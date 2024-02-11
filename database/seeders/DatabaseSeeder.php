@@ -19,10 +19,10 @@ class DatabaseSeeder extends Seeder
             TestSeeder::class
         ]);
 //
-//        $user = User::factory()->create([
-//            "email" => "admin@bion.com",
-//            "password" => Hash::make("586545B!0n"),
-//        ])->assignRole('Admin');
+        $user = User::factory()->create([
+            "email" => "admin@bion.com",
+            "password" => Hash::make("586545B!0n"),
+        ])->assignRole('Admin');
 
 
     }
