@@ -16,7 +16,7 @@ import {
 } from "@mui/material";
 import {Close, ShoppingCart} from "@mui/icons-material";
 
-import {useGetData} from "@/services/api";
+import {useGetData} from "@/Services/api";
 import TestCard from "./TestCard";
 import TestSearchForm from "./TestSearchForm";
 

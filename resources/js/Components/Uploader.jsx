@@ -14,7 +14,7 @@ import {
     Typography
 } from "@mui/material";
 import {Download, Upload} from "@mui/icons-material";
-import {uploadFiles} from "@/services/api";
+import {uploadFiles} from "@/Services/api";
 
 const Uploader = ({value, name, handleChange, error, helperText, url, label}) => {
     const {upload, progress, resetProgress} = uploadFiles(url);

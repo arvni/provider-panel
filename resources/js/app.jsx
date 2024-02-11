@@ -5,7 +5,7 @@ import {createInertiaApp} from '@inertiajs/react';
 import {resolvePageComponent} from 'laravel-vite-plugin/inertia-helpers';
 import {createTheme, ThemeProvider} from '@mui/material/styles';
 import {SnackbarProvider} from "notistack";
-import {fetcher} from "@/services/api.js";
+import {fetcher} from "@/Services/api";
 import React from "react";
 import {SWRConfig} from "swr";
 
