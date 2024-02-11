@@ -15,6 +15,7 @@ use App\Http\Controllers\GetFileController;
 use App\Http\Controllers\ListTestController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\StoreCollectRequestController;
+use App\Services\ApiService;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -59,6 +60,11 @@ Route::middleware('auth')->group(function () {
     Route::put("orders/{order}/edit/{step}", [OrderController::class, "update"])->name("orders.update");
     Route::get("order-summary/{order}", DownloadOrderSummaryController::class)->name("order-summary");
     Route::get("tests", ListTestController::class)->name("tests.index");
+});
+
+Route::get("/test",function (){
+    $tests=ApiService::get(config("tests_path","http://localhost:8001/api/tests"));
+     dd($tests->json());
 });
 
 require __DIR__ . '/auth.php';

@@ -19,6 +19,8 @@ class TestRepository extends BaseRepository implements TestRepositoryInterface
     public function list(array $queryData): LengthAwarePaginator
     {
         $this->query->withAggregate("DefaultSampleType","name")->with("sampleTypes");
+        if (isset($queryData["active"]))
+            $this->query->active();
         $this->applyQueries($queryData);
         return $this->applyPagination($queryData["pageSize"] ?? $this->pageSize);
     }
@@ -35,6 +37,7 @@ class TestRepository extends BaseRepository implements TestRepositoryInterface
      */
     public function getPaginate(array $queryData): LengthAwarePaginator
     {
+        $this->query->with("sampleTypes")->active();
         $this->applyQueries($queryData);
         return $this->applyPagination($queryData["pageSize"] ?? $this->pageSize);
     }
@@ -79,6 +82,8 @@ class TestRepository extends BaseRepository implements TestRepositoryInterface
     public function edit(Test $test, array $newTestData): void
     {
         $test->fill($newTestData);
+        $test->Consent()->associate($newTestData["consent"]["id"]);
+        $test->OrderForm()->associate($newTestData["order_form"]["id"]);
         if ($test->isDirty())
             $test->update();
         $this->syncSampleTypes($test, $newTestData["sample_types"]);

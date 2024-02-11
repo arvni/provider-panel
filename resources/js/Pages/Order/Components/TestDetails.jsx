@@ -2,7 +2,6 @@ import {Dialog, DialogActions, DialogContent, DialogTitle, Typography} from "@mu
 import Button from "@mui/material/Button";
 
 const TestDetails = ({test, open = false, onClose}) => {
-
     return <Dialog open={open} onClose={onClose}>
         <DialogTitle>{test?.name}</DialogTitle>
         <DialogContent>
@@ -11,7 +10,7 @@ const TestDetails = ({test, open = false, onClose}) => {
             <Typography fontWeight="800">Accepted Sample requirements :</Typography>
             <ul>
                 {test?.sample_types?.map(sampleType => <li>
-                    <strong>{sampleType.name}: </strong>{sampleType?.description}</li>)}
+                    <strong>{sampleType.sample_type.name}: </strong>{sampleType?.description}</li>)}
             </ul>
         </DialogContent>
         <DialogActions>

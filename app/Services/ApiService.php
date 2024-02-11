@@ -10,9 +10,10 @@ use Illuminate\Support\Facades\Http;
 class ApiService
 {
 
-    protected static function get($url)
+    public static function get($url)
     {
-        return Http::withToken(self::getApiToken())->timeout(180)->get($url);
+        $token=self::getApiToken();
+        return Http::withToken($token)->timeout(180)->get($url);
     }
 
     public static function getApiToken()

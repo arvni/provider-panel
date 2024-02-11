@@ -21,7 +21,7 @@ class ListTestController extends Controller
      */
     public function __invoke(Request $request)
     {
-        $tests = $this->testRepository->list($request->all());
+        $tests = $this->testRepository->list([...$request->all(),"active"=>true]);
         return Inertia::render("Wiki", ["tests" => $tests, "request" => $request->all()]);
     }
 }
