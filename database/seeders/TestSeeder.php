@@ -28,7 +28,7 @@ class TestSeeder extends Seeder
                         "code" => $test["code"],
                         "shortName" => $test["name"],
                         "description" => $test["description"],
-                        "turnaroundTime" => $test["methods_max_turnaround_time"]?? 0,
+                        "turnaroundTime" => $test["methods_max_turnaround_time"]/24?? 0,
                         "is_active" => false
                     ]
                 );

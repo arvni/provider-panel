@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -58,7 +59,7 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request)
     {
-        $user = $this->userRepository->create($request->all());
+        $user = $this->userRepository->create(array_merge($request->except("password"),["password"=>Hash::make($request->get("password"))]));
         return redirect()
             ->route('admin.users.index')
             ->with(["status" => "$user->name Successfully Added", "success" => true]);
