@@ -9,13 +9,12 @@ export const loginFormValidator = (data, onerror) => {
     }
     if (validator.isEmpty(data.password) || data.password.length < 6) {
         output = false;
-        console.log(data.password);
         onerror("password", "Please Enter a Correct Password with at least 6 character");
     }
-    if (validator.isEmpty(data.captcha)) {
-        output = false;
-        onerror("captcha", "Please Check the Captcha");
-    }
+    // if (validator.isEmpty(data.captcha)) {
+    //     output = false;
+    //     onerror("captcha", "Please Check the Captcha");
+    // }
     return output;
 }
 
