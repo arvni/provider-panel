@@ -52,10 +52,10 @@ const Index = ({orders: {data: ordersData, ...pagination}, status, request}) => 
             field: "id",
             title: "#",
             type: "text",
-            render: (row) => <Checkbox value={row.id}
+            render: (row) => row.status === "requested"?<Checkbox value={row.id}
                                        onChange={handleToggleSelection}
                                        disabled={row.status !== "requested"}
-                                       defaultChecked={selectedOrders.includes(row.id)}/>
+                                       defaultChecked={selectedOrders.includes(row.id)}/>:null
         },
         {
             field: "bion_id",
@@ -195,7 +195,7 @@ const Index = ({orders: {data: ordersData, ...pagination}, status, request}) => 
     };
     const handleSendRequest = () => {
         if (selectedOrders.length) {
-            router.post(route("orders.logistic"), {selectedOrders})
+            router.post(route("orders.logistic"), {selectedOrders},{onSuccess:()=>setSelectedOrders([])});
         }
     }
 

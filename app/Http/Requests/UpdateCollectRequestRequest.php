@@ -2,7 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\CollectRequestStatus;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\Rule;
 
 class UpdateCollectRequestRequest extends FormRequest
 {
@@ -11,7 +14,7 @@ class UpdateCollectRequestRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return Gate::allows("update",$this->route()->parameter("collectRequest"));
     }
 
     /**
@@ -22,7 +25,9 @@ class UpdateCollectRequestRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            "status"=>["required",Rule::in(CollectRequestStatus::values())],
+            "more"=>["required"],
+            "pickupDate"=>["required","date","after:now"]
         ];
     }
 }

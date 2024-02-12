@@ -49,7 +49,7 @@ Route::middleware('auth')->group(function () {
         Route::resource("/consentTerms", ConsentTermController::class)->except(["create", "edit"]);
         Route::resource("/consents", ConsentController::class)->except(["create", "edit"]);
         Route::resource("orderForms", OrderFormController::class)->except("show");
-        Route::resource("collectRequests", CollectRequestController::class)->except(["edit", "update"]);
+        Route::resource("collectRequests", CollectRequestController::class)->except(["edit"]);
         Route::resource("sampleTypes", SampleTypeController::class);
         Route::resource("tests", TestController::class)->except("show");
     });

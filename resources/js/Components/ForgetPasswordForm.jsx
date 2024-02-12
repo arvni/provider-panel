@@ -6,8 +6,7 @@ import {forgetPasswordValidator} from "@/Services/validate";
 import ReCAPTCHA from "react-google-recaptcha";
 import LoadingButton from "@/Components/LoadingButton.jsx";
 
-const siteKey=import.meta.env.VITE_GOOGLE_CAPTCHA_SITE_KEY;
-const ForgetPasswordForm = () => {
+const ForgetPasswordForm = ({siteKey}) => {
 
     const {
         data,

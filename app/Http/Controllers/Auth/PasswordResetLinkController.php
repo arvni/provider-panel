@@ -21,6 +21,7 @@ class PasswordResetLinkController extends Controller
     {
         return Inertia::render('Auth/ForgotPassword', [
             'status' => session('status'),
+            'siteKey'=>config("captcha.sitekey")
         ]);
     }
 
@@ -35,10 +36,10 @@ class PasswordResetLinkController extends Controller
     {
         $request->validate([
             'email' => 'required|email',
-//            "captcha"=>[
-////                "required",
-//                "captcha"
-//            ]
+            "captcha"=>[
+                "required",
+                "captcha"
+            ],
         ]);
 
 

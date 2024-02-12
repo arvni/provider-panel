@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\CollectRequestStatus;
 use App\Traits\Searchable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,17 +11,19 @@ class CollectRequest extends Model
 {
     use HasFactory, Searchable;
 
-    protected $searchable=[
+    protected $searchable = [
         "User.name"
     ];
 
     protected $fillable = [
-        "details"
+        "details",
+        "status"
     ];
 
     protected $casts = [
         "details" => "json",
-        "created_at"=>"datetime:Y-m-d H:i"
+        "created_at" => "datetime:Y-m-d H:i",
+        "status" => CollectRequestStatus::class
     ];
 
     public function Orders()

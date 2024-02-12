@@ -15,9 +15,7 @@ import PasswordField from "@/Components/PasswordField";
 import ReCAPTCHA from "react-google-recaptcha";
 import LoadingButton from "@/Components/LoadingButton.jsx";
 
-const siteKey=import.meta.env.VITE_GOOGLE_CAPTCHA_SITE_KEY;
-const LoginForm = () => {
-    console.log(siteKey);
+const LoginForm = ({siteKey}) => {
     const {
         data,
         setData,

@@ -34,6 +34,12 @@ const routes = [
         icon: <ManageAccountsIcon/>,
         child: [
             {
+                title: "Collect Requests",
+                route: route("admin.collectRequests.index"),
+                permission: 'Admin.CollectRequest.Index',
+                icon: <BiotechIcon/>,
+            },
+            {
                 title: "Tests",
                 route: route("admin.tests.index"),
                 permission: 'Admin.Test.Index',

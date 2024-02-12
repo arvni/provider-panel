@@ -63,7 +63,7 @@ function Index({collectRequests: {data: collectRequestsData, ...pagination}, req
         },
         {
             field: "created_at",
-            title: "Created At",
+            title: "Requested At",
             type: "text",
             sortable: true,
         },

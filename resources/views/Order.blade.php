@@ -46,10 +46,6 @@
             width: 50%;
         }
 
-        .w-3 {
-            width: 33.33%;
-        }
-
         .p-10 {
             padding: 10px;
         }
@@ -80,11 +76,7 @@
     </style>
 </head>
 <body>
-<table class="main-table zero-border-spacing border-collapse full-width">
-    <tbody>
-    <tr>
-        <td>
-            <table class="zero-border-spacing full-width border-collapse">
+    <table class="main-table zero-border-spacing border-collapse full-width">
                 <tbody>
                 <tr>
                     <td class="w-2 center">
@@ -94,12 +86,12 @@
                         <ul style="list-style-type: none;padding: 0;margin: 0;">
                             @foreach($order->tests as $test)
                                 <li>
-                                    <p>Name: <strong>{{$test["name"]}}</strong></p>
+                                    <strong>{{$test["name"]}}</strong>
                                 </li>
                             @endforeach
                         </ul>
                     </td>
-                    <td class="w-2 center" style="vertical-align: middle;">
+                    <td class="w-2 center" style="vertical-align: middle;padding-left: 10px;padding-right: 10px">
                         <div style="display: flex;justify-content: center; flex-direction: column; align-items: center; gap: 10px">
                         {!! \DNS1D::getBarcodeHTML("OR".\Carbon\Carbon::parse($order->created_at)->format(".Ymd.").$order->id, 'C128',1.5,50,"black", false) !!}
                             <strong>Order ID : OR.{{\Carbon\Carbon::parse($order->created_at)->format("Ymd").".".$order->id}}</strong>
@@ -133,14 +125,7 @@
                         Zip: {{optional(optional($order["user"]["meta"])["billing"])["zip"]}}<br>
                     </td>
                 </tr>
-                </tbody>
-            </table>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <table class="zero-border-spacing full-width border-collapse">
-                <tbody> <tr>
+                <tr>
                     <td class="p-10 text-left">
                         <strong>Patient details</strong>
                     </td>
@@ -190,9 +175,5 @@
                 </tr>
                 </tbody>
             </table>
-        </td>
-    </tr>
-    </tbody>
-</table>
 </body>
 </html>

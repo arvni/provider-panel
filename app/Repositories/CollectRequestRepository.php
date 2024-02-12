@@ -67,13 +67,15 @@ class CollectRequestRepository extends BaseRepository implements CollectRequestR
 
     public function show(CollectRequest $collectRequest): CollectRequest
     {
-        $collectRequest->load(["Orders.Patient","Orders.Samples","Orders.Tests",]);
+        $collectRequest->load(["Orders.Patient","Orders.Samples","Orders.Tests","User",]);
         return $collectRequest;
     }
 
     public function update(CollectRequest $collectRequest, $newCollectRequestDetails): void
     {
-        $collectRequest->update([...$newCollectRequestDetails]);
+        $collectRequest->fill([...$newCollectRequestDetails]);
+        if ($collectRequest->isDirty())
+            $collectRequest->save();
     }
 
     public function delete(CollectRequest $collectRequest): ?bool

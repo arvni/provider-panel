@@ -1,55 +1,93 @@
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
-import {IconButton, Input, ListItem, ListItemSecondaryAction, TextField} from "@mui/material";
+import {
+    DialogActions,
+    DialogContent,
+    TextField
+} from "@mui/material";
 import Button from "@mui/material/Button";
 import React from "react";
-import List from "@mui/material/List";
-import ListItemText from "@mui/material/ListItemText";
-import {RemoveRedEye} from "@mui/icons-material";
-import RequirementForm from "@/Pages/OrderForm/Components/RequirementForm.jsx";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import MenuItem from "@mui/material/MenuItem";
 
-const Form = ({values, setValues, cancel, submit, errors, edit}) => {
+const collectRequestStatuses=[
+    {
+        label:"Requested",
+        value:"requested",
+    },
+    {
+        label:"Scheduled",
+        value:"scheduled",
+    },
+    {
+        label:"Picked up",
+        value:"picked up",
+    },
+    {
+        label:"Received",
+        value:"received",
+    },
+];
+const Form = ({values, setValues, cancel, submit, errors, open, defaultValue}) => {
     const handleChange = (e) => setValues(prevValues => ({...prevValues, [e.target.name]: e.target.value}));
-    const handleFileChange = (e) => setValues(prevState => ({...prevState, [e.target.name]: e.target.files[0]}));
-
-    const handleFormDataChanged=(formData)=>setValues(prevState=>({...prevState,formData}));
 
     return (
-        <Container>
-            <Grid container spacing={2}>
-                <Grid item xs={12} sm={6} md={4}>
-                    <TextField error={Object.keys(errors).includes('name')}
-                               helperText={errors?.name ?? ""}
-                               fullWidth
-                               label="Name"
-                               name="name"
-                               value={values.name}
-                               onChange={handleChange}/>
-                </Grid>
-                <Grid item xs={12}>
-                    <RequirementForm onChange={handleFormDataChanged} requirements={values.formData} error={errors}/>
-                </Grid>
-                <Grid item xs={12}>
-                    {typeof values.file == "string" && <List>
-                        <ListItem>
-                            <ListItemText>File</ListItemText>
-                            <ListItemSecondaryAction>
-                                <IconButton href={route("file", {id:values.id,type:"orderForm"})}
-                                            target="_blank"><RemoveRedEye/></IconButton>
-                            </ListItemSecondaryAction>
-                        </ListItem></List>}
-                    <Input type="file" name="file" onChange={handleFileChange}/>
-                </Grid>
-            </Grid>
-            <Grid container spacing={2} flex justifyContent={"flex-end"} justifyItems={"flex-end"}>
-                <Grid item>
-                    <Button onClick={cancel}>Cancel</Button>
-                </Grid>
-                <Grid item>
-                    <Button variant="contained" onClick={submit}>Submit</Button>
-                </Grid>
-            </Grid>
-        </Container>
+        <Dialog open={open} onClose={cancel}>
+            <DialogTitle>
+                Edit Logistic Request Details
+            </DialogTitle>
+            <DialogContent>
+                <Container>
+                    <Grid container spacing={2} mt={2}>
+                        <Grid item xs={12}>
+                            <TextField
+                                select
+                                label="status"
+                                value={values.status}
+                                disabled={defaultValue.status=="received"}
+                                name="status"
+                                onChange={handleChange}
+                            >
+                                {collectRequestStatuses.map((option,index) => (
+                                    <MenuItem key={option.value} value={option.value}>
+                                        {option.label}
+                                    </MenuItem>
+                                ))}
+                            </TextField>
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField error={Object.keys(errors).includes('pickupDate')}
+                                       helperText={errors?.pickupDate ?? ""}
+                                       fullWidth
+                                       disabled={!["requested","scheduled"].includes(defaultValue.status)}
+                                       type="date"
+                                       label="Pickup Date"
+                                       name="pickupDate"
+                                       value={values.pickupDate}
+                                       onChange={handleChange}/>
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField error={Object.keys(errors).includes('more')}
+                                       helperText={errors?.more ?? ""}
+                                       disabled={!["requested","scheduled"].includes(defaultValue.status)}
+                                       fullWidth
+                                       multiline
+                                       rows={4}
+                                       label="Logistic Information"
+                                       name="more"
+                                       value={values.more}
+                                       onChange={handleChange}/>
+                        </Grid>
+                    </Grid>
+
+                </Container>
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={cancel}>Cancel</Button>
+                <Button variant="contained" onClick={submit}>Submit</Button>
+            </DialogActions>
+        </Dialog>
     );
 }
 export default Form;

@@ -45,7 +45,7 @@ class CollectRequestController extends Controller
      */
     public function show(CollectRequest $collectRequest)
     {
-        $this->authorize("view",$collectRequest);
+        $this->authorize("view", $collectRequest);
         $collectRequest = $this->collectRequestRepository->show($collectRequest);
         return Inertia::render('CollectRequest/Show', ["collectRequest" => $collectRequest]);
     }
@@ -55,7 +55,12 @@ class CollectRequestController extends Controller
      */
     public function update(UpdateCollectRequestRequest $request, CollectRequest $collectRequest)
     {
-        //
+        $data = [
+            "status" => $request->get("status"),
+            "details" => $request->except("status")
+        ];
+        $this->collectRequestRepository->update($collectRequest, $data);
+        return back()->with(["status" => __("messages.successfullyUpdated")]);
     }
 
     /**
