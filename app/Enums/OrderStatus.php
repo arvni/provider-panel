@@ -10,6 +10,7 @@ enum OrderStatus: string
     case SENT = "sent";
     case RECEIVED = "received";
     case PROCESSING = "processing";
-    case REPORTED = "reported";
     case SEMI_REPORTED = "semi reported";
+    case REPORTED = "reported";
+    case REPORT_DOWNLOADED = "report downloaded";
 }

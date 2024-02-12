@@ -52,10 +52,10 @@ const Index = ({orders: {data: ordersData, ...pagination}, status, request}) => 
             field: "id",
             title: "#",
             type: "text",
-            render: (row) => row.status === "requested"?<Checkbox value={row.id}
-                                       onChange={handleToggleSelection}
-                                       disabled={row.status !== "requested"}
-                                       defaultChecked={selectedOrders.includes(row.id)}/>:null
+            render: (row) => row.status === "requested" ? <Checkbox value={row.id}
+                                                                    onChange={handleToggleSelection}
+                                                                    disabled={row.status !== "requested"}
+                                                                    defaultChecked={selectedOrders.includes(row.id)}/> : null
         },
         {
             field: "bion_id",
@@ -85,10 +85,16 @@ const Index = ({orders: {data: ordersData, ...pagination}, status, request}) => 
                 name: "status",
                 label: "Status",
                 type: "select",
-                options: [{value: "sent", label: "Sent"}, {value: "received", label: "Received"}, {
-                    value: "requested",
-                    label: "Requested"
-                }],
+                options: [
+                    {value: "", label: "All"},
+                    {value: "requested", label: "Requested"},
+                    {value: "logistic requested", label: "Logistic Requested"},
+                    {value: "sent", label: "Sent"},
+                    {value: "received", label: "Received"},
+                    {value: "processing", label: "Processing"},
+                    {value: "reported", label: "Reported"},
+                    {value: "report downloaded", label: "Report Downloaded"},
+                ],
                 value: data?.filter?.status
             },
         },
@@ -172,6 +178,14 @@ const Index = ({orders: {data: ordersData, ...pagination}, status, request}) => 
             ],
         },
         {
+            field: "report",
+            title: "Report",
+            type: "text",
+            sortable: false,
+            render: (row) => ["reported", "report downloaded"].includes(row.status) ?
+                <Button href={route("orders.report", row.id)}>Download</Button> : "Not Yet Ready"
+        },
+        {
             field: "id",
             title: "#",
             type: "actions",
@@ -195,7 +209,7 @@ const Index = ({orders: {data: ordersData, ...pagination}, status, request}) => 
     };
     const handleSendRequest = () => {
         if (selectedOrders.length) {
-            router.post(route("orders.logistic"), {selectedOrders},{onSuccess:()=>setSelectedOrders([])});
+            router.post(route("orders.logistic"), {selectedOrders}, {onSuccess: () => setSelectedOrders([])});
         }
     }
 

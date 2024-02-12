@@ -11,11 +11,14 @@ use App\Http\Controllers\Admin\SampleTypeController;
 use App\Http\Controllers\Admin\TestController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\DownloadOrderSummaryController;
+use App\Http\Controllers\DownloadReportController;
 use App\Http\Controllers\GetFileController;
 use App\Http\Controllers\ListTestController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\StoreCollectRequestController;
+use App\Models\CollectRequest;
 use App\Services\ApiService;
+use App\Services\RequestLogistic;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -56,6 +59,7 @@ Route::middleware('auth')->group(function () {
     Route::get("/files/{type}/{id}/{filename?}", GetFileController::class)->name("file");
     Route::post("orders/logistic", StoreCollectRequestController::class)->name("orders.logistic");
     Route::resource("orders", OrderController::class)->except(["edit", "update"]);
+    Route::get("orders/{order}/report", DownloadReportController::class)->name("orders.report");
     Route::get("orders/{order}/edit/{step}", [OrderController::class, "edit"])->name("orders.edit");
     Route::put("orders/{order}/edit/{step}", [OrderController::class, "update"])->name("orders.update");
     Route::get("order-summary/{order}", DownloadOrderSummaryController::class)->name("order-summary");
@@ -63,8 +67,8 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get("/test",function (){
-    $collectRequest=\App\Models\CollectRequest::latest()->first();
-    return \App\Services\RequestLogistic::send($collectRequest);
+    $collectRequest= CollectRequest::latest()->first();
+    return RequestLogistic::send($collectRequest);
 });
 
 require __DIR__ . '/auth.php';

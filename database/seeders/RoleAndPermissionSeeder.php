@@ -17,6 +17,13 @@ class RoleAndPermissionSeeder extends Seeder
         $role = Role::findOrCreate("Admin");
         $permissions = [
             "Admin" => [
+                "Order" => [
+                    "Index",
+                    "Show",
+                    "Create",
+                    "Update",
+                    "Delete"
+                ],
                 "CollectRequest" => [
                     "Index",
                     "Show",
