@@ -52,7 +52,7 @@ export default function ResetPassword({token, email,siteKey}) {
     return (
         <GuestLayout>
             <Head title="Reset Password"/>
-            <Box component="form" onSubmit={handleSubmit} action={routes.postResetPassword.link} method="post">
+            <Box component="form" onSubmit={handleSubmit} action={route("password.store")} method="post">
                 <Grid container spacing={2}>
                     <Grid item xs={12} sx={{width: "100%"}}>
                         <TextField
