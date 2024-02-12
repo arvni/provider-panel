@@ -25,18 +25,18 @@ function Index({tests: {data: testsData, ...pagination}, request}) {
         onOrderByChange,
         onFilterChange,
         onPageChange
-    } = usePageReload(request, ["tests","request"]);
+    } = usePageReload(request, ["tests", "request"]);
     const [test, setTest] = useState();
     const [openShowForm, setOpenShowForm] = useState(false);
 
-    const handleShow=(id)=>()=>{
-        let testIndex=testsData.findIndex(item=>item.id===id)
-        if (testIndex>=0) {
+    const handleShow = (id) => () => {
+        let testIndex = testsData.findIndex(item => item.id === id)
+        if (testIndex >= 0) {
             setTest(testsData[testIndex])
             setOpenShowForm(true);
         }
     }
-    const handleCloseShowForm=()=>{
+    const handleCloseShowForm = () => {
         setOpenShowForm(false);
         resetTest();
     }
@@ -95,21 +95,21 @@ function Index({tests: {data: testsData, ...pagination}, request}) {
             field: "order_form_id",
             title: "Request Form",
             type: "text",
-            render: (row) => <IconButton target="_blank"
-                                         href={route("file", {
-                                             type: "orderForm",
-                                             id: row.order_form_id
-                                         })}><Download/></IconButton>
+            render: (row) => row?.order_form_file && <IconButton target="_blank"
+                                                              href={route("file", {
+                                                                  type: "orderForm",
+                                                                  id: row.order_form_id
+                                                              })}><Download/></IconButton>
         },
         {
             field: "consent_id",
             title: "Consent Form",
             type: "text",
-            render: (row) => <IconButton target="_blank"
-                                         href={route("file", {
-                                             type: "orderForm",
-                                             id: row.consent_id
-                                         })}><Download/></IconButton>
+            render: (row) => row?.consent_file && <IconButton target="_blank"
+                                                           href={route("file", {
+                                                               type: "consent",
+                                                               id: row.consent_id
+                                                           })}><Download/></IconButton>
         },
         {
             field: "id",
@@ -126,7 +126,7 @@ function Index({tests: {data: testsData, ...pagination}, request}) {
             <PageHeader
                 title="Tests List"
             />
-            <Paper sx={{mt: "3em", p: "1rem",overflowX:"auto"}}>
+            <Paper sx={{mt: "3em", p: "1rem", overflowX: "auto"}}>
                 <TableLayout
                     columns={columns}
                     data={testsData}
@@ -151,7 +151,7 @@ function Index({tests: {data: testsData, ...pagination}, request}) {
                     }}
                 />
             </Paper>
-            {test &&<TestDetails test={test} open={openShowForm} onClose={handleCloseShowForm}/>}
+            {test && <TestDetails test={test} open={openShowForm} onClose={handleCloseShowForm}/>}
         </>
     );
 }

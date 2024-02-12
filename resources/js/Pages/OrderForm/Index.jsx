@@ -60,8 +60,8 @@ function Index({orderForms: {data: orderFormsData, ...pagination}, request}) {
             title: "File",
             type: "text",
             sortable: false,
-            render: (row) => <IconButton href={route("file", {id: row.id, type: "order-form"})}
-                                         target="_blank"><RemoveRedEye/></IconButton>,
+            render: (row) => row.file && <IconButton href={route("file", {id: row.id, type: "order-form"})}
+                                                     target="_blank"><RemoveRedEye/></IconButton>,
             width: "70px"
         },
         {

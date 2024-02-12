@@ -31,7 +31,6 @@ class UpdateOrderFormRequest extends FormRequest
             "formData.*.label" => "required",
             "formData.*.type" => ["required",Rule::in(["text", "number", "checkbox", "select","date","description"])],
             "name"=>"required|unique:order_forms,name, ".$this->route()->parameter("orderForm")->id,
-            "file" => ["required"],
         ];
     }
 }

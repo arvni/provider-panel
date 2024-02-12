@@ -14,12 +14,12 @@ const TestDetails = ({test, open = false, onClose}) => {
             </ul>
         </DialogContent>
         <DialogActions>
-            <Button variant="outlined"
-                    href={route("file", {type: "orderForm", id: test?.order_form_id})}
-                    target="_blanke">Download Order Form</Button>
-            <Button variant="outlined"
-                    href={route("file", {type: "consent", id: test?.consent_id})}
-                    target="_blanke">Download Consent Form</Button>
+            {test?.order_form_file && <Button variant="outlined"
+                                            href={route("file", {type: "orderForm", id: test?.order_form_id})}
+                                            target="_blanke">Download Order Form</Button>}
+            {test?.consent_file && <Button variant="outlined"
+                                         href={route("file", {type: "consent", id: test?.consent_id})}
+                                         target="_blanke">Download Consent Form</Button>}
         </DialogActions>
     </Dialog>
 }

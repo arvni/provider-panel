@@ -27,6 +27,7 @@ class TestController extends Controller
      * Display a listing of the resource.
      * @param Request $request
      * @return Response
+     * @throws AuthorizationException
      */
     public function index(Request $request): Response
     {

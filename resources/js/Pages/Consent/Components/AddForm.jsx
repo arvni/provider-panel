@@ -32,14 +32,14 @@ const AddForm = ({values, setValues, submit, open, setOpen, title, loading, rese
                         <TextField label="Title" name="name" onChange={handleChange} value={values.name}/>
                     </Grid>
                     <Grid item xs={12}>
-                        {typeof values.file == "string" && <List>
+                        {typeof values.file == "string" && values.file ? <List>
                             <ListItem>
                                 <ListItemText>File</ListItemText>
                                 <ListItemSecondaryAction>
-                                    <IconButton href={route("file", {id:values.id,type:"consent"})}
+                                    <IconButton href={route("file", {id: values.id, type: "consent"})}
                                                 target="_blank"><RemoveRedEye/></IconButton>
                                 </ListItemSecondaryAction>
-                            </ListItem></List>}
+                            </ListItem></List> : null}
                         <Input type="file" name="file" onChange={handleFileChange}/>
                     </Grid>
                 </Grid>

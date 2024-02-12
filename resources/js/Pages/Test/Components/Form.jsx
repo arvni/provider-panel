@@ -19,6 +19,7 @@ const Form = ({values, setValues, cancel, submit, errors}) => {
                                fullWidth
                                label="Name"
                                name="name"
+                               required
                                defaultValue={values.name}
                                onChange={handleChange}/>
                 </Grid>
@@ -36,12 +37,14 @@ const Form = ({values, setValues, cancel, submit, errors}) => {
                                helperText={errors?.shortName ?? ""}
                                fullWidth
                                label="Short Name"
+                               required
                                name="shortName"
                                defaultValue={values.shortName}
                                onChange={handleChange}/>
                 </Grid>
                 <Grid item xs={12} sm={6} md={2} sx={{display: "flex"}}>
                     <FormControlLabel control={<Switch/>}
+                                      required
                                       labelPlacement="start"
                                       label={"Active"}
                                       name={"is_active"}
@@ -52,6 +55,7 @@ const Form = ({values, setValues, cancel, submit, errors}) => {
                     <TextField error={Object.keys(errors).includes('turnaroundTime')}
                                helperText={errors?.turnaroundTime ?? ""}
                                fullWidth
+                               required
                                type="number"
                                inputProps={{min: 1}}
                                inputMode="numeric"
@@ -63,20 +67,20 @@ const Form = ({values, setValues, cancel, submit, errors}) => {
                 <Grid item xs={12} sm={6} md={4}>
                     <SelectSearch name="consent"
                                   label="Consent"
+                                  required
                                   value={values.consent}
                                   error={Object.keys(errors).includes('consent')}
                                   helperText={errors.consent}
-                                  required
                                   url={route("api.consents.list")}
                                   onchange={handleChange}/>
                 </Grid>
                 <Grid item xs={12} sm={6} md={4}>
                     <SelectSearch name="order_form"
                                   label="Order Form"
+                                  required
                                   value={values.order_form}
                                   error={Object.keys(errors).includes("order_form")}
                                   helperText={errors.order_form}
-                                  required
                                   url={route("api.orderForms.list")}
                                   onchange={handleChange}/>
                 </Grid>

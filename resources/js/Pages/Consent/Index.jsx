@@ -41,7 +41,7 @@ const Index = () => {
             title: "File",
             type: "text",
             sortable: false,
-            render: (row) => <IconButton href={route("file", {id:row.id,type:"consent"})}
+            render: (row) => row.file&&<IconButton href={route("file", {id:row.id,type:"consent"})}
                                          target="_blank"><RemoveRedEye/></IconButton>,
             width:"70px"
         },

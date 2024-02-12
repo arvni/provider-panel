@@ -26,7 +26,6 @@ class StoreConsentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "file" => ["required", File::types(["pdf", "jpg", "jpeg", "png", "doc", "docx"])->min("100kb")->max("10mb")],
             "name" => "required|unique:consents,name"
         ];
     }

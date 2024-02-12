@@ -28,7 +28,7 @@ class ConsentRepository extends BaseRepository implements ConsentRepositoryInter
             $this->applyFilter($queryData["filters"]);
         if (isset($queryData["sort"]))
             $this->applyOrderBy($queryData["sort"]);
-        return $this->applyPagination($queryData["pageSize"]??$this->pageSize);
+        return $this->applyPagination($queryData["pageSize"] ?? $this->pageSize);
     }
 
     public function getAll(array $queryData): Collection|array
@@ -42,7 +42,9 @@ class ConsentRepository extends BaseRepository implements ConsentRepositoryInter
 
     public function create($consentDetails): Consent
     {
-        return $this->query->create([...$consentDetails, "file" => $this->uploadFileService->init("consents")[0]]);
+        return $this->query->create([
+            ...$consentDetails,
+            "file" => $consentDetails["file"] ? $this->uploadFileService->init("consents")[0] : ""]);
     }
 
     public function show(Consent $consent): Consent
@@ -52,13 +54,18 @@ class ConsentRepository extends BaseRepository implements ConsentRepositoryInter
 
     public function update(Consent $consent, $newConsentDetails): void
     {
-        $consent->update([...$newConsentDetails, "file" => is_string($newConsentDetails["file"]) ? $newConsentDetails["file"] : $this->uploadFileService->init("consents")[0]]);
+        $consent->update([
+            ...$newConsentDetails,
+            "file" => $newConsentDetails["file"] ?
+                (is_string($newConsentDetails["file"]) ? $newConsentDetails["file"] : $this->uploadFileService->init("consents")[0]) :
+                ""
+        ]);
     }
 
     public function delete(Consent $consent): ?bool
     {
 //        if ($consent->tests()->count() < 1)
-            return $consent->delete();
+        return $consent->delete();
         return false;
     }
 

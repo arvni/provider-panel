@@ -30,14 +30,14 @@ const Form = ({values, setValues, cancel, submit, errors, edit}) => {
                     <RequirementForm onChange={handleFormDataChanged} requirements={values.formData} error={errors}/>
                 </Grid>
                 <Grid item xs={12}>
-                    {typeof values.file == "string" && <List>
+                    {typeof values.file == "string" && values.file ? <List>
                         <ListItem>
                             <ListItemText>File</ListItemText>
                             <ListItemSecondaryAction>
                                 <IconButton href={route("file", {id:values.id,type:"orderForm"})}
                                             target="_blank"><RemoveRedEye/></IconButton>
                             </ListItemSecondaryAction>
-                        </ListItem></List>}
+                        </ListItem></List>:null}
                     <Input type="file" name="file" onChange={handleFileChange}/>
                 </Grid>
             </Grid>

@@ -31,7 +31,6 @@ class StoreOrderFormRequest extends FormRequest
             "formData.*.label" => "required",
             "formData.*.type" => ["required",Rule::in(["text", "number", "checkbox", "select", "date","description"])],
             "name"=>"required|unique:order_forms,name",
-            "file" => ["required", File::types(["pdf", "jpg", "jpeg", "png", "doc", "docx"])->min("100kb")->max("10mb")],
         ];
     }
 }

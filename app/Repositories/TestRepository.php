@@ -18,7 +18,11 @@ class TestRepository extends BaseRepository implements TestRepositoryInterface
 
     public function list(array $queryData): LengthAwarePaginator
     {
-        $this->query->withAggregate("DefaultSampleType","name")->with("sampleTypes");
+        $this->query
+            ->withAggregate("DefaultSampleType", "name")
+            ->withAggregate("Consent", "file")
+            ->withAggregate("OrderForm", "file")
+            ->with(["sampleTypes"]);
         if (isset($queryData["active"]))
             $this->query->active();
         $this->applyQueries($queryData);
@@ -37,7 +41,11 @@ class TestRepository extends BaseRepository implements TestRepositoryInterface
      */
     public function getPaginate(array $queryData): LengthAwarePaginator
     {
-        $this->query->with("sampleTypes")->active();
+        $this->query
+            ->with("sampleTypes")
+            ->withAggregate("Consent", "file")
+            ->withAggregate("OrderForm", "file")
+            ->active();
         $this->applyQueries($queryData);
         return $this->applyPagination($queryData["pageSize"] ?? $this->pageSize);
     }
@@ -45,8 +53,10 @@ class TestRepository extends BaseRepository implements TestRepositoryInterface
     public function create(array $testData)
     {
         $test = $this->query->make($testData);
-        $test->Consent()->associate($testData["consent"]["id"]);
-        $test->OrderForm()->associate($testData["order_form"]["id"]);
+        if (isset($testData["consent"]["id"]))
+            $test->Consent()->associate($testData["consent"]["id"]);
+        if (isset($testData["order_form"]["id"]))
+            $test->OrderForm()->associate($testData["order_form"]["id"]);
         $test->save();
         $test->refresh();
         $this->syncSampleTypes($test, $testData["sample_types"]);
@@ -82,8 +92,11 @@ class TestRepository extends BaseRepository implements TestRepositoryInterface
     public function edit(Test $test, array $newTestData): void
     {
         $test->fill($newTestData);
-        $test->Consent()->associate($newTestData["consent"]["id"]);
-        $test->OrderForm()->associate($newTestData["order_form"]["id"]);
+        if (isset($newTestData["consent"]["id"]))
+            $test->Consent()->associate($newTestData["consent"]["id"]);
+        if (isset($newTestData["order_form"]["id"]))
+            $test->OrderForm()->associate($newTestData["order_form"]["id"]);
+
         if ($test->isDirty())
             $test->update();
         $this->syncSampleTypes($test, $newTestData["sample_types"]);

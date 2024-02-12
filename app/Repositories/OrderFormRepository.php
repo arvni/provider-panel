@@ -42,7 +42,9 @@ class OrderFormRepository extends BaseRepository implements OrderFormRepositoryI
 
     public function create($orderFormDetails): OrderForm
     {
-        return $this->query->create([...$orderFormDetails, "file" => $this->uploadFileService->init("orderForms")[0]]);
+        return $this->query->create([
+            ...$orderFormDetails,
+            "file" => $orderFormDetails["file"]?$this->uploadFileService->init("orderForms")[0]:""]);
     }
 
     public function show(OrderForm $orderForm): OrderForm
@@ -52,7 +54,9 @@ class OrderFormRepository extends BaseRepository implements OrderFormRepositoryI
 
     public function update(OrderForm $orderForm, $newOrderFormDetails): void
     {
-        $orderForm->update([...$newOrderFormDetails, "file" => is_string($newOrderFormDetails["file"]) ? $newOrderFormDetails["file"] : $this->uploadFileService->init("orderForms")[0]]);
+        $orderForm->update([
+            ...$newOrderFormDetails,
+            "file" => $newOrderFormDetails["file"]?(is_string($newOrderFormDetails["file"]) ? $newOrderFormDetails["file"] : $this->uploadFileService->init("orderForms")[0]):""]);
     }
 
     public function delete(OrderForm $orderForm): ?bool

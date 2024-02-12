@@ -25,7 +25,6 @@ class UpdateConsentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "file" => ["required"],
             "name" => "required|unique:consents,name, " . $this->route()->parameter("consent")->id
         ];
     }
