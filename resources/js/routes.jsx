@@ -44,7 +44,7 @@ const routes = [
             {
                 title: "Order Materials",
                 route: route("admin.orderMaterials.index"),
-                permission: 'Admin.OrderMaterials.Index',
+                permission: 'Admin.OrderMaterial.Index',
                 icon: <VaccinesIcon/>,
             },
             {

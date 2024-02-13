@@ -6,7 +6,7 @@ use App\Enums\OrderMaterialStatus;
 use App\Models\OrderMaterial;
 use App\Models\User;
 
-class OrderMaterialMaterialPolicy
+class OrderMaterialPolicy
 {
     /**
      * Determine whether the user can view any models.

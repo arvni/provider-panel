@@ -17,6 +17,13 @@ class RoleAndPermissionSeeder extends Seeder
         $role = Role::findOrCreate("Admin");
         $permissions = [
             "Admin" => [
+                "OrderMaterial" => [
+                    "Index",
+                    "Show",
+                    "Create",
+                    "Update",
+                    "Delete"
+                ],
                 "Order" => [
                     "Index",
                     "Show",
@@ -97,7 +104,7 @@ class RoleAndPermissionSeeder extends Seeder
                 $q = [...$q, $permission->id];
             }
         }
-        $role->givePermissionTo(Permission::all()->pluck("id")->toArray());
+        $role->givePermissionTo(Permission::all()->pluck("id")->flatten()->toArray());
     }
 
     private function createPermissions($key, $value)
