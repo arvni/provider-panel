@@ -54,7 +54,7 @@
             {!! \DNS1D::getBarcodeHTML($barcode->barcode, 'C128',1,30,"black", false) !!}
             <p>{{$barcode->barcode}}</p>
             <p>{{ Carbon\Carbon::parse($barcode->expireDate)->format("Y-m-d") }}</p>
-            <p>{{$barcode->SampleType->name}}</p>
+            <p>{{$orderMaterial->SampleType->name}}</p>
         </div>
     @endforeach
 </div>
