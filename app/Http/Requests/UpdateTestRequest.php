@@ -27,7 +27,7 @@ class UpdateTestRequest extends FormRequest
         return [
 
             "name" => "required|unique:tests,name, $id",
-            "shortName" => "required|unique:tests,shortName, $id",
+            "shortName" => "required",
             "code" => "required|unique:tests,code, $id",
             "turnaroundTime" => "required|min:0.1",
             "description" => "required|min:0.1",

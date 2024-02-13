@@ -14,7 +14,7 @@ class Sample extends Model
         "collectionDate"
     ];
 
-    protected $with=["SampleType"];
+    protected $with = ["SampleType"];
 
     public function Order()
     {
@@ -25,4 +25,10 @@ class Sample extends Model
     {
         return $this->belongsTo(SampleType::class);
     }
+
+    public function Material()
+    {
+        return $this->belongsTo(Material::class);
+    }
+
 }

@@ -60,7 +60,7 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        $order->load(["Patient", "Samples", "Tests"]);
+        $order->load(["Patient", "Samples.Material", "Tests"]);
         return Inertia::render("Order/Show", compact("order"));
     }
 
@@ -72,7 +72,10 @@ class OrderController extends Controller
 
         $data = ["order", "step"];
         if ($step == OrderStep::SAMPLE_DETAILS) {
-            $sampleTypes = SampleType::all()
+            $tests=$order->Tests()->get()->pluck("id")->flatten()->toArray();
+            $sampleTypes = SampleType::whereHas("Tests",function ($q)use($tests){
+                $q->whereIn("tests.id",$tests);
+            })->get()
                 ->map(fn(SampleType $sampleType) => [
                     "id" => $sampleType->id,
                     "name" => $sampleType->name,
@@ -85,7 +88,7 @@ class OrderController extends Controller
             $order->load("patient");
         }
         elseif ($step === OrderStep::FINALIZE) {
-            $order->load(["Patient", "Samples", "Tests"]);
+            $order->load(["Patient", "Samples.Material", "Tests"]);
         }
         elseif ($step === OrderStep::TEST_METHOD) {
             $order->load("Tests");

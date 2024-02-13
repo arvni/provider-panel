@@ -20,6 +20,7 @@ class RepositoryProvider extends ServiceProvider
             "Consent",
             "ConsentTerm",
             "OrderForm",
+            "OrderMaterial",
             "SampleType",
             "Test",
             "Order",

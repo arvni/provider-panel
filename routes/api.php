@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\CheckMaterialController;
 use App\Http\Controllers\Api\ListConsentsController;
 use App\Http\Controllers\Api\LisTestController;
 use App\Http\Controllers\Api\ListOrderFormsController;
@@ -22,3 +23,4 @@ Route::get("sample-types", ListSampleTypesController::class)->name("api.sampleTy
 Route::get("consents", ListConsentsController::class)->name("api.consents.list");
 Route::get("order-forms", ListOrderFormsController::class)->name("api.orderForms.list");
 Route::get("/tests", LisTestController::class)->name("api.tests.list");
+Route::get("/check-materials", CheckMaterialController::class)->name("api.check_materials");

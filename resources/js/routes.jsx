@@ -24,6 +24,11 @@ const routes = [
         icon: <AssignmentIcon/>,
     },
     {
+        title: "Order Materials",
+        route: route("orderMaterials.index"),
+        icon: <AssignmentIcon/>,
+    },
+    {
         title: "Tests List",
         route: route("tests.index"),
         icon: <BiotechIcon/>,

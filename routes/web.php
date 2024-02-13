@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\ChangePasswordController;
 use App\Http\Controllers\Admin\CollectRequestController;
 use App\Http\Controllers\Admin\ConsentController;
 use App\Http\Controllers\Admin\ConsentTermController;
+use App\Http\Controllers\Admin\GenerateMaterialController;
 use App\Http\Controllers\Admin\OrderFormController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\RoleController;
@@ -15,6 +16,8 @@ use App\Http\Controllers\DownloadReportController;
 use App\Http\Controllers\GetFileController;
 use App\Http\Controllers\ListTestController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\OrderMaterialController;
+use App\Http\Controllers\Admin\OrderMaterialController as OrderMaterialAdminController;
 use App\Http\Controllers\StoreCollectRequestController;
 use App\Models\CollectRequest;
 use App\Services\ApiService;
@@ -55,10 +58,13 @@ Route::middleware('auth')->group(function () {
         Route::resource("collectRequests", CollectRequestController::class)->except(["edit"]);
         Route::resource("sampleTypes", SampleTypeController::class);
         Route::resource("tests", TestController::class)->except("show");
+        Route::resource("orderMaterials", OrderMaterialAdminController::class)->only(["show", "index"]);
+        Route::post("orderMaterials/{orderMaterial}/generate-material", GenerateMaterialController::class)->name("orderMaterials.generate");
     });
     Route::get("/files/{type}/{id}/{filename?}", GetFileController::class)->name("file");
     Route::post("orders/logistic", StoreCollectRequestController::class)->name("orders.logistic");
     Route::resource("orders", OrderController::class)->except(["edit", "update"]);
+    Route::resource("orderMaterials", OrderMaterialController::class)->except(["edit", "update", "destroy", "create"]);
     Route::get("orders/{order}/report", DownloadReportController::class)->name("orders.report");
     Route::get("orders/{order}/edit/{step}", [OrderController::class, "edit"])->name("orders.edit");
     Route::put("orders/{order}/edit/{step}", [OrderController::class, "update"])->name("orders.update");
@@ -66,8 +72,8 @@ Route::middleware('auth')->group(function () {
     Route::get("tests", ListTestController::class)->name("tests.index");
 });
 
-Route::get("/test",function (){
-    $collectRequest= CollectRequest::latest()->first();
+Route::get("/test", function () {
+    $collectRequest = CollectRequest::latest()->first();
     return RequestLogistic::send($collectRequest);
 });
 

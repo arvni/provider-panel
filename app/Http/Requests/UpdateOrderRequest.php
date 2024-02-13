@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Enums\Nationality;
 use App\Enums\OrderStep;
+use App\Rules\CheckSampleMaterial;
 use App\Rules\CheckSamples;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -43,6 +44,7 @@ class UpdateOrderRequest extends FormRequest
             case OrderStep::SAMPLE_DETAILS:
                 return [
                     "samples" => ["required", new CheckSamples($this->route()->parameter("order"))],
+                    "samples.*" => ["required", new CheckSampleMaterial()],
                     "samples.*.collectionDate" => "required|date|before_or_equal:today",
                 ];
             default:

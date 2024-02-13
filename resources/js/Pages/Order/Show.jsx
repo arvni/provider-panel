@@ -64,6 +64,7 @@ const Show = ({auth, order}) => {
                                     <li><strong>Sample type:</strong>{sample.sample_type?.name} </li>
                                     <li><strong>Sample ID:</strong>{sample.sampleId ?? "not specified"}</li>
                                     <li><strong>Sample Collection Date:</strong>{sample.collectionDate}</li>
+                                    {sample?.material&&<li><strong>Expire Date:</strong>{sample.material?.expire_date}</li>}
                                 </ul>
                             </li>)}
                         </ol>

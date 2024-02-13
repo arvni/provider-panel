@@ -27,7 +27,7 @@ const SampleDetails = ({auth, order, step, sampleTypes}) => {
 
     return (<EditLayout step={step} auth={auth} id={order.id}>
         <SampleDetailsForm samples={data.samples ?? [{}]} onChange={handleChange} onSubmit={handleSubmit}
-                           sampleTypes={sampleTypes} errors={errors}/>
+                           sampleTypes={sampleTypes} errors={errors} user={auth.user.id} setError={setError} clearErrors={clearErrors}/>
     </EditLayout>);
 
 }

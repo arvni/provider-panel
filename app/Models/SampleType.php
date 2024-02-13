@@ -21,8 +21,8 @@ class SampleType extends Model
         "orderable" => "boolean",
     ];
 
-//    public function Tests()
-//    {
-//        return $this->belongsToMany(Test::class);
-//    }
+    public function Tests()
+    {
+        return $this->belongsToMany(Test::class);
+    }
 }

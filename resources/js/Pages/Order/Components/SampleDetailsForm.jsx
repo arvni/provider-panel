@@ -4,7 +4,16 @@ import MenuItem from '@mui/material/MenuItem';
 import {Delete} from "@mui/icons-material";
 
 
-const SampleDetailsForm = ({samples, onChange, onSubmit, sampleTypes, errors}) => {
+const SampleDetailsForm = ({
+                               samples,
+                               onChange,
+                               onSubmit,
+                               sampleTypes,
+                               errors,
+                               user,
+                               setError,
+                               clearErrors
+                           }) => {
     const handleChange = (index) => (e) => {
         let newSamples = [...samples];
         if (newSamples[index]) {
@@ -29,7 +38,21 @@ const SampleDetailsForm = ({samples, onChange, onSubmit, sampleTypes, errors}) =
     const handleSubmit = (e) => {
         e.stopPropagation();
         e.preventDefault();
-        onSubmit();
+        if (Object.keys(errors).length < 1)
+            onSubmit();
+    }
+
+    const checkSampleId = (id, index) => e => {
+        clearErrors();
+        if (e.target.required) {
+            axios.get(route("api.check_materials")+"?" + new URLSearchParams({
+                id,
+                sampleId: e.target.value,
+                user
+            }).toString(),)
+                .then((res) => console.log(res.data))
+                .catch((e) => setError(`samples.${index}.sampleId`, e.response.data.message))
+        }
     }
     return <Box component={"form"} onSubmit={handleSubmit}>
         <Grid container>
@@ -56,7 +79,10 @@ const SampleDetailsForm = ({samples, onChange, onSubmit, sampleTypes, errors}) =
                                 value={sample?.sampleId}
                                 name="sampleId"
                                 label="Sample ID"
-                                required={sample?.sample_type?.sample_id_required}/>
+                                onBlur={checkSampleId(sample.id, index)}
+                                error={errors.hasOwnProperty("samples." + index + ".sampleId")}
+                                helperText={errors.hasOwnProperty("samples." + index + ".sampleId") ? errors["samples." + index + ".sampleId"] : ""}
+                                required={sample?.sample_type?.sampleIdRequired}/>
                         </Grid>
                         <Grid item xs={12} md={4}>
                             <TextField

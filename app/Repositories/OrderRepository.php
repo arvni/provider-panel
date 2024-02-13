@@ -6,9 +6,11 @@ use App\Enums\OrderStatus;
 use App\Enums\OrderStep;
 use App\Interfaces\OrderFormRepositoryInterface;
 use App\Interfaces\OrderRepositoryInterface;
+use App\Models\Material;
 use App\Models\Order;
 use App\Models\Patient;
 use App\Models\Sample;
+use App\Models\SampleType;
 use App\Services\UploadFileService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
@@ -209,17 +211,31 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
             case OrderStep::SAMPLE_DETAILS:
                 $samplesIds = [];
                 foreach ($newDetails["samples"] as $sampleDetails) {
+                    $sampleType=SampleType::find($sampleDetails["sample_type"]["id"]);
                     if (isset($sampleDetails["id"])) {
                         $sample = Sample::find($sampleDetails["id"]);
                         $sample->fill($sampleDetails);
-                        $sample->SampleType()->associate($sampleDetails["sample_type"]["id"]);
+                        $sample->SampleType()->associate($sampleType->id);
+                        if ($sampleType->sample_id_required){
+                            $material=Material::where("barcode",$sampleDetails["sampleId"])->first();
+                            $sample->Material()->associate($material->id);
+                        }
+                        else
+                            $sample->Material()->disAssociate();
                         if ($sample->isDirty())
                             $sample->save();
                         $samplesIds[] = $sample->id;
                     } else {
                         $sample = new Sample($sampleDetails);
-                        $sample->SampleType()->associate($sampleDetails["sample_type"]["id"]);
+
+                        $sample->SampleType()->associate($sampleType->id);
                         $sample->Order()->associate($order->id);
+                        if ($sampleType->sample_id_required){
+                            $material=Material::where("barcode",$sampleDetails["sampleId"])->first();
+                            $sample->Material()->associate($material->id);
+                        }
+                        else
+                            $sample->Material()->disAssociate();
                         $sample->save();
                         $samplesIds[] = $sample->id;
                     }
@@ -287,7 +303,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
             $newForms = $order->orderForms;
             $testsIds = $order->Tests()->get(["tests.id"])->pluck("id")->toArray();
             if (count($diff = array_diff($tests, $testsIds))) {
-                $forms = $this->orderFormRepository->getAll(["filters" => ["tests" => $diff]]);
+                $forms = $this->orderFormRepository->getAll(["filters" => ["tests" => $diff]])->toArray();
                 $newForms = array_merge($forms, $newForms);
             }
             if (count($diff = array_diff($testsIds, $tests))) {

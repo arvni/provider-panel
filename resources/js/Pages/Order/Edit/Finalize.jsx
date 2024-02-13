@@ -55,6 +55,7 @@ const Finalize = ({auth, order, step}) => {
                                 <li><strong>Sample type:</strong>{sample.sample_type?.name} </li>
                                 <li><strong>Sample ID:</strong>{sample.sampleId??"not specified"}</li>
                                 <li><strong>Sample Collection Date:</strong>{sample.collectionDate}</li>
+                                {sample?.material&&<li><strong>Expire Date:</strong>{sample.material.expireDate}</li>}
                             </ul>
                             </React.Fragment>)}
                         </ol>
