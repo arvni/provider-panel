@@ -16,6 +16,7 @@ class GenerateMaterialController extends Controller
      */
     public function __invoke(OrderMaterial $orderMaterial, Request $request)
     {
+
         if ($orderMaterial->Materials()->count())
             return back()->withErrors("This Order Previously Generated");
         $this->generateMaterials($orderMaterial, $request->get("expireDate"));

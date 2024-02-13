@@ -10,6 +10,9 @@ import MailIcon from "@mui/icons-material/Mail";
 import DynamicFormIcon from "@mui/icons-material/DynamicForm";
 import BiotechIcon from '@mui/icons-material/Biotech';
 import AssignmentIcon from '@mui/icons-material/Assignment';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import PlaylistAddCheckIcon from '@mui/icons-material/PlaylistAddCheck';
+import VaccinesIcon from '@mui/icons-material/Vaccines';
 
 
 const routes = [
@@ -26,7 +29,7 @@ const routes = [
     {
         title: "Order Materials",
         route: route("orderMaterials.index"),
-        icon: <AssignmentIcon/>,
+        icon: <VaccinesIcon/>,
     },
     {
         title: "Tests List",
@@ -39,10 +42,16 @@ const routes = [
         icon: <ManageAccountsIcon/>,
         child: [
             {
+                title: "Order Materials",
+                route: route("admin.orderMaterials.index"),
+                permission: 'Admin.OrderMaterials.Index',
+                icon: <VaccinesIcon/>,
+            },
+            {
                 title: "Collect Requests",
                 route: route("admin.collectRequests.index"),
                 permission: 'Admin.CollectRequest.Index',
-                icon: <BiotechIcon/>,
+                icon: <LocalShippingIcon/>,
             },
             {
                 title: "Tests",
@@ -72,7 +81,7 @@ const routes = [
                 title: "Consent Terms",
                 route: route("admin.consentTerms.index"),
                 permission: 'Admin.ConsentTerm.Index',
-                icon: <MailIcon/>,
+                icon: <PlaylistAddCheckIcon/>,
             },
             {
                 title: "Users List",

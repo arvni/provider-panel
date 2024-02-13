@@ -32,6 +32,7 @@ class OrderMaterialController extends Controller
      */
     public function index(Request $request): Response
     {
+        $this->authorize("viewAny",OrderMaterial::class);
         $requestInputs = $request->all();
         $orderMaterials = fn() => $this->orderMaterialRepository->list($requestInputs);
         $sampleTypes = SampleType::where("orderable", true)->get();
@@ -45,7 +46,7 @@ class OrderMaterialController extends Controller
      */
     public function show(OrderMaterial $orderMaterial)
     {
-
+        $this->authorize("view",$orderMaterial);
         return view("Materials", ["orderMaterial" => $this->orderMaterialRepository->show($orderMaterial)]);
     }
 }
