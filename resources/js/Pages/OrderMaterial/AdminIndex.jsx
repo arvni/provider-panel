@@ -61,8 +61,8 @@ const Index = () => {
             title: "#",
             type: "actions",
             render: (row) => <Stack direction="row" spacing={1}>
-                {row.materials_count ===row.amount  ? <IconButton href={route("admin.orderMaterials.show", row.id)}
-                                                        color="success" target="_blank">
+                {row.materials_count === row.amount ? <IconButton href={route("admin.orderMaterials.show", row.id)}
+                                                                  color="success" target="_blank">
                     <RemoveRedEye/>
                 </IconButton> : <IconButton onClick={handleGenerate(row)}>
                     <EditIcon/>
@@ -73,13 +73,14 @@ const Index = () => {
 
     const [openGenerateForm, setOpenGenerateForm] = useState(false);
 
-    const handleSubmitForm = () => post(route('admin.orderMaterials.generate',data.id), {
+    const handleSubmitForm = () => post(route('admin.orderMaterials.generate', data.id), {
         onSuccess: (e) => {
+            window.open(route("admin.orderMaterials.show", data.id), "_blank");
             setOpenGenerateForm(false);
             reset();
         },
     });
-    const handleGenerate =(row) =>() => {
+    const handleGenerate = (row) => () => {
         setData(row)
         setOpenGenerateForm(true);
     }
@@ -88,37 +89,37 @@ const Index = () => {
         <>
             <PageHeader title="Order Materials"/>
             <Paper sx={{mt: "1em", p: "1rem"}}>
-            <TableLayout
-                columns={columns}
-                data={orderMaterialsData}
-                onPageChange={onPageChange}
-                pagination={pagination}
-                onFilterChange={onFilterChange}
-                onFilter={handlePage}
-                filter
-                onOrderByChange={onOrderByChange}
-                loading={processing}
-                tableModel={{
-                    orderBy: queryData.orderBy ?? {
-                        field: "id",
-                        type: "asc"
-                    },
-                    page: queryData.page,
-                    filter: queryData.filters
-                }}
-                pageSize={{
-                    defaultValue: queryData.pageSize ?? 10,
-                    onChange: onPageSizeChange
-                }}
-            />
-            <GenerateForm title={`Order Material Generate`}
-                     loading={processing}
-                     open={openGenerateForm}
-                     values={data}
-                     reset={reset}
-                     setValues={setData}
-                     setOpen={setOpenGenerateForm}
-                     submit={handleSubmitForm}/>
+                <TableLayout
+                    columns={columns}
+                    data={orderMaterialsData}
+                    onPageChange={onPageChange}
+                    pagination={pagination}
+                    onFilterChange={onFilterChange}
+                    onFilter={handlePage}
+                    filter
+                    onOrderByChange={onOrderByChange}
+                    loading={processing}
+                    tableModel={{
+                        orderBy: queryData.orderBy ?? {
+                            field: "id",
+                            type: "asc"
+                        },
+                        page: queryData.page,
+                        filter: queryData.filters
+                    }}
+                    pageSize={{
+                        defaultValue: queryData.pageSize ?? 10,
+                        onChange: onPageSizeChange
+                    }}
+                />
+                <GenerateForm title={`Order Material Generate`}
+                              loading={processing}
+                              open={openGenerateForm}
+                              values={data}
+                              reset={reset}
+                              setValues={setData}
+                              setOpen={setOpenGenerateForm}
+                              submit={handleSubmitForm}/>
             </Paper>
         </>);
 }

@@ -20,7 +20,7 @@ class GenerateMaterialController extends Controller
         if ($orderMaterial->Materials()->count())
             return back()->withErrors("This Order Previously Generated");
         $this->generateMaterials($orderMaterial, $request->get("expireDate"));
-        return redirect()->route("admin.orderMaterials.show");
+        return back()->with(["success"=>true, "status"=>"Successfully Generated"]);
     }
 
     public function generateMaterials(OrderMaterial $orderMaterial, $expireDate)

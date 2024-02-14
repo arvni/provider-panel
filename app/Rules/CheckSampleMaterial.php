@@ -18,10 +18,11 @@ class CheckSampleMaterial implements ValidationRule
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         $sampleTypeCheckNeeded = SampleType::query()->where("id", $value["sample_type"]["id"])->where("sample_id_required", true);
-        $query = Material::query()->where("barcode", $value["sampleId"])->where("user_id", auth()->user()->id);
-        if ($query->clone()->count() < 1)
-            $fail("There isn't any Material With this sample ID");
+
         if ($sampleTypeCheckNeeded->clone()->count()) {
+            $query = Material::query()->where("barcode", $value["sampleId"] ?? "")->where("user_id", auth()->user()->id);
+            if ($query->clone()->count() < 1)
+                $fail("There isn't any Material With this sample ID");
             $material = $query->whereHas("Sample", function ($q) use ($value) {
                 $q->whereNot("id", $value["id"] ?? null);
             });

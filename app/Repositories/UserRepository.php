@@ -57,9 +57,9 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
 
     public function edit(User $user, array $newUserData): void
     {
-        $user->fill();
+        $user->fill($newUserData);
         if ($user->isDirty())
-            $user->update();
+            $user->save();
         if (isset($newUserData["roles"]))
             $user->syncRoles(array_map(fn($role) => $role["id"], $newUserData["roles"]));
     }
