@@ -2,24 +2,23 @@
 
 namespace App\Notifications;
 
-use App\Models\CollectRequest;
+use App\Models\OrderMaterial;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class CollectRequestUpdated extends Notification implements ShouldQueue
+class OrderMaterialRequested extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    protected CollectRequest $collectRequest;
-
+    public OrderMaterial $orderMaterial;
     /**
      * Create a new notification instance.
      */
-    public function __construct(CollectRequest $collectRequest)
+    public function __construct(OrderMaterial $orderMaterial)
     {
-        $this->collectRequest = $collectRequest;
+        $this->orderMaterial=$orderMaterial;
     }
 
     /**
@@ -38,9 +37,9 @@ class CollectRequestUpdated extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->bcc("info@biongenetic.com")
-            ->line("collect request #{$this->collectRequest->id} status changed to {$this->collectRequest->status->value}")
-            ->line('Thank you for choosing us!');
+                    ->line('The introduction to the notification.')
+                    ->action('Notification Action', url('/'))
+                    ->line('Thank you for using our application!');
     }
 
     /**

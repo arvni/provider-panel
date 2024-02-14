@@ -139,7 +139,7 @@
                             <li>Full Name:<strong> {{$order->patient->fullName}}</strong></li>
                             <li>Date of birth: <strong> {{$order->patient->dateOfBirth}}</strong></li>
                             <li>Reference ID:<strong> {{$order->patient->reference_id??"not specified"}}</strong></li>
-                            <li>Gender:<strong>  {{$order->patient->gender?"male":"female"}}</strong></li>
+                            <li>Gender:<strong>  {{$order->patient->gender=='0'?"male":"female"}}</strong></li>
                             <li>City:<strong> {{optional($order->patient->contact)["city"]??"not specified"}}</strong>
                             </li>
                             <li>

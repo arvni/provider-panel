@@ -45,7 +45,7 @@ const Show = ({auth, order}) => {
                             <li><strong>Full Name:</strong> {order.patient?.fullName}</li>
                             <li><strong>Date of birth:</strong> {order.patient?.dateOfBirth}</li>
                             <li><strong>Reference ID:</strong> {order.patient?.reference_id ?? "not specified"}</li>
-                            <li><strong>Gender:</strong> {order.patient?.gender ? "male" : "female"}</li>
+                            <li><strong>Gender:</strong> {(order.patient?.gender*1) ? "male" : "female"}</li>
                             <li><strong>City:</strong> {order.patient?.contact?.city ?? "not specified"}</li>
                             <li><strong>Street:</strong> {order.patient?.contact?.address ?? "not specified"}</li>
                             <li><strong>State:</strong> {order.patient?.contact?.state ?? "not specified"}</li>
