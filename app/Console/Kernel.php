@@ -12,7 +12,8 @@ class Kernel extends ConsoleKernel
 
     protected $commands = [
         SyncReferrers::class,
-        SyncOrdersStatus::class
+        SyncOrdersStatus::class,
+        SyncTests::class
     ];
 
     /**
@@ -23,6 +24,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')->hourly();
          $schedule->command('sync:orders')->everyFiveMinutes();
          $schedule->command('sync:referrers')->hourly();
+         $schedule->command('sync:tests')->hourly();
     }
 
     /**
