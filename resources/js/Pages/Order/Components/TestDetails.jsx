@@ -6,7 +6,7 @@ const TestDetails = ({test, open = false, onClose}) => {
         <DialogTitle>{test?.name}</DialogTitle>
         <DialogContent>
             <Typography fontWeight="800">Description :</Typography>
-            <Typography>{test?.description}</Typography>
+            <div dangerouslySetInnerHTML={{__html:test?.description}}></div>
             <Typography fontWeight="800">Accepted Sample requirements :</Typography>
             <ul>
                 {test?.sample_types?.map(sampleType => <li>
