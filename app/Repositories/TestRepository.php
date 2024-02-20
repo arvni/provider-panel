@@ -21,6 +21,7 @@ class TestRepository extends BaseRepository implements TestRepositoryInterface
         $this->query
             ->withAggregate("DefaultSampleType", "name")
             ->withAggregate("Consent", "file")
+            ->withAggregate("Instruction", "file")
             ->withAggregate("OrderForm", "file")
             ->with(["sampleTypes"]);
         if (isset($queryData["active"]))
@@ -44,6 +45,7 @@ class TestRepository extends BaseRepository implements TestRepositoryInterface
         $this->query
             ->with("sampleTypes")
             ->withAggregate("Consent", "file")
+            ->withAggregate("Instruction", "file")
             ->withAggregate("OrderForm", "file")
             ->active();
         $this->applyQueries($queryData);
@@ -55,6 +57,8 @@ class TestRepository extends BaseRepository implements TestRepositoryInterface
         $test = $this->query->make($testData);
         if (isset($testData["consent"]["id"]))
             $test->Consent()->associate($testData["consent"]["id"]);
+        if (isset($testData["instruction"]["id"]))
+            $test->Instruction()->associate($testData["instruction"]["id"]);
         if (isset($testData["order_form"]["id"]))
             $test->OrderForm()->associate($testData["order_form"]["id"]);
         $test->save();
@@ -71,7 +75,7 @@ class TestRepository extends BaseRepository implements TestRepositoryInterface
      */
     public function getById($id): Test|null
     {
-        return $this->query->where("id", $id)->with(["Consent:name,id", "OrderForm", "SampleTypes"])->first();
+        return $this->query->where("id", $id)->with(["Consent:name,id","Instruction:name,id", "OrderForm", "SampleTypes"])->first();
     }
 
     /**
@@ -81,7 +85,7 @@ class TestRepository extends BaseRepository implements TestRepositoryInterface
      */
     public function show(Test $test): Test
     {
-        return $test->load(["Consent:name,id", "OrderForm", "SampleTypes"]);
+        return $test->load(["Consent:name,id","Instruction:name,id", "OrderForm", "SampleTypes"]);
     }
 
     /**
@@ -94,6 +98,8 @@ class TestRepository extends BaseRepository implements TestRepositoryInterface
         $test->fill($newTestData);
         if (isset($newTestData["consent"]["id"]))
             $test->Consent()->associate($newTestData["consent"]["id"]);
+        if (isset($newTestData["instruction"]["id"]))
+            $test->Instruction()->associate($newTestData["instruction"]["id"]);
         if (isset($newTestData["order_form"]["id"]))
             $test->OrderForm()->associate($newTestData["order_form"]["id"]);
 

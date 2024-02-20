@@ -66,6 +66,13 @@ class RoleAndPermissionSeeder extends Seeder
                     "Update",
                     "Delete"
                 ],
+                "Instruction" => [
+                    "Index",
+                    "Show",
+                    "Create",
+                    "Update",
+                    "Delete"
+                ],
                 "ConsentTerm" => [
                     "Index",
                     "Show",

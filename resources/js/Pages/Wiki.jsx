@@ -112,6 +112,16 @@ function Index({tests: {data: testsData, ...pagination}, request}) {
                                                            })}><Download/></IconButton>
         },
         {
+            field: "instruction_id",
+            title: "Instruction",
+            type: "text",
+            render: (row) => row?.instruction_file && <IconButton target="_blank"
+                                                           href={route("file", {
+                                                               type: "consent",
+                                                               id: row.instruction_id
+                                                           })}><Download/></IconButton>
+        },
+        {
             field: "id",
             title: "#",
             type: "text",

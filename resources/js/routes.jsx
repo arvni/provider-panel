@@ -13,6 +13,7 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import PlaylistAddCheckIcon from '@mui/icons-material/PlaylistAddCheck';
 import VaccinesIcon from '@mui/icons-material/Vaccines';
+import ImportContactsIcon from '@mui/icons-material/ImportContacts';
 
 
 const routes = [
@@ -76,6 +77,12 @@ const routes = [
                 route: route("admin.consents.index"),
                 permission: 'Admin.Consent.Index',
                 icon: <MailIcon/>,
+            },
+            {
+                title: "Instructions",
+                route: route("admin.instructions.index"),
+                permission: 'Admin.Instruction.Index',
+                icon: <ImportContactsIcon/>,
             },
             {
                 title: "Consent Terms",

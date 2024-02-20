@@ -4,11 +4,8 @@ namespace App\Console\Commands;
 
 use App\Models\SampleType;
 use App\Models\Test;
-use App\Models\User;
 use App\Services\ApiService;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 
 class SyncTests extends Command

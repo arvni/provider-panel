@@ -74,7 +74,7 @@ const Index = () => {
                     </Button>
                 ]}
             />
-            <Paper sx={{mt: "1em", p: "1rem"}}>
+            <Paper sx={{mt: "1em", p: "1rem",overflowX:"auto"}}>
             <TableLayout
                 columns={columns}
                 data={orderMaterialsData}

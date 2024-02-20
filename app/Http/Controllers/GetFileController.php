@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Interfaces\ConsentRepositoryInterface;
+use App\Interfaces\InstructionRepositoryInterface;
 use App\Interfaces\OrderFormRepositoryInterface;
 use App\Interfaces\OrderRepositoryInterface;
 use App\Repositories\OrderRepository;
@@ -13,18 +14,21 @@ use function PHPUnit\Framework\directoryExists;
 class GetFileController extends Controller
 {
     protected ConsentRepositoryInterface $consentRepository;
+    protected InstructionRepositoryInterface $instructionRepository;
     protected OrderFormRepositoryInterface $orderFormRepository;
     protected OrderRepository $orderRepository;
 
     public function __construct(
         ConsentRepositoryInterface   $consentRepository,
         OrderFormRepositoryInterface $orderFormRepository,
-        OrderRepositoryInterface     $orderRepository
+        OrderRepositoryInterface     $orderRepository,
+        InstructionRepositoryInterface     $instructionRepository,
     )
     {
         $this->consentRepository = $consentRepository;
         $this->orderFormRepository = $orderFormRepository;
         $this->orderRepository = $orderRepository;
+        $this->instructionRepository=$instructionRepository;
     }
 
     /**

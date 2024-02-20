@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\CheckMaterialController;
 use App\Http\Controllers\Api\ListConsentsController;
 use App\Http\Controllers\Api\LisTestController;
+use App\Http\Controllers\Api\ListInstructionsController;
 use App\Http\Controllers\Api\ListOrderFormsController;
 use App\Http\Controllers\Api\ListRolesController;
 use App\Http\Controllers\Api\ListSampleTypesController;
@@ -21,6 +22,7 @@ use Illuminate\Support\Facades\Route;
 Route::get("roles", ListRolesController::class)->name("api.roles.list");
 Route::get("sample-types", ListSampleTypesController::class)->name("api.sampleTypes.list");
 Route::get("consents", ListConsentsController::class)->name("api.consents.list");
+Route::get("instructions", ListInstructionsController::class)->name("api.instructions.list");
 Route::get("order-forms", ListOrderFormsController::class)->name("api.orderForms.list");
 Route::get("/tests", LisTestController::class)->name("api.tests.list");
 Route::get("/check-materials", CheckMaterialController::class)->name("api.check_materials");

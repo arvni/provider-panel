@@ -84,6 +84,16 @@ const Form = ({values, setValues, cancel, submit, errors}) => {
                                   url={route("api.orderForms.list")}
                                   onchange={handleChange}/>
                 </Grid>
+                <Grid item xs={12} sm={6} md={4}>
+                    <SelectSearch name="instruction"
+                                  label="Instruction"
+                                  required
+                                  value={values.instruction}
+                                  error={Object.keys(errors).includes('instruction')}
+                                  helperText={errors.instruction}
+                                  url={route("api.instructions.list")}
+                                  onchange={handleChange}/>
+                </Grid>
                 <Grid item xs={12}>
                     <SampleTypeForm sampleTypes={values.sample_types} error={errors.sample_types} onChange={setValues}/>
                 </Grid>

@@ -23,6 +23,11 @@ class Test extends Model
     ];
 
 
+    public function Instruction()
+    {
+        return $this->belongsTo(Instruction::class);
+    }
+
     public function Consent()
     {
         return $this->belongsTo(Consent::class);

@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\CollectRequestController;
 use App\Http\Controllers\Admin\ConsentController;
 use App\Http\Controllers\Admin\ConsentTermController;
 use App\Http\Controllers\Admin\GenerateMaterialController;
+use App\Http\Controllers\Admin\InstructionController;
 use App\Http\Controllers\Admin\OrderFormController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\RoleController;
@@ -54,6 +55,7 @@ Route::middleware('auth')->group(function () {
         Route::resource("/permissions", PermissionController::class)->except(["create", "edit"]);
         Route::resource("/consentTerms", ConsentTermController::class)->except(["create", "edit"]);
         Route::resource("/consents", ConsentController::class)->except(["create", "edit"]);
+        Route::resource("/instructions", InstructionController::class)->except(["create", "edit"]);
         Route::resource("orderForms", OrderFormController::class)->except("show");
         Route::resource("collectRequests", CollectRequestController::class)->except(["edit"]);
         Route::resource("sampleTypes", SampleTypeController::class);

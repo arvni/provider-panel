@@ -32,6 +32,7 @@ class UpdateTestRequest extends FormRequest
             "turnaroundTime" => "required|min:0.1",
             "description" => "required|min:0.1",
             "consent.id" => "exists:consents,id",
+            "instruction.id" => "exists:instructions,id",
             "order_form.id" => "exists:order_forms,id",
             "sample_types" => "required|array|min:1",
             "sample_types.*.sample_type.id" => "required|exists:sample_types,id",

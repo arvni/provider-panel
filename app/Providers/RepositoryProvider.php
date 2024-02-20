@@ -18,6 +18,7 @@ class RepositoryProvider extends ServiceProvider
             'Role',
             'User',
             "Consent",
+            "Instruction",
             "ConsentTerm",
             "OrderForm",
             "OrderMaterial",
