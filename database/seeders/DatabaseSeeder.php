@@ -18,11 +18,12 @@ class DatabaseSeeder extends Seeder
             RoleAndPermissionSeeder::class,
             TestSeeder::class
         ]);
-//
-        $user = User::factory()->create([
-            "email" => "admin@bion.com",
-            "password" => Hash::make("586545B!0n"),
-        ])->assignRole('Admin');
+
+        if (User::query()->where("email", "admin@bion.com")->count() < 1)
+            User::factory()->create([
+                "email" => "admin@bion.com",
+                "password" => Hash::make("586545B!0n"),
+            ])->assignRole('Admin');
 
 
     }

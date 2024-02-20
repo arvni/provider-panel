@@ -20,6 +20,9 @@ const TestDetails = ({test, open = false, onClose}) => {
             {test?.consent_file && <Button variant="outlined"
                                          href={route("file", {type: "consent", id: test?.consent_id})}
                                          target="_blanke">Download Consent Form</Button>}
+            {test?.instruction_file && <Button variant="outlined"
+                                         href={route("file", {type: "instruction", id: test?.instruction_id})}
+                                         target="_blanke">Download Instruction</Button>}
         </DialogActions>
     </Dialog>
 }

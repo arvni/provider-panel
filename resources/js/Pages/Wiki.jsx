@@ -81,9 +81,10 @@ function Index({tests: {data: testsData, ...pagination}, request}) {
         },
         {
             field: "turnaroundTime",
-            title: "TAT",
+            title: "TAT (d(days)-w(weeks))",
             type: "text",
             sortable: true,
+            render: (row) => row.turnaroundTime > 30 ? (Math.ceil(row.turnaroundTime / 7) + "w") : (row.turnaroundTime + "d")
         },
         {
             field: "default_sample_type_name",
@@ -96,35 +97,36 @@ function Index({tests: {data: testsData, ...pagination}, request}) {
             title: "Request Form",
             type: "text",
             render: (row) => row?.order_form_file && <IconButton target="_blank"
-                                                              href={route("file", {
-                                                                  type: "orderForm",
-                                                                  id: row.order_form_id
-                                                              })}><Download/></IconButton>
+                                                                 href={route("file", {
+                                                                     type: "orderForm",
+                                                                     id: row.order_form_id
+                                                                 })}><Download/></IconButton>
         },
         {
             field: "consent_id",
             title: "Consent Form",
             type: "text",
             render: (row) => row?.consent_file && <IconButton target="_blank"
-                                                           href={route("file", {
-                                                               type: "consent",
-                                                               id: row.consent_id
-                                                           })}><Download/></IconButton>
+                                                              href={route("file", {
+                                                                  type: "instruction",
+                                                                  id: row.consent_id
+                                                              })}><Download/></IconButton>
         },
         {
             field: "instruction_id",
             title: "Instruction",
             type: "text",
             render: (row) => row?.instruction_file && <IconButton target="_blank"
-                                                           href={route("file", {
-                                                               type: "consent",
-                                                               id: row.instruction_id
-                                                           })}><Download/></IconButton>
+                                                                  href={route("file", {
+                                                                      type: "consent",
+                                                                      id: row.instruction_id
+                                                                  })}><Download/></IconButton>
         },
         {
             field: "id",
-            title: "#",
+            title: "More Information",
             type: "text",
+            textAlign:"center",
             render: (row) => <IconButton onClick={handleShow(row.id)}><RemoveRedEye/></IconButton>
         },
     ];
@@ -148,7 +150,7 @@ function Index({tests: {data: testsData, ...pagination}, request}) {
                     onOrderByChange={onOrderByChange}
                     loading={processing}
                     tableModel={{
-                        orderBy: data.orderBy ?? {
+                        orderBy: data.sort ?? {
                             field: "id",
                             type: "asc"
                         },
