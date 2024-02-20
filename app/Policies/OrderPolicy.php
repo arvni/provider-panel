@@ -37,7 +37,7 @@ class OrderPolicy
      */
     public function update(User $user, Order $order): bool
     {
-        return $user->can("Admin.Order.Update") || ($order->status == OrderStatus::PENDING && $user->id == $order->user_id);
+        return $user->can("Admin.Order.Update") || (($order->status === OrderStatus::PENDING || $order->status === OrderStatus::REQUESTED) && $user->id == $order->user_id);
     }
 
     /**
@@ -45,7 +45,7 @@ class OrderPolicy
      */
     public function delete(User $user, Order $order): bool
     {
-        return $user->can("Admin.Order.Delete");
+        return $user->can("Admin.Order.Delete") || (($order->status === OrderStatus::PENDING || $order->status === OrderStatus::REQUESTED) && $user->id == $order->user_id);
     }
 
     public function report(User $user, Order $order): bool

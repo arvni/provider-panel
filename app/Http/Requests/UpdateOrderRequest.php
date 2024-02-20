@@ -8,6 +8,7 @@ use App\Rules\CheckSampleMaterial;
 use App\Rules\CheckSamples;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 
 class UpdateOrderRequest extends FormRequest
@@ -17,7 +18,7 @@ class UpdateOrderRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return Gate::allows("update", $this->route()->parameter("order"));
     }
 
     /**

@@ -6,6 +6,7 @@ use App\Enums\CollectRequestStatus;
 use App\Traits\Searchable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Gate;
 
 class CollectRequest extends Model
 {
@@ -19,6 +20,15 @@ class CollectRequest extends Model
         "details",
         "status"
     ];
+
+    protected $appends=[
+        "deletable"
+    ];
+
+    public function getDeletableAttribute()
+    {
+        return Gate::allows("delete",$this);
+    }
 
     protected $casts = [
         "details" => "json",

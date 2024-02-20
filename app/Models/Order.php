@@ -9,6 +9,7 @@ use App\Traits\Statusable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Support\Facades\Gate;
 
 class Order extends Model
 {
@@ -36,8 +37,23 @@ class Order extends Model
         "step" => OrderStep::class,
         "orderForms" => "json",
         "files" => "json",
-        "consents"=>"json"
+        "consents" => "json"
     ];
+
+    protected $appends = [
+        "editable",
+        "deletable"
+    ];
+
+    public function getEditableAttribute(): bool
+    {
+        return Gate::allows("update", $this);
+    }
+
+    public function getDeletableAttribute(): bool
+    {
+        return Gate::allows("delete",$this);
+    }
 
     public function Patient()
     {
@@ -61,7 +77,7 @@ class Order extends Model
 
     public function Tests()
     {
-        return $this->belongsToMany(Test::class,"order_items");
+        return $this->belongsToMany(Test::class, "order_items");
     }
 
 }

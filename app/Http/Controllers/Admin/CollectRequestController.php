@@ -7,6 +7,8 @@ use App\Http\Requests\StoreCollectRequestRequest;
 use App\Http\Requests\UpdateCollectRequestRequest;
 use App\Interfaces\CollectRequestRepositoryInterface;
 use App\Models\CollectRequest;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -52,8 +54,11 @@ class CollectRequestController extends Controller
 
     /**
      * Update the specified resource in storage.
+     * @param UpdateCollectRequestRequest $request
+     * @param CollectRequest $collectRequest
+     * @return RedirectResponse
      */
-    public function update(UpdateCollectRequestRequest $request, CollectRequest $collectRequest)
+    public function update(UpdateCollectRequestRequest $request, CollectRequest $collectRequest): RedirectResponse
     {
         $data = [
             "status" => $request->get("status"),
@@ -65,9 +70,14 @@ class CollectRequestController extends Controller
 
     /**
      * Remove the specified resource from storage.
+     * @param CollectRequest $collectRequest
+     * @return RedirectResponse
+     * @throws AuthorizationException
      */
-    public function destroy(CollectRequest $collectRequest)
+    public function destroy(CollectRequest $collectRequest): RedirectResponse
     {
-        //
+        $this->authorize("delete",$collectRequest);
+        $this->collectRequestRepository->delete($collectRequest);
+        return back()->with(["stats"=>__("successfullyDeleted",["title"=>"collect request"])]);
     }
 }

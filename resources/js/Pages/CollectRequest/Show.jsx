@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import {
     ArrowDownward,
-    Download, EditNote,
+    Download, Edit as EditIcon, EditNote,
     Email,
     Flag,
     LocationCity,
@@ -32,9 +32,10 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import {CalendarIcon} from "@mui/x-date-pickers";
 import Button from "@mui/material/Button";
-import {useState} from "react";
+import React, {useState} from "react";
 import {useForm} from "@inertiajs/react";
 import Form from "./Components/Form";
+import DeleteButton from "@/Components/DeleteButton.jsx";
 
 const Show = ({collectRequest}) => {
     const {data, setData, post, reset, errors} = useForm({
@@ -195,6 +196,12 @@ const Show = ({collectRequest}) => {
                                     <IconButton href={route("orders.show", order.id)} target="_blank">
                                         <RemoveRedEye/>
                                     </IconButton>
+                                    {order.editable ?
+                                        <IconButton href={route("orders.edit", {order: order.id, step: order.step})}
+                                                    color="warning">
+                                            <EditIcon/>
+                                        </IconButton> : null}
+                                    {order.deletable ? <DeleteButton url={route("orders.destroy", order.id)}/> : null}
                                 </TableCell>
                             </TableRow>)}
                         </TableBody>

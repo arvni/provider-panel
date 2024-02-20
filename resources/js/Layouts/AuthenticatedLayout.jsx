@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Head, useRemember} from "@inertiajs/react";
+import {Head, usePage, useRemember} from "@inertiajs/react";
 import {createTheme, ThemeProvider} from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
@@ -15,7 +15,6 @@ const mdTheme = createTheme();
 
 export default function Authenticated({auth, breadcrumbs, children}) {
     const [open, setOpen] = useRemember(true);
-
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {

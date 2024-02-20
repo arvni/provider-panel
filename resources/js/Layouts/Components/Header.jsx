@@ -7,7 +7,7 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import AppBar from "@/Layouts/Components/AppBar";
-import React from "react";
+import React, {useState} from "react";
 import Breadcrumb from "@/Layouts/Components/Breadcrumb";
 import ChangePassword from "@/Pages/User/Components/ChangePassword";
 import {changePasswordValidator} from "@/Services/validate";
@@ -15,7 +15,7 @@ import {useSnackbar} from "notistack";
 
 export default function Header({toggleDrawer, auth, breadcrumbs, open}) {
     const [anchorEl, setAnchorEl] = React.useState(null);
-    const [openChangePassword, setOpenChangePassword] = useRemember(false);
+    const [openChangePassword, setOpenChangePassword] = useState(false);
     const {enqueueSnackbar} = useSnackbar();
     const {data, setData, setError, errors, reset, post} = useForm({
         current: "",

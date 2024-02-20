@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('samples', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Order::class)->constrained();
+            $table->foreignIdFor(Order::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(SampleType::class)->constrained();
             $table->string("sampleId")->nullable();
             $table->date("collectionDate");

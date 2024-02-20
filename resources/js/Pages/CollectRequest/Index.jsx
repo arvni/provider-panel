@@ -7,6 +7,7 @@ import {usePageReload} from "@/Services/api";
 import DeleteForm from "@/Components/DeleteForm";
 import AdminLayout from "@/Layouts/AuthenticatedLayout";
 import {router} from "@inertiajs/react";
+import DeleteButton from "@/Components/DeleteButton.jsx";
 
 const breadcrumbs = [
     {
@@ -25,21 +26,8 @@ function Index({collectRequests: {data: collectRequestsData, ...pagination}, req
         onOrderByChange,
         onFilterChange,
         onPageChange
-    } = usePageReload(request, ["collectRequests"]);
-    const [collectRequest, setCollectRequest] = useState();
-    const [openDeleteForm, setOpenDeleteForm] = useState(false);
+    } = usePageReload(request, ["collectRequests","status","success","request"]);
 
-    const handleAdd = e => e.preventDefault() || router.visit(route("admin.collectRequests.create"));
-    const handleOpenDeleteForm = (collectRequest) => () => setCollectRequest(collectRequest) || setOpenDeleteForm(true);
-    const handleCloseDeleteForm = () => resetCollectRequest() || setOpenDeleteForm(false);
-
-    const resetCollectRequest = () => setCollectRequest(null);
-
-    const handleDelete = () => router.post(
-        route("admin.collectRequests.destroy", collectRequest.id),
-        {_method: "delete"},
-        {onSuccess: handleCloseDeleteForm}
-    );
 
     const columns = [
         {
@@ -75,6 +63,7 @@ function Index({collectRequests: {data: collectRequestsData, ...pagination}, req
             render: (row) => <Stack direction="row" spacing={1}>
                 <IconButton onClick={handleShow(row.id)}
                             href={route("admin.collectRequests.show", row.id)}><RemoveRedEye/></IconButton>
+                {row.deletable ? <DeleteButton url={route("admin.collectRequests.destroy", row.id)}/> : null}
             </Stack>
         }
     ];
@@ -100,7 +89,7 @@ function Index({collectRequests: {data: collectRequestsData, ...pagination}, req
                     onOrderByChange={onOrderByChange}
                     loading={processing}
                     tableModel={{
-                        orderBy: data.orderBy ?? {
+                        orderBy: data.sort ?? {
                             field: "id",
                             type: "asc"
                         },
@@ -113,10 +102,6 @@ function Index({collectRequests: {data: collectRequestsData, ...pagination}, req
                     }}
                 />
             </Paper>
-            <DeleteForm title={collectRequest?.name}
-                        agreeCB={handleDelete}
-                        disAgreeCB={handleCloseDeleteForm}
-                        openDelete={openDeleteForm}/>
         </>
     );
 }

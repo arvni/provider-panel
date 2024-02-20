@@ -27,7 +27,7 @@ class CollectRequestRepository extends BaseRepository implements CollectRequestR
     public function list(array $queryData): LengthAwarePaginator
     {
         $this->query
-            ->withAggregate("User","name")
+            ->withAggregate("User", "name")
             ->withCount("Orders");
 
         if (isset($queryData["filters"]))
@@ -57,7 +57,7 @@ class CollectRequestRepository extends BaseRepository implements CollectRequestR
 
     public function create($collectRequestDetails): CollectRequest
     {
-        $collectRequest=$this->query->make();
+        $collectRequest = $this->query->make();
         $collectRequest->User()->associate(auth()->user()->id);
         $collectRequest->save();
         $collectRequest->refresh();
@@ -67,7 +67,7 @@ class CollectRequestRepository extends BaseRepository implements CollectRequestR
 
     public function show(CollectRequest $collectRequest): CollectRequest
     {
-        $collectRequest->load(["Orders.Patient","Orders.Samples","Orders.Tests","User",]);
+        $collectRequest->load(["Orders.Patient", "Orders.Samples", "Orders.Tests", "User",]);
         return $collectRequest;
     }
 
@@ -80,9 +80,8 @@ class CollectRequestRepository extends BaseRepository implements CollectRequestR
 
     public function delete(CollectRequest $collectRequest): ?bool
     {
-        if ($collectRequest->Orders()->count() < 1)
+        $collectRequest->Orders()->update(["status" => OrderStatus::REQUESTED, "collect_request_id" => null]);
         return $collectRequest->delete();
-        return false;
     }
 
     public function applyFilter($filters = []): void

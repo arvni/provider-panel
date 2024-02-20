@@ -10,6 +10,7 @@ import TableLayout from "../../Layouts/TableLayout";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import {router} from "@inertiajs/react";
+import DeleteButton from "@/Components/DeleteButton.jsx";
 
 
 const Index = ({orders: {data: ordersData, ...pagination}, status, request}) => {
@@ -194,11 +195,13 @@ const Index = ({orders: {data: ordersData, ...pagination}, status, request}) => 
                                                         color="success"
                                                         onClick={gotoPage(route("orders.show", row.id))}>
                     <RemoveRedEye/>
-                </IconButton> : <IconButton href={route("orders.edit", {order: row.id, step: row.step})}
+                </IconButton> : null}
+                {row.editable ? <IconButton href={route("orders.edit", {order: row.id, step: row.step})}
                                             color="warning"
-                                            onClick={route("orders.edit", {order: row.id, step: row.step})}>
+                                            onClick={gotoPage(route("orders.edit", {order: row.id, step: row.step}))}>
                     <EditIcon/>
-                </IconButton>}
+                </IconButton> : null}
+                {row.deletable ? <DeleteButton url={route("orders.destroy", row.id)}/> : null}
             </Stack>
         }
     ];

@@ -10,20 +10,23 @@ use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
 use App\Models\SampleType;
 use App\Repositories\ConsentTermRepository;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
+use function Symfony\Component\String\b;
 
 class OrderController extends Controller
 {
     private OrderRepositoryInterface $orderRepository;
     protected ConsentTermRepositoryInterface $consentTermRepository;
 
-    public function __construct(OrderRepositoryInterface $orderRepository,ConsentTermRepositoryInterface $consentTermRepository)
+    public function __construct(OrderRepositoryInterface $orderRepository, ConsentTermRepositoryInterface $consentTermRepository)
     {
         $this->orderRepository = $orderRepository;
-        $this->consentTermRepository=$consentTermRepository;
+        $this->consentTermRepository = $consentTermRepository;
         $this->middleware("indexProvider")->only("index");
     }
 
@@ -66,15 +69,19 @@ class OrderController extends Controller
 
     /**
      * Show the form for editing the specified resource.
+     * @param Order $order
+     * @param OrderStep $step
+     * @return Response
+     * @throws AuthorizationException
      */
     public function edit(Order $order, OrderStep $step)
     {
-
+        $this->authorize("update",$order);
         $data = ["order", "step"];
         if ($step == OrderStep::SAMPLE_DETAILS) {
-            $tests=$order->Tests()->get()->pluck("id")->flatten()->toArray();
-            $sampleTypes = SampleType::whereHas("Tests",function ($q)use($tests){
-                $q->whereIn("tests.id",$tests);
+            $tests = $order->Tests()->get()->pluck("id")->flatten()->toArray();
+            $sampleTypes = SampleType::whereHas("Tests", function ($q) use ($tests) {
+                $q->whereIn("tests.id", $tests);
             })->get()
                 ->map(fn(SampleType $sampleType) => [
                     "id" => $sampleType->id,
@@ -83,24 +90,25 @@ class OrderController extends Controller
                 ]);
             $data[] = "sampleTypes";
             $order->load("Samples");
-        }
-        elseif ($step === OrderStep::PATIENT_DETAILS) {
+        } elseif ($step === OrderStep::PATIENT_DETAILS) {
             $order->load("patient");
-        }
-        elseif ($step === OrderStep::FINALIZE) {
+        } elseif ($step === OrderStep::FINALIZE) {
             $order->load(["Patient", "Samples.Material", "Tests"]);
-        }
-        elseif ($step === OrderStep::TEST_METHOD) {
+        } elseif ($step === OrderStep::TEST_METHOD) {
             $order->load("Tests");
-        }elseif ($step===OrderStep::CONSENT_FORM){
-            $consents=$this->consentTermRepository->getAll([])->pluck("name")->flatten()->map(fn($item)=>["title"=>$item]);
-            $data[]="consents";
+        } elseif ($step === OrderStep::CONSENT_FORM) {
+            $consents = $this->consentTermRepository->getAll([])->pluck("name")->flatten()->map(fn($item) => ["title" => $item]);
+            $data[] = "consents";
         }
         return Inertia::render("Order/Edit/" . Str::studly($step->value), compact(...$data));
     }
 
     /**
      * Update the specified resource in storage.
+     * @param UpdateOrderRequest $request
+     * @param Order $order
+     * @param OrderStep $step
+     * @return RedirectResponse
      */
     public function update(UpdateOrderRequest $request, Order $order, OrderStep $step)
     {
@@ -111,9 +119,14 @@ class OrderController extends Controller
 
     /**
      * Remove the specified resource from storage.
+     * @param Order $order
+     * @return RedirectResponse
+     * @throws AuthorizationException
      */
     public function destroy(Order $order)
     {
-        //
+        $this->authorize("delete", $order);
+        $this->orderRepository->delete($order);
+        return back()->with(["status" => __("successfullyDelete", ["title" => "order"]), "success" => true]);
     }
 }
