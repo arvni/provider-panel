@@ -26,7 +26,8 @@ class GenerateMaterialController extends Controller
     public function generateMaterials(OrderMaterial $orderMaterial, $expireDate)
     {
         $materials = [];
-        for ($i = 0; $i < $orderMaterial->amount; $i++) {
+        $lastId = Material::latest()->first()->id;
+        for ($i = $lastId+1; $i < $orderMaterial->amount+$lastId+1; $i++) {
             $tmp = new Material([
                 "barcode"=>$this->generateBarcode($expireDate,$orderMaterial->SampleType->name,$i),
                 "expireDate"=>Carbon::parse($expireDate)
@@ -40,7 +41,8 @@ class GenerateMaterialController extends Controller
 
     public function generateBarcode($expireDate, $sampleType, $i)
     {
-        return ucfirst(substr($sampleType, 0, 1)) . Carbon::parse($expireDate)->format("-Ymd-") . $i;
+        $endPart=substr("0000000000",strlen("$i"))."$i";
+        return Carbon::parse($expireDate)->format("y") . ucfirst(substr($sampleType, 0, 1)).$endPart;
     }
 
 }
