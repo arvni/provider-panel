@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Test extends Model
 {
-    use Searchable, SoftDeletes,HasFactory;
+    use Searchable, SoftDeletes, HasFactory;
 
     protected $searchable = ["name", "code", "shortName"];
     protected $fillable = [
@@ -19,7 +19,15 @@ class Test extends Model
         "shortName",
         "description",
         "turnaroundTime",
-        "is_active"
+        "is_active",
+        "multi_add",
+        "gender"
+    ];
+
+    protected $casts = [
+        "multi_add" => "boolean",
+        "is_active" => "boolean",
+        "gender" => "json"
     ];
 
 
@@ -46,7 +54,7 @@ class Test extends Model
 
     public function ServerSampleTypes()
     {
-        return $this->belongsToMany(SampleType::class,"sample_type_test")->withPivot(["is_default","description","id"]);
+        return $this->belongsToMany(SampleType::class, "sample_type_test")->withPivot(["is_default", "description", "id"]);
     }
 
     public function DefaultSampleType()
@@ -59,7 +67,7 @@ class Test extends Model
 
     public function scopeActive($query)
     {
-        return $query->where("is_active",true);
+        return $query->where("is_active", true);
     }
 
 

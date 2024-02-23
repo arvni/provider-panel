@@ -2,8 +2,10 @@
 
 namespace App\Observers;
 
+use App\Mail\CollectRequestCreatedMail;
 use App\Models\CollectRequest;
 use App\Notifications\CollectRequestUpdated;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
 
 class CollectRequestObserver
@@ -13,7 +15,7 @@ class CollectRequestObserver
      */
     public function created(CollectRequest $collectRequest): void
     {
-        //
+        auth()->user()->notify(new CollectRequestUpdated($collectRequest));
     }
 
     /**

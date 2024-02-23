@@ -16,7 +16,7 @@ import {
 import ClientLayout from "@/Layouts/AuthenticatedLayout";
 import {Close, Done} from "@mui/icons-material";
 
-const Show = ({auth, order}) => {
+const Show = ({order}) => {
     return <Paper sx={{p: "1em", mt: "1em"}}>
         <Stack
             direction="row"
@@ -46,6 +46,7 @@ const Show = ({auth, order}) => {
                             <li><strong>Date of birth:</strong> {order.patient?.dateOfBirth}</li>
                             <li><strong>Reference ID:</strong> {order.patient?.reference_id ?? "not specified"}</li>
                             <li><strong>Gender:</strong> {(order.patient?.gender*1) ? "male" : "female"}</li>
+                            <li><strong>Nationality:</strong> {order.patient?.nationality.label}</li>
                             <li><strong>City:</strong> {order.patient?.contact?.city ?? "not specified"}</li>
                             <li><strong>Street:</strong> {order.patient?.contact?.address ?? "not specified"}</li>
                             <li><strong>State:</strong> {order.patient?.contact?.state ?? "not specified"}</li>
