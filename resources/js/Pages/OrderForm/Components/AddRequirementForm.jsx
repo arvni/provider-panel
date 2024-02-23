@@ -60,7 +60,7 @@ const AddRequirementForm = ({data, setData, open, onClose, onSubmit}) => {
                         value={data.label}
                         helperText={errors?.label ?? ""}
                         onChange={handleChange}
-                        label="Label"/>
+                        label="Label" multiline={data.type==="description"} rows={3}/>
                 </Grid>
                 <Grid item xs={12} md={4}>
                     <TextField

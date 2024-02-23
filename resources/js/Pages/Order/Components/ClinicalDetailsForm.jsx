@@ -22,7 +22,7 @@ const ClinicalDetailsForm = (props) => {
         <Grid container spacing={2} mt={2}>
             {props.orderForms.map((orderForm, index) => <Grid item xs={12} key={"form-" + orderForm.id}>
                 <Typography variant="h2" fontSize="28px">{orderForm.name} Form</Typography>
-                <Grid container spacing={2} my={3} sx={{maxWidth:"400px"}}>
+                <Grid container spacing={2} my={3}>
                     {orderForm.formData.map((el, i) => <Grid item xs={12} key={el.id}>
                         <RenderFormField field={el}
                                          onchange={handleChange(orderForm.id, el.id, el.type)}
