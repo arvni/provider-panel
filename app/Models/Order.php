@@ -6,6 +6,7 @@ use App\Enums\OrderStatus;
 use App\Enums\OrderStep;
 use App\Traits\Searchable;
 use App\Traits\Statusable;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -42,8 +43,14 @@ class Order extends Model
 
     protected $appends = [
         "editable",
-        "deletable"
+        "deletable",
+        "orderId"
     ];
+
+    public function getOrderIdAttribute()
+    {
+        return "OR" . Carbon::parse($this->created_at)->format(".Ymd.") . $this->id;
+    }
 
     public function getEditableAttribute(): bool
     {

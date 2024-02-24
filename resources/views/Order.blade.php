@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>{{$orderId}}</title>
+    <title>{{$order->orderId}}</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -101,8 +101,8 @@
         </td>
         <td class="w-2 center" style="vertical-align: middle;padding-left: 10px;padding-right: 10px">
             <div style="display: flex;justify-content: center; flex-direction: column; align-items: center; gap: 10px">
-                {!! DNS1D::getBarcodeHTML($orderId, 'C128',1.5,50,"black", false) !!}
-                <strong>Order ID : {{$orderId}}</strong>
+                {!! DNS1D::getBarcodeHTML($order->orderId, 'C128',1.5,50,"black", false) !!}
+                <strong>Order ID : {{$order->orderId}}</strong>
             </div>
         </td>
     </tr>

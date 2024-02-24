@@ -23,7 +23,8 @@ class CollectRequestObserver
      */
     public function updated(CollectRequest $collectRequest): void
     {
-        $user = $collectRequest->User()->first();
+        $collectRequest->load("User");
+        $user = $collectRequest->User;
         $user->notify(new CollectRequestUpdated($collectRequest));
     }
 

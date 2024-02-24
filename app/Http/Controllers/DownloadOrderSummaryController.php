@@ -15,10 +15,9 @@ class DownloadOrderSummaryController extends Controller
     public function __invoke(Order $order)
     {
         $order->load("Patient", "User", "Samples", "Tests");
-        $orderId = "OR" . Carbon::parse($order->created_at)->format(".Ymd.") . $order->id;
-        $rendered = view("Order", ["order" => $order, "orderId" => $orderId])->render();
+        $rendered = view("Order", ["order" => $order])->render();
         $pdf = Pdf::loadHTML($rendered);
         $pdf->setPaper("a5");
-        return $pdf->download("$orderId.pdf");
+        return $pdf->download("$order->orderId.pdf");
     }
 }
