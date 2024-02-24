@@ -14,7 +14,7 @@ import {
 import React from "react";
 import countries from "@/Data/countries";
 import CountrySelector from "@/Components/CountrySelector";
-
+import Gender from "@/Enums/Gender.js";
 
 
 const PatientDetailsForm = (props) => {
@@ -96,9 +96,7 @@ const PatientDetailsForm = (props) => {
                                 name={"gender"}
                                 onChange={handleChange}
                             >
-                                <MenuItem value={1}>Male</MenuItem>
-                                <MenuItem value={0}>Female</MenuItem>
-                                <MenuItem value={-1}>Unknown</MenuItem>
+                                {props.genders.map(gender => <MenuItem value={gender}>{Gender.get(gender)}</MenuItem>)}
                             </Select>
                             <FormHelperText
                                 error={!!props.errors["gender"]}>{props.errors["gender"]}</FormHelperText>

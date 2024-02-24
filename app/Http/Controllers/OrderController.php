@@ -76,7 +76,7 @@ class OrderController extends Controller
      */
     public function edit(Order $order, OrderStep $step)
     {
-        $this->authorize("update",$order);
+        $this->authorize("update", $order);
         $data = ["order", "step"];
         if ($step == OrderStep::SAMPLE_DETAILS) {
             $tests = $order->Tests()->get()->pluck("id")->flatten()->toArray();
@@ -91,7 +91,9 @@ class OrderController extends Controller
             $data[] = "sampleTypes";
             $order->load("Samples");
         } elseif ($step === OrderStep::PATIENT_DETAILS) {
-            $order->load("patient");
+            $order->load("patient","Tests");
+            $genders = $order->tests->map(fn($test) => $test->gender)->flatten()->unique();
+            $data[] = "genders";
         } elseif ($step === OrderStep::FINALIZE) {
             $order->load(["Patient", "Samples.Material", "Tests"]);
         } elseif ($step === OrderStep::TEST_METHOD) {

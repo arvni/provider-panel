@@ -1,15 +1,27 @@
 import React from "react";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
-import {FormControlLabel, TextField, Switch} from "@mui/material";
+import {
+    FormControlLabel,
+    TextField,
+    Switch,
+    FormControl,
+    InputLabel,
+    Select,
+    OutlinedInput,
+    Box,
+    Chip
+} from "@mui/material";
 import Button from "@mui/material/Button";
 import SelectSearch from "@/Components/SelectSearch";
 import SampleTypeForm from "./SampleTypeForm";
+import MenuItem from "@mui/material/MenuItem";
+import Gender from "@/Enums/Gender.js";
 
 const Form = ({values, setValues, cancel, submit, errors}) => {
     const handleChange = (e) => setValues(e.target.name, e.target.value);
     const handleSwitchChanged = (e, v) => setValues(e.target.name, v);
-
+    const handleSelectChange=e=>setValues(e.target.name,e.target.value);
     return (
         <Container>
             <Grid container spacing={2}>
@@ -93,6 +105,50 @@ const Form = ({values, setValues, cancel, submit, errors}) => {
                                   helperText={errors.instruction}
                                   url={route("api.instructions.list")}
                                   onchange={handleChange}/>
+                </Grid>
+                <Grid item xs={12} sm={6} md={4}>
+                    <FormControl fullWidth required>
+                        <InputLabel id="test-gender" error={Object.keys(errors).includes('gender')}>Gender</InputLabel>
+                        <Select
+                            labelId="demo-multiple-chip-label"
+                            id="demo-multiple-chip"
+                            error={Object.keys(errors).includes('gender')}
+                            helperText={errors?.gender ?? ""}
+                            multiple
+                            name="gender"
+                            value={values.gender}
+                            onChange={handleSelectChange}
+                            input={<OutlinedInput id="select-multiple-chip" label="Gender"
+                                                  error={Object.keys(errors).includes('gender')}
+                                                  helperText={errors?.gender ?? ""}/>}
+                            renderValue={(selected) => (
+                                <Box sx={{display: 'flex', flexWrap: 'wrap', gap: 0.5}}>
+                                    {selected.map((value) => (
+                                        <Chip key={value} label={Gender.get(value)}/>
+                                    ))}
+                                </Box>
+                            )}
+                        >
+                            <MenuItem
+                                key="0"
+                                value="0"
+                            >
+                                Female
+                            </MenuItem>
+                            <MenuItem
+                                key="1"
+                                value="1"
+                            >
+                                Male
+                            </MenuItem>
+                            <MenuItem
+                                key="-1"
+                                value="-1"
+                            >
+                                Unknown
+                            </MenuItem>
+                        </Select>
+                    </FormControl>
                 </Grid>
                 <Grid item xs={12}>
                     <SampleTypeForm sampleTypes={values.sample_types} error={errors.sample_types} onChange={setValues}/>

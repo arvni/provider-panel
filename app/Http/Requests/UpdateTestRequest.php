@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\Rule;
 
 class UpdateTestRequest extends FormRequest
 {
@@ -29,6 +30,8 @@ class UpdateTestRequest extends FormRequest
             "name" => "required|unique:tests,name, $id",
             "shortName" => "required",
             "code" => "required|unique:tests,code, $id",
+            "gender" => "required|array|min:1",
+            "gender.*" => Rule::in(["0", "1", "-1"]),
             "turnaroundTime" => "required|min:0.1",
             "description" => "required|min:0.1",
             "consent.id" => "exists:consents,id",

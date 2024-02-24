@@ -6,6 +6,7 @@ use App\Models\Test;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\Rule;
 
 class StoreTestRequest extends FormRequest
 {
@@ -28,6 +29,8 @@ class StoreTestRequest extends FormRequest
             "name" => "required|unique:tests,name",
             "shortName" => "required|unique:tests,shortName",
             "code" => "required|unique:tests,code",
+            "gender" => "required|array|size:1",
+            "gender.*" => Rule::in(["0", "1", "-1"]),
             "turnaroundTime" => "required|min:0.1",
             "description" => "required|min:0.1",
             "consent.id" => "exists:consents,id",

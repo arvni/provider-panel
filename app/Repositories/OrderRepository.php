@@ -227,7 +227,6 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
                         $samplesIds[] = $sample->id;
                     } else {
                         $sample = new Sample($sampleDetails);
-
                         $sample->SampleType()->associate($sampleType->id);
                         $sample->Order()->associate($order->id);
                         if ($sampleType->sample_id_required){
@@ -249,6 +248,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
                 $order->fill([
                     "orderForms" => $this->getForms($newDetails["tests"], $order)
                 ]);
+                $order->Tests()->sync(array_map(fn($test)=>$test["id"],$newDetails["tests"]));
                 break;
             case OrderStep::CLINICAL_DETAILS:
                 $uploadedFiles = array_filter($newDetails["files"], fn($file) => is_string($file));

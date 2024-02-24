@@ -4,7 +4,7 @@ import PatientDetailsForm from "../Components/PatientDetailsForm";
 import EditLayout from "../EditLayout";
 import {patientDetailsValidate} from "@/Services/validate";
 
-const PatientDetails = ({auth, order,step}) => {
+const PatientDetails = ({auth, order,step,genders}) => {
     const {
         data,
         setData,
@@ -24,7 +24,7 @@ const PatientDetails = ({auth, order,step}) => {
 
     return (
        <EditLayout step={step} auth={auth} id={order.id} >
-           <PatientDetailsForm patient={data} onChange={handleChange} onSubmit={handleSubmit} errors={errors}/>
+           <PatientDetailsForm patient={data} genders={genders} onChange={handleChange} onSubmit={handleSubmit} errors={errors}/>
        </EditLayout>
 
     );

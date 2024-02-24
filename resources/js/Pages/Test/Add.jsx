@@ -10,6 +10,7 @@ const Add = (props) => {
         shortName: "",
         code: "",
         turnaroundTime: 1,
+        gender:["0","1","-1"],
         description: "",
         is_active:true,
         consent: null,
