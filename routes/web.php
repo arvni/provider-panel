@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AddOrderByBarcodeController;
 use App\Http\Controllers\Admin\ChangePasswordController;
 use App\Http\Controllers\Admin\CollectRequestController;
 use App\Http\Controllers\Admin\ConsentController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SampleTypeController;
 use App\Http\Controllers\Admin\TestController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DownloadOrderSummaryController;
 use App\Http\Controllers\DownloadReportController;
 use App\Http\Controllers\GetFileController;
@@ -21,10 +23,8 @@ use App\Http\Controllers\OrderMaterialController;
 use App\Http\Controllers\Admin\OrderMaterialController as OrderMaterialAdminController;
 use App\Http\Controllers\StoreCollectRequestController;
 use App\Models\CollectRequest;
-use App\Services\ApiService;
 use App\Services\RequestLogistic;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 /*
 |--------------------------------------------------------------------------
@@ -45,9 +45,7 @@ Route::get('/', function () {
 
 
 Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', function () {
-        return Inertia::render('Dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', DashboardController::class)->name('dashboard');
     Route::prefix("admin")->as("admin.")->group(function () {
         Route::resource("/users", UserController::class);
         Route::put("/change-password/{user}", ChangePasswordController::class)->name("users.updatePassword");
@@ -65,6 +63,7 @@ Route::middleware('auth')->group(function () {
     });
     Route::get("/files/{type}/{id}/{filename?}", GetFileController::class)->name("file");
     Route::post("orders/logistic", StoreCollectRequestController::class)->name("orders.logistic");
+    Route::post("orders/create-by-barcode", AddOrderByBarcodeController::class)->name("orders.create-by-barcode");
     Route::resource("orders", OrderController::class)->except(["edit", "update"]);
     Route::resource("orderMaterials", OrderMaterialController::class)->except(["edit", "update", "destroy", "create"]);
     Route::get("orders/{order}/report", DownloadReportController::class)->name("orders.report");

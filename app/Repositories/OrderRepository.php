@@ -4,7 +4,9 @@ namespace App\Repositories;
 
 use App\Enums\OrderStatus;
 use App\Enums\OrderStep;
+use App\Interfaces\MaterialRepositoryInterface;
 use App\Interfaces\OrderFormRepositoryInterface;
+use App\Interfaces\OrderMaterialRepositoryInterface;
 use App\Interfaces\OrderRepositoryInterface;
 use App\Models\Material;
 use App\Models\Order;
@@ -23,12 +25,17 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
 
     protected OrderFormRepositoryInterface $orderFormRepository;
     protected UploadFileService $uploadFileService;
+    protected materialRepositoryInterface $materialRepository;
 
-    public function __construct(Order $order, OrderFormRepositoryInterface $orderFormRepository, UploadFileService $uploadFileService)
+    public function __construct(Order                            $order,
+                                OrderFormRepositoryInterface     $orderFormRepository,
+                                UploadFileService                $uploadFileService,
+                                materialRepositoryInterface $materialRepository)
     {
         $this->query = $order->newQuery();
         $this->orderFormRepository = $orderFormRepository;
         $this->uploadFileService = $uploadFileService;
+        $this->materialRepository = $materialRepository;
     }
 
     /**
@@ -80,6 +87,22 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         return $this->applyPagination($queryData["pageSize"] ?? $this->pageSize);
     }
 
+    public function getRecentlyOrders()
+    {
+        return $this->query
+            ->select(["id", "patient_id", "updated_at", "created_at", "status"])
+            ->withAggregate("Tests", "name")
+            ->withAggregate("Patient", "fullName")
+            ->latest()
+            ->limit(5)
+            ->get();
+    }
+
+    public function notDownloadedOrdersReportCount()
+    {
+        return $this->query->where("status", OrderStatus::REPORTED)->count();
+    }
+
     /**
      * Apply filters to the query.
      *
@@ -105,11 +128,11 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
 
         if (isset($filters['patient_full_name'])) {
 
-            $this->query->search($filters["patient_full_name"],["Patient.fullName"]);
+            $this->query->search($filters["patient_full_name"], ["Patient.fullName"]);
         }
 
         if (isset($filters['patient_reference_id'])) {
-            $this->query->search($filters['patient_reference_id'],['Patient.reference_id']);
+            $this->query->search($filters['patient_reference_id'], ['Patient.reference_id']);
         }
     }
 
@@ -211,31 +234,21 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
             case OrderStep::SAMPLE_DETAILS:
                 $samplesIds = [];
                 foreach ($newDetails["samples"] as $sampleDetails) {
-                    $sampleType=SampleType::find($sampleDetails["sample_type"]["id"]);
+                    $sampleType = SampleType::find($sampleDetails["sample_type"]["id"]);
                     if (isset($sampleDetails["id"])) {
                         $sample = Sample::find($sampleDetails["id"]);
                         $sample->fill($sampleDetails);
                         $sample->SampleType()->associate($sampleType->id);
-                        if ($sampleType->sample_id_required){
-                            $material=Material::where("barcode",$sampleDetails["sampleId"])->first();
+                        if ($sampleType->sample_id_required) {
+                            $material = Material::where("barcode", $sampleDetails["sampleId"])->first();
                             $sample->Material()->associate($material->id);
-                        }
-                        else
+                        } else
                             $sample->Material()->disAssociate();
                         if ($sample->isDirty())
                             $sample->save();
                         $samplesIds[] = $sample->id;
                     } else {
-                        $sample = new Sample($sampleDetails);
-                        $sample->SampleType()->associate($sampleType->id);
-                        $sample->Order()->associate($order->id);
-                        if ($sampleType->sample_id_required){
-                            $material=Material::where("barcode",$sampleDetails["sampleId"])->first();
-                            $sample->Material()->associate($material->id);
-                        }
-                        else
-                            $sample->Material()->disAssociate();
-                        $sample->save();
+                       $sample=$this->createSample($sampleDetails,$order,$sampleType);
                         $samplesIds[] = $sample->id;
                     }
                 }
@@ -248,7 +261,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
                 $order->fill([
                     "orderForms" => $this->getForms($newDetails["tests"], $order)
                 ]);
-                $order->Tests()->sync(array_map(fn($test)=>$test["id"],$newDetails["tests"]));
+                $order->Tests()->sync(array_map(fn($test) => $test["id"], $newDetails["tests"]));
                 break;
             case OrderStep::CLINICAL_DETAILS:
                 $uploadedFiles = array_filter($newDetails["files"], fn($file) => is_string($file));
@@ -317,4 +330,25 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         }
     }
 
+    protected function createSample($sampleDetails,Order $order,SampleType $sampleType)
+    {
+        $sample = new Sample($sampleDetails);
+        $sample->SampleType()->associate($sampleType->id);
+        $sample->Order()->associate($order->id);
+        if ($sampleType->sample_id_required) {
+            $material = Material::where("barcode", $sampleDetails["sampleId"])->first();
+            $sample->Material()->associate($material->id);
+        } else
+            $sample->Material()->disAssociate();
+        $sample->save();
+        return $sample;
+    }
+
+    public function createOrderByBarcode(string $barcode): Order
+    {
+        $material = $this->materialRepository->getByBarcode($barcode);
+        $order=$this->create(["tests"=>[$material->sampleType->defaultTest->test]]);
+        $this->createSample(["sampleId"=>$barcode],$order,$material->sampleType);
+        return $order;
+    }
 }

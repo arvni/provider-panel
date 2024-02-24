@@ -23,6 +23,13 @@ class SampleType extends Model
 
     public function Tests()
     {
-        return $this->belongsToMany(Test::class);
+        return $this->belongsToMany(Test::class)->withPivot("is_default");
+    }
+
+    public function DefaultTest()
+    {
+        return $this->hasOne(SampleTypeTest::class)
+            ->ofMany("is_default")
+            ->with("Test");
     }
 }
