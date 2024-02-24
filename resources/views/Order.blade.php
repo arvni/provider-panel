@@ -12,9 +12,10 @@
 
     <!-- Styles -->
     <style>
-        *{
+        * {
             font-size: 12px;
         }
+
         body {
             margin: 0;
             max-width: 140mm;
@@ -152,7 +153,9 @@
                 <li>City:<strong> {{optional($order->patient->contact)["city"]??"not specified"}}</strong></li>
                 <li>Street:<strong> {{optional($order->patient->contact)["address"]??"not specified"}}</strong></li>
                 <li>State:<strong> {{optional($order->patient->contact)['state']??"not specified"}}</strong></li>
-                <li>Country:<strong> {{optional(optional($order->patient->contact)["country"])["label"]??"not specified"}}</strong></li>
+                <li>
+                    Country:<strong> {{optional(optional($order->patient->contact)["country"])["label"]??"not specified"}}</strong>
+                </li>
                 <li>Phone:<strong> {{optional($order->patient->contact)["phone"]??"not specified"}}</strong></li>
                 <li>Email:<strong> {{optional(optional($order->patient)->contact)["email"]??"not specified"}}</strong>
                 </li>
@@ -175,7 +178,8 @@
     </tbody>
 </table>
 <footer>
-    <p>Bion Genetic Laboratory<br>Address :South Al Ghubrah, Bousher, Muscat, Sultanate of Oman P.O.Box 2557, P.C 133 <br>Phone: (+968) 2207 3641</p>
+    <p>BION Genetic Laboratory <br>Add: South Al Ghubrah, Muscat, Sultanate of Oman - E:<a
+            href="mailto:info@biongenetic.com">info@biongenetic.com</a> - W:<a href="https://wa.me/96872739444">+968 7273 9444</a> - T:<a href="tel:+96822073641">+968 2207 3641</a></p>
 </footer>
 </body>
 </html>
