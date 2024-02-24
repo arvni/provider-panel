@@ -2,7 +2,7 @@ import React from "react";
 import {useSubmitForm} from "@/Services/api";
 import EditLayout from "@/Pages/Order/EditLayout";
 import {
-    Avatar,
+    Avatar, Box,
     Button,
     Checkbox,
     Grid,
@@ -35,14 +35,18 @@ const ConsentForm = ({auth, order, step,consents}) => {
     const handleChange = (key, value) => {
         setData(previousData => ({...previousData, [key]: value}))
     };
-    const handleSubmit = () => submit();
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        submit();
+    }
     const handleConsentChange = (index) => (e, value) => {
         let consents = data.consents;
         consents[index].value = value;
         handleChange("consents", consents)
     }
-    console.log(data.consents);
     return <EditLayout auth={auth} step={step} id={order.id}>
+        <Box component="form" onSubmit={handleSubmit}>
         <Typography sx={{my: 4}} component="h2" fontSize="18px" fontWeight="700">PLEASE READ THIS STEP THROUGH
             CAREFULLY AND SELECT CHECKBOXES</Typography>
         <Grid container spacing={2}>
@@ -54,7 +58,7 @@ const ConsentForm = ({auth, order, step,consents}) => {
                         </ListItemAvatar>
                         <ListItemText primary={consent.title}/>
                         <ListItemIcon>
-                            <Checkbox defaultChecked={consent?.value || false}
+                            <Checkbox required defaultChecked={consent?.value || false}
                                       onChange={handleConsentChange(index)}/>
                         </ListItemIcon>
                     </ListItem>)}
@@ -62,12 +66,13 @@ const ConsentForm = ({auth, order, step,consents}) => {
             </Grid>
             <Grid item xs={12} mt={2}>
                 <Stack alignItems="flex-end">
-                    <Button variant="contained" onClick={handleSubmit}>
+                    <Button variant="contained" type="submit">
                         Save & continue
                     </Button>
                 </Stack>
             </Grid>
         </Grid>
+        </Box>
     </EditLayout>
 }
 export default ConsentForm;
