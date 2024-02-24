@@ -44,10 +44,6 @@ const TestCard = (props) => {
                             <TableCell>TAT:</TableCell>
                             <TableCell>{props.test.turnaroundTime} business days</TableCell>
                         </TableRow>
-                        <TableRow>
-                            <TableCell>Description: </TableCell>
-                            <TableCell>{props.test.description}</TableCell>
-                        </TableRow>
                     </TableBody>
                 </Table>
             </Typography>
