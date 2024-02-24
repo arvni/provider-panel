@@ -46,12 +46,12 @@ const Show = ({order}) => {
                             <li><strong>Date of birth:</strong> {order.patient?.dateOfBirth}</li>
                             <li><strong>Reference ID:</strong> {order.patient?.reference_id ?? "not specified"}</li>
                             <li><strong>Gender:</strong> {(order.patient?.gender*1) ? "male" : "female"}</li>
-                            <li><strong>Nationality:</strong> {order.patient?.nationality.label}</li>
+                            <li><strong>Nationality:</strong> {order.patient?.nationality?.label}</li>
                             <li><strong>City:</strong> {order.patient?.contact?.city ?? "not specified"}</li>
                             <li><strong>Street:</strong> {order.patient?.contact?.address ?? "not specified"}</li>
                             <li><strong>State:</strong> {order.patient?.contact?.state ?? "not specified"}</li>
                             <li><strong>Phone:</strong> {order.patient?.contact?.phone ?? "not specified"}</li>
-                            <li><strong>Country:</strong> {order.patient?.contact?.country.label}</li>
+                            <li><strong>Country:</strong> {order.patient?.contact?.country?.label}</li>
                             <li><strong>Email:</strong> {order.patient?.contact?.email ?? "not specified"}</li>
                             <li><strong>Consanguineous
                                 parents:</strong> {order.patient?.consanguineousParents ? "yes" : "no"}</li>
