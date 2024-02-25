@@ -1,12 +1,13 @@
 import React, {useState} from "react";
-import {IconButton, Paper} from "@mui/material";
+import {IconButton, Paper, Stack} from "@mui/material";
 import PageHeader from "@/Components/PageHeader";
 import TableLayout from "@/Layouts/TableLayout";
 import {usePageReload} from "@/Services/api";
 import AdminLayout from "@/Layouts/AuthenticatedLayout";
-import {RemoveRedEye} from "@mui/icons-material";
+import {RemoveRedEye, ShoppingBasket, ShoppingCart} from "@mui/icons-material";
 import {Download} from "@mui/icons-material";
 import TestDetails from "@/Pages/Order/Components/TestDetails.jsx";
+import {router} from "@inertiajs/react";
 
 const breadcrumbs = [
     {
@@ -41,6 +42,12 @@ function Index({tests: {data: testsData, ...pagination}, request}) {
         resetTest();
     }
     const resetTest = () => setTest(null);
+
+    const creatOrder = (id) => (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        router.visit(route("orders.create", {test: id}));
+    }
 
     const columns = [
         {
@@ -126,8 +133,15 @@ function Index({tests: {data: testsData, ...pagination}, request}) {
             field: "id",
             title: "More Information",
             type: "text",
-            textAlign:"center",
-            render: (row) => <IconButton onClick={handleShow(row.id)}><RemoveRedEye/></IconButton>
+            textAlign: "center",
+            render: (row) => <Stack direction="row">
+                <IconButton onClick={handleShow(row.id)}><RemoveRedEye/></IconButton>
+                <IconButton href={route("orders.create",{test:row.id})}
+                            onClick={creatOrder(row.id)}
+                            title="Place an Order">
+                    <ShoppingCart color="primary"/>
+                </IconButton>
+            </Stack>
         },
     ];
 

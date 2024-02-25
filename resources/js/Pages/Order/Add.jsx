@@ -5,7 +5,7 @@ import {useSubmitForm} from "@/Services/api";
 import {testMethodValidate} from "@/Services/validate";
 import ClientLayout from "@/Layouts/AuthenticatedLayout";
 
-const Add = ({auth, ...rest}) => {
+const Add = ({auth,tests=[], ...rest}) => {
     const {
         data,
         setData,
@@ -17,7 +17,7 @@ const Add = ({auth, ...rest}) => {
         patient: undefined,
         status: undefined,
         step: undefined,
-        tests: [],
+        tests: tests,
         files: [],
         orderForms: [],
         samples: [{}]

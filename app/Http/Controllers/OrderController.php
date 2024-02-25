@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\OrderStep;
 use App\Interfaces\ConsentTermRepositoryInterface;
 use App\Interfaces\OrderRepositoryInterface;
+use App\Interfaces\TestRepositoryInterface;
 use App\Models\Order;
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
@@ -22,10 +23,13 @@ class OrderController extends Controller
 {
     private OrderRepositoryInterface $orderRepository;
     protected ConsentTermRepositoryInterface $consentTermRepository;
-
-    public function __construct(OrderRepositoryInterface $orderRepository, ConsentTermRepositoryInterface $consentTermRepository)
+    protected TestRepositoryInterface $testRepository;
+    public function __construct(OrderRepositoryInterface $orderRepository,
+                                ConsentTermRepositoryInterface $consentTermRepository,
+                                TestRepositoryInterface $testRepository)
     {
         $this->orderRepository = $orderRepository;
+        $this->testRepository=$testRepository;
         $this->consentTermRepository = $consentTermRepository;
         $this->middleware("indexProvider")->only("index");
     }
@@ -44,9 +48,12 @@ class OrderController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
-        return Inertia::render("Order/Add");
+        $tests=[];
+        if ($request->has("test"))
+            $tests[]=$this->testRepository->getById($request->get("test"));
+        return Inertia::render("Order/Add",compact("tests"));
     }
 
     /**

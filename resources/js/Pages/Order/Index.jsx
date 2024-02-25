@@ -221,13 +221,13 @@ const Index = ({orders: {data: ordersData, ...pagination}, status, request}) => 
             <PageHeader
                 title="Orders"
                 actions={[
-                    <Button variant="contained"
-                            href={route("orders.create")}
-                            onClick={handleAdd}
-                            color="success"
-                            startIcon={<AddIcon/>}>
-                        Add
-                    </Button>
+                    // <Button variant="contained"
+                    //         href={route("orders.create")}
+                    //         onClick={handleAdd}
+                    //         color="success"
+                    //         startIcon={<AddIcon/>}>
+                    //     Add
+                    // </Button>
                 ]}
             />
             <Paper sx={{mt: "3em", p: "1rem", overflowX: "auto"}}>
