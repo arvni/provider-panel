@@ -45,7 +45,7 @@ class OrderMaterialPolicy
      */
     public function delete(User $user, OrderMaterial $orderMaterial): bool
     {
-        return $user->can("Admin.OrderMaterial.Delete");
+        return $user->can("Admin.OrderMaterial.Delete") && ($orderMaterial->Materials()->used()->count()<1);
     }
 
 }

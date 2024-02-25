@@ -9,13 +9,13 @@ class Material extends Model
 {
     use HasFactory;
 
-    protected $fillable=[
+    protected $fillable = [
         "barcode",
         "expire_date"
     ];
 
-    protected $casts=[
-        "expire_date"=>"datetime:Y-m-d"
+    protected $casts = [
+        "expire_date" => "datetime:Y-m-d"
     ];
 
     public function Sample()
@@ -36,6 +36,13 @@ class Material extends Model
     public function User()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function scopeUsed($query)
+    {
+        return $query->whereHas("Sample", function ($q) {
+            $q->whereNotNull("samples.id");
+        });
     }
 
 }

@@ -58,7 +58,7 @@ Route::middleware('auth')->group(function () {
         Route::resource("collectRequests", CollectRequestController::class)->except(["edit"]);
         Route::resource("sampleTypes", SampleTypeController::class);
         Route::resource("tests", TestController::class)->except("show");
-        Route::resource("orderMaterials", OrderMaterialAdminController::class)->only(["show", "index"]);
+        Route::resource("orderMaterials", OrderMaterialAdminController::class)->only(["show", "index", "destroy"]);
         Route::post("orderMaterials/{orderMaterial}/generate-material", GenerateMaterialController::class)->name("orderMaterials.generate");
     });
     Route::get("/files/{type}/{id}/{filename?}", GetFileController::class)->name("file");

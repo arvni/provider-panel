@@ -62,6 +62,7 @@ class OrderMaterialRepository extends BaseRepository implements OrderMaterialRep
 
     public function delete(OrderMaterial $orderMaterial)
     {
+        $orderMaterial->Materials()->delete();
         $orderMaterial->delete();
     }
 

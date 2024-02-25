@@ -32,7 +32,7 @@ class OrderMaterialController extends Controller
      */
     public function index(Request $request): Response
     {
-        $this->authorize("viewAny",OrderMaterial::class);
+        $this->authorize("viewAny", OrderMaterial::class);
         $requestInputs = $request->all();
         $orderMaterials = fn() => $this->orderMaterialRepository->list($requestInputs);
         $sampleTypes = SampleType::where("orderable", true)->get();
@@ -46,7 +46,14 @@ class OrderMaterialController extends Controller
      */
     public function show(OrderMaterial $orderMaterial)
     {
-        $this->authorize("view",$orderMaterial);
+        $this->authorize("view", $orderMaterial);
         return view("Materials", ["orderMaterial" => $this->orderMaterialRepository->show($orderMaterial)]);
+    }
+
+    public function destroy(OrderMaterial $orderMaterial)
+    {
+        $this->authorize("delete", $orderMaterial);
+        $this->orderMaterialRepository->delete($orderMaterial);
+        return back()->with(["status" => __("messages.successfullyDeleted", ["title" => "Order Material"])]);
     }
 }

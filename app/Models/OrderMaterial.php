@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\OrderMaterialStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Gate;
 
 class OrderMaterial extends Model
 {
@@ -19,6 +20,16 @@ class OrderMaterial extends Model
         "created_at" => "datetime:Y/m/d H:i",
         "status" => OrderMaterialStatus::class
     ];
+
+    protected $appends=[
+        "deletable"
+    ];
+
+
+    public function getDeletableAttribute(): bool
+    {
+        return Gate::allows("delete",$this);
+    }
 
     public function User()
     {

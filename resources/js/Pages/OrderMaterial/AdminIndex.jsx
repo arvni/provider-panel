@@ -10,6 +10,7 @@ import AddIcon from "@mui/icons-material/Add";
 import PageHeader from "@/Components/PageHeader";
 import {Edit as EditIcon, RemoveRedEye} from "@mui/icons-material";
 import GenerateForm from "@/Pages/OrderMaterial/Components/GenerateForm.jsx";
+import DeleteButton from "@/Components/DeleteButton.jsx";
 
 const Index = () => {
     const {orderMaterials: {data: orderMaterialsData, ...pagination}, request} = usePage().props;
@@ -67,6 +68,7 @@ const Index = () => {
                 </IconButton> : <IconButton onClick={handleGenerate(row)}>
                     <EditIcon/>
                 </IconButton>}
+                {row.deletable ? <DeleteButton url={route("admin.orderMaterials.destroy", row.id)}/> : null}
             </Stack>
         }
     ];
