@@ -90,7 +90,8 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
     public function getRecentlyOrders()
     {
         return $this->query
-            ->select(["id", "patient_id", "updated_at", "created_at", "status"])
+            ->select(["id", "patient_id", "updated_at", "created_at", "status","user_id"])
+            ->where("user_id",auth()->user()->id)
             ->withAggregate("Tests", "name")
             ->withAggregate("Patient", "fullName")
             ->latest()
@@ -100,7 +101,10 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
 
     public function notDownloadedOrdersReportCount()
     {
-        return $this->query->where("status", OrderStatus::REPORTED)->count();
+        return $this->query
+            ->where("user_id",auth()->user()->id)
+            ->where("status", OrderStatus::REPORTED)
+            ->count();
     }
 
     /**
