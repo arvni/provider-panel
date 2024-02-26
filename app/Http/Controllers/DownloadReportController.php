@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\OrderStatus;
 use App\Models\Order;
 use App\Services\ApiService;
 use Carbon\Carbon;
@@ -20,16 +21,18 @@ class DownloadReportController extends Controller
      * @return BinaryFileResponse
      * @throws AuthorizationException
      */
-    public function __invoke(Order $order, Request $request): BinaryFileResponse
+    public function __invoke(Order $order, Request $request)
     {
         $this->authorize("report", $order);
-        $filename = "OR." . Carbon::parse($order->created_at)->format("Ymd") . ".$order->id.zip";
+        $filename ="$order->orderId.zip";
         $path = "Users/$order->user_id/Orders/$filename";
-        $report = ApiService::get(config("api.report_path") . $order->server_id);
-        abort_if(!$report->ok(), 403);
+        $report = ApiService::get(config("api.report_path")($order->server_id));
+        abort_if(!$report->ok(), $report->status());
         if (Storage::exists($path))
             Storage::delete($path);
         Storage::disk('local')->put($path, $report);
+        $order->status=OrderStatus::REPORT_DOWNLOADED;
+        $order->save();
         return Response::download(storage_path("app/" . $path), $filename);
     }
 }

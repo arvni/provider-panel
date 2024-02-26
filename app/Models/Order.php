@@ -32,6 +32,7 @@ class Order extends Model
         "sent_at",
         "received_at",
         "reported_at",
+        "server_id"
     ];
     protected $casts = [
         "status" => OrderStatus::class,
