@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ConsanguineousParents;
 use App\Enums\Gender;
 use App\Enums\Nationality;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -25,7 +26,8 @@ class Patient extends Model
     protected $casts = [
         "gender" => Gender::class,
         "contact" => "json",
-        "isFetus" => "boolean"
+        "isFetus" => "boolean",
+        "consanguineousParents" => ConsanguineousParents::class
     ];
 
     public function getNationalityAttribute()

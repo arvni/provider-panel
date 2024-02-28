@@ -2,24 +2,23 @@
 
 namespace App\Notifications;
 
-use App\Models\CollectRequest;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class CollectRequestUpdated extends Notification implements ShouldQueue
+class CollectRequestDeleted extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    protected CollectRequest $collectRequest;
+    protected $collectRequestId;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct(CollectRequest $collectRequest)
+    public function __construct( $collectRequestId)
     {
-        $this->collectRequest = $collectRequest;
+        $this->collectRequestId = $collectRequestId;
     }
 
     /**
@@ -39,7 +38,7 @@ class CollectRequestUpdated extends Notification implements ShouldQueue
     {
         return (new MailMessage)
             ->bcc(env("mail.to.address"))
-            ->line("collect request #{$this->collectRequest->id} status changed to {$this->collectRequest->status->value}");
+            ->line("collect request #{$this->collectRequestId} has been deleted");
     }
 
     /**

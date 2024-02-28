@@ -59,7 +59,7 @@ const Index = ({orders: {data: ordersData, ...pagination}, status, request}) => 
                                                                     defaultChecked={selectedOrders.includes(row.id)}/> : null
         },
         {
-            field: "bion_id",
+            field: "server_id",
             title: "Bion ID",
             type: "text",
             sortable: true,
@@ -68,7 +68,8 @@ const Index = ({orders: {data: ordersData, ...pagination}, status, request}) => 
                 label: "Bion ID",
                 type: "text",
                 value: data?.filter?.bion_id,
-            }
+            },
+            render:(row)=>"Bion."+row.server_id
         },
         {
             field: "test_method",

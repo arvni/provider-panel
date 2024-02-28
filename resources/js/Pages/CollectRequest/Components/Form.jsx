@@ -45,10 +45,8 @@ const Form = ({values, setValues, cancel, submit, errors, open, defaultValue}) =
                                 select
                                 label="status"
                                 value={values.status}
-                                disabled={defaultValue.status=="received"}
                                 name="status"
-                                onChange={handleChange}
-                            >
+                                onChange={handleChange} >
                                 {collectRequestStatuses.map((option,index) => (
                                     <MenuItem key={option.value} value={option.value}>
                                         {option.label}
@@ -56,21 +54,29 @@ const Form = ({values, setValues, cancel, submit, errors, open, defaultValue}) =
                                 ))}
                             </TextField>
                         </Grid>
-                        <Grid item xs={12}>
+                        {values.status==="picked up"?<Grid item xs={12}>
                             <TextField error={Object.keys(errors).includes('pickupDate')}
                                        helperText={errors?.pickupDate ?? ""}
                                        fullWidth
-                                       disabled={!["requested","scheduled"].includes(defaultValue.status)}
                                        type="date"
                                        label="Pickup Date"
                                        name="pickupDate"
                                        value={values.pickupDate}
                                        onChange={handleChange}/>
-                        </Grid>
-                        <Grid item xs={12}>
+                        </Grid>:null}
+                        {values.status==="scheduled"?<Grid item xs={12}>
+                            <TextField error={Object.keys(errors).includes('scheduleDate')}
+                                       helperText={errors?.scheduleDate ?? ""}
+                                       fullWidth
+                                       type="date"
+                                       label="Schedule Date"
+                                       name="scheduleDate"
+                                       value={values.scheduleDate}
+                                       onChange={handleChange}/>
+                        </Grid>:null}
+                        {values.status!=="received"?<Grid item xs={12}>
                             <TextField error={Object.keys(errors).includes('more')}
                                        helperText={errors?.more ?? ""}
-                                       disabled={!["requested","scheduled"].includes(defaultValue.status)}
                                        fullWidth
                                        multiline
                                        rows={4}
@@ -78,14 +84,16 @@ const Form = ({values, setValues, cancel, submit, errors, open, defaultValue}) =
                                        name="more"
                                        value={values.more}
                                        onChange={handleChange}/>
-                        </Grid>
+                        </Grid>:null}
                     </Grid>
 
                 </Container>
             </DialogContent>
             <DialogActions>
                 <Button onClick={cancel}>Cancel</Button>
-                <Button variant="contained" onClick={submit}>Submit</Button>
+                <Button variant="contained"
+                        onClick={submit}
+                        disabled={defaultValue.status==="received"} >Submit</Button>
             </DialogActions>
         </Dialog>
     );

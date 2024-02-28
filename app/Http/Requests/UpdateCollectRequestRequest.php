@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use App\Enums\CollectRequestStatus;
+use App\Models\CollectRequest;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
@@ -20,14 +22,25 @@ class UpdateCollectRequestRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array|string>
      */
     public function rules(): array
     {
         return [
             "status"=>["required",Rule::in(CollectRequestStatus::values())],
             "more"=>["required"],
-            "pickupDate"=>["required","date","after:now"]
+            "scheduleDate"=>[
+                "required_if:status,".CollectRequestStatus::SCHEDULED->value,
+                Rule::excludeIf(fn()=>in_array($this->get("status"),collect(CollectRequestStatus::values())->except(CollectRequestStatus::SCHEDULED->value)->toArray())),
+                "date",
+                "after_or_equal:now"
+            ],
+            "pickupDate"=>[
+                "required_if:status,".CollectRequestStatus::PICKED_UP->value,
+                Rule::excludeIf(fn()=>in_array($this->get("status"),collect(CollectRequestStatus::values())->except(CollectRequestStatus::PICKED_UP->value)->toArray())),
+                "date",
+                "after_or_equal:now"
+            ],
         ];
     }
 }

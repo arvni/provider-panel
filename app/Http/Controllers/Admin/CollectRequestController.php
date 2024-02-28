@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\CollectRequestStatus;
+use App\Enums\OrderStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCollectRequestRequest;
 use App\Http\Requests\UpdateCollectRequestRequest;
@@ -62,9 +64,11 @@ class CollectRequestController extends Controller
     {
         $data = [
             "status" => $request->get("status"),
-            "details" => $request->except("status")
+            "details" => array_merge($collectRequest->details??[],$request->except("status"))
         ];
         $this->collectRequestRepository->update($collectRequest, $data);
+        if ($request->get("status")==CollectRequestStatus::PICKED_UP->value)
+            $collectRequest->Orders()->update(["status"=>OrderStatus::SENT]);
         return back()->with(["status" => __("messages.successfullyUpdated")]);
     }
 

@@ -88,4 +88,9 @@ class Order extends Model
         return $this->belongsToMany(Test::class, "order_items");
     }
 
+    public function CollectRequest()
+    {
+        return $this->belongsTo(CollectRequest::class);
+    }
+
 }

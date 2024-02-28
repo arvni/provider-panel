@@ -153,6 +153,13 @@ const Show = ({collectRequest}) => {
                             <ListItemAvatar>
                                 <CalendarIcon/>
                             </ListItemAvatar>
+                            <ListItemText primary="Scheduled Date"
+                                          secondary={collectRequest?.details?.scheduleDate ?? "not specified"}/>
+                        </ListItem>
+                        <ListItem>
+                            <ListItemAvatar>
+                                <CalendarIcon/>
+                            </ListItemAvatar>
                             <ListItemText primary="Pick up Date"
                                           secondary={collectRequest?.details?.pickupDate ?? "not specified"}/>
                         </ListItem>
@@ -165,7 +172,8 @@ const Show = ({collectRequest}) => {
                     </List>
                 </AccordionDetails>
                 <AccordionActions>
-                    <Button startIcon={<EditNote/>} variant="outlined" onClick={openEditForm}>Edit</Button>
+                    {collectRequest.status !== "received" ?
+                        <Button startIcon={<EditNote/>} variant="outlined" onClick={openEditForm}>Edit</Button> : null}
                 </AccordionActions>
             </Accordion>
             <Accordion defaultExpanded>
@@ -221,11 +229,13 @@ const breadCrumbs = [
         icon: null
     }
 ]
-Show.layout = page => <AuthenticatedLayout auth={page.props.auth} children={page} breadcrumbs={[...breadCrumbs,
-    {
-        title: "Collect Request #" + page.props.collectRequest.id,
-        link: null,
-        icon: null
-    }]}/>
+Show.layout = page => <AuthenticatedLayout auth={page.props.auth}
+                                           children={page}
+                                           breadcrumbs={[...breadCrumbs,
+                                               {
+                                                   title: "Collect Request #" + page.props.collectRequest.id,
+                                                   link: null,
+                                                   icon: null
+                                               }]}/>
 
 export default Show;

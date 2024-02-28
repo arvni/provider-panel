@@ -42,12 +42,13 @@ class OrderMaterialRepository extends BaseRepository implements OrderMaterialRep
         return $this->applyGet();
     }
 
-    public function create($orderMaterialDetails): void
+    public function create($orderMaterialDetails)
     {
         $orderMaterial = $this->query->make($orderMaterialDetails);
         $orderMaterial->User()->associate(auth()->user()->id);
         $orderMaterial->SampleType()->associate($orderMaterialDetails["sample_type"]);
         $orderMaterial->save();
+        return $orderMaterial;
     }
 
     public function show(OrderMaterial $orderMaterial): OrderMaterial

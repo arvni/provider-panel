@@ -4,6 +4,7 @@ namespace App\Observers;
 
 use App\Mail\CollectRequestCreatedMail;
 use App\Models\CollectRequest;
+use App\Notifications\CollectRequestDeleted;
 use App\Notifications\CollectRequestUpdated;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
@@ -33,7 +34,9 @@ class CollectRequestObserver
      */
     public function deleted(CollectRequest $collectRequest): void
     {
-        //
+        $collectRequest->load("User");
+        $user = $collectRequest->User;
+        $user->notify(new CollectRequestDeleted($collectRequest->id));
     }
 
     /**

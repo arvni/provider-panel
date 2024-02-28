@@ -38,7 +38,7 @@ class OrderRemovedByAdmin extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->bcc("info@biongenetic.com")
+            ->bcc(env("mail.to.address"))
             ->line("order #{$this->orderId} has been rejected by admin")
             ->line('Thank you for choosing us!');
     }

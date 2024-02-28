@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Interfaces\OrderMaterialRepositoryInterface;
+use App\Mail\MaterialRequested;
 use App\Models\OrderMaterial;
 use App\Http\Requests\StoreOrderMaterialRequest;
 use App\Http\Requests\UpdateOrderMaterialRequest;
 use App\Models\SampleType;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -43,7 +45,8 @@ class OrderMaterialController extends Controller
      */
     public function store(StoreOrderMaterialRequest $request)
     {
-        $this->orderMaterialRepository->create($request->all());
+        $orderMaterial=$this->orderMaterialRepository->create($request->all());
+        Mail::to(config("mail.to.address"),config("mail.to.name"))->send(new MaterialRequested($orderMaterial->id));
         return redirect()->back()->with(["status" => " order material successfully Added", "success" => true]);
     }
 

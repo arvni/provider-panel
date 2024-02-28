@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\CollectRequestStatus;
 use App\Enums\OrderStatus;
 use App\Models\Order;
 use App\Services\ApiService;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class SyncOrdersStatus extends Command
@@ -45,11 +45,14 @@ class SyncOrdersStatus extends Command
                 ->get(["id", "created_at"])
                 ->map(fn($item) => $item->orderId);
             $ordersStatus = ApiService::post(config("api.orders_path"), ["orders" => $orderIds]);
-            if ($ordersStatus->ok())
+            if ($ordersStatus->ok()) {
                 foreach ($ordersStatus["data"] as $orderStatus) {
                     $id = last(explode(".", $orderStatus["order_id"]));
                     $order = Order::query()->find($id);
                     if ($order) {
+                        if ($orderStatus["status"] === "processing" && $orderStatus !== OrderStatus::PROCESSING) {
+                            $order->CollectRequest()->update(["status" => CollectRequestStatus::RECEIVED]);
+                        }
                         $order->status = $status($orderStatus["status"], $order->status);
                         $order->server_id = $orderStatus["acceptance_id"];
                         $order->received_at = $orderStatus["received_at"];
@@ -58,8 +61,9 @@ class SyncOrdersStatus extends Command
                         }
                     }
                 }
+            }
             else
-                $this->error("Cant Get any response from");
+                $this->error($ordersStatus->reason());
         } else
             $this->info("there isn't any order to update state");
     }
