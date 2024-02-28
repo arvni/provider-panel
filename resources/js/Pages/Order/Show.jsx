@@ -15,6 +15,7 @@ import {
 } from "@mui/material";
 import ClientLayout from "@/Layouts/AuthenticatedLayout";
 import {Close, Done} from "@mui/icons-material";
+import ConsanguineousParents from "@/Enums/ConsanguineousParents.js";
 
 const Show = ({order}) => {
     return <Paper sx={{p: "1em", mt: "1em"}}>
@@ -54,7 +55,7 @@ const Show = ({order}) => {
                             <li><strong>Country:</strong> {order.patient?.contact?.country?.label}</li>
                             <li><strong>Email:</strong> {order.patient?.contact?.email ?? "not specified"}</li>
                             <li><strong>Consanguineous
-                                parents:</strong> {order.patient?.consanguineousParents ? "yes" : "no"}</li>
+                                parents:</strong> {ConsanguineousParents.get(order.patient?.consanguineousParents) }</li>
                         </ul>
                     </Grid>
                     <Grid item xs={12} md={6}>

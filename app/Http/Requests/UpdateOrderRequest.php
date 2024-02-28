@@ -33,7 +33,7 @@ class UpdateOrderRequest extends FormRequest
             case OrderStep::PATIENT_DETAILS:
                 return [
                     "id" => "exists:patients,id",
-                    "consanguineousParents" => "required|boolean",
+                    "consanguineousParents" => ["required", Rule::in(["-1", "0", "1", -1, 0, 1])],
                     "fullName" => "required",
                     "gender" => ["required", Rule::in(["-1", "0", "1", -1, 0, 1])],
                     "dateOfBirth" => "required|date_format:Y-m-d|before:today",

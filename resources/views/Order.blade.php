@@ -147,9 +147,9 @@
                 <li>Full Name:<strong> {{$order->patient->fullName}}</strong></li>
                 <li>Date of birth: <strong> {{$order->patient->dateOfBirth}}</strong></li>
                 <li>Reference ID:<strong> {{$order->patient->reference_id??"not specified"}}</strong></li>
-                <li>Gender:<strong>  {{$order->patient->gender=='0'?"male":"female"}}</strong></li>
+                <li>Gender:<strong>  {{$order->patient->gender->name}}</strong></li>
                 <li>Nationality: <strong>{{$order->patient->nationality["label"]}}</strong></li>
-                <li>Consanguineous parents:<strong> {{$order->patient->consanguineousParents?"yes":"no"}}</strong></li>
+                <li>Consanguineous parents:<strong> {{$order->patient->consanguineousParents->name}}</strong></li>
                 <li>City:<strong> {{optional($order->patient->contact)["city"]??"not specified"}}</strong></li>
                 <li>Street:<strong> {{optional($order->patient->contact)["address"]??"not specified"}}</strong></li>
                 <li>State:<strong> {{optional($order->patient->contact)['state']??"not specified"}}</strong></li>
@@ -178,8 +178,10 @@
     </tbody>
 </table>
 <footer>
-    <p>BION Genetic Laboratory <br>Add: South Al Ghubrah, Muscat, Sultanate of Oman - E:<a
-            href="mailto:info@biongenetic.com">info@biongenetic.com</a> - W:<a href="https://wa.me/96872739444">+968 7273 9444</a> - T:<a href="tel:+96822073641">+968 2207 3641</a></p>
+    <p>BION Genetic Laboratory <br>Add: South Al Ghubrah, Muscat, Sultanate of Oman<br>
+        E:<a href="mailto:info@biongenetic.com">info@biongenetic.com</a><br>
+        W:<a href="https://wa.me/96872739444">+968 7273 9444</a><br>
+        T:<a href="tel:+96822073641">+968 2207 3641</a></p>
 </footer>
 </body>
 </html>

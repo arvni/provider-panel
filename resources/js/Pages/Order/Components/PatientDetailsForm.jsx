@@ -68,8 +68,9 @@ const PatientDetailsForm = (props) => {
                                 error={!!props.errors["consanguineousParents"]}
                                 onChange={handleChange}
                             >
-                                <MenuItem value={1}>Yes</MenuItem>
-                                <MenuItem value={0}>No</MenuItem>
+                                <MenuItem value="1">Yes</MenuItem>
+                                <MenuItem value="0">No</MenuItem>
+                                <MenuItem value="-1">Unknown</MenuItem>
                             </Select>
                             {props.errors["consanguineousParents"] &&
                                 <FormHelperText>{props.errors["consanguineousParents"]}</FormHelperText>}
