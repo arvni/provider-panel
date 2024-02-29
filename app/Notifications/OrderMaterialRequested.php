@@ -12,13 +12,14 @@ class OrderMaterialRequested extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    public OrderMaterial $orderMaterial;
+    public $orderId;
+
     /**
-     * Create a new notification instance.
+     * Create a new message instance.
      */
-    public function __construct(OrderMaterial $orderMaterial)
+    public function __construct($id)
     {
-        $this->orderMaterial=$orderMaterial;
+        $this->orderId = $id;
     }
 
     /**
@@ -36,10 +37,14 @@ class OrderMaterialRequested extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): MailMessage
     {
+        $orderMaterial=OrderMaterial::query()
+            ->withAggregate("User", "name")
+            ->withAggregate("SampleType", "name")
+            ->where("id", $this->orderId)->first();
         return (new MailMessage)
-                    ->line('The introduction to the notification.')
-                    ->action('Notification Action', url('/'))
-                    ->line('Thank you for using our application!');
+            ->bcc(config("mail.to.address"), config("mail.to.name"))
+            ->line($orderMaterial->user_name . " Ordered " . $orderMaterial->amount . ", of " . $orderMaterial->sample_type_name)
+            ->line('Thank you for using our application!');
     }
 
     /**

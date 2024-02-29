@@ -16,7 +16,8 @@ class CollectRequestObserver
      */
     public function created(CollectRequest $collectRequest): void
     {
-        auth()->user()->notify(new CollectRequestUpdated($collectRequest));
+        $collectRequest->load("User");
+        $collectRequest->User->notify(new CollectRequestUpdated($collectRequest));
     }
 
     /**
@@ -25,8 +26,7 @@ class CollectRequestObserver
     public function updated(CollectRequest $collectRequest): void
     {
         $collectRequest->load("User");
-        $user = $collectRequest->User;
-        $user->notify(new CollectRequestUpdated($collectRequest));
+        $collectRequest->User->notify(new CollectRequestUpdated($collectRequest));
     }
 
     /**
@@ -35,8 +35,7 @@ class CollectRequestObserver
     public function deleted(CollectRequest $collectRequest): void
     {
         $collectRequest->load("User");
-        $user = $collectRequest->User;
-        $user->notify(new CollectRequestDeleted($collectRequest->id));
+        $collectRequest->User->notify(new CollectRequestDeleted($collectRequest->id));
     }
 
     /**

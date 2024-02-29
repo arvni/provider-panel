@@ -8,6 +8,7 @@ use App\Models\OrderMaterial;
 use App\Http\Requests\StoreOrderMaterialRequest;
 use App\Http\Requests\UpdateOrderMaterialRequest;
 use App\Models\SampleType;
+use App\Notifications\OrderMaterialRequested;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -46,7 +47,7 @@ class OrderMaterialController extends Controller
     public function store(StoreOrderMaterialRequest $request)
     {
         $orderMaterial=$this->orderMaterialRepository->create($request->all());
-        Mail::to(config("mail.to.address"),config("mail.to.name"))->send(new MaterialRequested($orderMaterial->id));
+        auth()->user()->notify(new OrderMaterialRequested($orderMaterial->id));
         return redirect()->back()->with(["status" => " order material successfully Added", "success" => true]);
     }
 

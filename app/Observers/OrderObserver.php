@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Enums\OrderStatus;
 use App\Models\Order;
 use App\Models\User;
 use App\Notifications\OrderRemovedByAdmin;
@@ -29,9 +30,10 @@ class OrderObserver
      */
     public function deleted(Order $order): void
     {
-        $order->load("User");
-        if (auth()->user()->id!==$order->user->id)
+        if ($order->status !== OrderStatus::REQUESTED || $order->status !== OrderStatus::PENDING) {
+            $order->load("User");
             $order->User->notify(new OrderRemovedByAdmin($order->orderId));
+        }
     }
 
     /**
