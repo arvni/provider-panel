@@ -178,10 +178,13 @@
     </tbody>
 </table>
 <footer>
-    <p>BION Genetic Laboratory <br>Add: South Al Ghubrah, Muscat, Sultanate of Oman<br>
-        E:<a href="mailto:info@biongenetic.com">info@biongenetic.com</a><br>
-        W:<a href="https://wa.me/96872739444">+968 7273 9444</a><br>
-        T:<a href="tel:+96822073641">+968 2207 3641</a></p>
+    <p style="font-size: 10px;">
+        <strong style="font-size: 10px;">BION Genetic Laboratory</strong><br>
+            Add: South Al Ghubrah, Muscat, Sultanate of Oman
+            -E:<a style="font-size: 10px;" href="mailto:info@biongenetic.com">info@biongenetic.com</a>
+            -W:<a style="font-size: 10px;" href="https://wa.me/96872739444">+968 7273 9444</a>
+            -T:<a style="font-size: 10px;" href="tel:+96822073641">+968 2207 3641</a>
+    </p>
 </footer>
 </body>
 </html>
