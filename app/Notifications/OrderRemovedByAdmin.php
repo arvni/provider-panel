@@ -12,14 +12,12 @@ class OrderRemovedByAdmin extends Notification implements ShouldQueue
     use Queueable;
 
     public string $orderId;
-    public array $cc=[];
 
     /**
      * Create a new notification instance.
      */
-    public function __construct(string $orderId,$cc=[])
+    public function __construct(string $orderId)
     {
-        $this->cc=$cc;
         $this->orderId=$orderId;
     }
 
@@ -38,12 +36,9 @@ class OrderRemovedByAdmin extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $mail= (new MailMessage)
+        return (new MailMessage)
             ->line("order #{$this->orderId} has been rejected by admin")
             ->line('Thank you for choosing us!');
-        if (count($this->cc))
-            $mail->cc($this->cc);
-        return $mail;
     }
 
     /**

@@ -13,14 +13,12 @@ class CollectRequestUpdated extends Notification implements ShouldQueue
     use Queueable;
 
     protected CollectRequest $collectRequest;
-    public array $cc=[];
 
     /**
      * Create a new notification instance.
      */
-    public function __construct(CollectRequest $collectRequest,$cc=[])
+    public function __construct(CollectRequest $collectRequest)
     {
-        $this->cc=$cc;
         $this->collectRequest = $collectRequest;
     }
 
@@ -41,9 +39,6 @@ class CollectRequestUpdated extends Notification implements ShouldQueue
     {
         return (new MailMessage)
             ->line("collect request #{$this->collectRequest->id} status changed to {$this->collectRequest->status->value}");
-        if (count($this->cc))
-            $mail->cc($this->cc);
-        return $mail;
     }
 
     /**
