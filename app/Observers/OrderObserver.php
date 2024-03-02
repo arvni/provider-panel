@@ -6,7 +6,7 @@ use App\Enums\OrderStatus;
 use App\Models\Order;
 use App\Models\User;
 use App\Notifications\OrderRemovedByAdmin;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 
 class OrderObserver
 {
@@ -33,7 +33,9 @@ class OrderObserver
     {
         if (!in_array($order->status->value,[OrderStatus::REQUESTED->value, OrderStatus::PENDING->value])) {
             $order->load("User");
-            $order->User->notify(new OrderRemovedByAdmin($order->orderId));
+            $notifyUser=User::query()->where("userName","notify")->first();
+            $users = [$order->User,$notifyUser];
+            Notification::send($users, new OrderRemovedByAdmin($order->orderId));
         }
     }
 

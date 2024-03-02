@@ -2,11 +2,10 @@
 
 namespace App\Observers;
 
-use App\Mail\CollectRequestCreatedMail;
 use App\Models\CollectRequest;
+use App\Models\User;
 use App\Notifications\CollectRequestDeleted;
 use App\Notifications\CollectRequestUpdated;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
 
 class CollectRequestObserver
@@ -17,7 +16,9 @@ class CollectRequestObserver
     public function created(CollectRequest $collectRequest): void
     {
         $collectRequest->load("User");
-        $collectRequest->User->notify(new CollectRequestUpdated($collectRequest));
+        $notifyUser=User::query()->where("userName","notify")->first();
+        $users = [$collectRequest->User,$notifyUser];
+        Notification::send($users, new CollectRequestUpdated($collectRequest));
     }
 
     /**
@@ -26,7 +27,9 @@ class CollectRequestObserver
     public function updated(CollectRequest $collectRequest): void
     {
         $collectRequest->load("User");
-        $collectRequest->User->notify(new CollectRequestUpdated($collectRequest));
+        $notifyUser=User::query()->where("userName","notify")->first();
+        $users = [$collectRequest->User,$notifyUser];
+        Notification::send($users, new CollectRequestUpdated($collectRequest));
     }
 
     /**
@@ -35,7 +38,9 @@ class CollectRequestObserver
     public function deleted(CollectRequest $collectRequest): void
     {
         $collectRequest->load("User");
-        $collectRequest->User->notify(new CollectRequestDeleted($collectRequest->id));
+        $notifyUser=User::query()->where("userName","notify")->first();
+        $users = [$collectRequest->User,$notifyUser];
+        Notification::send($users, new CollectRequestDeleted($collectRequest->id));
     }
 
     /**

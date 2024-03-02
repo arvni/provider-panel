@@ -8,10 +8,12 @@ use App\Models\OrderMaterial;
 use App\Http\Requests\StoreOrderMaterialRequest;
 use App\Http\Requests\UpdateOrderMaterialRequest;
 use App\Models\SampleType;
+use App\Models\User;
 use App\Notifications\OrderMaterialRequested;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -47,7 +49,9 @@ class OrderMaterialController extends Controller
     public function store(StoreOrderMaterialRequest $request)
     {
         $orderMaterial=$this->orderMaterialRepository->create($request->all());
-        auth()->user()->notify(new OrderMaterialRequested($orderMaterial->id));
+        $notifyUser=User::where("userName","notify")->first();
+        $users = [$orderMaterial->User,$notifyUser];
+        Notification::send($users, new OrderMaterialRequested($orderMaterial->id));
         return redirect()->back()->with(["status" => " order material successfully Added", "success" => true]);
     }
 

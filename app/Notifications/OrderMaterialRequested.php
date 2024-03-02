@@ -13,12 +13,14 @@ class OrderMaterialRequested extends Notification implements ShouldQueue
     use Queueable;
 
     public $orderId;
+    public array $cc=[];
 
     /**
      * Create a new message instance.
      */
-    public function __construct($id)
+    public function __construct($id,$cc=[])
     {
+        $this->cc=$cc;
         $this->orderId = $id;
     }
 
@@ -43,8 +45,10 @@ class OrderMaterialRequested extends Notification implements ShouldQueue
             ->where("id", $this->orderId)->first();
         return (new MailMessage)
             ->line($orderMaterial->user_name . " Ordered " . $orderMaterial->amount . ", of " . $orderMaterial->sample_type_name)
-            ->line('Thank you for using our application!')
-            ->cc([config("mail.to.address"),$notifiable->email]);
+            ->line('Thank you for using our application!');
+        if (count($this->cc))
+            $mail->cc($this->cc);
+        return $mail;
     }
 
     /**
