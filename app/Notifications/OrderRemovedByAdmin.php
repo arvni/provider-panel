@@ -40,7 +40,7 @@ class OrderRemovedByAdmin extends Notification implements ShouldQueue
         return (new MailMessage)
             ->line("order #{$this->orderId} has been rejected by admin")
             ->line('Thank you for choosing us!')
-            ->cc(config("mail.to.address"),config("mail.to.name"));
+            ->cc([config("mail.to.address"),$notifiable->email]);
     }
 
     /**

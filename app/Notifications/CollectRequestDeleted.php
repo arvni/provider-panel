@@ -38,7 +38,7 @@ class CollectRequestDeleted extends Notification implements ShouldQueue
     {
         return (new MailMessage)
             ->line("collect request #{$this->collectRequestId} has been deleted")
-            ->cc(config("mail.to.address"),config("mail.to.name"));
+            ->cc([config("mail.to.address"),$notifiable->email]);
     }
 
     /**

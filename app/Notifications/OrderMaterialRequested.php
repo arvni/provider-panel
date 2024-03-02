@@ -44,7 +44,7 @@ class OrderMaterialRequested extends Notification implements ShouldQueue
         return (new MailMessage)
             ->line($orderMaterial->user_name . " Ordered " . $orderMaterial->amount . ", of " . $orderMaterial->sample_type_name)
             ->line('Thank you for using our application!')
-            ->cc(config("mail.to.address"), config("mail.to.name"));
+            ->cc([config("mail.to.address"),$notifiable->email]);
     }
 
     /**
