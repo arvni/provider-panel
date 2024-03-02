@@ -37,8 +37,8 @@ class CollectRequestDeleted extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->bcc(config("mail.to.address"),config("mail.to.name"))
-            ->line("collect request #{$this->collectRequestId} has been deleted");
+            ->line("collect request #{$this->collectRequestId} has been deleted")
+            ->cc(config("mail.to.address"),config("mail.to.name"));
     }
 
     /**

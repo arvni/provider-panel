@@ -42,9 +42,9 @@ class OrderMaterialRequested extends Notification implements ShouldQueue
             ->withAggregate("SampleType", "name")
             ->where("id", $this->orderId)->first();
         return (new MailMessage)
-            ->bcc(config("mail.to.address"), config("mail.to.name"))
             ->line($orderMaterial->user_name . " Ordered " . $orderMaterial->amount . ", of " . $orderMaterial->sample_type_name)
-            ->line('Thank you for using our application!');
+            ->line('Thank you for using our application!')
+            ->cc(config("mail.to.address"), config("mail.to.name"));
     }
 
     /**

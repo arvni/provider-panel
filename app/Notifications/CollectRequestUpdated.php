@@ -38,8 +38,8 @@ class CollectRequestUpdated extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->bcc(config("mail.to.address"),config("mail.to.address"))
-            ->line("collect request #{$this->collectRequest->id} status changed to {$this->collectRequest->status->value}");
+            ->line("collect request #{$this->collectRequest->id} status changed to {$this->collectRequest->status->value}")
+            ->cc(config("mail.to.address"),config("mail.to.address"));
     }
 
     /**
