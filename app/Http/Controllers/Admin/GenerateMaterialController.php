@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\OrderMaterialStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Material;
 use App\Models\OrderMaterial;
@@ -20,6 +21,7 @@ class GenerateMaterialController extends Controller
         if ($orderMaterial->Materials()->count())
             return back()->withErrors("This Order Previously Generated");
         $this->generateMaterials($orderMaterial, $request->get("expireDate"));
+        $orderMaterial->update(["status"=>OrderMaterialStatus::GENERATED]);
         return back()->with(["success"=>true, "status"=>"Successfully Generated"]);
     }
 
