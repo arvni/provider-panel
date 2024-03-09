@@ -6,6 +6,7 @@ use App\Enums\OrderStatus;
 use App\Models\Order;
 use App\Models\User;
 use App\Notifications\OrderRemovedByAdmin;
+use App\Notifications\OrderStatusUpdated;
 use Illuminate\Support\Facades\Notification;
 
 class OrderObserver
@@ -23,7 +24,12 @@ class OrderObserver
      */
     public function updated(Order $order): void
     {
-        //
+        if (in_array($order->status->value, [OrderStatus::REPORTED->value, OrderStatus::RECEIVED->value, OrderStatus::PROCESSING->value])) {
+            $order->load("User");
+            $notifyUser = User::query()->where("userName", "notify")->first();
+            $users = [$order->User, $notifyUser];
+            Notification::send($users, new OrderStatusUpdated($order));
+        }
     }
 
     /**
@@ -31,10 +37,10 @@ class OrderObserver
      */
     public function deleted(Order $order): void
     {
-        if (!in_array($order->status->value,[OrderStatus::REQUESTED->value, OrderStatus::PENDING->value])) {
+        if (!in_array($order->status->value, [OrderStatus::REQUESTED->value, OrderStatus::PENDING->value])) {
             $order->load("User");
-            $notifyUser=User::query()->where("userName","notify")->first();
-            $users = [$order->User,$notifyUser];
+            $notifyUser = User::query()->where("userName", "notify")->first();
+            $users = [$order->User, $notifyUser];
             Notification::send($users, new OrderRemovedByAdmin($order->orderId));
         }
     }
