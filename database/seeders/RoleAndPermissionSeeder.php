@@ -99,7 +99,8 @@ class RoleAndPermissionSeeder extends Seeder
                     "Show",
                     "Create",
                     "Update",
-                    "Delete"
+                    "Delete",
+                    "Sync"
                 ],
             ]
         ];

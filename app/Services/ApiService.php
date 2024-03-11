@@ -2,25 +2,36 @@
 
 namespace App\Services;
 
-use App\Models\CollectRequest;
-use App\Models\User;
+use Exception;
 use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class ApiService
 {
 
-    public static function get($url,$query=[]): PromiseInterface|Response
+    public static function get($url, $query = []): PromiseInterface|Response
     {
-        $token=self::getApiToken();
-        return Http::withToken($token)->timeout(180)->get($url,$query);
+        try {
+            $token = self::getApiToken();
+            return Http::withToken($token)->timeout(180)->get($url, $query);
+        } catch (Exception $exception) {
+            Log::error($exception->getMessage(), $exception->getTrace());
+            abort(400);
+        }
     }
-    public static function post($url,$data): PromiseInterface|Response
+
+    public static function post($url, $data): PromiseInterface|Response
     {
-        $token=self::getApiToken();
-        return Http::withToken($token)->timeout(180)->post($url,$data);
+        try {
+            $token = self::getApiToken();
+            return Http::withToken($token)->timeout(180)->post($url, $data);
+        } catch (Exception $exception) {
+            Log::error($exception->getMessage(), $exception->getTrace());
+            return Http::response([], 400);
+        }
     }
 
     public static function getApiToken()
@@ -35,7 +46,7 @@ class ApiService
             if ($response->ok()) {
                 $token = $response->json("access_token");
                 Cache::put("sanctumToken", encrypt($token), now()->addMinutes(120));
-            }else {
+            } else {
                 abort(401);
             }
         }

@@ -68,6 +68,17 @@ class UserPolicy
         return $user->can("Admin.User.Delete");
     }
 
+    /**
+     * Determine whether the user can view any models.
+     *
+     * @param User $user
+     * @return Response|bool
+     */
+    public function sync(User $user)
+    {
+        return $user->can("Admin.User.Sync");
+    }
+
     public function changePassword(User $user)
     {
         return $user->can("Admin.User.Update");

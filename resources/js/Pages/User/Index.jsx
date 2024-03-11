@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import {Alert, Button, IconButton, Paper, Stack} from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
-import {Edit, PasswordOutlined} from "@mui/icons-material";
+import {Edit, PasswordOutlined, Sync} from "@mui/icons-material";
 import PageHeader from "@/Components/PageHeader";
 import TableLayout from "@/Layouts/TableLayout";
 import {usePageReload} from "@/Services/api";
@@ -103,6 +103,8 @@ function Index({users: {data: usersData, ...pagination}, request}) {
 
     const handlePage = (e) => e.preventDefault() || reload();
 
+    const syncUsers = () => router.post(route("admin.users.sync"));
+
     return (<>
             <PageHeader
                 title="Users"
@@ -113,7 +115,13 @@ function Index({users: {data: usersData, ...pagination}, request}) {
                             color="success"
                             startIcon={<AddIcon/>}>
                         Add
-                    </Button>
+                    </Button>,
+                    <Button variant="contained"
+                            onClick={syncUsers}
+                            color="success"
+                            startIcon={<Sync/>}>
+                        Sync Referrers
+                    </Button>,
                 ]}
             />
             <Paper sx={{mt: "3em", p: "1rem"}}>

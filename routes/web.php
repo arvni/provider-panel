@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\OrderFormController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SampleTypeController;
+use App\Http\Controllers\Admin\SyncReferrersController;
 use App\Http\Controllers\Admin\TestController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\DashboardController;
@@ -47,6 +48,7 @@ Route::get('/', function () {
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
     Route::prefix("admin")->as("admin.")->group(function () {
+        Route::post("/users/sync", SyncReferrersController::class)->name("users.sync");
         Route::resource("/users", UserController::class);
         Route::put("/change-password/{user}", ChangePasswordController::class)->name("users.updatePassword");
         Route::resource("/roles", RoleController::class);
