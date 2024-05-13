@@ -32,6 +32,6 @@ class SendCollectionRequest implements ShouldQueue
     {
         $res = RequestLogistic::send($this->collectRequest);
         if (!$res->ok())
-            $this->fail($res);
+            $this->fail($res->toException());
     }
 }
