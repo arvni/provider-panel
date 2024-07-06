@@ -80,4 +80,9 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(OrderMaterial::class);
     }
+
+    public function Tests()
+    {
+        return $this->belongsToMany(Test::class);
+    }
 }

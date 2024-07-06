@@ -9,7 +9,7 @@ use JetBrains\PhpStorm\ArrayShape;
 
 abstract class BaseRepository
 {
-    protected Builder $query;
+    protected $query;
     protected int $pageSize=10;
 
     /**

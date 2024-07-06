@@ -30,6 +30,21 @@ class TestRepository extends BaseRepository implements TestRepositoryInterface
         return $this->applyPagination($queryData["pageSize"] ?? $this->pageSize);
     }
 
+    public function listUserTests(array $queryData): LengthAwarePaginator
+    {
+        $this->query = auth()->user()->Tests();
+        $this->query
+            ->withAggregate("DefaultSampleType", "name")
+            ->withAggregate("Consent", "file")
+            ->withAggregate("Instruction", "file")
+            ->withAggregate("OrderForm", "file")
+            ->with(["sampleTypes"]);
+        if (isset($queryData["active"]))
+            $this->query->active();
+        $this->applyQueries($queryData);
+        return $this->applyPagination($queryData["pageSize"] ?? $this->pageSize);
+    }
+
     public function getAll(array $queryData): Collection|array
     {
         $this->applyQueries($queryData);
@@ -75,7 +90,7 @@ class TestRepository extends BaseRepository implements TestRepositoryInterface
      */
     public function getById($id): Test|null
     {
-        return $this->query->where("id", $id)->with(["Consent:name,id","Instruction:name,id", "OrderForm", "SampleTypes"])->first();
+        return $this->query->where("id", $id)->with(["Consent:name,id", "Instruction:name,id", "OrderForm", "SampleTypes"])->first();
     }
 
     /**
@@ -85,7 +100,7 @@ class TestRepository extends BaseRepository implements TestRepositoryInterface
      */
     public function show(Test $test): Test
     {
-        return $test->load(["Consent:name,id","Instruction:name,id", "OrderForm", "SampleTypes"]);
+        return $test->load(["Consent:name,id", "Instruction:name,id", "OrderForm", "SampleTypes"]);
     }
 
     /**

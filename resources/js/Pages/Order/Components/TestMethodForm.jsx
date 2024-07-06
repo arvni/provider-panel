@@ -26,7 +26,7 @@ const TestMethodForm = (props) => {
     useEffect(() => {
         handleTestSearch({})
     }, []);
-    const handleTestSearch = (values) => getData(route("api.tests.list"), values).then(res => setTests(res.data));
+    const handleTestSearch = (values) => getData(route("api.user.tests.list"), values).then(res => setTests(res.data));
     const toggleSelect = (id) => {
         let tmp = [...props.tests];
         let orderIndex = props.tests.findIndex((item) => item.id === id);

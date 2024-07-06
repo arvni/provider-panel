@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import {Alert, Button, IconButton, Paper, Stack} from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
-import {Edit, PasswordOutlined, Sync} from "@mui/icons-material";
+import {Edit, EditCalendar, PasswordOutlined, Sync} from "@mui/icons-material";
 import PageHeader from "@/Components/PageHeader";
 import TableLayout from "@/Layouts/TableLayout";
 import {usePageReload} from "@/Services/api";
@@ -93,6 +93,8 @@ function Index({users: {data: usersData, ...pagination}, request}) {
             type: "actions",
             render: (row) => <Stack direction="row" spacing={1}>
                 <IconButton onClick={handleEdit(row.id)} href={route("admin.users.edit", row.id)}><Edit/></IconButton>
+                <IconButton onClick={()=>router.get(route("admin.users.tests.edit", row.id))}
+                            href={route("admin.users.tests.edit", row.id)}><EditCalendar/></IconButton>
                 <IconButton onClick={handleOpenChangePasswordForm(row)}><PasswordOutlined/></IconButton>
             </Stack>
         }

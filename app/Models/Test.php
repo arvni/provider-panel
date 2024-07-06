@@ -70,5 +70,10 @@ class Test extends Model
         return $query->where("is_active", true);
     }
 
+    public function Tests()
+    {
+        return $this->belongsToMany(User::class);
+    }
+
 
 }

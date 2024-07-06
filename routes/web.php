@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\ChangePasswordController;
 use App\Http\Controllers\Admin\CollectRequestController;
 use App\Http\Controllers\Admin\ConsentController;
 use App\Http\Controllers\Admin\ConsentTermController;
+use App\Http\Controllers\Admin\EditUserTestsListController;
 use App\Http\Controllers\Admin\GenerateMaterialController;
 use App\Http\Controllers\Admin\InstructionController;
 use App\Http\Controllers\Admin\OrderFormController;
@@ -13,7 +14,9 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SampleTypeController;
 use App\Http\Controllers\Admin\SyncReferrersController;
 use App\Http\Controllers\Admin\TestController;
+use App\Http\Controllers\Admin\UpdateUserTestsListController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Api\ListUserTestsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DownloadOrderSummaryController;
 use App\Http\Controllers\DownloadReportController;
@@ -49,6 +52,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
     Route::prefix("admin")->as("admin.")->group(function () {
         Route::post("/users/sync", SyncReferrersController::class)->name("users.sync");
+        Route::get("/users/{user}/tests", EditUserTestsListController::class)->name("users.tests.edit");
+        Route::put("/users/{user}/tests", UpdateUserTestsListController::class)->name("users.tests.update");
         Route::resource("/users", UserController::class);
         Route::put("/change-password/{user}", ChangePasswordController::class)->name("users.updatePassword");
         Route::resource("/roles", RoleController::class);
@@ -72,6 +77,7 @@ Route::middleware('auth')->group(function () {
     Route::get("orders/{order}/edit/{step}", [OrderController::class, "edit"])->name("orders.edit");
     Route::put("orders/{order}/edit/{step}", [OrderController::class, "update"])->name("orders.update");
     Route::get("order-summary/{order}", DownloadOrderSummaryController::class)->name("order-summary");
+    Route::get("/tests/list", ListUserTestsController::class)->name("api.user.tests.list");
     Route::get("tests", ListTestController::class)->name("tests.index");
 });
 
