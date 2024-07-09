@@ -24,9 +24,9 @@ const TestList = (props) => {
             setData(previousData => ({...previousData, tests: temp}));
         }
     }
-    const handleAdd = (_, v) => {
-        if (v.length > 0) {
-            let test = v[0];
+    const handleAdd = (e, v) => {
+        if (v) {
+            let test = v;
             let temp = data.tests;
             let index = temp.findIndex(item => item.id === test.id);
             if (index >= 0)
@@ -35,6 +35,8 @@ const TestList = (props) => {
                 temp.push(test);
             setData(previousData => ({...previousData, tests: temp}));
         }
+
+        handleSearch(null,"")
     };
     const getStyle = (test) => {
         let index = data.tests.findIndex(item => item.id === test.id);
@@ -42,8 +44,10 @@ const TestList = (props) => {
             return {background: "#f0f0f0"}
         return null;
     }
+    const [search, setSearch] = useState("")
     const handleSearch = (_, search) => {
         setLoading(true);
+        setSearch(search);
         axios.get(route("api.tests.list", {search}))
             .then(res => {
                 setLoading(false)
@@ -57,41 +61,44 @@ const TestList = (props) => {
                 {data.tests.map(test => <Chip label={test.name} variant="outlined"
                                               onDelete={handleDelete(test.id)}/>)}</Stack>
             <hr/>
-            <Stack direction="row" spacing={2}><Autocomplete
-                id="country-select-demo"
-                sx={{width: 300}}
-                options={tests}
-                autoHighlight
-                loading={loading}
-                getOptionLabel={(option) => option.label}
-                renderOption={(props, option) => {
-                    const {key, ...optionProps} = props;
-                    return (
-                        <Box
-                            key={key}
-                            component="li"
-                            {...optionProps}
-                            sx={getStyle(option)}
-                        >
-                            {option.name}
-                        </Box>
-                    );
-                }}
-                multiple
-                value={[]}
-                onChange={handleAdd}
-                onInputChange={handleSearch}
-                renderInput={(params) => (
-                    <TextField
-                        {...params}
-                        label="Choose a Test"
-                        inputProps={{
-                            ...params.inputProps,
-                            autoComplete: 'new-password', // disable autocomplete and autofill
-                        }}
-                    />
-                )}
-            />
+            <Stack direction="row" spacing={2}>
+                <Autocomplete
+                    sx={{width: 300}}
+                    options={tests}
+                    autoHighlight
+                    disableClearable
+                    disableCloseOnSelect
+                    disablePortal
+                    dis
+                    loading={loading}
+                    getOptionLabel={(option) => option.name}
+                    renderOption={(props, option) => {
+                        return (
+                            <Box key={option.id}
+                                 component="li"
+                                 {...props}
+                                 sx={getStyle(option)}
+                            >
+                                {option.name}
+                            </Box>
+                        );
+                    }}
+                    value={null}
+                    name="Test"
+                    onChange={handleAdd}
+                    onInputChange={handleSearch}
+                    inputValue={search}
+                    renderInput={(params) => (
+                        <TextField
+                            {...params}
+                            label="Choose a Test"
+                            inputProps={{
+                                ...params.inputProps,
+                                autoComplete: 'new-password', // disable autocomplete and autofill
+                            }}
+                        />
+                    )}
+                />
                 <Button onClick={handleSubmit}
                         variant="contained">Submit</Button>
             </Stack>
