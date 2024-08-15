@@ -38,7 +38,13 @@ class SyncOrdersStatus extends Command
         };
         $this->info("check the orders that needed to update their status");
         $query = Order::query()
-            ->whereIn("status", [OrderStatus::PROCESSING->value, OrderStatus::SENT->value, OrderStatus::SEMI_REPORTED->value, OrderStatus::RECEIVED->value]);
+            ->whereIn("status", [
+                OrderStatus::PROCESSING->value,
+                OrderStatus::SENT->value,
+                OrderStatus::SEMI_REPORTED->value,
+                OrderStatus::RECEIVED->value,
+                OrderStatus::LOGISTIC_REQUESTED->value,
+            ]);
 
         if ($query->clone()->count()) {
             $orderIds = $query->clone()
@@ -48,9 +54,9 @@ class SyncOrdersStatus extends Command
             if ($ordersStatus->ok()) {
                 foreach ($ordersStatus["data"] as $orderStatus) {
                     $id = last(explode(".", $orderStatus["order_id"]));
-                    $order = Order::query()->find($id);
+                    $order = Order::find($id);
                     if ($order) {
-                        if ($orderStatus["status"] === "processing" && $orderStatus !== OrderStatus::PROCESSING) {
+                        if ($orderStatus["status"] === "processing" && $order->status !== OrderStatus::PROCESSING) {
                             $order->CollectRequest()->update(["status" => CollectRequestStatus::RECEIVED]);
                         }
                         $order->status = $status($orderStatus["status"], $order->status);

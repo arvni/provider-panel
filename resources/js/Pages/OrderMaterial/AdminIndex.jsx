@@ -1,16 +1,15 @@
 import TableLayout from "@/Layouts/TableLayout";
 
 import React, {useState} from "react";
-import AddForm from "@/Pages/OrderMaterial/Components/AddForm";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import {useForm, usePage} from "@inertiajs/react";
 import {usePageReload} from "@/Services/api";
-import {Button, IconButton, Paper, Stack} from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
+import {Avatar, IconButton, Paper, Stack} from "@mui/material";
 import PageHeader from "@/Components/PageHeader";
 import {Edit as EditIcon, RemoveRedEye} from "@mui/icons-material";
 import GenerateForm from "@/Pages/OrderMaterial/Components/GenerateForm.jsx";
 import DeleteButton from "@/Components/DeleteButton.jsx";
+import Excel from "@/../images/excel.png";
 
 const Index = () => {
     const {orderMaterials: {data: orderMaterialsData, ...pagination}, request} = usePage().props;
@@ -89,7 +88,9 @@ const Index = () => {
     const handlePage = (e) => e.preventDefault() || reload();
     return (
         <>
-            <PageHeader title="Order Materials"/>
+            <PageHeader title="Order Materials" actions={<IconButton href={route("admin.materials")}>
+                <Avatar src={Excel} variant="square"/>
+            </IconButton>}/>
             <Paper sx={{mt: "1em", p: "1rem"}}>
                 <TableLayout
                     columns={columns}

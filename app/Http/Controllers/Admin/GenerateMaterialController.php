@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\OrderMaterialStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\GenerateMaterialRequest;
 use App\Models\Material;
 use App\Models\OrderMaterial;
 use Carbon\Carbon;
@@ -15,7 +16,7 @@ class GenerateMaterialController extends Controller
     /**
      * Handle the incoming request.
      */
-    public function __invoke(OrderMaterial $orderMaterial, Request $request)
+    public function __invoke(OrderMaterial $orderMaterial, GenerateMaterialRequest $request)
     {
 
         if ($orderMaterial->Materials()->count())
@@ -31,7 +32,7 @@ class GenerateMaterialController extends Controller
         for ($i =0; $i < $orderMaterial->amount; $i++) {
             $tmp = new Material([
                 "barcode"=>$this->generateBarcode($expireDate,$orderMaterial->SampleType->name,$i),
-                "expireDate"=>Carbon::parse($expireDate)
+                "expire_date"=>Carbon::parse($expireDate)
             ]);
             $tmp->SampleType()->associate($orderMaterial->SampleType->id);
             $tmp->User()->associate($orderMaterial->User->id);

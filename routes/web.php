@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\CollectRequestController;
 use App\Http\Controllers\Admin\ConsentController;
 use App\Http\Controllers\Admin\ConsentTermController;
 use App\Http\Controllers\Admin\EditUserTestsListController;
+use App\Http\Controllers\Admin\ExportExcelMaterialsController;
 use App\Http\Controllers\Admin\GenerateMaterialController;
 use App\Http\Controllers\Admin\InstructionController;
 use App\Http\Controllers\Admin\OrderFormController;
@@ -66,6 +67,7 @@ Route::middleware('auth')->group(function () {
         Route::resource("sampleTypes", SampleTypeController::class);
         Route::resource("tests", TestController::class)->except("show");
         Route::resource("orderMaterials", OrderMaterialAdminController::class)->only(["show", "index", "destroy"]);
+        Route::get("/materials", ExportExcelMaterialsController::class)->name("materials");
         Route::post("orderMaterials/{orderMaterial}/generate-material", GenerateMaterialController::class)->name("orderMaterials.generate");
     });
     Route::get("/files/{type}/{id}/{filename?}", GetFileController::class)->name("file");
@@ -79,11 +81,6 @@ Route::middleware('auth')->group(function () {
     Route::get("order-summary/{order}", DownloadOrderSummaryController::class)->name("order-summary");
     Route::get("/tests/list", ListUserTestsController::class)->name("api.user.tests.list");
     Route::get("tests", ListTestController::class)->name("tests.index");
-});
-
-Route::get("/test", function () {
-    $collectRequest = CollectRequest::latest()->first();
-    return RequestLogistic::send($collectRequest);
 });
 
 require __DIR__ . '/auth.php';

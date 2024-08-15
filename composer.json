@@ -17,6 +17,7 @@
         "laravel/sanctum": "^3.2",
         "laravel/telescope": "^4.17",
         "laravel/tinker": "^2.8",
+        "maatwebsite/excel": "^3.1",
         "milon/barcode": "^10.0",
         "spatie/laravel-permission": "^6.3",
         "tightenco/ziggy": "^1.0"
