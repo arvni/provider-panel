@@ -14,13 +14,13 @@ class MaterialExport implements FromCollection
      */
     public function collection()
     {
-        $materials = Material::with(["Sample.Order.CollectRequest", "Sample.Order.Patient"])->withAggregate("User", "name")->get();
+        $materials = Material::with(["SampleType","Sample.Order.CollectRequest", "Sample.Order.Patient"])->withAggregate("User", "name")->get();
         $keys = [
             "barcode" => "Barcode",
+            "sampleType" => "sample Type",
             "created_at" => "created At",
             "expired_at" => "expired At",
             "clientName" => "Client Name",
-            "sampleType" => "sample Type",
             "collectionDate" => "collection Date",
             "patientName" => "PatientName",
             "status" => "Order Status",
@@ -32,10 +32,10 @@ class MaterialExport implements FromCollection
         foreach ($materials as $material) {
             $output[] = [
                 "barcode" => $material->barcode,
+                "sampleType" => $material?->SampleType?->name,
                 "created_at" => $material->created_at ? Carbon::parse($material->created_at)->format("Y-m-d H:i") : null,
                 "expired_at" => $material->expired_at ? Carbon::parse($material->expired_at)->format("Y-m-d H:i") : null,
                 "clientName" => $material->user_name,
-                "sampleType" => $material->Sample?->SampleType?->name,
                 "collectionDate" => $material->Sample?->collectionDate,
                 "patientName" => $material->Sample?->Order?->Patient?->fullName,
                 "status" => $material->Sample?->Order?->status?->value,
