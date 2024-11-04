@@ -16,8 +16,9 @@ import {
 import ClientLayout from "@/Layouts/AuthenticatedLayout";
 import {Close, Done} from "@mui/icons-material";
 import ConsanguineousParents from "@/Enums/ConsanguineousParents.js";
+import ListItemButton from "@mui/material/ListItemButton";
 
-const Show = ({order}) => {
+const Show = ({order: {consents: {consentForm, ...restConsents}, ...restOrder}}) => {
     return <Paper sx={{p: "1em", mt: "1em"}}>
         <Stack
             direction="row"
@@ -26,16 +27,16 @@ const Show = ({order}) => {
                 component={"h1"}
                 fontWeight={"900"}
                 fontSize={"18px"}
-            >Order ID {order.id}</Typography>
+            >Order ID {restOrder.id}</Typography>
             <Button
-                href={route("order-summary", order.id)}
+                href={route("order-summary", restOrder.id)}
                 target="_blank"
                 variant="contained"
             >Download Order Summary</Button>
         </Stack>
         <Typography>Analysis requested:</Typography>
         <ul>
-            <li>{order.tests.map((test) => <Typography fontWeight="600">{test.name}</Typography>)}</li>
+            <li>{restOrder.tests.map((test) => <Typography fontWeight="600">{test.name}</Typography>)}</li>
         </ul>
         <Card>
             <CardHeader title="Patient details" sx={{background: "#c0c0c0"}}/>
@@ -43,30 +44,32 @@ const Show = ({order}) => {
                 <Grid container spacing={1}>
                     <Grid item xs={12} md={6}>
                         <ul>
-                            <li><strong>Full Name:</strong> {order.patient?.fullName}</li>
-                            <li><strong>Date of birth:</strong> {order.patient?.dateOfBirth}</li>
-                            <li><strong>Reference ID:</strong> {order.patient?.reference_id ?? "not specified"}</li>
-                            <li><strong>Gender:</strong> {(order.patient?.gender*1) ? "male" : "female"}</li>
-                            <li><strong>Nationality:</strong> {order.patient?.nationality?.label}</li>
-                            <li><strong>City:</strong> {order.patient?.contact?.city ?? "not specified"}</li>
-                            <li><strong>Street:</strong> {order.patient?.contact?.address ?? "not specified"}</li>
-                            <li><strong>State:</strong> {order.patient?.contact?.state ?? "not specified"}</li>
-                            <li><strong>Phone:</strong> {order.patient?.contact?.phone ?? "not specified"}</li>
-                            <li><strong>Country:</strong> {order.patient?.contact?.country?.label}</li>
-                            <li><strong>Email:</strong> {order.patient?.contact?.email ?? "not specified"}</li>
+                            <li><strong>Full Name:</strong> {restOrder.patient?.fullName}</li>
+                            <li><strong>Date of birth:</strong> {restOrder.patient?.dateOfBirth}</li>
+                            <li><strong>Reference ID:</strong> {restOrder.patient?.reference_id ?? "not specified"}</li>
+                            <li><strong>Gender:</strong> {(restOrder.patient?.gender * 1) ? "male" : "female"}</li>
+                            <li><strong>Nationality:</strong> {restOrder.patient?.nationality?.label}</li>
+                            <li><strong>City:</strong> {restOrder.patient?.contact?.city ?? "not specified"}</li>
+                            <li><strong>Street:</strong> {restOrder.patient?.contact?.address ?? "not specified"}</li>
+                            <li><strong>State:</strong> {restOrder.patient?.contact?.state ?? "not specified"}</li>
+                            <li><strong>Phone:</strong> {restOrder.patient?.contact?.phone ?? "not specified"}</li>
+                            <li><strong>Country:</strong> {restOrder.patient?.contact?.country?.label}</li>
+                            <li><strong>Email:</strong> {restOrder.patient?.contact?.email ?? "not specified"}</li>
                             <li><strong>Consanguineous
-                                parents:</strong> {ConsanguineousParents.get(order.patient?.consanguineousParents) }</li>
+                                parents:</strong> {ConsanguineousParents.get(restOrder.patient?.consanguineousParents)}
+                            </li>
                         </ul>
                     </Grid>
                     <Grid item xs={12} md={6}>
                         <Typography fontWeight={"600"}>Material details</Typography>
                         <ol>
-                            {order.samples?.map((sample, index) => <li key={sample.id}>
+                            {restOrder.samples?.map((sample, index) => <li key={sample.id}>
                                 <ul style={{paddingLeft: "30px"}}>
                                     <li><strong>Sample type:</strong>{sample.sample_type?.name} </li>
                                     <li><strong>Sample ID:</strong>{sample.sampleId ?? "not specified"}</li>
                                     <li><strong>Sample Collection Date:</strong>{sample.collectionDate}</li>
-                                    {sample?.material&&<li><strong>Expire Date:</strong>{sample.material?.expire_date}</li>}
+                                    {sample?.material &&
+                                        <li><strong>Expire Date:</strong>{sample.material?.expire_date}</li>}
                                 </ul>
                             </li>)}
                         </ol>
@@ -78,7 +81,7 @@ const Show = ({order}) => {
             <CardHeader title="Request Form" sx={{background: "#c0c0c0"}}/>
             <CardContent>
                 <Grid container>
-                    {order.orderForms.map(orderForm => <Grid item xs={12} md={6} key={orderForm.id}>
+                    {restOrder.orderForms.map(orderForm => <Grid item xs={12} md={6} key={orderForm.id}>
                         <List>
                             {orderForm.formData.map(item => <ListItem>
                                 <ListItemText>
@@ -96,12 +99,19 @@ const Show = ({order}) => {
                 <Grid container>
                     <Grid item xs={12}>
                         <List>
-                            {order.consents.map((consent, index) => <ListItem key={index}>
+                            {Object.values(restConsents).map((consent, index) => <ListItem key={index}>
                                 <ListItemAvatar>
                                     <Avatar>{consent.value ? <Done color="success"/> : <Close color="error"/>}</Avatar>
                                 </ListItemAvatar>
                                 <ListItemText primary={consent.title}/>
                             </ListItem>)}
+                            <ListItem>
+                                <ListItemText primary="Consent Form"
+                                              secondary={<List>
+                                                  {consentForm.map(item => <ListItemButton href={"/files/" + item}
+                                                                                           target="_blank">Download</ListItemButton>)}
+                                              </List>}/>
+                            </ListItem>
                         </List>
                     </Grid>
                 </Grid>

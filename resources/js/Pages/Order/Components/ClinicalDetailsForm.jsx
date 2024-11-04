@@ -1,6 +1,6 @@
 import {
     Button, Divider,
-    Grid,
+    Grid, InputLabel,
     Stack,
 } from "@mui/material";
 import * as React from "react";
@@ -29,9 +29,10 @@ const ClinicalDetailsForm = (props) => {
                                          defaultValue={el.value ?? null}/>
                     </Grid>)}
                 </Grid>
+                {orderForm.formData.length ? <Divider sx={{mb: 1}}/> : null}
             </Grid>)}
             <Grid item xs={12}>
-                <Divider/>
+                <InputLabel>Upload Medical Records and Past Test Results</InputLabel>
                 <FileUploader title="Files" onChange={props.onFileChanged} defaultValues={props.files} name="files"/>
             </Grid>
             <Grid item xs={12} mt={2}>

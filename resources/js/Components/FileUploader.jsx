@@ -24,8 +24,8 @@ const FileUploader = ({title, onChange, name, defaultValues = []}) => {
     return <>
         <FormControlLabel labelPlacement="top" sx={{mt:2}}
                           label={<Box>
-                              <Paper sx={{padding:2}}>
-                                  <Stack direction="column" spacing={2}>
+                              <Paper sx={{padding:2}} variant="outlined">
+                                  <Stack direction="column" spacing={2} alignItems="center">
                                       <UploadFile fontSize="large"/>
                                       <Typography>{title}</Typography>
                                   </Stack>

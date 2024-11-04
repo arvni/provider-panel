@@ -70,6 +70,7 @@ Route::middleware('auth')->group(function () {
         Route::get("/materials", ExportExcelMaterialsController::class)->name("materials");
         Route::post("orderMaterials/{orderMaterial}/generate-material", GenerateMaterialController::class)->name("orderMaterials.generate");
     });
+    Route::get("patient-list",\App\Http\Controllers\Api\PatientListController::class)->name("api.patients.list");
     Route::get("/files/{type}/{id}/{filename?}", GetFileController::class)->name("file");
     Route::post("orders/logistic", StoreCollectRequestController::class)->name("orders.logistic");
     Route::post("orders/create-by-barcode", AddOrderByBarcodeController::class)->name("orders.create-by-barcode");

@@ -27,10 +27,10 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
     protected UploadFileService $uploadFileService;
     protected materialRepositoryInterface $materialRepository;
 
-    public function __construct(Order                            $order,
-                                OrderFormRepositoryInterface     $orderFormRepository,
-                                UploadFileService                $uploadFileService,
-                                materialRepositoryInterface $materialRepository)
+    public function __construct(Order                        $order,
+                                OrderFormRepositoryInterface $orderFormRepository,
+                                UploadFileService            $uploadFileService,
+                                materialRepositoryInterface  $materialRepository)
     {
         $this->query = $order->newQuery();
         $this->orderFormRepository = $orderFormRepository;
@@ -90,8 +90,8 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
     public function getRecentlyOrders()
     {
         return $this->query
-            ->select(["id", "patient_id", "updated_at", "created_at", "status","user_id"])
-            ->where("user_id",auth()->user()->id)
+            ->select(["id", "patient_id", "updated_at", "created_at", "status", "user_id"])
+            ->where("user_id", auth()->user()->id)
             ->withAggregate("Tests", "name")
             ->withAggregate("Patient", "fullName")
             ->latest()
@@ -102,7 +102,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
     public function notDownloadedOrdersReportCount()
     {
         return $this->query
-            ->where("user_id",auth()->user()->id)
+            ->where("user_id", auth()->user()->id)
             ->where("status", OrderStatus::REPORTED)
             ->count();
     }
@@ -198,7 +198,6 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
             ...$newDetails,
         ]);
 
-
         switch ($step) {
             case OrderStep::PATIENT_DETAILS:
                 if (isset($newDetails["id"])) {
@@ -252,7 +251,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
                             $sample->save();
                         $samplesIds[] = $sample->id;
                     } else {
-                       $sample=$this->createSample($sampleDetails,$order,$sampleType);
+                        $sample = $this->createSample($sampleDetails, $order, $sampleType);
                         $samplesIds[] = $sample->id;
                     }
                 }
@@ -274,6 +273,15 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
                     "files" => $files,
                 ]);
                 break;
+            case OrderStep::CONSENT_FORM:
+                $uploadedFiles = !empty($newDetails["consentForm"]) ? array_filter($newDetails["consentForm"], fn($file) => is_string($file)) : [];
+                $files = array_merge($uploadedFiles, $this->uploadFileService->init("Order/$order->id/", "consentForm"));
+                $order->fill([
+                    "consents" => [
+                        ...$order->consents,
+                        "consentForm" => $files
+                    ],
+                ]);
         }
 
         $order->step = $step->next();
@@ -334,7 +342,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         }
     }
 
-    protected function createSample($sampleDetails,Order $order,SampleType $sampleType)
+    protected function createSample($sampleDetails, Order $order, SampleType $sampleType)
     {
         $sample = new Sample($sampleDetails);
         $sample->SampleType()->associate($sampleType->id);
@@ -351,8 +359,8 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
     public function createOrderByBarcode(string $barcode): Order
     {
         $material = $this->materialRepository->getByBarcode($barcode);
-        $order=$this->create(["tests"=>[$material->sampleType->defaultTest->test]]);
-        $this->createSample(["sampleId"=>$barcode],$order,$material->sampleType);
+        $order = $this->create(["tests" => [$material->sampleType->defaultTest->test]]);
+        $this->createSample(["sampleId" => $barcode], $order, $material->sampleType);
         return $order;
     }
 }
