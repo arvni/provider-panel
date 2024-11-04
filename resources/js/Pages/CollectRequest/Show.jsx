@@ -154,21 +154,27 @@ const Show = ({collectRequest}) => {
                                 <CalendarIcon/>
                             </ListItemAvatar>
                             <ListItemText primary="Scheduled Date"
-                                          secondary={collectRequest?.details?.scheduleDate ?? "not specified"}/>
+                                          secondary={collectRequest?.details?.scheduleDate ? new Date(collectRequest?.details?.scheduleDate).toLocaleString() : "not specified"}/>
                         </ListItem>
+                        {collectRequest?.details?.scheduledDetails && <ListItem>
+                            <ListItemAvatar>
+                                <More/>
+                            </ListItemAvatar>
+                            <ListItemText secondary={collectRequest?.details?.scheduledDetails}/>
+                        </ListItem>}
                         <ListItem>
                             <ListItemAvatar>
                                 <CalendarIcon/>
                             </ListItemAvatar>
                             <ListItemText primary="Pick up Date"
-                                          secondary={collectRequest?.details?.pickupDate ?? "not specified"}/>
+                                          secondary={collectRequest?.details?.pickupDate ? new Date(collectRequest?.details?.pickupDate).toLocaleString() : "not specified"}/>
                         </ListItem>
-                        <ListItem>
+                        {collectRequest?.details?.["picked upDetails"] && <ListItem>
                             <ListItemAvatar>
                                 <More/>
                             </ListItemAvatar>
-                            <ListItemText secondary={collectRequest?.details?.more}/>
-                        </ListItem>
+                            <ListItemText secondary={collectRequest?.details?.["picked upDetails"]}/>
+                        </ListItem>}
                     </List>
                 </AccordionDetails>
                 <AccordionActions>
