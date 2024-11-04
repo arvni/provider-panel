@@ -15,7 +15,7 @@ class PatientListController extends Controller
     public function __invoke(Request $request)
     {
         $search = $request->get("search");
-        $patients = Patient::query()->where(function ($q) use ($search) {
+        $patients = auth()->user()->Patients()->where(function ($q) use ($search) {
             $q->where("fullName", "like", "%$search%");
             $q->orWhere("id_no", "like", "%$search%");
         })->orWhere("reference_id", "like", "%$search%")->paginate(10);
