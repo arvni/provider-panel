@@ -43,6 +43,16 @@ class RequestLogistic
                 }
                 $counter++;
             }
+            if(isset($order->consents["consentForm"]))
+            foreach ($order->consents["consentForm"] as $file) {
+                $filePath = storage_path("app/$file");
+                $fileName = basename($filePath);
+                $fileContents = file_get_contents($filePath);
+                if ($fileContents !== false) {
+                    $request->attach("file[$id][$counter]", $fileContents, $fileName);
+                }
+                $counter++;
+            }
         }
 
         $jsonString = json_encode($jsonData);
