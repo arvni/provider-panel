@@ -18,7 +18,19 @@ import {Close, Done} from "@mui/icons-material";
 import ConsanguineousParents from "@/Enums/ConsanguineousParents.js";
 import ListItemButton from "@mui/material/ListItemButton";
 
-const Show = ({order: {consents: {consentForm, ...restConsents}, ...restOrder}}) => {
+const Show = ({order: {consents, ...restOrder}}) => {
+    let consentForm, restConsents;
+    if (Array.isArray(consents)) {
+        restConsents = consents;
+        consentForm = null;
+    } else {
+        consentForm = consents.consentForm;
+        restConsents = Object.keys(consents)
+            .filter(item => item !== "consentForm")
+            .map(item => consents?.[item])
+        // restConsents = Object?.values();
+    }
+
     return <Paper sx={{p: "1em", mt: "1em"}}>
         <Stack
             direction="row"
@@ -81,9 +93,9 @@ const Show = ({order: {consents: {consentForm, ...restConsents}, ...restOrder}})
             <CardHeader title="Request Form" sx={{background: "#c0c0c0"}}/>
             <CardContent>
                 <Grid container>
-                    {restOrder.orderForms.map(orderForm => <Grid item xs={12} md={6} key={orderForm.id}>
+                    {restOrder?.orderForms?.map(orderForm => <Grid item xs={12} md={6} key={orderForm.id}>
                         <List>
-                            {orderForm.formData.map(item => <ListItem>
+                            {orderForm?.formData.map(item => <ListItem>
                                 <ListItemText>
                                     {item.label + ": " + (item.value ?? "")}
                                 </ListItemText>
@@ -99,17 +111,17 @@ const Show = ({order: {consents: {consentForm, ...restConsents}, ...restOrder}})
                 <Grid container>
                     <Grid item xs={12}>
                         <List>
-                            {Object.values(restConsents).map((consent, index) => <ListItem key={index}>
+                            {restConsents?.map((consent, index) => <ListItem key={index}>
                                 <ListItemAvatar>
-                                    <Avatar>{consent.value ? <Done color="success"/> : <Close color="error"/>}</Avatar>
+                                    <Avatar>{consent?.value ? <Done color="success"/> : <Close color="error"/>}</Avatar>
                                 </ListItemAvatar>
-                                <ListItemText primary={consent.title}/>
+                                <ListItemText primary={consent?.title}/>
                             </ListItem>)}
                             <ListItem>
                                 <ListItemText primary="Consent Form"
                                               secondary={<List>
-                                                  {consentForm.map(item => <ListItemButton href={"/files/" + item}
-                                                                                           target="_blank">Download</ListItemButton>)}
+                                                  {consentForm?.map(item => <ListItemButton href={"/files/" + item}
+                                                                                            target="_blank">Download</ListItemButton>)}
                                               </List>}/>
                             </ListItem>
                         </List>
