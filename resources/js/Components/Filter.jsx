@@ -1,5 +1,5 @@
 import React from "react";
-import {Stack, TableCell, TableRow} from "@mui/material";
+import {colors, Stack, TableCell, TableRow} from "@mui/material";
 import RenderFormField from "./RenderFormField";
 
 const Filter = ({
@@ -7,7 +7,7 @@ const Filter = ({
                     onChange,
                 }) => {
     return <TableRow>
-        {columns.map((col, index) => <TableCell key={index}>
+        {columns.map((col, index) => <TableCell key={index} sx={{background: colors.grey.A100}}>
             {col.filter && <>
                 {Array.isArray(col.filter) ? <Stack spacing={1.5} direction="column">
                         {col.filter.map((column, i) => <RenderFormField key={"filter-" + index + "-" + i} size="small"

@@ -57,7 +57,7 @@ class CollectRequestRepository extends BaseRepository implements CollectRequestR
 
     public function create($collectRequestDetails): CollectRequest
     {
-        $collectRequest = $this->query->make();
+        $collectRequest = $this->query->make(["preferred_date" => $collectRequestDetails["preferred_date"]]);
         $collectRequest->User()->associate(auth()->user()->id);
         $collectRequest->save();
         $collectRequest->refresh();

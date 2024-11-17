@@ -50,6 +50,12 @@ function Index({collectRequests: {data: collectRequestsData, ...pagination}, req
             width: "70px"
         },
         {
+            field: "preferred_date",
+            title: "Preferred Pick up date",
+            type: "text",
+            sortable: true,
+        },
+        {
             field: "created_at",
             title: "Requested At",
             type: "text",

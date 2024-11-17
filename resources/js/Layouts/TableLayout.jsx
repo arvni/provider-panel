@@ -1,7 +1,7 @@
 import React from "react";
 
 import {
-    CircularProgress,
+    CircularProgress, colors,
     Table,
     TableBody,
     TableCell,
@@ -50,7 +50,9 @@ const TableLayout = ({
             <TableHead>
                 <TableRow>
                     {columns.map(({title, render = null, sortable, ...rest}, index) => (
-                        <TableCell  {...rest} key={index} sx={{textAlign: "center", fontWeight: "bold"}}>
+                        <TableCell  {...rest}
+                                    key={index}
+                                    sx={{textAlign: "center", fontWeight: "bold",background:colors.grey.A100}}>
                             {sortable ? <SortableCol title={title} field={rest.field} onClick={onOrderByChange}
                                                      currentOrder={tableModel.orderBy}/> : title}
                         </TableCell>))}

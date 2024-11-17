@@ -1,7 +1,17 @@
-import React, {useState} from "react";
+import React, {useRef, useState} from "react";
 
-import {Button, Checkbox, IconButton, Paper, Stack} from "@mui/material";
-import AddIcon from '@mui/icons-material/Add';
+import {
+    Button,
+    Checkbox, DialogActions,
+    IconButton,
+    Paper,
+    Stack,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableRow, TextField
+} from "@mui/material";
 import {Edit as EditIcon, RemoveRedEye} from "@mui/icons-material";
 import ClientLayout from "@/Layouts/AuthenticatedLayout";
 import PageHeader from "@/Components/PageHeader";
@@ -11,6 +21,90 @@ import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import {router} from "@inertiajs/react";
 import DeleteButton from "@/Components/DeleteButton.jsx";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+
+
+const minDate = () => {
+
+    const timeZone = "Asia/Muscat";
+
+    // Get the current date in the specified time zone
+    const formatter = new Intl.DateTimeFormat('en-US', {
+        timeZone,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+    });
+
+    // Format to YYYY-MM-DD for input value
+    const now = new Date();
+    const [month, , day, , year] = formatter.formatToParts(now).map(part => part.value);
+    console.log(month, day, year);
+    return `${year}-${month}-${day}`;
+}
+const SendRequestForm = ({open, onClose, orders}) => {
+    const formRef = useRef();
+    const [preferredDate, setPreferredDate] = useState()
+    const [errors, setErrors] = useState()
+    const handleSend = () => {
+        formRef.current.submit();
+    }
+    const send = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (orders.length)
+            router.post(
+                route("orders.logistic"),
+                {
+                    selectedOrders: orders.map(item => item.id),
+                    preferred_date: preferredDate
+                },
+                {
+                    onSuccess: () => onClose(),
+                    onError: errs => setErrors(errs)
+                });
+    }
+    const handleChange = (e) => setPreferredDate(e.target.value);
+    return <Dialog open={open} maxWidth="sm" fullWidth>
+        <DialogTitle>Send Collect Request</DialogTitle>
+        <DialogContent>
+            <Table>
+                <TableHead>
+                    <TableRow>
+                        <TableCell>#</TableCell>
+                        <TableCell>Patient Name</TableCell>
+                        <TableCell>Test Name</TableCell>
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    {orders.map((order, index) => <TableRow key={order?.id}>
+                        <TableCell>{index + 1}</TableCell>
+                        <TableCell>{order?.tests?.map((test) => test.name).join(", ")}</TableCell>
+                        <TableCell>{order?.patient_full_name}</TableCell>
+                    </TableRow>)}
+                </TableBody>
+            </Table>
+            <Box component="form" onSubmit={send} ref={formRef} sx={{mt: 2}}>
+                <TextField name="prefered_date"
+                           sx={{minWidth: "300px"}}
+                           inputProps={{style: {textAlign: "right",}, min: minDate()}}
+                           type="date"
+                           onChange={handleChange}
+                           required
+                           error={Boolean(errors?.preferred_date)}
+                           helperText={errors?.preferred_date}
+                           label="Preferred Date"/>
+                <hr/>
+                <Stack direction="row" justifyContent="flex-end">
+                    <Button variant="contained" type="submit">Submit</Button>
+                    <Button onClick={onClose}>Cancel</Button>
+                </Stack>
+            </Box>
+        </DialogContent>
+    </Dialog>
+}
 
 
 const Index = ({orders: {data: ordersData, ...pagination}, status, request}) => {
@@ -26,6 +120,7 @@ const Index = ({orders: {data: ordersData, ...pagination}, status, request}) => 
     } = usePageReload(request, ["orders", "request", "status"]);
 
     const [selectedOrders, setSelectedOrders] = useState([]);
+    const [openSendRequest, setOpenSendRequest] = useState(false);
 
     const handleAdd = (e) => {
         e.preventDefault();
@@ -39,13 +134,15 @@ const Index = ({orders: {data: ordersData, ...pagination}, status, request}) => 
 
     const handleToggleSelection = (e, v) => {
         e.stopPropagation();
-        let index = selectedOrders.findIndex(item => item === e.target.value);
+        let index = selectedOrders.findIndex(item => item.id === Number(e.target.value));
         if (index >= 0) {
             let newSelected = [...selectedOrders];
             newSelected.splice(index, 1);
             setSelectedOrders(newSelected);
-        } else if (v)
-            setSelectedOrders(prevState => ([...prevState, e.target.value]));
+        } else if (v) {
+            let newItem = ordersData.find(item => item.id === Number(e.target.value));
+            setSelectedOrders(prevState => ([...prevState, newItem]));
+        }
     }
 
     const columns = [
@@ -69,11 +166,11 @@ const Index = ({orders: {data: ordersData, ...pagination}, status, request}) => 
                 type: "text",
                 value: data?.filter?.bion_id,
             },
-            render:(row)=>"Bion."+row.server_id
+            render: (row) => row.server_id ? "Bion." + row.server_id : null,
         },
         {
             field: "test_method",
-            title: "Analysis requested",
+            title: "Test Name",
             type: "text",
             sortable: true,
             render: (row) => row.tests.map((test) => test.name).join(", ")
@@ -99,29 +196,6 @@ const Index = ({orders: {data: ordersData, ...pagination}, status, request}) => 
                 ],
                 value: data?.filter?.status
             },
-        },
-        {
-            field: "created_at",
-            title: "Created At",
-            type: "text",
-            sortable: true,
-            render: (row) => new Date(row.created_at).toLocaleString(),
-            filter: [
-                {
-                    name: "created_at.from",
-                    label: "From",
-                    type: "date",
-                    value: data?.filter?.created_at?.from,
-                    inputProps: {max: data?.filter?.created_at?.to}
-                },
-                {
-                    name: "created_at.to",
-                    label: "To",
-                    type: "date",
-                    value: data?.filter?.created_at?.to,
-                    inputProps: {min: data?.filter?.created_at?.from}
-                }
-            ],
         },
         {
             field: "patient_full_name",
@@ -159,7 +233,7 @@ const Index = ({orders: {data: ordersData, ...pagination}, status, request}) => 
         },
         {
             field: "sent_at",
-            title: "Sent At",
+            title: "Pick Up Date",
             type: "text",
             sortable: true,
             filter: [
@@ -211,10 +285,11 @@ const Index = ({orders: {data: ordersData, ...pagination}, status, request}) => 
         e.preventDefault();
         reload();
     };
-    const handleSendRequest = () => {
-        if (selectedOrders.length) {
-            router.post(route("orders.logistic"), {selectedOrders}, {onSuccess: () => setSelectedOrders([])});
-        }
+    const handleSendRequest = () => setOpenSendRequest(true);
+    const handleCloseSendRequest = () => {
+        setOpenSendRequest(false);
+        setSelectedOrders([]);
+        reload();
     }
 
     return (
@@ -263,6 +338,9 @@ const Index = ({orders: {data: ordersData, ...pagination}, status, request}) => 
                     }}
                 />
             </Paper>
+            <SendRequestForm open={openSendRequest}
+                             onClose={handleCloseSendRequest}
+                             orders={selectedOrders}/>
         </>
     );
 }
