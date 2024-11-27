@@ -52,6 +52,11 @@ class Test extends Model
             ->with(["SampleType"]);
     }
 
+    public function AllSampleTypes()
+    {
+        return $this->hasManyThrough(SampleType::class, SampleTypeTest::class, "test_id", "id", "id", "sample_type_id");
+    }
+
     public function ServerSampleTypes()
     {
         return $this->belongsToMany(SampleType::class, "sample_type_test")->withPivot(["is_default", "description", "id"]);

@@ -17,7 +17,9 @@ use App\Http\Controllers\Admin\SyncReferrersController;
 use App\Http\Controllers\Admin\TestController;
 use App\Http\Controllers\Admin\UpdateUserTestsListController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Api\ListTestsByBarcodeController;
 use App\Http\Controllers\Api\ListUserTestsController;
+use App\Http\Controllers\Api\PatientListController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DownloadOrderSummaryController;
 use App\Http\Controllers\DownloadReportController;
@@ -70,7 +72,7 @@ Route::middleware('auth')->group(function () {
         Route::get("/materials", ExportExcelMaterialsController::class)->name("materials");
         Route::post("orderMaterials/{orderMaterial}/generate-material", GenerateMaterialController::class)->name("orderMaterials.generate");
     });
-    Route::get("patient-list",\App\Http\Controllers\Api\PatientListController::class)->name("api.patients.list");
+    Route::get("patient-list", PatientListController::class)->name("api.patients.list");
     Route::get("/files/{type}/{id}/{filename?}", GetFileController::class)->name("file");
     Route::post("orders/logistic", StoreCollectRequestController::class)->name("orders.logistic");
     Route::post("orders/create-by-barcode", AddOrderByBarcodeController::class)->name("orders.create-by-barcode");
@@ -81,6 +83,7 @@ Route::middleware('auth')->group(function () {
     Route::put("orders/{order}/edit/{step}", [OrderController::class, "update"])->name("orders.update");
     Route::get("order-summary/{order}", DownloadOrderSummaryController::class)->name("order-summary");
     Route::get("/tests/list", ListUserTestsController::class)->name("api.user.tests.list");
+    Route::get("/tests-by-barcode", ListTestsByBarcodeController::class)->name("tests-by-barcode");
     Route::get("tests", ListTestController::class)->name("tests.index");
 });
 

@@ -1,19 +1,19 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
-use App\Enums\OrderStep;
-use App\Interfaces\OrderRepositoryInterface;
+use App\Http\Controllers\Controller;
+use App\Interfaces\TestRepositoryInterface;
 use App\Models\Material;
 use Illuminate\Http\Request;
 
-class AddOrderByBarcodeController extends Controller
+class ListTestsByBarcodeController extends Controller
 {
-    protected OrderRepositoryInterface $orderRepository;
+    protected TestRepositoryInterface $testRepository;
 
-    public function __construct(OrderRepositoryInterface $orderRepository)
+    public function __construct(TestRepositoryInterface $testRepository)
     {
-        $this->orderRepository = $orderRepository;
+        $this->testRepository = $testRepository;
     }
 
     /**
@@ -31,14 +31,11 @@ class AddOrderByBarcodeController extends Controller
                     });
                     if ($material->count())
                         $fail("this material used before");
-                }],
-                "test.id" => [
-                    "required",
-                    "exists:tests,id"
-                ]
+                }]
             ]
         );
-        $order = $this->orderRepository->createOrderByBarcode($request->get("barcode"), [$request->get("test")]);
-        return redirect()->route("orders.edit", ["order" => $order, "step" => OrderStep::PATIENT_DETAILS]);
+        $tests = $this->testRepository->getAll(["filters"=>["barcode" => $request->get("barcode")]]);
+        return response()->json(["tests" => $tests]);
+
     }
 }

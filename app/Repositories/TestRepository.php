@@ -2,18 +2,24 @@
 
 namespace App\Repositories;
 
+use App\Interfaces\MaterialRepositoryInterface;
 use App\Interfaces\TestRepositoryInterface;
+use App\Models\Material;
 use App\Models\Test;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class TestRepository extends BaseRepository implements TestRepositoryInterface
 {
 
-    public function __construct(Test $test)
+    protected MaterialRepositoryInterface $materialRepository;
+
+    public function __construct(Test $test, MaterialRepositoryInterface $materialRepository)
     {
         $this->query = $test->newQuery();
+        $this->materialRepository = $materialRepository;
     }
 
     public function list(array $queryData): LengthAwarePaginator
@@ -47,6 +53,9 @@ class TestRepository extends BaseRepository implements TestRepositoryInterface
 
     public function getAll(array $queryData): Collection|array
     {
+        $this->query = auth()->user()->Tests()
+            ->active()
+            ->select(DB::raw("*"));
         $this->applyQueries($queryData);
         return $this->applyGet();
     }
@@ -142,6 +151,12 @@ class TestRepository extends BaseRepository implements TestRepositoryInterface
         }
         if (isset($filters["code"])) {
             $this->query->search($filters["code"], ["name"]);
+        }
+        if (isset($filters["barcode"])) {
+            $material = $this->materialRepository->getByBarcode($filters["barcode"]);
+            $this->query->whereHas("AllSampleTypes", function ($q) use ($material) {
+                $q->where("sample_types.id", $material->SampleType->id);
+            });
         }
     }
 

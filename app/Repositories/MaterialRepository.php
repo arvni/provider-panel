@@ -18,7 +18,7 @@ class MaterialRepository extends BaseRepository implements MaterialRepositoryInt
 
     public function getByBarcode(string $barcode)
     {
-        return $this->query->where("barcode", $barcode)->with("SampleType.DefaultTest")->first();
+        return $this->query->where("barcode", $barcode)->with("SampleType")->first();
     }
 
 }
