@@ -38,7 +38,7 @@ class OrderStatusUpdated extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->line("collect request #{$this->order->orderId} has been {$this->order->status}");
+            ->line("collect request #{$this->order->orderId} has been {$this->order->status->value}");
     }
 
     /**
