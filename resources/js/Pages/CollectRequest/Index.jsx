@@ -1,10 +1,9 @@
-import React, {useState} from "react";
+import React from "react";
 import {IconButton, Paper, Stack} from "@mui/material";
 import {RemoveRedEye} from "@mui/icons-material";
 import PageHeader from "@/Components/PageHeader";
 import TableLayout from "@/Layouts/TableLayout";
 import {usePageReload} from "@/Services/api";
-import DeleteForm from "@/Components/DeleteForm";
 import AdminLayout from "@/Layouts/AuthenticatedLayout";
 import {router} from "@inertiajs/react";
 import DeleteButton from "@/Components/DeleteButton.jsx";

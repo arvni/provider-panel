@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use RyanChandler\LaravelCloudflareTurnstile\Rules\Turnstile;
 
 class LoginRequest extends FormRequest
 {
@@ -31,9 +32,9 @@ class LoginRequest extends FormRequest
         return [
             'email' => ['required', 'string', 'email','exists:users,email'],
             'password' => ['required', 'string'],
-            'captcha'=>[
+            'cf-turnstile-response'=>[
                 "required",
-                "captcha"
+                app(Turnstile::class)
             ],
         ];
     }

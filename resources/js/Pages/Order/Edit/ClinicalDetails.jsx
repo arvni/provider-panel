@@ -9,11 +9,7 @@ const ClinicalDetails = ({auth, order, step, forms = []}) => {
         data,
         setData,
         submit,
-        processing,
         errors,
-        setError,
-        reset,
-        clearErrors,
     } = useSubmitForm({...order, _method: "put"}, route("orders.update", {order: order.id, step}));
     const handleChange = (key, value) => {
         setData(previousData => ({...previousData, [key]: value}))
