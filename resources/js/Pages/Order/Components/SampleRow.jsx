@@ -11,7 +11,8 @@ import {
     CircularProgress,
     Fade,
     Collapse,
-    Stack
+    Stack,
+    useTheme
 } from "@mui/material";
 import MenuItem from "@mui/material/MenuItem";
 import {
@@ -25,9 +26,10 @@ import {
     ExpandLess,
     NoteAlt
 } from "@mui/icons-material";
+import { motion } from "framer-motion";
 
 /**
- * SampleRow component for rendering a single sample in the form
+ * Enhanced SampleRow component with improved validation handling
  *
  * @param {Object} props Component props
  * @param {Object} props.sample Sample data
@@ -56,26 +58,32 @@ const SampleRow = ({
                        toggleExpand,
                        disabled = false
                    }) => {
+    const theme = useTheme();
+
     /**
      * Check if a field has an error
+     * Handles both error formats: samples[0].field and samples.0.field
      *
      * @param {string} field Field name
      * @returns {boolean} True if field has an error
      */
     const hasError = (field) => {
-        const errorKey = `samples.${index}.${field}`;
-        return !!errors[errorKey];
+        const bracketErrorKey = `samples[${index}].${field}`;
+        const dotErrorKey = `samples.${index}.${field}`;
+        return !!errors[bracketErrorKey] || !!errors[dotErrorKey];
     };
 
     /**
      * Get error message for a field
+     * Handles both error formats: samples[0].field and samples.0.field
      *
      * @param {string} field Field name
      * @returns {string} Error message or empty string
      */
     const getErrorMessage = (field) => {
-        const errorKey = `samples.${index}.${field}`;
-        return errors[errorKey] || '';
+        const bracketErrorKey = `samples[${index}].${field}`;
+        const dotErrorKey = `samples.${index}.${field}`;
+        return errors[bracketErrorKey] || errors[dotErrorKey] || '';
     };
 
     /**
@@ -91,30 +99,58 @@ const SampleRow = ({
     // Determine if the sample has any errors
     const hasErrors = hasError('sample_type') || hasError('sampleId') || hasError('collectionDate');
 
+    // Animation for content appearance
+    const contentVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: { duration: 0.3 }
+        }
+    };
+
     return (
         <Paper
             variant="outlined"
             sx={{
                 mb: 2,
-                borderRadius: 1,
+                borderRadius: 2,
                 overflow: 'hidden',
                 borderColor: hasErrors ? 'error.main' : 'divider',
-                transition: 'all 0.2s ease'
+                transition: 'all 0.2s ease',
+                ...(hasErrors && {
+                    boxShadow: `0 0 0 1px ${theme.palette.error.main}`
+                })
             }}
             id={`field-samples.${index}`}
+            component={motion.div}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: index * 0.1 }}
         >
             {/* Sample header - always visible */}
             <Box
                 sx={{
                     p: 2,
-                    bgcolor: isExpanded ? 'primary.light' : 'grey.100',
+                    bgcolor: isExpanded
+                        ? hasErrors
+                            ? theme.palette.error.light
+                            : theme.palette.primary.light
+                        : hasErrors
+                            ? theme.palette.error.lighter || '#FFEBEE'
+                            : 'grey.100',
                     color: isExpanded ? 'primary.contrastText' : 'text.primary',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     cursor: 'pointer',
                     '&:hover': {
-                        bgcolor: isExpanded ? 'primary.main' : 'grey.200',
+                        bgcolor: isExpanded
+                            ? hasErrors
+                                ? theme.palette.error.main
+                                : theme.palette.primary.main
+                            : hasErrors
+                                ? theme.palette.error.light
+                                : 'grey.200',
                     },
                     transition: 'background-color 0.2s'
                 }}
@@ -152,7 +188,13 @@ const SampleRow = ({
 
             {/* Sample fields - expandable */}
             <Collapse in={isExpanded} timeout="auto">
-                <Box sx={{ p: 3, bgcolor: 'background.paper' }}>
+                <Box
+                    sx={{ p: 3, bgcolor: 'background.paper' }}
+                    component={motion.div}
+                    variants={contentVariants}
+                    initial="hidden"
+                    animate="visible"
+                >
                     <Grid container spacing={3}>
                         {/* Sample Type */}
                         <Grid item xs={12} md={4}>
@@ -174,6 +216,18 @@ const SampleRow = ({
                                             <Science color="primary" />
                                         </InputAdornment>
                                     ),
+                                }}
+                                sx={{
+                                    '& .MuiOutlinedInput-root': {
+                                        borderRadius: 1.5,
+                                        transition: 'all 0.2s ease-in-out',
+                                        '&:hover': {
+                                            boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+                                        },
+                                        '&.Mui-focused': {
+                                            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                                        }
+                                    }
                                 }}
                             >
                                 {sampleTypes?.map(sampleType => (
@@ -214,7 +268,22 @@ const SampleRow = ({
                                                 <CheckCircle color="success" fontSize="small" />
                                             </Fade>
                                         </InputAdornment>
-                                    ) : null
+                                    ) : null,
+                                    sx: {
+                                        borderRadius: 1.5,
+                                        transition: 'all 0.2s ease-in-out',
+                                        '&:hover': {
+                                            boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+                                        },
+                                        '&.Mui-focused': {
+                                            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                                        }
+                                    }
+                                }}
+                                sx={{
+                                    '& .MuiOutlinedInput-root': {
+                                        borderRadius: 1.5,
+                                    }
                                 }}
                             />
                         </Grid>
@@ -239,9 +308,24 @@ const SampleRow = ({
                                             <CalendarMonth color="primary" />
                                         </InputAdornment>
                                     ),
+                                    sx: {
+                                        borderRadius: 1.5,
+                                        transition: 'all 0.2s ease-in-out',
+                                        '&:hover': {
+                                            boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+                                        },
+                                        '&.Mui-focused': {
+                                            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                                        }
+                                    }
                                 }}
                                 InputLabelProps={{
                                     shrink: true,
+                                }}
+                                sx={{
+                                    '& .MuiOutlinedInput-root': {
+                                        borderRadius: 1.5,
+                                    }
                                 }}
                             />
                         </Grid>
@@ -264,10 +348,49 @@ const SampleRow = ({
                                             <NoteAlt color="primary" />
                                         </InputAdornment>
                                     ),
+                                    sx: {
+                                        borderRadius: 1.5,
+                                        fontFamily: "'Roboto', sans-serif",
+                                        transition: 'all 0.2s ease-in-out',
+                                        '&:hover': {
+                                            boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+                                        },
+                                        '&.Mui-focused': {
+                                            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                                        }
+                                    }
+                                }}
+                                sx={{
+                                    '& .MuiOutlinedInput-root': {
+                                        borderRadius: 1.5,
+                                    }
                                 }}
                             />
                         </Grid>
                     </Grid>
+
+                    {/* Sample-level errors (for errors that don't belong to a specific field) */}
+                    {(hasError('hasErrors') || errors[`samples[${index}]`] || errors[`samples.${index}`]) && (
+                        <Fade in={true}>
+                            <Box sx={{ mt: 2 }}>
+                                <Typography
+                                    color="error"
+                                    variant="body2"
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 1,
+                                        p: 1,
+                                        bgcolor: theme.palette.error.lighter || '#FFEBEE',
+                                        borderRadius: 1
+                                    }}
+                                >
+                                    <ErrorIcon fontSize="small" />
+                                    {getErrorMessage('hasErrors') || errors[`samples[${index}]`] || errors[`samples.${index}`]}
+                                </Typography>
+                            </Box>
+                        </Fade>
+                    )}
                 </Box>
             </Collapse>
         </Paper>

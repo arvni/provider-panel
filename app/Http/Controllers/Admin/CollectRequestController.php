@@ -62,9 +62,10 @@ class CollectRequestController extends Controller
      */
     public function update(UpdateCollectRequestRequest $request, CollectRequest $collectRequest): RedirectResponse
     {
+        $status=$request->get("status");
         $data = [
-            "status" => $request->get("status"),
-            "details" => array_merge($collectRequest->details??[],$request->except("status"))
+            "status" => $status,
+            "details" => array_merge($collectRequest->details??[],$request->except("status","_method"))
         ];
         $this->collectRequestRepository->update($collectRequest, $data);
         if ($request->get("status")==CollectRequestStatus::PICKED_UP->value)

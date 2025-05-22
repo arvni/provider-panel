@@ -1,8 +1,8 @@
 <?php
 
 namespace App\Enums;
-enum OrderMaterialStatus
+enum OrderMaterialStatus: string
 {
-    case ORDERED ;
-    case GENERATED;
+    case ORDERED = "ORDERED";
+    case GENERATED = "PROCESSED";
 }

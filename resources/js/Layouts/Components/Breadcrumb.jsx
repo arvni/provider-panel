@@ -107,7 +107,7 @@ export default function Breadcrumb({ breadcrumbs = [] }) {
                                     size="small"
                                     clickable
                                     component={Link}
-                                    href="/dashboard"
+                                    href={route("dashboard")}
                                     method="get"
                                     variant="outlined"
                                     sx={{

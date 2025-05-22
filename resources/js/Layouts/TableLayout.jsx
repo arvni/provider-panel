@@ -18,6 +18,7 @@ import {
     alpha,
     Collapse,
     Alert,
+    Button,
     TableContainer
 } from "@mui/material";
 
@@ -291,13 +292,16 @@ const TableLayout = ({
                 )}
 
                 {/* Filter Row */}
-                <Collapse in={showFilters} timeout="auto">
-                    {filter && <Filter onChange={onFilterChange} columns={columns} />}
+                <Collapse in={showFilters} timeout="auto" sx={{p: showFilters ? 2 : 0}}>
+                    <form method={"get"} action={"."} onChange={onFilterChange} style={{width: "100%"}}>
+                        {filter && <Filter onChange={onFilterChange}
+                                           columns={columns}
+                                           filter={tableModel.filter}/>}
+                    </form>
                 </Collapse>
 
                 <TableContainer>
-                    <form method={"get"} action={"."} onChange={onFilterChange} style={{ width: "100%" }}>
-                        <Table size="medium" sx={{ minWidth: 650 }}>
+                    <Table size="medium" sx={{ minWidth: 650 }}>
                             <TableHead>
                                 <TableRow>
                                     {columns.map(({ title, render = null, sortable, width, ...rest }, index) => (
@@ -414,7 +418,6 @@ const TableLayout = ({
                                 </TableFooter>
                             )}
                         </Table>
-                    </form>
                 </TableContainer>
             </Paper>
         </Box>

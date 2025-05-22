@@ -28,7 +28,6 @@ class UpdateCollectRequestRequest extends FormRequest
     {
         return [
             "status"=>["required",Rule::in(CollectRequestStatus::values())],
-            "more"=>["required"],
             "scheduleDate"=>[
                 "required_if:status,".CollectRequestStatus::SCHEDULED->value,
                 Rule::excludeIf(fn()=>in_array($this->get("status"),collect(CollectRequestStatus::values())->except(CollectRequestStatus::SCHEDULED->value)->toArray())),

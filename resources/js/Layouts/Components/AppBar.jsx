@@ -17,6 +17,9 @@ const AppBar = styled(MuiAppBar, {
     shouldForwardProp: (prop) => !['open', 'compact', 'transparent', 'elevation'].includes(prop),
 })(({ theme, open, compact = false, transparent = false, elevation = true }) => ({
     zIndex: theme.zIndex.drawer + 1,
+    '@media print': {
+        display: 'none !important',
+    },
     transition: theme.transitions.create(['width', 'margin', 'background-color', 'box-shadow'], {
         easing: theme.transitions.easing.easeInOut,
         duration: theme.transitions.duration.standard,

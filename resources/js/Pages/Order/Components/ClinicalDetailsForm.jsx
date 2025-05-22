@@ -1,8 +1,6 @@
 import * as React from "react";
 import {
-    Button,
     Grid,
-    Stack,
     Typography,
     Box,
     Card,
@@ -18,11 +16,9 @@ import {
     useTheme,
     alpha
 } from "@mui/material";
-import RenderFormField from "@/Components/RenderFormField";
+import FormField from "@/Components/FormField";
 import FileUploader from "@/Components/FileUploader";
 import {
-    Save as SaveIcon,
-    NavigateNext as NavigateNextIcon,
     Help as HelpIcon,
     ExpandMore as ExpandMoreIcon,
     Assignment as AssignmentIcon,
@@ -33,9 +29,10 @@ import {
     Description as DescriptionIcon
 } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
+import { calculateFormCompletion } from "@/Services/validate";
 
 /**
- * Enhanced ClinicalDetailsForm with improved layout and better UX
+ * Enhanced ClinicalDetailsForm with FormField integration and improved validation
  */
 const ClinicalDetailsForm = (props) => {
     const theme = useTheme();
@@ -45,7 +42,7 @@ const ClinicalDetailsForm = (props) => {
 
     // Calculate completion for each form on mount and when data changes
     React.useEffect(() => {
-        calculateFormCompletion();
+        calculateFormCompletionStatus();
     }, [props.orderForms]);
 
     // Handle field value changes
@@ -56,7 +53,23 @@ const ClinicalDetailsForm = (props) => {
 
         // Handle different field types appropriately
         if (formIndex !== -1 && elIndex !== -1) {
-            newForms[formIndex].formData[elIndex].value = type === "checkbox" ? v : e.target.value;
+            // For checkbox and switch, use the second parameter (checked status)
+            if (type === "checkbox" || type === "switch") {
+                newForms[formIndex].formData[elIndex].value = v;
+            }
+            // For select fields, use event.target.value
+            else if (type === "select" || type === "radio") {
+                newForms[formIndex].formData[elIndex].value = e.target.value;
+            }
+            // For selectSearch, use the actual value
+            else if (type === "selectSearch") {
+                newForms[formIndex].formData[elIndex].value = v;
+            }
+            // For standard text inputs
+            else {
+                newForms[formIndex].formData[elIndex].value = e.target.value;
+            }
+
             props.onChange("orderForms", newForms);
         }
     };
@@ -75,24 +88,11 @@ const ClinicalDetailsForm = (props) => {
     };
 
     // Calculate completion percentage for each form
-    const calculateFormCompletion = () => {
+    const calculateFormCompletionStatus = () => {
         const completion = {};
 
         props.orderForms.forEach(form => {
-            const totalFields = form.formData.length;
-            if (totalFields === 0) {
-                completion[form.id] = 100;
-                return;
-            }
-
-            const filledFields = form.formData.filter(field => {
-                // Check if field has a value that's not empty
-                if (field.value === null || field.value === undefined) return false;
-                return !(typeof field.value === 'string' && field.value.trim() === '');
-
-            }).length;
-
-            completion[form.id] = Math.round((filledFields / totalFields) * 100);
+            completion[form.id] = calculateFormCompletion(form);
         });
 
         setFormCompletion(completion);
@@ -272,7 +272,7 @@ const ClinicalDetailsForm = (props) => {
             <Box component="form" onSubmit={props.onSubmit}>
                 <Grid container spacing={3}>
                     {/* Forms Section */}
-                    {props.orderForms.map((orderForm) => (
+                    {props.orderForms.map((orderForm, formIndex) => (
                         <Grid
                             item
                             xs={12}
@@ -351,12 +351,35 @@ const ClinicalDetailsForm = (props) => {
                                     <CardContent sx={{ p: 3 }}>
                                         {orderForm.formData.length > 0 ? (
                                             <Grid container spacing={2}>
-                                                {orderForm.formData.map((el, i) => (
-                                                    <Grid item xs={12} sm={el.type === 'textarea' ? 12 : 6} key={el.id}>
-                                                        <RenderFormField
-                                                            field={el}
+                                                {orderForm.formData.map((el, fieldIndex) => (
+                                                    <Grid
+                                                        item
+                                                        xs={12}
+                                                        sm={el.type === 'textarea' ? 12 : 6}
+                                                        key={el.id}
+                                                    >
+                                                        <FormField
+                                                            field={{
+                                                                type: el.type,
+                                                                name: `field-${el.id}`,
+                                                                label: el.label,
+                                                                value: el.value,
+                                                                required: el.required,
+                                                                disabled: el.disabled,
+                                                                placeholder: el.placeholder,
+                                                                helpText: el.description,
+                                                                options: el.options,
+                                                                rows: el.type === 'textarea' ? 4 : undefined,
+                                                                min: el.min,
+                                                                max: el.max,
+                                                                step: el.step,
+                                                                // Additional props specific to certain field types
+                                                                ...el.props
+                                                            }}
                                                             onchange={handleChange(orderForm.id, el.id, el.type)}
-                                                            defaultValue={el.value ?? null}
+                                                            errors={props.errors}
+                                                            errorPath={`orderForms[${formIndex}].formData[${fieldIndex}].value`}
+                                                            size="medium"
                                                         />
                                                     </Grid>
                                                 ))}
@@ -365,6 +388,16 @@ const ClinicalDetailsForm = (props) => {
                                             <Typography color="text.secondary" textAlign="center">
                                                 No form fields available
                                             </Typography>
+                                        )}
+
+                                        {/* Form-level errors */}
+                                        {props.errors && props.errors[`orderForms[${formIndex}].hasErrors`] && (
+                                            <Alert
+                                                severity="error"
+                                                sx={{ mt: 2 }}
+                                            >
+                                                {props.errors[`orderForms[${formIndex}].hasErrors`]}
+                                            </Alert>
                                         )}
                                     </CardContent>
                                 </Collapse>
@@ -416,43 +449,34 @@ const ClinicalDetailsForm = (props) => {
                                     defaultValues={props.files}
                                     name="files"
                                 />
+
+                                {/* File errors */}
+                                {props.errors && props.errors.files && (
+                                    <Alert
+                                        severity="error"
+                                        sx={{ mt: 2 }}
+                                    >
+                                        {props.errors.files}
+                                    </Alert>
+                                )}
+
+                                {/* Individual file errors */}
+                                {props.errors &&
+                                    props.files &&
+                                    props.files.map((file, index) => (
+                                        props.errors[`files[${index}]`] && (
+                                            <Alert
+                                                key={`file-error-${index}`}
+                                                severity="error"
+                                                sx={{ mt: 1 }}
+                                            >
+                                                {props.errors[`files[${index}]`]}
+                                            </Alert>
+                                        )
+                                    ))
+                                }
                             </CardContent>
                         </Card>
-                    </Grid>
-
-                    {/* Submit Button */}
-                    <Grid
-                        item
-                        xs={12}
-                        component={motion.div}
-                        variants={itemVariants}
-                        sx={{ mt: 2 }}
-                    >
-                        <Stack
-                            direction="row"
-                            justifyContent="flex-end"
-                            spacing={2}
-                        >
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                type="submit"
-                                startIcon={<SaveIcon />}
-                                endIcon={<NavigateNextIcon />}
-                                sx={{
-                                    borderRadius: 1.5,
-                                    textTransform: 'none',
-                                    py: 1.5,
-                                    px: 3,
-                                    boxShadow: 'none',
-                                    '&:hover': {
-                                        boxShadow: theme.shadows[2]
-                                    }
-                                }}
-                            >
-                                Save & Continue
-                            </Button>
-                        </Stack>
                     </Grid>
                 </Grid>
             </Box>

@@ -23,8 +23,7 @@ import {
     Tooltip,
     IconButton,
     useTheme,
-    alpha,
-    useMediaQuery
+    alpha
 } from "@mui/material";
 import ClientLayout from "@/Layouts/AuthenticatedLayout";
 import {
@@ -47,7 +46,7 @@ import ConsanguineousParents from "@/Enums/ConsanguineousParents.js";
 import { motion } from "framer-motion";
 
 /**
- * Enhanced Order Show component with improved layout and design
+ * Enhanced Order Show component with A5 print optimization
  */
 const Show = ({ order: { consents, ...restOrder } }) => {
     const theme = useTheme();
@@ -103,7 +102,7 @@ const Show = ({ order: { consents, ...restOrder } }) => {
             const date = new Date(dateString);
             return date.toLocaleDateString(undefined, {
                 year: 'numeric',
-                month: 'long',
+                month: 'short',
                 day: 'numeric'
             });
         } catch (e) {
@@ -120,8 +119,17 @@ const Show = ({ order: { consents, ...restOrder } }) => {
             sx={{
                 width: "100%",
                 '@media print': {
+                    // A5 paper dimensions and settings
+                    '@page': {
+                        size: 'A5',
+                        margin: '10mm'
+                    },
                     margin: 0,
-                    padding: 0
+                    padding: 0,
+                    fontSize: '9px',
+                    lineHeight: 1.2,
+                    color: '#000 !important',
+                    backgroundColor: '#fff !important'
                 }
             }}
         >
@@ -136,8 +144,12 @@ const Show = ({ order: { consents, ...restOrder } }) => {
                     borderColor: theme.palette.divider,
                     overflow: 'hidden',
                     '@media print': {
-                        boxShadow: 'none',
-                        border: 'none'
+                        boxShadow: 'none !important',
+                        border: 'none !important',
+                        borderRadius: '0 !important',
+                        margin: '0 !important',
+                        padding: '5mm !important',
+                        backgroundColor: '#fff !important'
                     }
                 }}
             >
@@ -156,11 +168,22 @@ const Show = ({ order: { consents, ...restOrder } }) => {
                         borderBottom: '1px solid',
                         borderColor: theme.palette.divider,
                         '@media print': {
-                            display: 'block'
+                            display: 'block !important',
+                            marginBottom: '3mm !important',
+                            paddingBottom: '2mm !important',
+                            borderBottom: '1px solid #000 !important',
+                            pageBreakInside: 'avoid'
                         }
                     }}
                 >
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Box sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1,
+                        '@media print': {
+                            gap: '1mm'
+                        }
+                    }}>
                         <Box
                             sx={{
                                 width: 36,
@@ -172,7 +195,7 @@ const Show = ({ order: { consents, ...restOrder } }) => {
                                 backgroundColor: alpha(theme.palette.primary.main, 0.1),
                                 color: theme.palette.primary.main,
                                 '@media print': {
-                                    display: 'none'
+                                    display: 'none !important'
                                 }
                             }}
                         >
@@ -187,7 +210,10 @@ const Show = ({ order: { consents, ...restOrder } }) => {
                                     sx={{
                                         fontSize: { xs: '1.25rem', sm: '1.5rem' },
                                         '@media print': {
-                                            fontSize: '18px'
+                                            fontSize: '12px !important',
+                                            fontWeight: 'bold !important',
+                                            margin: '0 !important',
+                                            color: '#000 !important'
                                         }
                                     }}
                                 >
@@ -199,7 +225,7 @@ const Show = ({ order: { consents, ...restOrder } }) => {
                                         onClick={copyOrderId}
                                         sx={{
                                             '@media print': {
-                                                display: 'none'
+                                                display: 'none !important'
                                             }
                                         }}
                                     >
@@ -212,11 +238,13 @@ const Show = ({ order: { consents, ...restOrder } }) => {
                                 color="text.secondary"
                                 sx={{
                                     '@media print': {
-                                        display: 'none'
+                                        fontSize: '8px !important',
+                                        color: '#666 !important',
+                                        margin: '0 !important'
                                     }
                                 }}
                             >
-                                Created on {formatDate(restOrder.created_at || restOrder.createdAt)}
+                                Created: {formatDate(restOrder.created_at || restOrder.createdAt)}
                             </Typography>
                         </Box>
                     </Box>
@@ -226,7 +254,7 @@ const Show = ({ order: { consents, ...restOrder } }) => {
                         spacing={1}
                         sx={{
                             '@media print': {
-                                display: 'none'
+                                display: 'none !important'
                             }
                         }}
                     >
@@ -266,7 +294,13 @@ const Show = ({ order: { consents, ...restOrder } }) => {
                 <Box
                     component={motion.div}
                     variants={itemVariants}
-                    sx={{ mb: 4 }}
+                    sx={{
+                        mb: 4,
+                        '@media print': {
+                            marginBottom: '3mm !important',
+                            pageBreakInside: 'avoid'
+                        }
+                    }}
                 >
                     <Typography
                         variant="h6"
@@ -275,10 +309,23 @@ const Show = ({ order: { consents, ...restOrder } }) => {
                             mb: 2,
                             display: 'flex',
                             alignItems: 'center',
-                            gap: 1
+                            gap: 1,
+                            '@media print': {
+                                fontSize: '10px !important',
+                                fontWeight: 'bold !important',
+                                marginBottom: '2mm !important',
+                                color: '#000 !important'
+                            }
                         }}
                     >
-                        <ScienceIcon color="primary" />
+                        <ScienceIcon
+                            color="primary"
+                            sx={{
+                                '@media print': {
+                                    display: 'none !important'
+                                }
+                            }}
+                        />
                         Analysis Requested
                     </Typography>
 
@@ -287,7 +334,11 @@ const Show = ({ order: { consents, ...restOrder } }) => {
                             display: 'flex',
                             flexWrap: 'wrap',
                             gap: 1,
-                            ml: 4
+                            ml: 4,
+                            '@media print': {
+                                marginLeft: '0 !important',
+                                gap: '1mm !important'
+                            }
                         }}
                     >
                         {restOrder.tests.map((test, index) => (
@@ -299,7 +350,16 @@ const Show = ({ order: { consents, ...restOrder } }) => {
                                 sx={{
                                     fontWeight: 500,
                                     borderRadius: 1,
-                                    height: 32
+                                    height: 32,
+                                    '@media print': {
+                                        fontSize: '7px !important',
+                                        height: 'auto !important',
+                                        padding: '1mm !important',
+                                        border: '1px solid #000 !important',
+                                        borderRadius: '2px !important',
+                                        backgroundColor: '#f5f5f5 !important',
+                                        color: '#000 !important'
+                                    }
                                 }}
                             />
                         ))}
@@ -316,14 +376,43 @@ const Show = ({ order: { consents, ...restOrder } }) => {
                         borderRadius: 2,
                         border: '1px solid',
                         borderColor: theme.palette.divider,
-                        overflow: 'hidden'
+                        overflow: 'hidden',
+                        '@media print': {
+                            border: '1px solid #000 !important',
+                            borderRadius: '0 !important',
+                            marginBottom: '3mm !important',
+                            backgroundColor: '#fff !important',
+                            boxShadow: 'none !important',
+                            pageBreakInside: 'avoid'
+                        }
                     }}
                 >
                     <CardHeader
                         title={
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <PersonIcon />
-                                <Typography variant="h6" fontWeight={600}>
+                            <Box sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1,
+                                '@media print': {
+                                    gap: '1mm'
+                                }
+                            }}>
+                                <PersonIcon sx={{
+                                    '@media print': {
+                                        display: 'none !important'
+                                    }
+                                }} />
+                                <Typography
+                                    variant="h6"
+                                    fontWeight={600}
+                                    sx={{
+                                        '@media print': {
+                                            fontSize: '10px !important',
+                                            fontWeight: 'bold !important',
+                                            color: '#000 !important'
+                                        }
+                                    }}
+                                >
                                     Patient Details
                                 </Typography>
                             </Box>
@@ -332,15 +421,46 @@ const Show = ({ order: { consents, ...restOrder } }) => {
                             py: 2,
                             backgroundColor: alpha(theme.palette.primary.main, 0.05),
                             borderBottom: '1px solid',
-                            borderColor: theme.palette.divider
+                            borderColor: theme.palette.divider,
+                            '@media print': {
+                                padding: '2mm !important',
+                                backgroundColor: '#f5f5f5 !important',
+                                borderBottom: '1px solid #000 !important'
+                            }
                         }}
                     />
 
-                    <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
-                        <Grid container spacing={3}>
-                            <Grid item xs={12} md={6}>
-                                <TableContainer>
-                                    <Table size="small">
+                    <CardContent sx={{
+                        p: { xs: 2, sm: 3 },
+                        '@media print': {
+                            padding: '2mm !important'
+                        }
+                    }}>
+                        <Grid container spacing={3} sx={{
+                            '@media print': {
+                                gap: '2mm !important',
+                                margin: '0 !important'
+                            }
+                        }}>
+                            <Grid item xs={12} md={6} sx={{
+                                '@media print': {
+                                    width: '48% !important',
+                                    maxWidth: '48% !important',
+                                    flexBasis: '48% !important',
+                                    padding: '0 !important'
+                                }
+                            }}>
+                                <TableContainer sx={{
+                                    '@media print': {
+                                        border: 'none !important',
+                                        boxShadow: 'none !important'
+                                    }
+                                }}>
+                                    <Table size="small" sx={{
+                                        '@media print': {
+                                            fontSize: '7px !important'
+                                        }
+                                    }}>
                                         <TableBody>
                                             <TableRow>
                                                 <TableCell
@@ -349,7 +469,14 @@ const Show = ({ order: { consents, ...restOrder } }) => {
                                                         width: '40%',
                                                         fontWeight: 600,
                                                         borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}`,
-                                                        verticalAlign: 'top'
+                                                        verticalAlign: 'top',
+                                                        '@media print': {
+                                                            fontSize: '7px !important',
+                                                            fontWeight: 'bold !important',
+                                                            padding: '1mm !important',
+                                                            borderBottom: '1px solid #ccc !important',
+                                                            color: '#000 !important'
+                                                        }
                                                     }}
                                                 >
                                                     Full Name
@@ -357,7 +484,13 @@ const Show = ({ order: { consents, ...restOrder } }) => {
                                                 <TableCell
                                                     sx={{
                                                         borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}`,
-                                                        fontWeight: 500
+                                                        fontWeight: 500,
+                                                        '@media print': {
+                                                            fontSize: '7px !important',
+                                                            padding: '1mm !important',
+                                                            borderBottom: '1px solid #ccc !important',
+                                                            color: '#000 !important'
+                                                        }
                                                     }}
                                                 >
                                                     {restOrder.patient?.fullName}
@@ -370,18 +503,46 @@ const Show = ({ order: { consents, ...restOrder } }) => {
                                                     sx={{
                                                         fontWeight: 600,
                                                         borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}`,
-                                                        verticalAlign: 'top'
+                                                        verticalAlign: 'top',
+                                                        '@media print': {
+                                                            fontSize: '7px !important',
+                                                            fontWeight: 'bold !important',
+                                                            padding: '1mm !important',
+                                                            borderBottom: '1px solid #ccc !important',
+                                                            color: '#000 !important'
+                                                        }
                                                     }}
                                                 >
                                                     Date of Birth
                                                 </TableCell>
                                                 <TableCell
                                                     sx={{
-                                                        borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}`
+                                                        borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}`,
+                                                        '@media print': {
+                                                            fontSize: '7px !important',
+                                                            padding: '1mm !important',
+                                                            borderBottom: '1px solid #ccc !important',
+                                                            color: '#000 !important'
+                                                        }
                                                     }}
                                                 >
-                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                        <CalendarIcon fontSize="small" color="action" />
+                                                    <Box sx={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: 1,
+                                                        '@media print': {
+                                                            gap: '0.5mm'
+                                                        }
+                                                    }}>
+                                                        <CalendarIcon
+                                                            fontSize="small"
+                                                            color="action"
+                                                            sx={{
+                                                                '@media print': {
+                                                                    display: 'none !important'
+                                                                }
+                                                            }}
+                                                        />
                                                         {formatDate(restOrder.patient?.dateOfBirth)}
                                                     </Box>
                                                 </TableCell>
@@ -393,14 +554,27 @@ const Show = ({ order: { consents, ...restOrder } }) => {
                                                     sx={{
                                                         fontWeight: 600,
                                                         borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}`,
-                                                        verticalAlign: 'top'
+                                                        verticalAlign: 'top',
+                                                        '@media print': {
+                                                            fontSize: '7px !important',
+                                                            fontWeight: 'bold !important',
+                                                            padding: '1mm !important',
+                                                            borderBottom: '1px solid #ccc !important',
+                                                            color: '#000 !important'
+                                                        }
                                                     }}
                                                 >
                                                     Reference ID
                                                 </TableCell>
                                                 <TableCell
                                                     sx={{
-                                                        borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}`
+                                                        borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}`,
+                                                        '@media print': {
+                                                            fontSize: '7px !important',
+                                                            padding: '1mm !important',
+                                                            borderBottom: '1px solid #ccc !important',
+                                                            color: '#000 !important'
+                                                        }
                                                     }}
                                                 >
                                                     {restOrder.patient?.reference_id || "Not specified"}
@@ -413,14 +587,27 @@ const Show = ({ order: { consents, ...restOrder } }) => {
                                                     sx={{
                                                         fontWeight: 600,
                                                         borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}`,
-                                                        verticalAlign: 'top'
+                                                        verticalAlign: 'top',
+                                                        '@media print': {
+                                                            fontSize: '7px !important',
+                                                            fontWeight: 'bold !important',
+                                                            padding: '1mm !important',
+                                                            borderBottom: '1px solid #ccc !important',
+                                                            color: '#000 !important'
+                                                        }
                                                     }}
                                                 >
                                                     Gender
                                                 </TableCell>
                                                 <TableCell
                                                     sx={{
-                                                        borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}`
+                                                        borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}`,
+                                                        '@media print': {
+                                                            fontSize: '7px !important',
+                                                            padding: '1mm !important',
+                                                            borderBottom: '1px solid #ccc !important',
+                                                            color: '#000 !important'
+                                                        }
                                                     }}
                                                 >
                                                     {(restOrder.patient?.gender * 1) ? "Male" : "Female"}
@@ -433,14 +620,27 @@ const Show = ({ order: { consents, ...restOrder } }) => {
                                                     sx={{
                                                         fontWeight: 600,
                                                         borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}`,
-                                                        verticalAlign: 'top'
+                                                        verticalAlign: 'top',
+                                                        '@media print': {
+                                                            fontSize: '7px !important',
+                                                            fontWeight: 'bold !important',
+                                                            padding: '1mm !important',
+                                                            borderBottom: '1px solid #ccc !important',
+                                                            color: '#000 !important'
+                                                        }
                                                     }}
                                                 >
                                                     Nationality
                                                 </TableCell>
                                                 <TableCell
                                                     sx={{
-                                                        borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}`
+                                                        borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}`,
+                                                        '@media print': {
+                                                            fontSize: '7px !important',
+                                                            padding: '1mm !important',
+                                                            borderBottom: '1px solid #ccc !important',
+                                                            color: '#000 !important'
+                                                        }
                                                     }}
                                                 >
                                                     {restOrder.patient?.nationality?.label || "Not specified"}
@@ -453,14 +653,27 @@ const Show = ({ order: { consents, ...restOrder } }) => {
                                                     sx={{
                                                         fontWeight: 600,
                                                         borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}`,
-                                                        verticalAlign: 'top'
+                                                        verticalAlign: 'top',
+                                                        '@media print': {
+                                                            fontSize: '7px !important',
+                                                            fontWeight: 'bold !important',
+                                                            padding: '1mm !important',
+                                                            borderBottom: 'none !important',
+                                                            color: '#000 !important'
+                                                        }
                                                     }}
                                                 >
                                                     Consanguineous Parents
                                                 </TableCell>
                                                 <TableCell
                                                     sx={{
-                                                        borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}`
+                                                        borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}`,
+                                                        '@media print': {
+                                                            fontSize: '7px !important',
+                                                            padding: '1mm !important',
+                                                            borderBottom: 'none !important',
+                                                            color: '#000 !important'
+                                                        }
                                                     }}
                                                 >
                                                     {ConsanguineousParents.get(restOrder.patient?.consanguineousParents)}
@@ -471,7 +684,14 @@ const Show = ({ order: { consents, ...restOrder } }) => {
                                 </TableContainer>
                             </Grid>
 
-                            <Grid item xs={12} md={6}>
+                            <Grid item xs={12} md={6} sx={{
+                                '@media print': {
+                                    width: '48% !important',
+                                    maxWidth: '48% !important',
+                                    flexBasis: '48% !important',
+                                    padding: '0 !important'
+                                }
+                            }}>
                                 <Typography
                                     variant="subtitle1"
                                     fontWeight={600}
@@ -479,35 +699,132 @@ const Show = ({ order: { consents, ...restOrder } }) => {
                                         mb: 2,
                                         display: 'flex',
                                         alignItems: 'center',
-                                        gap: 1
+                                        gap: 1,
+                                        '@media print': {
+                                            fontSize: '8px !important',
+                                            fontWeight: 'bold !important',
+                                            marginBottom: '2mm !important',
+                                            color: '#000 !important'
+                                        }
                                     }}
                                 >
-                                    <LocationIcon fontSize="small" color="primary" />
+                                    <LocationIcon
+                                        fontSize="small"
+                                        color="primary"
+                                        sx={{
+                                            '@media print': {
+                                                display: 'none !important'
+                                            }
+                                        }}
+                                    />
                                     Contact Information
                                 </Typography>
 
-                                <Box sx={{ ml: 3, mb: 3 }}>
+                                <Box sx={{
+                                    ml: 3,
+                                    mb: 3,
+                                    '@media print': {
+                                        marginLeft: '0 !important',
+                                        marginBottom: '2mm !important'
+                                    }
+                                }}>
                                     {restOrder.patient?.contact?.email && (
-                                        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1, mb: 1 }}>
-                                            <EmailIcon fontSize="small" color="action" sx={{ mt: 0.5 }} />
-                                            <Typography variant="body2">
+                                        <Box sx={{
+                                            display: 'flex',
+                                            alignItems: 'flex-start',
+                                            gap: 1,
+                                            mb: 1,
+                                            '@media print': {
+                                                gap: '1mm',
+                                                marginBottom: '1mm !important'
+                                            }
+                                        }}>
+                                            <EmailIcon
+                                                fontSize="small"
+                                                color="action"
+                                                sx={{
+                                                    mt: 0.5,
+                                                    '@media print': {
+                                                        display: 'none !important'
+                                                    }
+                                                }}
+                                            />
+                                            <Typography
+                                                variant="body2"
+                                                sx={{
+                                                    '@media print': {
+                                                        fontSize: '7px !important',
+                                                        color: '#000 !important'
+                                                    }
+                                                }}
+                                            >
                                                 {restOrder.patient?.contact?.email}
                                             </Typography>
                                         </Box>
                                     )}
 
                                     {restOrder.patient?.contact?.phone && (
-                                        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1, mb: 1 }}>
-                                            <PhoneIcon fontSize="small" color="action" sx={{ mt: 0.5 }} />
-                                            <Typography variant="body2">
+                                        <Box sx={{
+                                            display: 'flex',
+                                            alignItems: 'flex-start',
+                                            gap: 1,
+                                            mb: 1,
+                                            '@media print': {
+                                                gap: '1mm',
+                                                marginBottom: '1mm !important'
+                                            }
+                                        }}>
+                                            <PhoneIcon
+                                                fontSize="small"
+                                                color="action"
+                                                sx={{
+                                                    mt: 0.5,
+                                                    '@media print': {
+                                                        display: 'none !important'
+                                                    }
+                                                }}
+                                            />
+                                            <Typography
+                                                variant="body2"
+                                                sx={{
+                                                    '@media print': {
+                                                        fontSize: '7px !important',
+                                                        color: '#000 !important'
+                                                    }
+                                                }}
+                                            >
                                                 {restOrder.patient?.contact?.phone}
                                             </Typography>
                                         </Box>
                                     )}
 
-                                    <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
-                                        <LocationIcon fontSize="small" color="action" sx={{ mt: 0.5 }} />
-                                        <Typography variant="body2">
+                                    <Box sx={{
+                                        display: 'flex',
+                                        alignItems: 'flex-start',
+                                        gap: 1,
+                                        '@media print': {
+                                            gap: '1mm'
+                                        }
+                                    }}>
+                                        <LocationIcon
+                                            fontSize="small"
+                                            color="action"
+                                            sx={{
+                                                mt: 0.5,
+                                                '@media print': {
+                                                    display: 'none !important'
+                                                }
+                                            }}
+                                        />
+                                        <Typography
+                                            variant="body2"
+                                            sx={{
+                                                '@media print': {
+                                                    fontSize: '7px !important',
+                                                    color: '#000 !important'
+                                                }
+                                            }}
+                                        >
                                             {[
                                                 restOrder.patient?.contact?.address,
                                                 restOrder.patient?.contact?.city,
@@ -525,10 +842,24 @@ const Show = ({ order: { consents, ...restOrder } }) => {
                                         mb: 2,
                                         display: 'flex',
                                         alignItems: 'center',
-                                        gap: 1
+                                        gap: 1,
+                                        '@media print': {
+                                            fontSize: '8px !important',
+                                            fontWeight: 'bold !important',
+                                            marginBottom: '2mm !important',
+                                            color: '#000 !important'
+                                        }
                                     }}
                                 >
-                                    <ScienceIcon fontSize="small" color="primary" />
+                                    <ScienceIcon
+                                        fontSize="small"
+                                        color="primary"
+                                        sx={{
+                                            '@media print': {
+                                                display: 'none !important'
+                                            }
+                                        }}
+                                    />
                                     Material Details
                                 </Typography>
 
@@ -542,51 +873,176 @@ const Show = ({ order: { consents, ...restOrder } }) => {
                                             borderRadius: 1,
                                             border: '1px solid',
                                             borderColor: alpha(theme.palette.primary.main, 0.2),
-                                            backgroundColor: alpha(theme.palette.primary.main, 0.03)
+                                            backgroundColor: alpha(theme.palette.primary.main, 0.03),
+                                            '@media print': {
+                                                marginLeft: '0 !important',
+                                                marginBottom: '2mm !important',
+                                                padding: '2mm !important',
+                                                border: '1px solid #ccc !important',
+                                                borderRadius: '0 !important',
+                                                backgroundColor: '#f9f9f9 !important'
+                                            }
                                         }}
                                     >
                                         <Typography
                                             variant="subtitle2"
                                             fontWeight={600}
-                                            sx={{ mb: 1 }}
+                                            sx={{
+                                                mb: 1,
+                                                '@media print': {
+                                                    fontSize: '7px !important',
+                                                    fontWeight: 'bold !important',
+                                                    marginBottom: '1mm !important',
+                                                    color: '#000 !important'
+                                                }
+                                            }}
                                         >
                                             Sample #{index + 1}
                                         </Typography>
 
-                                        <Grid container spacing={1}>
-                                            <Grid item xs={6}>
-                                                <Typography variant="body2" color="text.secondary">
+                                        <Grid container spacing={1} sx={{
+                                            '@media print': {
+                                                gap: '1mm !important',
+                                                margin: '0 !important'
+                                            }
+                                        }}>
+                                            <Grid item xs={6} sx={{
+                                                '@media print': {
+                                                    width: '48% !important',
+                                                    maxWidth: '48% !important',
+                                                    flexBasis: '48% !important',
+                                                    padding: '0 !important'
+                                                }
+                                            }}>
+                                                <Typography
+                                                    variant="body2"
+                                                    color="text.secondary"
+                                                    sx={{
+                                                        '@media print': {
+                                                            fontSize: '6px !important',
+                                                            color: '#666 !important'
+                                                        }
+                                                    }}
+                                                >
                                                     Sample Type:
                                                 </Typography>
-                                                <Typography variant="body2" fontWeight={500}>
+                                                <Typography
+                                                    variant="body2"
+                                                    fontWeight={500}
+                                                    sx={{
+                                                        '@media print': {
+                                                            fontSize: '6px !important',
+                                                            fontWeight: 'bold !important',
+                                                            color: '#000 !important'
+                                                        }
+                                                    }}
+                                                >
                                                     {sample.sample_type?.name || "Not specified"}
                                                 </Typography>
                                             </Grid>
 
-                                            <Grid item xs={6}>
-                                                <Typography variant="body2" color="text.secondary">
+                                            <Grid item xs={6} sx={{
+                                                '@media print': {
+                                                    width: '48% !important',
+                                                    maxWidth: '48% !important',
+                                                    flexBasis: '48% !important',
+                                                    padding: '0 !important'
+                                                }
+                                            }}>
+                                                <Typography
+                                                    variant="body2"
+                                                    color="text.secondary"
+                                                    sx={{
+                                                        '@media print': {
+                                                            fontSize: '6px !important',
+                                                            color: '#666 !important'
+                                                        }
+                                                    }}
+                                                >
                                                     Sample ID:
                                                 </Typography>
-                                                <Typography variant="body2" fontWeight={500}>
+                                                <Typography
+                                                    variant="body2"
+                                                    fontWeight={500}
+                                                    sx={{
+                                                        '@media print': {
+                                                            fontSize: '6px !important',
+                                                            fontWeight: 'bold !important',
+                                                            color: '#000 !important'
+                                                        }
+                                                    }}
+                                                >
                                                     {sample.sampleId || "Not specified"}
                                                 </Typography>
                                             </Grid>
 
-                                            <Grid item xs={6}>
-                                                <Typography variant="body2" color="text.secondary">
+                                            <Grid item xs={6} sx={{
+                                                '@media print': {
+                                                    width: '48% !important',
+                                                    maxWidth: '48% !important',
+                                                    flexBasis: '48% !important',
+                                                    padding: '0 !important'
+                                                }
+                                            }}>
+                                                <Typography
+                                                    variant="body2"
+                                                    color="text.secondary"
+                                                    sx={{
+                                                        '@media print': {
+                                                            fontSize: '6px !important',
+                                                            color: '#666 !important'
+                                                        }
+                                                    }}
+                                                >
                                                     Collection Date:
                                                 </Typography>
-                                                <Typography variant="body2" fontWeight={500}>
+                                                <Typography
+                                                    variant="body2"
+                                                    fontWeight={500}
+                                                    sx={{
+                                                        '@media print': {
+                                                            fontSize: '6px !important',
+                                                            fontWeight: 'bold !important',
+                                                            color: '#000 !important'
+                                                        }
+                                                    }}
+                                                >
                                                     {formatDate(sample.collectionDate)}
                                                 </Typography>
                                             </Grid>
 
                                             {sample?.material && (
-                                                <Grid item xs={6}>
-                                                    <Typography variant="body2" color="text.secondary">
+                                                <Grid item xs={6} sx={{
+                                                    '@media print': {
+                                                        width: '48% !important',
+                                                        maxWidth: '48% !important',
+                                                        flexBasis: '48% !important',
+                                                        padding: '0 !important'
+                                                    }
+                                                }}>
+                                                    <Typography
+                                                        variant="body2"
+                                                        color="text.secondary"
+                                                        sx={{
+                                                            '@media print': {
+                                                                fontSize: '6px !important',
+                                                                color: '#666 !important'
+                                                            }
+                                                        }}
+                                                    >
                                                         Expire Date:
                                                     </Typography>
-                                                    <Typography variant="body2" fontWeight={500}>
+                                                    <Typography
+                                                        variant="body2"
+                                                        fontWeight={500}
+                                                        sx={{
+                                                            '@media print': {
+                                                                fontSize: '6px !important',
+                                                                fontWeight: 'bold !important',
+                                                                color: '#000 !important'
+                                                            }
+                                                        }}
+                                                    >
                                                         {formatDate(sample.material?.expire_date)}
                                                     </Typography>
                                                 </Grid>
@@ -610,14 +1066,43 @@ const Show = ({ order: { consents, ...restOrder } }) => {
                             borderRadius: 2,
                             border: '1px solid',
                             borderColor: theme.palette.divider,
-                            overflow: 'hidden'
+                            overflow: 'hidden',
+                            '@media print': {
+                                border: '1px solid #000 !important',
+                                borderRadius: '0 !important',
+                                marginBottom: '3mm !important',
+                                backgroundColor: '#fff !important',
+                                boxShadow: 'none !important',
+                                pageBreakInside: 'avoid'
+                            }
                         }}
                     >
                         <CardHeader
                             title={
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                    <AssignmentIcon />
-                                    <Typography variant="h6" fontWeight={600}>
+                                <Box sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 1,
+                                    '@media print': {
+                                        gap: '1mm'
+                                    }
+                                }}>
+                                    <AssignmentIcon sx={{
+                                        '@media print': {
+                                            display: 'none !important'
+                                        }
+                                    }} />
+                                    <Typography
+                                        variant="h6"
+                                        fontWeight={600}
+                                        sx={{
+                                            '@media print': {
+                                                fontSize: '10px !important',
+                                                fontWeight: 'bold !important',
+                                                color: '#000 !important'
+                                            }
+                                        }}
+                                    >
                                         Request Form
                                     </Typography>
                                 </Box>
@@ -626,16 +1111,47 @@ const Show = ({ order: { consents, ...restOrder } }) => {
                                 py: 2,
                                 backgroundColor: alpha(theme.palette.primary.main, 0.05),
                                 borderBottom: '1px solid',
-                                borderColor: theme.palette.divider
+                                borderColor: theme.palette.divider,
+                                '@media print': {
+                                    padding: '2mm !important',
+                                    backgroundColor: '#f5f5f5 !important',
+                                    borderBottom: '1px solid #000 !important'
+                                }
                             }}
                         />
 
-                        <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
-                            <Grid container spacing={3}>
+                        <CardContent sx={{
+                            p: { xs: 2, sm: 3 },
+                            '@media print': {
+                                padding: '2mm !important'
+                            }
+                        }}>
+                            <Grid container spacing={3} sx={{
+                                '@media print': {
+                                    gap: '2mm !important',
+                                    margin: '0 !important'
+                                }
+                            }}>
                                 {restOrder?.orderForms?.map(orderForm => (
-                                    <Grid item xs={12} md={6} key={orderForm.id}>
-                                        <TableContainer>
-                                            <Table size="small">
+                                    <Grid item xs={12} md={6} key={orderForm.id} sx={{
+                                        '@media print': {
+                                            width: '48% !important',
+                                            maxWidth: '48% !important',
+                                            flexBasis: '48% !important',
+                                            padding: '0 !important'
+                                        }
+                                    }}>
+                                        <TableContainer sx={{
+                                            '@media print': {
+                                                border: 'none !important',
+                                                boxShadow: 'none !important'
+                                            }
+                                        }}>
+                                            <Table size="small" sx={{
+                                                '@media print': {
+                                                    fontSize: '7px !important'
+                                                }
+                                            }}>
                                                 <TableBody>
                                                     {orderForm?.formData.map((item, index) => (
                                                         <TableRow key={index}>
@@ -645,14 +1161,27 @@ const Show = ({ order: { consents, ...restOrder } }) => {
                                                                     width: '40%',
                                                                     fontWeight: 600,
                                                                     borderBottom: index === orderForm.formData.length - 1 ? 'none' : `1px solid ${alpha(theme.palette.divider, 0.5)}`,
-                                                                    verticalAlign: 'top'
+                                                                    verticalAlign: 'top',
+                                                                    '@media print': {
+                                                                        fontSize: '7px !important',
+                                                                        fontWeight: 'bold !important',
+                                                                        padding: '1mm !important',
+                                                                        borderBottom: index === orderForm.formData.length - 1 ? 'none !important' : '1px solid #ccc !important',
+                                                                        color: '#000 !important'
+                                                                    }
                                                                 }}
                                                             >
                                                                 {item.label}
                                                             </TableCell>
                                                             <TableCell
                                                                 sx={{
-                                                                    borderBottom: index === orderForm.formData.length - 1 ? 'none' : `1px solid ${alpha(theme.palette.divider, 0.5)}`
+                                                                    borderBottom: index === orderForm.formData.length - 1 ? 'none' : `1px solid ${alpha(theme.palette.divider, 0.5)}`,
+                                                                    '@media print': {
+                                                                        fontSize: '7px !important',
+                                                                        padding: '1mm !important',
+                                                                        borderBottom: index === orderForm.formData.length - 1 ? 'none !important' : '1px solid #ccc !important',
+                                                                        color: '#000 !important'
+                                                                    }
                                                                 }}
                                                             >
                                                                 {item.value || "Not specified"}
@@ -679,14 +1208,43 @@ const Show = ({ order: { consents, ...restOrder } }) => {
                         borderRadius: 2,
                         border: '1px solid',
                         borderColor: theme.palette.divider,
-                        overflow: 'hidden'
+                        overflow: 'hidden',
+                        '@media print': {
+                            border: '1px solid #000 !important',
+                            borderRadius: '0 !important',
+                            marginBottom: '0 !important',
+                            backgroundColor: '#fff !important',
+                            boxShadow: 'none !important',
+                            pageBreakInside: 'avoid'
+                        }
                     }}
                 >
                     <CardHeader
                         title={
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <FactCheckIcon />
-                                <Typography variant="h6" fontWeight={600}>
+                            <Box sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1,
+                                '@media print': {
+                                    gap: '1mm'
+                                }
+                            }}>
+                                <FactCheckIcon sx={{
+                                    '@media print': {
+                                        display: 'none !important'
+                                    }
+                                }} />
+                                <Typography
+                                    variant="h6"
+                                    fontWeight={600}
+                                    sx={{
+                                        '@media print': {
+                                            fontSize: '10px !important',
+                                            fontWeight: 'bold !important',
+                                            color: '#000 !important'
+                                        }
+                                    }}
+                                >
                                     Consent
                                 </Typography>
                             </Box>
@@ -695,14 +1253,34 @@ const Show = ({ order: { consents, ...restOrder } }) => {
                             py: 2,
                             backgroundColor: alpha(theme.palette.primary.main, 0.05),
                             borderBottom: '1px solid',
-                            borderColor: theme.palette.divider
+                            borderColor: theme.palette.divider,
+                            '@media print': {
+                                padding: '2mm !important',
+                                backgroundColor: '#f5f5f5 !important',
+                                borderBottom: '1px solid #000 !important'
+                            }
                         }}
                     />
 
-                    <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
-                        <Grid container spacing={2}>
+                    <CardContent sx={{
+                        p: { xs: 2, sm: 3 },
+                        '@media print': {
+                            padding: '2mm !important'
+                        }
+                    }}>
+                        <Grid container spacing={2} sx={{
+                            '@media print': {
+                                gap: '1mm !important',
+                                margin: '0 !important'
+                            }
+                        }}>
                             <Grid item xs={12}>
-                                <List sx={{ p: 0 }}>
+                                <List sx={{
+                                    p: 0,
+                                    '@media print': {
+                                        padding: '0 !important'
+                                    }
+                                }}>
                                     {restConsents?.map((consent, index) => (
                                         <ListItem
                                             key={index}
@@ -710,24 +1288,57 @@ const Show = ({ order: { consents, ...restOrder } }) => {
                                             sx={{
                                                 py: 1,
                                                 px: 0,
-                                                borderBottom: index === restConsents.length - 1 && !consentForm?.length ? 'none' : `1px solid ${alpha(theme.palette.divider, 0.3)}`
+                                                borderBottom: index === restConsents.length - 1 && !consentForm?.length ? 'none' : `1px solid ${alpha(theme.palette.divider, 0.3)}`,
+                                                '@media print': {
+                                                    padding: '1mm 0 !important',
+                                                    borderBottom: index === restConsents.length - 1 && !consentForm?.length ? 'none !important' : '1px solid #ddd !important'
+                                                }
                                             }}
                                         >
-                                            <ListItemAvatar sx={{ minWidth: 45 }}>
+                                            <ListItemAvatar sx={{
+                                                minWidth: 45,
+                                                '@media print': {
+                                                    minWidth: '8mm !important'
+                                                }
+                                            }}>
                                                 <Avatar
                                                     sx={{
                                                         width: 32,
                                                         height: 32,
                                                         bgcolor: consent?.value ? alpha(theme.palette.success.main, 0.1) : alpha(theme.palette.error.main, 0.1),
-                                                        color: consent?.value ? theme.palette.success.main : theme.palette.error.main
+                                                        color: consent?.value ? theme.palette.success.main : theme.palette.error.main,
+                                                        '@media print': {
+                                                            width: '6mm !important',
+                                                            height: '6mm !important',
+                                                            backgroundColor: consent?.value ? '#e8f5e8 !important' : '#ffeaea !important',
+                                                            color: consent?.value ? '#2e7d32 !important' : '#d32f2f !important'
+                                                        }
                                                     }}
                                                 >
-                                                    {consent?.value ? <Done /> : <Close />}
+                                                    {consent?.value ? <Done sx={{
+                                                        '@media print': {
+                                                            fontSize: '3mm !important'
+                                                        }
+                                                    }} /> : <Close sx={{
+                                                        '@media print': {
+                                                            fontSize: '3mm !important'
+                                                        }
+                                                    }} />}
                                                 </Avatar>
                                             </ListItemAvatar>
                                             <ListItemText
                                                 primary={
-                                                    <Typography variant="body2" fontWeight={500}>
+                                                    <Typography
+                                                        variant="body2"
+                                                        fontWeight={500}
+                                                        sx={{
+                                                            '@media print': {
+                                                                fontSize: '7px !important',
+                                                                fontWeight: 'normal !important',
+                                                                color: '#000 !important'
+                                                            }
+                                                        }}
+                                                    >
                                                         {consent?.title}
                                                     </Typography>
                                                 }
@@ -738,28 +1349,63 @@ const Show = ({ order: { consents, ...restOrder } }) => {
                                     {consentForm?.length > 0 && (
                                         <ListItem
                                             disablePadding
-                                            sx={{ py: 2 }}
+                                            sx={{
+                                                py: 2,
+                                                '@media print': {
+                                                    padding: '2mm 0 !important'
+                                                }
+                                            }}
                                         >
-                                            <ListItemAvatar sx={{ minWidth: 45 }}>
+                                            <ListItemAvatar sx={{
+                                                minWidth: 45,
+                                                '@media print': {
+                                                    minWidth: '8mm !important'
+                                                }
+                                            }}>
                                                 <Avatar
                                                     sx={{
                                                         width: 32,
                                                         height: 32,
                                                         bgcolor: alpha(theme.palette.primary.main, 0.1),
-                                                        color: theme.palette.primary.main
+                                                        color: theme.palette.primary.main,
+                                                        '@media print': {
+                                                            width: '6mm !important',
+                                                            height: '6mm !important',
+                                                            backgroundColor: '#e3f2fd !important',
+                                                            color: '#1976d2 !important'
+                                                        }
                                                     }}
                                                 >
-                                                    <FileCopyIcon />
+                                                    <FileCopyIcon sx={{
+                                                        '@media print': {
+                                                            fontSize: '3mm !important'
+                                                        }
+                                                    }} />
                                                 </Avatar>
                                             </ListItemAvatar>
                                             <ListItemText
                                                 primary={
-                                                    <Typography variant="body2" fontWeight={600}>
+                                                    <Typography
+                                                        variant="body2"
+                                                        fontWeight={600}
+                                                        sx={{
+                                                            '@media print': {
+                                                                fontSize: '7px !important',
+                                                                fontWeight: 'bold !important',
+                                                                color: '#000 !important'
+                                                            }
+                                                        }}
+                                                    >
                                                         Consent Form
                                                     </Typography>
                                                 }
                                                 secondary={
-                                                    <Box sx={{ mt: 1 }}>
+                                                    <Box sx={{
+                                                        mt: 1,
+                                                        '@media print': {
+                                                            marginTop: '1mm !important'
+                                                        }
+                                                    }}>
                                                         {consentForm?.map((item, index) => (
                                                             <Button
                                                                 key={index}
@@ -767,15 +1413,37 @@ const Show = ({ order: { consents, ...restOrder } }) => {
                                                                 target="_blank"
                                                                 variant="outlined"
                                                                 size="small"
-                                                                startIcon={<DownloadIcon />}
+                                                                startIcon={<DownloadIcon sx={{
+                                                                    '@media print': {
+                                                                        display: 'none !important'
+                                                                    }
+                                                                }} />}
                                                                 sx={{
                                                                     mr: 1,
                                                                     mb: 1,
                                                                     borderRadius: 1,
-                                                                    textTransform: 'none'
+                                                                    textTransform: 'none',
+                                                                    '@media print': {
+                                                                        display: 'inline-block !important',
+                                                                        fontSize: '6px !important',
+                                                                        padding: '1mm !important',
+                                                                        margin: '0.5mm !important',
+                                                                        border: '1px solid #000 !important',
+                                                                        borderRadius: '1mm !important',
+                                                                        backgroundColor: '#f5f5f5 !important',
+                                                                        color: '#000 !important',
+                                                                        textDecoration: 'none !important',
+                                                                        minHeight: 'auto !important'
+                                                                    }
                                                                 }}
                                                             >
-                                                                Download Form {index + 1}
+                                                                <span style={{
+                                                                    '@media print': {
+                                                                        fontSize: '6px !important'
+                                                                    }
+                                                                }}>
+                                                                    Form {index + 1}
+                                                                </span>
                                                             </Button>
                                                         ))}
                                                     </Box>

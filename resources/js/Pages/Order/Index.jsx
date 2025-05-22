@@ -1,28 +1,18 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, {useState} from "react";
 import {
     Button,
     Checkbox,
     IconButton,
     Paper,
     Stack,
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableRow,
-    TextField,
     Typography,
     Box,
     Chip,
     Tooltip,
     Badge,
-    Alert,
-    LinearProgress,
-    Zoom,
     useTheme,
     useMediaQuery,
     alpha,
-    TableContainer, CircularProgress
 } from "@mui/material";
 import {
     Edit as EditIcon,
@@ -31,267 +21,19 @@ import {
     LocalShipping as ShippingIcon,
     Download as DownloadIcon,
     ViewList as ViewListIcon,
-    Send as SendIcon,
-    Close as CloseIcon,
-    CalendarMonth as CalendarIcon
 } from "@mui/icons-material";
 import ClientLayout from "@/Layouts/AuthenticatedLayout";
 import PageHeader from "@/Components/PageHeader";
-import { usePageReload } from "@/Services/api";
-import TableLayout from "../../Layouts/TableLayout";
-import { router } from "@inertiajs/react";
+import {usePageReload} from "@/Services/api";
+import TableLayout from "@/Layouts/TableLayout";
 import DeleteButton from "@/Components/DeleteButton.jsx";
-import Dialog from "@mui/material/Dialog";
-import DialogTitle from "@mui/material/DialogTitle";
-import DialogContent from "@mui/material/DialogContent";
-import DialogActions from "@mui/material/DialogActions";
-import { motion, AnimatePresence } from "framer-motion";
-
-/**
- * Helper function to get minimum date
- */
-const minDate = () => {
-    const timeZone = "Asia/Muscat";
-
-    // Get the current date in the specified time zone
-    const formatter = new Intl.DateTimeFormat('en-US', {
-        timeZone,
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-    });
-
-    // Format to YYYY-MM-DD for input value
-    const now = new Date();
-    const [month, , day, , year] = formatter.formatToParts(now).map(part => part.value);
-    return `${year}-${month}-${day}`;
-};
-
-/**
- * Enhanced Send Request Form component
- */
-const SendRequestForm = ({ open, onClose, orders }) => {
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-    const formRef = useRef();
-    const [preferredDate, setPreferredDate] = useState(minDate());
-    const [errors, setErrors] = useState({});
-    const [isSubmitting, setIsSubmitting] = useState(false);
-
-    // Reset state when dialog opens
-    useEffect(() => {
-        if (open) {
-            setPreferredDate(minDate());
-            setErrors({});
-            setIsSubmitting(false);
-        }
-    }, [open]);
-
-    // Handle form submission
-    const send = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        if (orders.length) {
-            setIsSubmitting(true);
-
-            router.post(
-                route("orders.logistic"),
-                {
-                    selectedOrders: orders.map(item => item.id),
-                    preferred_date: preferredDate
-                },
-                {
-                    onSuccess: () => {
-                        setIsSubmitting(false);
-                        onClose();
-                    },
-                    onError: errs => {
-                        setIsSubmitting(false);
-                        setErrors(errs);
-                    }
-                }
-            );
-        }
-    };
-
-    const handleChange = (e) => setPreferredDate(e.target.value);
-
-    return (
-        <Dialog
-            open={open}
-            maxWidth="md"
-            fullWidth
-            fullScreen={isMobile}
-            TransitionComponent={Zoom}
-            PaperProps={{
-                elevation: 5,
-                sx: {
-                    borderRadius: 2,
-                    overflow: 'hidden'
-                }
-            }}
-        >
-            <DialogTitle
-                sx={{
-                    px: 3,
-                    py: 2,
-                    bgcolor: theme.palette.primary.main,
-                    color: theme.palette.primary.contrastText,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 1
-                }}
-            >
-                <ShippingIcon sx={{ mr: 1 }} />
-                <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                    Send Pickup Request
-                </Typography>
-                <IconButton
-                    edge="end"
-                    color="inherit"
-                    onClick={onClose}
-                    disabled={isSubmitting}
-                    aria-label="close"
-                >
-                    <CloseIcon />
-                </IconButton>
-            </DialogTitle>
-
-            {isSubmitting && <LinearProgress />}
-
-            <DialogContent sx={{ p: 0 }}>
-                <Box sx={{ p: 3 }}>
-                    <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 500 }}>
-                        {orders.length} {orders.length === 1 ? 'Order' : 'Orders'} Selected for Pickup
-                    </Typography>
-
-                    <Alert
-                        severity="info"
-                        variant="outlined"
-                        sx={{ mb: 3, mt: 1 }}
-                    >
-                        Please review the selected orders and choose a preferred pickup date.
-                    </Alert>
-                </Box>
-
-                <TableContainer sx={{ maxHeight: 300 }}>
-                    <Table size="small" stickyHeader>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell sx={{ fontWeight: 600, bgcolor: alpha(theme.palette.primary.main, 0.05) }}>#</TableCell>
-                                <TableCell sx={{ fontWeight: 600, bgcolor: alpha(theme.palette.primary.main, 0.05) }}>Patient Name</TableCell>
-                                <TableCell sx={{ fontWeight: 600, bgcolor: alpha(theme.palette.primary.main, 0.05) }}>Test Name</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {orders.map((order, index) => (
-                                <TableRow
-                                    key={order?.id}
-                                    sx={{
-                                        '&:nth-of-type(odd)': {
-                                            backgroundColor: alpha(theme.palette.primary.main, 0.02),
-                                        }
-                                    }}
-                                >
-                                    <TableCell>{index + 1}</TableCell>
-                                    <TableCell sx={{ fontWeight: 500 }}>{order?.patient_full_name}</TableCell>
-                                    <TableCell>
-                                        {order?.tests?.map((test, i) => (
-                                            <Chip
-                                                key={i}
-                                                label={test.name}
-                                                size="small"
-                                                sx={{
-                                                    mr: 0.5,
-                                                    mb: 0.5,
-                                                    fontSize: '0.75rem',
-                                                    height: 20
-                                                }}
-                                            />
-                                        ))}
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-
-                <Box
-                    component="form"
-                    onSubmit={send}
-                    ref={formRef}
-                    sx={{
-                        p: 3,
-                        mt: 2,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: 2
-                    }}
-                >
-                    <TextField
-                        name="prefered_date"
-                        label="Preferred Pickup Date"
-                        type="date"
-                        onChange={handleChange}
-                        value={preferredDate}
-                        required
-                        error={Boolean(errors?.preferred_date)}
-                        helperText={errors?.preferred_date}
-                        InputProps={{
-                            startAdornment: <CalendarIcon color="action" sx={{ mr: 1 }} />,
-                        }}
-                        inputProps={{
-                            min: minDate(),
-                        }}
-                        fullWidth
-                        sx={{
-                            maxWidth: { xs: '100%', sm: '300px' },
-                            '& .MuiInputBase-root': {
-                                borderRadius: 1.5,
-                            }
-                        }}
-                    />
-                </Box>
-            </DialogContent>
-
-            <DialogActions sx={{ px: 3, py: 2, borderTop: '1px solid', borderColor: theme.palette.divider }}>
-                <Button
-                    onClick={onClose}
-                    disabled={isSubmitting}
-                    color="inherit"
-                    variant="outlined"
-                    startIcon={<CloseIcon />}
-                    sx={{ borderRadius: 1.5 }}
-                >
-                    Cancel
-                </Button>
-                <Button
-                    variant="contained"
-                    type="submit"
-                    onClick={send}
-                    disabled={isSubmitting}
-                    startIcon={isSubmitting ? <CircularProgress size={20} /> : <SendIcon />}
-                    sx={{
-                        borderRadius: 1.5,
-                        boxShadow: 'none',
-                        minWidth: 120,
-                        '&:hover': {
-                            boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
-                        }
-                    }}
-                >
-                    {isSubmitting ? 'Submitting...' : 'Send Request'}
-                </Button>
-            </DialogActions>
-        </Dialog>
-    );
-};
+import {motion, AnimatePresence} from "framer-motion";
+import SendRequestForm from "@/Pages/Order/Components/SendRequestForm.jsx";
 
 /**
  * Enhanced Orders Index component
  */
-const Index = ({ orders: { data: ordersData, ...pagination }, request }) => {
+const Index = ({orders: {data: ordersData, ...pagination}, request}) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -423,7 +165,7 @@ const Index = ({ orders: { data: ordersData, ...pagination }, request }) => {
                 name: "bion_id",
                 label: "Bion ID",
                 type: "text",
-                value: data?.filter?.bion_id,
+                value: data?.filters?.bion_id,
             },
             render: (row) => row.server_id ? (
                 <Chip
@@ -431,7 +173,7 @@ const Index = ({ orders: { data: ordersData, ...pagination }, request }) => {
                     size="small"
                     color="primary"
                     variant="outlined"
-                    sx={{ fontWeight: 500 }}
+                    sx={{fontWeight: 500}}
                 />
             ) : (
                 <Typography variant="body2" color="text.secondary">—</Typography>
@@ -443,7 +185,7 @@ const Index = ({ orders: { data: ordersData, ...pagination }, request }) => {
             type: "text",
             sortable: true,
             render: (row) => (
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                <Box sx={{display: 'flex', flexWrap: 'wrap', gap: 0.5}}>
                     {row.tests.map((test, i) => (
                         <Chip
                             key={i}
@@ -477,14 +219,14 @@ const Index = ({ orders: { data: ordersData, ...pagination }, request }) => {
                     {value: "reported", label: "Reported"},
                     {value: "report downloaded", label: "Report Downloaded"},
                 ],
-                value: data?.filter?.status
+                value: data?.filters?.status || ''
             },
             render: (row) => (
                 <Chip
                     label={row.status}
                     size="small"
                     color={getStatusColor(row.status)}
-                    sx={{ fontWeight: 500 }}
+                    sx={{fontWeight: 500}}
                 />
             )
         },
@@ -497,7 +239,7 @@ const Index = ({ orders: { data: ordersData, ...pagination }, request }) => {
                 name: "patient_full_name",
                 label: "Patient Name",
                 type: "text",
-                value: data?.filter?.patient_full_name,
+                value: data?.filters?.patient_full_name,
             },
             render: (row) => (
                 <Typography variant="body2" fontWeight={500}>
@@ -515,15 +257,15 @@ const Index = ({ orders: { data: ordersData, ...pagination }, request }) => {
                     name: "patient_date_of_birth.from",
                     label: "From",
                     type: "date",
-                    value: data?.filter?.patient_date_of_birth?.from,
-                    inputProps: {max: data?.filter?.patient_date_of_birth?.to}
+                    value: data?.filters?.patient_date_of_birth?.from,
+                    inputProps: {max: data?.filters?.patient_date_of_birth?.to}
                 },
                 {
                     name: "patient_date_of_birth.to",
                     label: "To",
                     type: "date",
-                    value: data?.filter?.patient_date_of_birth?.to,
-                    inputProps: {min: data?.filter?.patient_date_of_birth?.from}
+                    value: data?.filters?.patient_date_of_birth?.to,
+                    inputProps: {min: data?.filters?.patient_date_of_birth?.from}
                 }
             ],
             render: (row) => (
@@ -546,15 +288,15 @@ const Index = ({ orders: { data: ordersData, ...pagination }, request }) => {
                     name: "sent_at.from",
                     label: "From",
                     type: "date",
-                    value: data?.filter?.sent_at?.from,
-                    inputProps: {max: data?.filter?.sent_at?.to}
+                    value: data?.filters?.sent_at?.from,
+                    inputProps: {max: data?.filters?.sent_at?.to}
                 },
                 {
                     name: "sent_at.to",
                     label: "To",
                     type: "date",
-                    value: data?.filter?.sent_at?.to,
-                    inputProps: {min: data?.filter?.sent_at?.from}
+                    value: data?.filters?.sent_at?.to,
+                    inputProps: {min: data?.filters?.sent_at?.from}
                 }
             ],
             render: (row) => (
@@ -581,9 +323,9 @@ const Index = ({ orders: { data: ordersData, ...pagination }, request }) => {
                     <Button
                         variant="outlined"
                         size="small"
-                        startIcon={<DownloadIcon />}
+                        startIcon={<DownloadIcon/>}
                         href={route("orders.report", row.id)}
-                        sx={{ borderRadius: 1.5, textTransform: 'none' }}
+                        sx={{borderRadius: 1.5, textTransform: 'none'}}
                     >
                         Download
                     </Button>
@@ -616,7 +358,7 @@ const Index = ({ orders: { data: ordersData, ...pagination }, request }) => {
                                     }
                                 }}
                             >
-                                <RemoveRedEye fontSize="small" />
+                                <RemoveRedEye fontSize="small"/>
                             </IconButton>
                         </Tooltip>
                     )}
@@ -636,7 +378,7 @@ const Index = ({ orders: { data: ordersData, ...pagination }, request }) => {
                                     }
                                 }}
                             >
-                                <EditIcon fontSize="small" />
+                                <EditIcon fontSize="small"/>
                             </IconButton>
                         </Tooltip>
                     )}
@@ -645,7 +387,7 @@ const Index = ({ orders: { data: ordersData, ...pagination }, request }) => {
                         <DeleteButton
                             url={route("orders.destroy", row.id)}
                             size="small"
-                            iconProps={{ fontSize: "small" }}
+                            iconProps={{fontSize: "small"}}
                             buttonProps={{
                                 sx: {
                                     border: '1px solid',
@@ -662,17 +404,19 @@ const Index = ({ orders: { data: ordersData, ...pagination }, request }) => {
         }
     ];
 
+    const showSelectOrder = ordersData.some(order => order.status === "requested")
+
     return (
         <>
             <PageHeader
                 title="Orders"
                 subtitle="Manage and track all patient test orders"
                 actions={[
-                    <Button
+                    showSelectOrder && <Button
                         variant="outlined"
                         color={isSelectMode ? "primary" : "inherit"}
                         onClick={toggleSelectMode}
-                        startIcon={<ViewListIcon />}
+                        startIcon={<ViewListIcon/>}
                         sx={{
                             borderRadius: 1.5,
                             textTransform: 'none',
@@ -686,7 +430,7 @@ const Index = ({ orders: { data: ordersData, ...pagination }, request }) => {
                         href={route("orders.create")}
                         onClick={handleAdd}
                         color="primary"
-                        startIcon={<AddIcon />}
+                        startIcon={<AddIcon/>}
                         sx={{
                             borderRadius: 1.5,
                             textTransform: 'none',
@@ -701,14 +445,14 @@ const Index = ({ orders: { data: ordersData, ...pagination }, request }) => {
                 ]}
             />
 
-            <Box sx={{ mb: 3 }}>
+            <Box sx={{my: 3}}>
                 <AnimatePresence>
                     {selectedOrders.length > 0 && (
                         <motion.div
-                            initial={{ opacity: 0, y: -20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -20 }}
-                            transition={{ duration: 0.3 }}
+                            initial={{opacity: 0, y: -20}}
+                            animate={{opacity: 1, y: 0}}
+                            exit={{opacity: 0, y: -20}}
+                            transition={{duration: 0.3}}
                         >
                             <Paper
                                 elevation={0}
@@ -722,12 +466,12 @@ const Index = ({ orders: { data: ordersData, ...pagination }, request }) => {
                                 }}
                             >
                                 <Stack
-                                    direction={{ xs: 'column', sm: 'row' }}
+                                    direction={{xs: 'column', sm: 'row'}}
                                     spacing={2}
-                                    alignItems={{ xs: 'flex-start', sm: 'center' }}
+                                    alignItems={{xs: 'flex-start', sm: 'center'}}
                                     justifyContent="space-between"
                                 >
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
                                         <Badge
                                             badgeContent={selectedOrders.length}
                                             color="primary"
@@ -740,9 +484,9 @@ const Index = ({ orders: { data: ordersData, ...pagination }, request }) => {
                                                 }
                                             }}
                                         >
-                                            <ShippingIcon color="primary" />
+                                            <ShippingIcon color="primary"/>
                                         </Badge>
-                                        <Typography variant="subtitle1" sx={{ fontWeight: 500 }}>
+                                        <Typography variant="subtitle1" sx={{fontWeight: 500}}>
                                             Selected Orders
                                         </Typography>
                                     </Box>
@@ -750,7 +494,7 @@ const Index = ({ orders: { data: ordersData, ...pagination }, request }) => {
                                     <Stack
                                         direction="row"
                                         spacing={1}
-                                        width={{ xs: '100%', sm: 'auto' }}
+                                        width={{xs: '100%', sm: 'auto'}}
                                     >
                                         <Button
                                             variant="outlined"
@@ -769,7 +513,7 @@ const Index = ({ orders: { data: ordersData, ...pagination }, request }) => {
                                             variant={isMobile ? "outlined" : "contained"}
                                             size="small"
                                             color="primary"
-                                            startIcon={<ShippingIcon />}
+                                            startIcon={<ShippingIcon/>}
                                             onClick={handleSendRequest}
                                             sx={{
                                                 borderRadius: 1.5,
@@ -778,7 +522,7 @@ const Index = ({ orders: { data: ordersData, ...pagination }, request }) => {
                                                 '&:hover': {
                                                     boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
                                                 },
-                                                flexGrow: { xs: 1, sm: 0 }
+                                                flexGrow: {xs: 1, sm: 0}
                                             }}
                                         >
                                             {isMobile ? 'Request' : 'Send Pickup Request'}
@@ -854,6 +598,6 @@ const breadcrumbs = [
 ];
 
 // Set layout for the page
-Index.layout = (page) => <ClientLayout auth={page.props.auth} breadcrumbs={breadcrumbs} children={page} />;
+Index.layout = (page) => <ClientLayout auth={page.props.auth} breadcrumbs={breadcrumbs} children={page}/>;
 
 export default Index;

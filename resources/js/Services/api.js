@@ -21,7 +21,7 @@ export const useSubmitForm = (defaultValues, route) => {
     }
     const handleChange = (e) => {
         if (e && typeof e !== "string")
-            setData(e.target.name, e.target.type == "checkbox" ? e.target.checked : e.target.value);
+            setData(e.target.name, e.target.type === "checkbox" ? e.target.checked : e.target.value);
     }
 
     return {
@@ -89,13 +89,19 @@ export const usePageReload = (request, only = []) => {
     };
     const onFilterChange = (e) => {
         const {name, value} = e.target;
-        let filters = changeObjectWithNestedName(name, value, data?.filters ?? {});
-        if (JSON.stringify(filters) !== JSON.stringify(data.filters))
+
+        // Get the current value at the path
+        const oldValue = getValueByPath(data?.filters, name);
+
+        // Only update if the value is different
+        if (value !== oldValue) {
+            let filters = changeObjectWithNestedName(name, value, data?.filters ?? {});
             setData((prevData) => ({
                 ...prevData,
                 page: 1,
                 filters
             }));
+        }
     };
     const onOrderByChange = (field, type) => {
         setData((prevData) => ({...prevData, sort: {field, type}}));
@@ -113,8 +119,41 @@ export const usePageReload = (request, only = []) => {
         setProcessing(false);
     }
 
-
     return {processing, reload, get, data, setData, onPageChange, onPageSizeChange, onFilterChange, onOrderByChange}
+}
+
+function changeObjectWithNestedName(name, value, prevValues) {
+    const output = {...prevValues}, nestedProperties = name.split("."),
+        lastPart = nestedProperties.pop();
+    let currentObject = output;
+    for (let i = 0; i < nestedProperties.length; i++) {
+        if (nestedProperties[i]) {
+            const property = nestedProperties[i];
+            if (!currentObject[property]) {
+                currentObject[property] = {};
+            }
+            currentObject = currentObject[property];
+        }
+    }
+    if (lastPart)
+        currentObject[lastPart] = value;
+    return output;
+}
+
+// Helper function to get nested value
+function getValueByPath(obj, path) {
+    if (!obj) return undefined;
+    const parts = path.split('.');
+    let current = obj;
+
+    for (const part of parts) {
+        if (current == null || typeof current !== 'object') {
+            return undefined;
+        }
+        current = current[part];
+    }
+
+    return current;
 }
 
 export const useGetData = () => {
@@ -137,25 +176,6 @@ export const useGetData = () => {
 export const useDelete = () => {
     const {post, processing} = useForm({_method: "delete"});
     return {submit: post, processing}
-}
-
-
-function changeObjectWithNestedName(name, value, prevValues) {
-    const output = {...prevValues}, nestedProperties = name.split("."),
-        lastPart = nestedProperties.pop();
-    let currentObject = output;
-    for (let i = nestedProperties.length - 1; i >= 0; i--) {
-        if (nestedProperties[i]) {
-            const property = nestedProperties[i];
-            if (!currentObject[property]) {
-                currentObject[property] = {};
-            }
-            currentObject = currentObject[property];
-        }
-    }
-    if (lastPart)
-        currentObject[lastPart] = value;
-    return output;
 }
 
 export async function fetcher(resource) {

@@ -1,12 +1,13 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useSubmitForm } from "@/Services/api";
 import EditLayout from "../EditLayout";
 import SampleDetailsForm from "../Components/SampleDetailsForm";
-import { Box, Paper, Typography, Button, LinearProgress, Alert } from "@mui/material";
-import { Save, ArrowForward } from "@mui/icons-material";
+import { Box, Alert, Typography } from "@mui/material";
+import { sampleDetailsValidate, formatSampleData, resetSampleFormErrors } from "@/Services/validate";
+import { motion, AnimatePresence } from "framer-motion";
 
 /**
- * SampleDetails component for managing sample information in an order
+ * Enhanced SampleDetails component with validation integration
  *
  * @param {Object} props Component props
  * @param {Object} props.auth Authentication information
@@ -19,9 +20,19 @@ const SampleDetails = ({ auth, order, step, sampleTypes }) => {
     // Initialize form with existing samples or an empty sample
     const initialData = {
         ...order,
-        samples: order.samples.length ? order.samples : [{}],
+        samples: order.samples.length ? order.samples : [
+            {
+                sample_type: null,
+                sampleId: "",
+                collectionDate: "",
+                notes: ""
+            }
+        ],
         _method: "put"
     };
+
+    // State for success message
+    const [showSuccess, setShowSuccess] = useState(false);
 
     // Use the form submission hook
     const {
@@ -32,7 +43,6 @@ const SampleDetails = ({ auth, order, step, sampleTypes }) => {
         setError,
         clearErrors,
         processing,
-        recentlySuccessful,
     } = useSubmitForm(
         initialData,
         route("orders.update", { order: order.id, step })
@@ -42,7 +52,23 @@ const SampleDetails = ({ auth, order, step, sampleTypes }) => {
     useEffect(() => {
         if (Object.keys(errors).length > 0) {
             const firstErrorKey = Object.keys(errors)[0];
-            const element = document.getElementById(`field-${firstErrorKey}`);
+            let elementId;
+
+            // Handle different error formats
+            if (firstErrorKey.includes('[')) {
+                // Handle bracket notation format like samples[0].type
+                const match = firstErrorKey.match(/^([^[]+)\[(\d+)\]\.(.+)$/);
+                if (match) {
+                    elementId = `field-${match[1]}.${match[2]}`;
+                }
+            } else if (firstErrorKey.includes('.')) {
+                // Handle dot notation format like samples.0.type
+                elementId = `field-${firstErrorKey.split('.')[0]}.${firstErrorKey.split('.')[1]}`;
+            } else {
+                elementId = `field-${firstErrorKey}`;
+            }
+
+            const element = document.getElementById(elementId);
             if (element) {
                 element.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
@@ -61,141 +87,99 @@ const SampleDetails = ({ auth, order, step, sampleTypes }) => {
         if (errors[key]) {
             clearErrors(key);
         }
+
+        // For nested fields in samples array, clear those errors too
+        if (key === 'samples') {
+            // Clear all sample-related errors
+            Object.keys(errors).forEach(errorKey => {
+                if (errorKey.startsWith('samples[') || errorKey.startsWith('samples.')) {
+                    clearErrors(errorKey);
+                }
+            });
+        }
+
+        // Hide success message when form changes
+        if (showSuccess) {
+            setShowSuccess(false);
+        }
     };
 
     /**
      * Handle form submission with validation
      */
-    const handleSubmit = () => {
-        // Basic validation before submission
-        let hasValidationErrors = false;
-
-        // Check if samples exist and have required fields
-        if (!data.samples || data.samples.length === 0) {
-            setError('samples', 'At least one sample is required');
-            hasValidationErrors = true;
-        } else {
-            // Validate each sample if needed
-            // Additional validation can be added here
+    const handleSubmit = (e) => {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
         }
 
-        if (!hasValidationErrors) {
-            submit();
-        }
-    };
+        // Reset all form errors
+        resetSampleFormErrors(data, clearErrors);
 
-    /**
-     * Save as draft functionality
-     */
-    const saveAsDraft = () => {
-        setData(previousData => ({ ...previousData, status: 'draft' }));
-        submit();
+        // Validate the sample data
+        if (sampleDetailsValidate(data, setError)) {
+
+            // Submit form
+            submit({
+                onSuccess: () => {
+                    // Show success message
+                    setShowSuccess(true);
+
+                    // Auto-hide success message after 3 seconds
+                    setTimeout(() => {
+                        setShowSuccess(false);
+                    }, 3000);
+                }
+            });
+        }
     };
 
     return (
-        <EditLayout step={step} auth={auth} id={order.id}>
-            <Paper
-                elevation={0}
-                variant="outlined"
-                sx={{
-                    p: 3,
-                    mb: 2,
-                    borderRadius: 2,
-                    position: 'relative'
-                }}
-            >
-                {/* Show loading indicator during form submission */}
-                {processing && (
-                    <LinearProgress
-                        sx={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            borderTopLeftRadius: 8,
-                            borderTopRightRadius: 8
-                        }}
-                    />
+        <EditLayout
+            step={step}
+            auth={auth}
+            id={order.id}
+            onSubmit={handleSubmit}
+            isSubmitting={processing}
+        >
+            {/* Success message */}
+            <AnimatePresence>
+                {showSuccess && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{ duration: 0.3 }}
+                    >
+                        <Alert
+                            severity="success"
+                            sx={{
+                                mb: 3,
+                                borderRadius: 2,
+                                '& .MuiAlert-icon': {
+                                    alignItems: 'center'
+                                }
+                            }}
+                            onClose={() => setShowSuccess(false)}
+                        >
+                            Sample details saved successfully.
+                        </Alert>
+                    </motion.div>
                 )}
+            </AnimatePresence>
 
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                    <Typography variant="h5" component="h1" fontWeight="500">
-                        Sample Details
-                    </Typography>
-
-                    <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{ fontStyle: 'italic' }}
-                    >
-                        Order ID: {order.id}
-                    </Typography>
-                </Box>
-
-                {/* Success message */}
-                {recentlySuccessful && (
-                    <Alert
-                        severity="success"
-                        sx={{ mb: 3 }}
-                    >
-                        Sample details have been successfully saved.
-                    </Alert>
-                )}
-
-                {/* General error message if any */}
-                {errors.general && (
-                    <Alert
-                        severity="error"
-                        sx={{ mb: 3 }}
-                    >
-                        {errors.general}
-                    </Alert>
-                )}
-
-                {/* Render the actual form component */}
-                <SampleDetailsForm
-                    samples={data.samples ?? [{}]}
-                    onChange={handleChange}
-                    onSubmit={handleSubmit}
-                    sampleTypes={sampleTypes}
-                    errors={errors}
-                    user={auth.user.id}
-                    setError={setError}
-                    clearErrors={clearErrors}
-                    disabled={processing}
-                />
-
-                {/* Action buttons */}
-                <Box
-                    sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        mt: 4,
-                        pt: 3,
-                        borderTop: '1px solid',
-                        borderColor: 'divider'
-                    }}
-                >
-                    <Button
-                        variant="outlined"
-                        startIcon={<Save />}
-                        onClick={saveAsDraft}
-                        disabled={processing}
-                    >
-                        Save as Draft
-                    </Button>
-
-                    <Button
-                        variant="contained"
-                        endIcon={<ArrowForward />}
-                        onClick={handleSubmit}
-                        disabled={processing}
-                        color="primary"
-                    >
-                        Save and Continue
-                    </Button>
-                </Box>
-            </Paper>
+            {/* Render the actual form component */}
+            <SampleDetailsForm
+                samples={data.samples}
+                onChange={handleChange}
+                onSubmit={handleSubmit}
+                sampleTypes={sampleTypes}
+                errors={errors}
+                user={auth.user.id}
+                setError={setError}
+                clearErrors={clearErrors}
+                disabled={processing}
+            />
         </EditLayout>
     );
 };

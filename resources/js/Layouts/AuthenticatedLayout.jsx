@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { Head, usePage, useRemember } from "@inertiajs/react";
+import React, {useEffect, useState, useMemo} from 'react';
+import {Head, usePage, useRemember} from "@inertiajs/react";
 import {
     createTheme,
     ThemeProvider,
@@ -28,17 +28,17 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import BrightnessAutoIcon from '@mui/icons-material/BrightnessAuto';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
-import { motion, AnimatePresence } from 'framer-motion';
+import {motion, AnimatePresence} from 'framer-motion';
 
-export default function Authenticated({ auth, breadcrumbs, children, title }) {
+export default function Authenticated({auth, breadcrumbs, children, title}) {
     const [open, setOpen] = useRemember(true, 'sidebar-open');
     const [loading, setLoading] = useState(false);
     const [scrollPosition, setScrollPosition] = useState(0);
     const [colorMode, setColorMode] = useRemember('light', 'color-mode');
     const [showScrollTop, setShowScrollTop] = useState(false);
-    const [notification, setNotification] = useState({ open: false, message: '', severity: 'info' });
+    const [notification, setNotification] = useState({open: false, message: '', severity: 'info'});
     const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
-    const { flash } = usePage().props;
+    const {flash} = usePage().props;
 
     // Create a theme based on color mode
     const theme = useMemo(() =>
@@ -140,14 +140,13 @@ export default function Authenticated({ auth, breadcrumbs, children, title }) {
     const toggleColorMode = () => {
         setColorMode(prevMode => {
             if (prevMode === 'light') return 'dark';
-            if (prevMode === 'dark') return 'auto';
-            return 'light';
+            if (prevMode === 'dark') return 'light';
         });
     };
 
     // Show notification
     const showNotification = (message, severity = 'info') => {
-        setNotification({ open: true, message, severity });
+        setNotification({open: true, message, severity});
     };
 
     // Scroll to top handler
@@ -163,9 +162,9 @@ export default function Authenticated({ auth, breadcrumbs, children, title }) {
 
     // Get color mode icon
     const getColorModeIcon = () => {
-        if (colorMode === 'auto') return <BrightnessAutoIcon />;
-        if (colorMode === 'dark') return <Brightness4Icon />;
-        return <Brightness7Icon />;
+        if (colorMode === 'auto') return <BrightnessAutoIcon/>;
+        if (colorMode === 'dark') return <Brightness4Icon/>;
+        return <Brightness7Icon/>;
     };
 
     // Get color mode tooltip text
@@ -177,9 +176,9 @@ export default function Authenticated({ auth, breadcrumbs, children, title }) {
 
     return (
         <ThemeProvider theme={theme}>
-            <Box sx={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
-                <CssBaseline />
-                {title && <Head title={title} />}
+            <Box sx={{display: 'flex', height: '100vh', overflow: 'hidden'}}>
+                <CssBaseline/>
+                {title && <Head title={title}/>}
 
                 <Header
                     breadcrumbs={breadcrumbs}
@@ -210,24 +209,32 @@ export default function Authenticated({ auth, breadcrumbs, children, title }) {
                         position: 'relative',
                     }}
                 >
-                    <Toolbar />
+                    <Toolbar sx={{
+                        '@media print': {
+                            display: 'none !important',
+                        },
+                    }}/>
 
                     <Container
                         sx={{
-                            mt: { xs: 2, sm: 3, md: 4 },
-                            mb: { xs: 2, sm: 3, md: 4 },
-                            px: { xs: 2, sm: 3, md: 4 }
+                            mt: {xs: 2, sm: 3, md: 4},
+                            mb: {xs: 2, sm: 3, md: 4},
+                            px: {xs: 2, sm: 3, md: 4},
+                            '@media print': {
+                                p: 0,
+                                m: 0
+                            },
                         }}
                         maxWidth={false}
                         component={motion.div}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.4 }}
+                        initial={{opacity: 0, y: 10}}
+                        animate={{opacity: 1, y: 0}}
+                        transition={{duration: 0.4}}
                     >
                         <Paper
                             elevation={colorMode === 'dark' ? 4 : 2}
                             sx={{
-                                p: { xs: 2, sm: 3, md: 5 },
+                                p: {xs: 2, sm: 3, md: 5},
                                 borderRadius: "1rem",
                                 boxShadow: colorMode === 'dark'
                                     ? '0 6px 16px rgba(0,0,0,0.6)'
@@ -238,7 +245,13 @@ export default function Authenticated({ auth, breadcrumbs, children, title }) {
                                     boxShadow: colorMode === 'dark'
                                         ? '0 8px 24px rgba(0,0,0,0.7)'
                                         : '0 8px 32px rgba(0,0,0,0.12)'
-                                }
+                                },
+                                '@media print': {
+                                    p: 0,
+                                    m: 0,
+                                    boxShadow: 'none',
+                                    borderRadius: 0,
+                                },
                             }}
                             component={motion.div}
                             layout
@@ -246,10 +259,10 @@ export default function Authenticated({ auth, breadcrumbs, children, title }) {
                             <AnimatePresence mode="wait">
                                 <motion.div
                                     key={title || 'content'}
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    exit={{ opacity: 0 }}
-                                    transition={{ duration: 0.3 }}
+                                    initial={{opacity: 0}}
+                                    animate={{opacity: 1}}
+                                    exit={{opacity: 0}}
+                                    transition={{duration: 0.3}}
                                 >
                                     {children}
                                 </motion.div>
@@ -261,7 +274,10 @@ export default function Authenticated({ auth, breadcrumbs, children, title }) {
                                 pt: 4,
                                 opacity: 0.8,
                                 textAlign: 'center',
-                                color: theme.palette.text.secondary
+                                color: theme.palette.text.secondary,
+                                '@media print': {
+                                    display: 'none !important',
+                                },
                             }}
                         />
                     </Container>
@@ -276,6 +292,9 @@ export default function Authenticated({ auth, breadcrumbs, children, title }) {
                             flexDirection: 'column',
                             gap: 1,
                             zIndex: 1000,
+                            '@media print': {
+                                display: 'none !important',
+                            },
                         }}
                     >
                         {/* Color mode toggle */}
@@ -301,7 +320,11 @@ export default function Authenticated({ auth, breadcrumbs, children, title }) {
                         </Tooltip>
 
                         {/* Scroll to top button */}
-                        <Fade in={showScrollTop}>
+                        <Fade in={showScrollTop} sx={{
+                            '@media print': {
+                                display: 'none !important',
+                            },
+                        }}>
                             <Tooltip
                                 title="Scroll to top"
                                 placement="left"
@@ -319,7 +342,7 @@ export default function Authenticated({ auth, breadcrumbs, children, title }) {
                                     }}
                                     size="medium"
                                 >
-                                    <ArrowUpwardIcon />
+                                    <ArrowUpwardIcon/>
                                 </IconButton>
                             </Tooltip>
                         </Fade>
@@ -348,15 +371,15 @@ export default function Authenticated({ auth, breadcrumbs, children, title }) {
             <Snackbar
                 open={notification.open}
                 autoHideDuration={6000}
-                onClose={() => setNotification({ ...notification, open: false })}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                onClose={() => setNotification({...notification, open: false})}
+                anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
                 TransitionComponent={Fade}
             >
                 <Alert
-                    onClose={() => setNotification({ ...notification, open: false })}
+                    onClose={() => setNotification({...notification, open: false})}
                     severity={notification.severity}
                     variant="filled"
-                    sx={{ width: '100%', boxShadow: theme.shadows[6] }}
+                    sx={{width: '100%', boxShadow: theme.shadows[6]}}
                 >
                     {notification.message}
                 </Alert>

@@ -15,6 +15,7 @@ import { router } from "@inertiajs/react";
 import ListMenuItem from "@/Layouts/Components/MenuItem.jsx";
 import routes from "@/routes";
 import logo from "@/../images/logo.png";
+import logoIcon from "@/../images/logo-icon.png";
 
 const drawerWidth = 260;
 
@@ -26,6 +27,9 @@ const StyledDrawer = styled(MuiDrawer, {
     flexShrink: 0,
     whiteSpace: 'nowrap',
     boxSizing: 'border-box',
+    '@media print': {
+        display: 'none !important',
+    },
 
     '& .MuiDrawer-paper': {
         position: 'relative',
@@ -204,7 +208,7 @@ const Drawer = ({ toggleDrawer, auth, open, colorMode = 'light' }) => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    px: 2,
+                    px: 1,
                     py: 1,
                     minHeight: 64,
                     borderBottom: '1px solid',
@@ -221,20 +225,20 @@ const Drawer = ({ toggleDrawer, auth, open, colorMode = 'light' }) => {
                             sx={{
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: 1.5,
+                                gap: 0.5,
                                 overflow: 'hidden',
                                 width: '100%',
                             }}
                         >
                             <Avatar
-                                src={logo}
+                                src={logoIcon}
                                 alt="Bion"
-                                variant="rounded"
+                                variant="circular"
                                 sx={{
                                     width: 36,
                                     height: 36,
                                     backgroundColor: '#f5f5f5',
-                                    p: 0.5,
+                                    p: 0,
                                     boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
                                 }}
                             />
@@ -248,7 +252,7 @@ const Drawer = ({ toggleDrawer, auth, open, colorMode = 'light' }) => {
                                     color: theme.palette.primary.main
                                 }}
                             >
-                                Bion Providers Panel
+                                Providers Panel
                             </Typography>
                         </Box>
                     ) : (
@@ -284,7 +288,7 @@ const Drawer = ({ toggleDrawer, auth, open, colorMode = 'light' }) => {
                         onClick={toggleDrawer}
                         sx={{
                             transition: 'all 0.2s',
-                            borderRadius: 1.5,
+                            borderRadius: 1,
                             '&:hover': {
                                 backgroundColor: alpha(theme.palette.primary.main, 0.1),
                             }

@@ -199,7 +199,7 @@ export default function Header({toggleDrawer, auth, breadcrumbs, open, colorMode
                             </Tooltip>
                         )}
 
-                        {/* Notifications button (example) */}
+                        {/* Notifications button (example)
                         <Tooltip title="Notifications">
                             <IconButton
                                 size="medium"
@@ -226,7 +226,7 @@ export default function Header({toggleDrawer, auth, breadcrumbs, open, colorMode
                                 </Badge>
                             </IconButton>
                         </Tooltip>
-
+                        */}
                         {/* User profile button */}
                         <Box
                             sx={{
@@ -332,14 +332,14 @@ export default function Header({toggleDrawer, auth, breadcrumbs, open, colorMode
                                     <Divider/>
 
                                     <Box sx={{display: 'flex', gap: 1}}>
-                                        <Button
-                                            startIcon={<Person/>}
-                                            variant="outlined"
-                                            size="small"
-                                            sx={{flex: 1, textTransform: 'none'}}
-                                        >
-                                            Profile
-                                        </Button>
+                                        {/*<Button*/}
+                                        {/*    startIcon={<Person/>}*/}
+                                        {/*    variant="outlined"*/}
+                                        {/*    size="small"*/}
+                                        {/*    sx={{flex: 1, textTransform: 'none'}}*/}
+                                        {/*>*/}
+                                        {/*    Profile*/}
+                                        {/*</Button>*/}
                                         <Button
                                             startIcon={<LockOutlined/>}
                                             variant="outlined"
@@ -357,7 +357,6 @@ export default function Header({toggleDrawer, auth, breadcrumbs, open, colorMode
                                         component={Link}
                                         href={route('logout')}
                                         method="post"
-                                        as="button"
                                         startIcon={<ExitToApp/>}
                                         sx={{
                                             textTransform: 'none',
@@ -371,85 +370,6 @@ export default function Header({toggleDrawer, auth, breadcrumbs, open, colorMode
                                     </Button>
                                 </Box>
                             </Fade>
-
-                            {/* Regular dropdown menu (mobile and click action) */}
-                            <Menu
-                                id="menu-appbar"
-                                anchorEl={anchorEl}
-                                anchorOrigin={{
-                                    vertical: 'bottom',
-                                    horizontal: 'right',
-                                }}
-                                keepMounted
-                                transformOrigin={{
-                                    vertical: 'top',
-                                    horizontal: 'right',
-                                }}
-                                open={Boolean(anchorEl)}
-                                onClose={handleClose}
-                                slotProps={{
-                                    Paper: {
-                                        sx: {
-                                            mt: 1.5,
-                                            borderRadius: 2,
-                                            minWidth: 180,
-                                            boxShadow: theme.shadows[6],
-                                            '& .MuiMenuItem-root': {
-                                                py: 1.5,
-                                                px: 2,
-                                            },
-                                        }
-                                    }
-                                }}
-                                TransitionComponent={Fade}
-                            >
-                                <Box sx={{px: 2, py: 1}}>
-                                    <Typography variant="subtitle2" fontWeight={600}>
-                                        {auth.user.name}
-                                    </Typography>
-                                    <Typography variant="caption" color="text.secondary" sx={{wordBreak: 'break-all'}}>
-                                        {auth.user.email}
-                                    </Typography>
-                                </Box>
-
-                                <Divider sx={{my: 1}}/>
-
-                                <MenuItem onClick={handleClose}>
-                                    <ListItemIcon>
-                                        <Person fontSize="small"/>
-                                    </ListItemIcon>
-                                    <ListItemText primary="My Profile"/>
-                                </MenuItem>
-
-                                <MenuItem onClick={handleOpenChangePassword}>
-                                    <ListItemIcon>
-                                        <LockOutlined fontSize="small"/>
-                                    </ListItemIcon>
-                                    <ListItemText primary="Change Password"/>
-                                </MenuItem>
-
-                                <MenuItem>
-                                    <ListItemIcon>
-                                        <Settings fontSize="small"/>
-                                    </ListItemIcon>
-                                    <ListItemText primary="Settings"/>
-                                </MenuItem>
-
-                                <Divider sx={{my: 1}}/>
-
-                                <MenuItem component={Link} href={route('logout')} method="post" as="button">
-                                    <ListItemIcon>
-                                        <ExitToApp fontSize="small" color="error"/>
-                                    </ListItemIcon>
-                                    <ListItemText
-                                        primary="Sign Out"
-                                        primaryTypographyProps={{
-                                            color: theme.palette.error.main,
-                                            fontWeight: 500,
-                                        }}
-                                    />
-                                </MenuItem>
-                            </Menu>
                         </Box>
                     </Box>
                 </Toolbar>

@@ -147,10 +147,10 @@ class TestRepository extends BaseRepository implements TestRepositoryInterface
             $this->query->search($filters["name"], ["name"]);
         }
         if (isset($filters["shortName"])) {
-            $this->query->search($filters["shortName"], ["name"]);
+            $this->query->search($filters["shortName"], ["shortName"]);
         }
         if (isset($filters["code"])) {
-            $this->query->search($filters["code"], ["name"]);
+            $this->query->search($filters["code"], ["code"]);
         }
         if (isset($filters["barcode"])) {
             $material = $this->materialRepository->getByBarcode($filters["barcode"]);

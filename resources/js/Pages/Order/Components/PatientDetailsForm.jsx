@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useState} from "react";
 import {
     Autocomplete,
     Box,
@@ -13,8 +13,6 @@ import {
     Stack,
     TextField,
     Typography,
-    Divider,
-    Chip,
     Tooltip,
     IconButton,
     Card,
@@ -22,16 +20,12 @@ import {
     useTheme,
     alpha,
     Alert,
-    Collapse
 } from "@mui/material";
 import {
     Person as PersonIcon,
     ContactPhone as ContactPhoneIcon,
-    Save as SaveIcon,
-    NavigateNext as NavigateNextIcon,
     PersonSearch as PersonSearchIcon,
     Help as HelpIcon,
-    ExpandMore as ExpandMoreIcon,
     Flag as FlagIcon,
     Cake as CakeIcon,
     Badge as BadgeIcon,
@@ -44,7 +38,7 @@ import {
 import countries from "@/Data/countries";
 import CountrySelector from "@/Components/CountrySelector";
 import Gender from "@/Enums/Gender.js";
-import { motion, AnimatePresence } from "framer-motion";
+import {motion, AnimatePresence} from "framer-motion";
 
 /**
  * Enhanced PatientDetailsForm with improved layout and UX
@@ -52,7 +46,6 @@ import { motion, AnimatePresence } from "framer-motion";
 const PatientDetailsForm = (props) => {
     const theme = useTheme();
     const [showHelp, setShowHelp] = useState(false);
-    const [showOptionalFields, setShowOptionalFields] = useState(false);
 
     // Handle patient field changes
     const handleChange = (e) => {
@@ -61,13 +54,8 @@ const PatientDetailsForm = (props) => {
 
     // Handle contact field changes
     const handleContactChange = (e) => {
-        let contact = { ...props.patient?.contact, [e.target.name]: e.target.value };
+        let contact = {...props.patient?.contact, [e.target.name]: e.target.value};
         props.onChange("contact", contact);
-    };
-
-    // Handle form submission
-    const handleSubmit = () => {
-        props.onSubmit();
     };
 
     // Handle nationality change
@@ -99,14 +87,10 @@ const PatientDetailsForm = (props) => {
         setShowHelp(!showHelp);
     };
 
-    // Toggle optional fields
-    const toggleOptionalFields = () => {
-        setShowOptionalFields(!showOptionalFields);
-    };
 
     // Animations
     const containerVariants = {
-        hidden: { opacity: 0 },
+        hidden: {opacity: 0},
         visible: {
             opacity: 1,
             transition: {
@@ -117,11 +101,11 @@ const PatientDetailsForm = (props) => {
     };
 
     const itemVariants = {
-        hidden: { y: 20, opacity: 0 },
+        hidden: {y: 20, opacity: 0},
         visible: {
             y: 0,
             opacity: 1,
-            transition: { duration: 0.4 }
+            transition: {duration: 0.4}
         }
     };
 
@@ -131,20 +115,20 @@ const PatientDetailsForm = (props) => {
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            sx={{ width: '100%' }}
+            sx={{width: '100%'}}
         >
             {/* Help section */}
             <AnimatePresence>
                 {showHelp && (
                     <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.3 }}
+                        initial={{opacity: 0, height: 0}}
+                        animate={{opacity: 1, height: 'auto'}}
+                        exit={{opacity: 0, height: 0}}
+                        transition={{duration: 0.3}}
                     >
                         <Alert
                             severity="info"
-                            icon={<InfoIcon />}
+                            icon={<InfoIcon/>}
                             sx={{
                                 mb: 3,
                                 borderRadius: 2,
@@ -158,22 +142,25 @@ const PatientDetailsForm = (props) => {
                                 Patient Information Guidelines
                             </Typography>
                             <Typography variant="body2" paragraph>
-                                Please fill in all required fields marked with an asterisk (*). Accurate patient information ensures proper test processing and reporting.
+                                Please fill in all required fields marked with an asterisk (*). Accurate patient
+                                information ensures proper test processing and reporting.
                             </Typography>
-                            <Box component="ul" sx={{ m: 0, pl: 2 }}>
-                                <Box component="li" sx={{ mb: 0.5 }}>
+                            <Box component="ul" sx={{m: 0, pl: 2}}>
+                                <Box component="li" sx={{mb: 0.5}}>
                                     <Typography variant="body2">
-                                        <strong>Patient Name:</strong> Enter the full legal name as it appears on official documents
+                                        <strong>Patient Name:</strong> Enter the full legal name as it appears on
+                                        official documents
                                     </Typography>
                                 </Box>
-                                <Box component="li" sx={{ mb: 0.5 }}>
+                                <Box component="li" sx={{mb: 0.5}}>
                                     <Typography variant="body2">
                                         <strong>Date of Birth:</strong> Use the calendar picker for accurate date entry
                                     </Typography>
                                 </Box>
                                 <Box component="li">
                                     <Typography variant="body2">
-                                        <strong>Consanguineous Parents:</strong> Important for genetic test interpretation
+                                        <strong>Consanguineous Parents:</strong> Important for genetic test
+                                        interpretation
                                     </Typography>
                                 </Box>
                             </Box>
@@ -213,8 +200,8 @@ const PatientDetailsForm = (props) => {
                                 alignItems: 'center'
                             }}
                         >
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <PersonIcon color="primary" />
+                            <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
+                                <PersonIcon color="primary"/>
                                 <Typography variant="h6" fontWeight={600}>
                                     Patient Information
                                 </Typography>
@@ -226,14 +213,50 @@ const PatientDetailsForm = (props) => {
                                     onClick={toggleHelp}
                                     color={showHelp ? "primary" : "default"}
                                 >
-                                    <HelpIcon />
+                                    <HelpIcon/>
                                 </IconButton>
                             </Tooltip>
                         </Box>
 
-                        <CardContent sx={{ p: 3 }}>
+                        <CardContent sx={{p: 3}}>
                             {/* Required Patient Fields */}
                             <Grid container spacing={2} mb={3}>
+                                <Grid item xs={12} sm={6}>
+                                    <TextField
+                                        fullWidth
+                                        label="ID Number"
+                                        value={props.patient?.id_no ?? ""}
+                                        name="id_no"
+                                        error={!!props.errors["id_no"]}
+                                        helperText={props.errors["id_no"]}
+                                        onChange={handleChange}
+                                        InputProps={{
+                                            startAdornment: (
+                                                <InputAdornment position="start">
+                                                    <BadgeIcon color="action" fontSize="small"/>
+                                                </InputAdornment>
+                                            ),
+                                        }}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} sm={6}>
+                                    <TextField
+                                        fullWidth
+                                        label="Reference ID"
+                                        value={props.patient?.reference_id ?? ""}
+                                        name="reference_id"
+                                        error={!!props.errors["reference_id"]}
+                                        helperText={props.errors["reference_id"]}
+                                        onChange={handleChange}
+                                        InputProps={{
+                                            startAdornment: (
+                                                <InputAdornment position="start">
+                                                    <BadgeIcon color="action" fontSize="small"/>
+                                                </InputAdornment>
+                                            ),
+                                        }}
+                                    />
+                                </Grid>
                                 <Grid item xs={12} sm={6}>
                                     <TextField
                                         fullWidth
@@ -247,7 +270,7 @@ const PatientDetailsForm = (props) => {
                                         InputProps={{
                                             startAdornment: (
                                                 <InputAdornment position="start">
-                                                    <PersonIcon color="action" fontSize="small" />
+                                                    <PersonIcon color="action" fontSize="small"/>
                                                 </InputAdornment>
                                             ),
                                         }}
@@ -298,10 +321,10 @@ const PatientDetailsForm = (props) => {
                                         InputProps={{
                                             startAdornment: (
                                                 <InputAdornment position="start">
-                                                    <CakeIcon color="action" fontSize="small" />
+                                                    <CakeIcon color="action" fontSize="small"/>
                                                 </InputAdornment>
                                             ),
-                                            sx: { textAlign: "right" }
+                                            sx: {textAlign: "right"}
                                         }}
                                     />
                                 </Grid>
@@ -325,7 +348,7 @@ const PatientDetailsForm = (props) => {
                                             onChange={handleChange}
                                             startAdornment={
                                                 <InputAdornment position="start">
-                                                    <MedicalIcon color="action" fontSize="small" />
+                                                    <MedicalIcon color="action" fontSize="small"/>
                                                 </InputAdornment>
                                             }
                                         >
@@ -352,7 +375,7 @@ const PatientDetailsForm = (props) => {
                                         renderOption={(props, option) => (
                                             <Box
                                                 component="li"
-                                                sx={{ '& > img': { mr: 2, flexShrink: 0 } }}
+                                                sx={{'& > img': {mr: 2, flexShrink: 0}}}
                                                 {...props}
                                             >
                                                 <img
@@ -376,7 +399,7 @@ const PatientDetailsForm = (props) => {
                                                     autoComplete: 'new-password',
                                                     startAdornment: (
                                                         <InputAdornment position="start">
-                                                            <FlagIcon color="action" fontSize="small" />
+                                                            <FlagIcon color="action" fontSize="small"/>
                                                             {params.InputProps.startAdornment}
                                                         </InputAdornment>
                                                     ),
@@ -386,84 +409,10 @@ const PatientDetailsForm = (props) => {
                                         )}
                                     />
                                 </Grid>
-
-                                {/* Optional Fields Toggle */}
-                                <Grid item xs={12}>
-                                    <Button
-                                        variant="text"
-                                        color="primary"
-                                        onClick={toggleOptionalFields}
-                                        endIcon={
-                                            <ExpandMoreIcon
-                                                sx={{
-                                                    transform: showOptionalFields ? 'rotate(180deg)' : 'rotate(0deg)',
-                                                    transition: 'transform 0.3s'
-                                                }}
-                                            />
-                                        }
-                                        sx={{
-                                            textTransform: 'none',
-                                            px: 0,
-                                            fontWeight: 500
-                                        }}
-                                    >
-                                        {showOptionalFields ? 'Hide' : 'Show'} Optional Fields
-                                    </Button>
-                                </Grid>
                             </Grid>
 
-                            {/* Optional Patient Fields */}
-                            <Collapse in={showOptionalFields}>
-                                <Box sx={{ mb: 3 }}>
-                                    <Divider>
-                                        <Chip
-                                            label="Optional Information"
-                                            size="small"
-                                            color="default"
-                                            sx={{ fontWeight: 500 }}
-                                        />
-                                    </Divider>
-
-                                    <Grid container spacing={2} sx={{ mt: 1 }}>
-                                        <Grid item xs={12} sm={6}>
-                                            <TextField
-                                                fullWidth
-                                                label="ID Number"
-                                                value={props.patient?.id_no ?? ""}
-                                                name="id_no"
-                                                onChange={handleChange}
-                                                InputProps={{
-                                                    startAdornment: (
-                                                        <InputAdornment position="start">
-                                                            <BadgeIcon color="action" fontSize="small" />
-                                                        </InputAdornment>
-                                                    ),
-                                                }}
-                                            />
-                                        </Grid>
-
-                                        <Grid item xs={12} sm={6}>
-                                            <TextField
-                                                fullWidth
-                                                label="Reference ID"
-                                                value={props.patient?.reference_id ?? ""}
-                                                name="reference_id"
-                                                onChange={handleChange}
-                                                InputProps={{
-                                                    startAdornment: (
-                                                        <InputAdornment position="start">
-                                                            <BadgeIcon color="action" fontSize="small" />
-                                                        </InputAdornment>
-                                                    ),
-                                                }}
-                                            />
-                                        </Grid>
-                                    </Grid>
-                                </Box>
-                            </Collapse>
-
                             {/* Contact Information Section */}
-                            <Box sx={{ mt: 4, mb: 2 }}>
+                            <Box sx={{mt: 4, mb: 2}}>
                                 <Box
                                     sx={{
                                         display: 'flex',
@@ -472,7 +421,7 @@ const PatientDetailsForm = (props) => {
                                         mb: 2
                                     }}
                                 >
-                                    <ContactPhoneIcon color="primary" />
+                                    <ContactPhoneIcon color="primary"/>
                                     <Typography variant="h6" fontWeight={600}>
                                         Contact Information
                                     </Typography>
@@ -490,7 +439,7 @@ const PatientDetailsForm = (props) => {
                                             renderOption={(props, option) => (
                                                 <Box
                                                     component="li"
-                                                    sx={{ '& > img': { mr: 2, flexShrink: 0 } }}
+                                                    sx={{'& > img': {mr: 2, flexShrink: 0}}}
                                                     {...props}
                                                 >
                                                     <img
@@ -512,7 +461,7 @@ const PatientDetailsForm = (props) => {
                                                         autoComplete: 'new-password',
                                                         startAdornment: (
                                                             <InputAdornment position="start">
-                                                                <FlagIcon color="action" fontSize="small" />
+                                                                <FlagIcon color="action" fontSize="small"/>
                                                                 {params.InputProps.startAdornment}
                                                             </InputAdornment>
                                                         ),
@@ -526,13 +475,15 @@ const PatientDetailsForm = (props) => {
                                         <TextField
                                             fullWidth
                                             label="Phone"
+                                            error={!!props.errors['contact.phone']}
+                                            helperText={props.errors['contact.phone']}
                                             value={props.patient?.contact?.phone ?? ""}
                                             name="phone"
                                             onChange={handleContactChange}
                                             InputProps={{
                                                 startAdornment: (
                                                     <InputAdornment position="start">
-                                                        <PhoneIcon color="action" fontSize="small" />
+                                                        <PhoneIcon color="action" fontSize="small"/>
                                                         <CountrySelector
                                                             value={props.patient?.contact?.phone?.substring(1) ?? ""}
                                                             onChange={handlePhoneCountryCodeChange}
@@ -549,11 +500,13 @@ const PatientDetailsForm = (props) => {
                                             label="Email"
                                             value={props.patient?.contact?.email ?? ""}
                                             name="email"
+                                            error={!!props.errors['contact.email']}
+                                            helperText={props.errors['contact.email']}
                                             onChange={handleContactChange}
                                             InputProps={{
                                                 startAdornment: (
                                                     <InputAdornment position="start">
-                                                        <EmailIcon color="action" fontSize="small" />
+                                                        <EmailIcon color="action" fontSize="small"/>
                                                     </InputAdornment>
                                                 ),
                                             }}
@@ -570,7 +523,7 @@ const PatientDetailsForm = (props) => {
                                             InputProps={{
                                                 startAdornment: (
                                                     <InputAdornment position="start">
-                                                        <LocationIcon color="action" fontSize="small" />
+                                                        <LocationIcon color="action" fontSize="small"/>
                                                     </InputAdornment>
                                                 ),
                                             }}
@@ -587,7 +540,7 @@ const PatientDetailsForm = (props) => {
                                             InputProps={{
                                                 startAdornment: (
                                                     <InputAdornment position="start">
-                                                        <LocationIcon color="action" fontSize="small" />
+                                                        <LocationIcon color="action" fontSize="small"/>
                                                     </InputAdornment>
                                                 ),
                                             }}
@@ -604,7 +557,7 @@ const PatientDetailsForm = (props) => {
                                             InputProps={{
                                                 startAdornment: (
                                                     <InputAdornment position="start">
-                                                        <LocationIcon color="action" fontSize="small" />
+                                                        <LocationIcon color="action" fontSize="small"/>
                                                     </InputAdornment>
                                                 ),
                                             }}
@@ -629,7 +582,7 @@ const PatientDetailsForm = (props) => {
                                 bgcolor: alpha(theme.palette.background.default, 0.5)
                             }}
                         >
-                            <CardContent sx={{ p: 3 }}>
+                            <CardContent sx={{p: 3}}>
                                 <Typography
                                     variant="subtitle1"
                                     fontWeight={600}
@@ -640,18 +593,19 @@ const PatientDetailsForm = (props) => {
                                         gap: 1
                                     }}
                                 >
-                                    <PersonSearchIcon color="primary" />
+                                    <PersonSearchIcon color="primary"/>
                                     Select Existing Patient
                                 </Typography>
 
                                 <Typography variant="body2" color="text.secondary" paragraph>
-                                    To use an existing patient's information, click the button below to select from your patient list.
+                                    To use an existing patient's information, click the button below to select from your
+                                    patient list.
                                 </Typography>
 
                                 <Button
                                     variant="contained"
                                     fullWidth
-                                    startIcon={<PersonSearchIcon />}
+                                    startIcon={<PersonSearchIcon/>}
                                     onClick={props.handlePatientListOpen}
                                     sx={{
                                         mt: 1,
@@ -673,7 +627,7 @@ const PatientDetailsForm = (props) => {
                         <Alert
                             severity="info"
                             variant="outlined"
-                            icon={<InfoIcon />}
+                            icon={<InfoIcon/>}
                             sx={{
                                 borderRadius: 2,
                                 '& .MuiAlert-icon': {
@@ -685,14 +639,14 @@ const PatientDetailsForm = (props) => {
                             <Typography variant="subtitle2" fontWeight={600} gutterBottom>
                                 Required Information
                             </Typography>
-                            <Box component="ul" sx={{ m: 0, pl: 2, mb: 0 }}>
-                                <Box component="li" sx={{ mb: 0.5 }}>
+                            <Box component="ul" sx={{m: 0, pl: 2, mb: 0}}>
+                                <Box component="li" sx={{mb: 0.5}}>
                                     <Typography variant="body2">Full name</Typography>
                                 </Box>
-                                <Box component="li" sx={{ mb: 0.5 }}>
+                                <Box component="li" sx={{mb: 0.5}}>
                                     <Typography variant="body2">Date of birth</Typography>
                                 </Box>
-                                <Box component="li" sx={{ mb: 0.5 }}>
+                                <Box component="li" sx={{mb: 0.5}}>
                                     <Typography variant="body2">Gender</Typography>
                                 </Box>
                                 <Box component="li">
@@ -700,30 +654,6 @@ const PatientDetailsForm = (props) => {
                                 </Box>
                             </Box>
                         </Alert>
-
-                        {/* Action buttons (pushed to bottom) */}
-                        <Box sx={{ mt: 'auto', pt: 2 }}>
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                fullWidth
-                                size="large"
-                                onClick={handleSubmit}
-                                startIcon={<SaveIcon />}
-                                endIcon={<NavigateNextIcon />}
-                                sx={{
-                                    borderRadius: 1.5,
-                                    textTransform: 'none',
-                                    py: 1.5,
-                                    boxShadow: 'none',
-                                    '&:hover': {
-                                        boxShadow: theme.shadows[2]
-                                    }
-                                }}
-                            >
-                                Save & Continue
-                            </Button>
-                        </Box>
                     </Stack>
                 </Grid>
             </Grid>

@@ -13,7 +13,8 @@ class OrderMaterial extends Model
 
     protected $fillable = [
         "amount",
-        "server_id"
+        "server_id",
+        "status",
     ];
 
     protected $casts = [

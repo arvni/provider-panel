@@ -72,10 +72,14 @@ const CustomConnector = styled(StepConnector)(({ theme }) => ({
     },
 }));
 
+
+// Define steps for the order editing process
+const steps = ["test method", "patient details", "clinical details", "sample details", "consent form", "finalize"];
+
 /**
  * Enhanced EditLayout component with improved stepper and navigation
  */
-const EditLayout = ({ auth, step, children, id }) => {
+const EditLayout = ({ auth, step, children, id, onSubmit }) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -100,10 +104,11 @@ const EditLayout = ({ auth, step, children, id }) => {
 
     // Handle next step navigation
     const handleNextStep = () => {
-        if (activeStep < steps.length - 1) {
+        if (activeStep < steps.length - 1 && !onSubmit) {
             const nextStep = steps[activeStep + 1];
             router.visit(route("orders.edit", { step: nextStep, order: id }));
-        }
+        }else
+            onSubmit();
     };
 
     // Handle cancel action
@@ -194,18 +199,6 @@ const EditLayout = ({ auth, step, children, id }) => {
                         </Box>
 
                         <Box sx={{ display: 'flex', gap: 1, mt: { xs: 2, sm: 0 } }}>
-                            <Tooltip title="Get Help">
-                                <IconButton
-                                    size="small"
-                                    sx={{
-                                        border: '1px solid',
-                                        borderColor: theme.palette.divider
-                                    }}
-                                >
-                                    <HelpIcon fontSize="small" />
-                                </IconButton>
-                            </Tooltip>
-
                             <Button
                                 variant="outlined"
                                 color="inherit"
@@ -378,9 +371,6 @@ const EditLayout = ({ auth, step, children, id }) => {
         </ClientLayout>
     );
 };
-
-// Define steps for the order editing process
-const steps = ["test method", "patient details", "clinical details", "sample details", "consent form", "finalize"];
 
 // Define breadcrumbs for layout
 const breadcrumbs = [

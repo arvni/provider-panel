@@ -160,6 +160,7 @@ function Index({ tests: { data: testsData, ...pagination }, request }) {
                 type: "text",
                 value: data?.filters?.code
             },
+
             sortable: true,
             render: (row) => (
                 <Typography variant="body2" fontWeight="500" fontFamily="monospace" sx={{ letterSpacing: '0.5px' }}>
@@ -321,39 +322,7 @@ function Index({ tests: { data: testsData, ...pagination }, request }) {
         reload();
     };
 
-    /**
-     * Handle search input change
-     */
-    const handleSearchChange = (e) => {
-        setSearchTerm(e.target.value);
-    };
 
-    /**
-     * Apply search filter
-     */
-    const applySearch = () => {
-        const filters = { ...data.filters, search: searchTerm };
-        onFilterChange(filters);
-        handlePage({ preventDefault: () => {} });
-    };
-
-    /**
-     * Clear all filters
-     */
-    const clearFilters = () => {
-        setSearchTerm("");
-        onFilterChange({});
-        handlePage({ preventDefault: () => {} });
-    };
-
-    /**
-     * Handle search on Enter key
-     */
-    const handleSearchKeyDown = (e) => {
-        if (e.key === 'Enter') {
-            applySearch();
-        }
-    };
 
     return (
         <>
@@ -372,182 +341,6 @@ function Index({ tests: { data: testsData, ...pagination }, request }) {
                     overflow: 'hidden'
                 }}
             >
-                {/* Table filters and controls */}
-                <Box
-                    sx={{
-                        p: 2,
-                        borderBottom: '1px solid',
-                        borderColor: 'divider',
-                        bgcolor: 'background.subtle'
-                    }}
-                >
-                    <Stack
-                        direction={{ xs: 'column', sm: 'row' }}
-                        spacing={2}
-                        alignItems={{ xs: 'stretch', sm: 'center' }}
-                        justifyContent="space-between"
-                    >
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                            <TextField
-                                placeholder="Search tests..."
-                                variant="outlined"
-                                size="small"
-                                value={searchTerm}
-                                onChange={handleSearchChange}
-                                onKeyDown={handleSearchKeyDown}
-                                InputProps={{
-                                    startAdornment: (
-                                        <InputAdornment position="start">
-                                            <Search fontSize="small" color="action" />
-                                        </InputAdornment>
-                                    ),
-                                    endAdornment: searchTerm && (
-                                        <InputAdornment position="end">
-                                            <IconButton
-                                                edge="end"
-                                                size="small"
-                                                onClick={() => {
-                                                    setSearchTerm("");
-                                                    if (data.filters?.search) {
-                                                        clearFilters();
-                                                    }
-                                                }}
-                                            >
-                                                <ClearIcon fontSize="small" />
-                                            </IconButton>
-                                        </InputAdornment>
-                                    )
-                                }}
-                                sx={{ minWidth: 250 }}
-                            />
-
-                            <Button
-                                variant="outlined"
-                                startIcon={<FilterAlt />}
-                                size="medium"
-                                onClick={() => setShowFilters(!showFilters)}
-                                color={Object.keys(data.filters || {}).length > 0 ? "primary" : "inherit"}
-                            >
-                                Filters
-                                {Object.keys(data.filters || {}).length > 0 && (
-                                    <Chip
-                                        label={Object.keys(data.filters || {}).length}
-                                        size="small"
-                                        color="primary"
-                                        sx={{ ml: 1 }}
-                                    />
-                                )}
-                            </Button>
-
-                            {Object.keys(data.filters || {}).length > 0 && (
-                                <Button
-                                    variant="text"
-                                    startIcon={<ClearIcon />}
-                                    size="medium"
-                                    onClick={clearFilters}
-                                >
-                                    Clear All
-                                </Button>
-                            )}
-                        </Box>
-
-                        <Box>
-                            <Tooltip title="Refresh data">
-                                <IconButton
-                                    onClick={() => reload()}
-                                    disabled={processing}
-                                    color="inherit"
-                                >
-                                    <RefreshIcon />
-                                </IconButton>
-                            </Tooltip>
-                        </Box>
-                    </Stack>
-
-                    {/* Filter panel - expandable */}
-                    <Collapse in={showFilters}>
-                        <Box
-                            sx={{
-                                mt: 2,
-                                p: 2,
-                                border: '1px solid',
-                                borderColor: 'divider',
-                                borderRadius: 1,
-                                bgcolor: 'background.paper'
-                            }}
-                        >
-                            <Typography variant="subtitle2" gutterBottom>
-                                Advanced Filters
-                            </Typography>
-
-                            <Stack
-                                direction={{ xs: 'column', md: 'row' }}
-                                spacing={2}
-                                sx={{ mt: 1 }}
-                            >
-                                <TextField
-                                    label="Test Code"
-                                    size="small"
-                                    fullWidth
-                                    value={data.filters?.code || ''}
-                                    onChange={(e) => {
-                                        const filters = {
-                                            ...data.filters,
-                                            code: e.target.value
-                                        };
-                                        onFilterChange(filters);
-                                    }}
-                                />
-
-                                <TextField
-                                    label="Test Name"
-                                    size="small"
-                                    fullWidth
-                                    value={data.filters?.name || ''}
-                                    onChange={(e) => {
-                                        const filters = {
-                                            ...data.filters,
-                                            name: e.target.value
-                                        };
-                                        onFilterChange(filters);
-                                    }}
-                                />
-
-                                <TextField
-                                    label="Sample Type"
-                                    size="small"
-                                    fullWidth
-                                    value={data.filters?.sample_type || ''}
-                                    onChange={(e) => {
-                                        const filters = {
-                                            ...data.filters,
-                                            sample_type: e.target.value
-                                        };
-                                        onFilterChange(filters);
-                                    }}
-                                />
-
-                                <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-end' }}>
-                                    <Button
-                                        variant="contained"
-                                        onClick={() => handlePage({ preventDefault: () => {} })}
-                                        disabled={processing}
-                                    >
-                                        Apply Filters
-                                    </Button>
-
-                                    <Button
-                                        variant="outlined"
-                                        onClick={clearFilters}
-                                        disabled={processing}
-                                    >
-                                        Clear
-                                    </Button>
-                                </Box>
-                            </Stack>
-                        </Box>
-                    </Collapse>
-                </Box>
 
                 {/* Table container */}
                 <Box sx={{ overflowX: "auto" }}>
@@ -558,7 +351,7 @@ function Index({ tests: { data: testsData, ...pagination }, request }) {
                         pagination={pagination}
                         onFilterChange={onFilterChange}
                         onFilter={handlePage}
-                        filter={false} // We've built custom filter UI above
+                        filter
                         onOrderByChange={onOrderByChange}
                         loading={processing}
                         tableModel={{

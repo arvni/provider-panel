@@ -561,7 +561,7 @@ const Show = ({ collectRequest }) => {
                                                                 <Person fontSize="small" />
                                                             </Avatar>
                                                             <Typography variant="body2">
-                                                                {order.patient.fullName}
+                                                                {order?.patient?.name}
                                                             </Typography>
                                                         </Stack>
                                                     </TableCell>

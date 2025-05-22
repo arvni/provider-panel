@@ -6,9 +6,7 @@ import {
     DialogContent,
     DialogTitle,
     Divider,
-    FormControl,
     FormControlLabel,
-    FormHelperText,
     Grid,
     IconButton,
     InputAdornment,
@@ -16,7 +14,6 @@ import {
     Stack,
     Switch,
     TextField,
-    Tooltip,
     Typography,
     Slide,
     Box
@@ -27,9 +24,7 @@ import {
     Science,
     Description,
     CheckCircle,
-    Close,
-    Info,
-    Help
+    Close
 } from "@mui/icons-material";
 import SelectSearch from "@/Components/SelectSearch";
 

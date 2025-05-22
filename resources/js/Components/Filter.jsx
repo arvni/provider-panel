@@ -1,261 +1,266 @@
-import React, { useState } from "react";
+import React, {useMemo, useCallback} from "react";
 import {
     Stack,
-    TableCell,
-    TableRow,
     Tooltip,
     IconButton,
     Button,
-    Collapse,
     Box,
     Chip,
     Typography,
     alpha,
     useTheme,
-    Fade,
-    Divider,
-    Badge
+    Badge,
+    Grid
 } from "@mui/material";
 import RenderFormField from "./RenderFormField";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import ClearAllIcon from "@mui/icons-material/ClearAll";
-import SearchIcon from "@mui/icons-material/Search";
-import TuneIcon from "@mui/icons-material/Tune";
-import { motion } from "framer-motion";
+import {motion} from "framer-motion";
+
+// Extracted styles for better performance and reuse
+const useStyles = (theme) => ({
+    filterContainer: {
+        opacity: 1,
+        transition: 'opacity 0.3s ease'
+    },
+    headerCell: {
+        p: 1,
+        backgroundColor: alpha(theme.palette.primary.main, 0.05),
+        borderBottom: '1px solid',
+        borderBottomColor: theme.palette.divider
+    },
+    filterCell: {
+        backgroundColor: alpha(theme.palette.background.default, 0.5),
+        borderBottom: '1px solid',
+        borderBottomColor: theme.palette.divider,
+        verticalAlign: 'top'
+    },
+    activeFilterBox: {
+        position: 'relative',
+        width: '100%',
+        '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            right: 0,
+            bottom: 0,
+            left: 0,
+            backgroundColor: alpha(theme.palette.primary.main, 0.1),
+            borderLeft: `3px solid ${theme.palette.primary.main}`,
+            borderRadius: '0 4px 4px 0',
+            zIndex: -1
+        }
+    },
+    badgeStyles: {
+        '& .MuiBadge-badge': {
+            right: 6,
+            top: 6,
+            height: 8,
+            minWidth: 8,
+            borderRadius: '50%'
+        }
+    },
+    clearButton: {
+        position: 'absolute',
+        top: -12,
+        right: -12,
+        zIndex: 2
+    },
+    clearIconButton: {
+        backgroundColor: alpha(theme.palette.background.paper, 0.9),
+        border: '1px solid',
+        borderColor: theme.palette.divider,
+        boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+        '&:hover': {
+            backgroundColor: alpha(theme.palette.error.light, 0.1),
+        }
+    },
+    filterContentBox: {
+        p: 1.5,
+        position: 'relative'
+    },
+    headerBox: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+    },
+    filterIndicator: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 1
+    },
+    filterCountChip: {
+        fontWeight: 600,
+        height: 20,
+        minWidth: 20
+    },
+    clearAllButton: {
+        borderRadius: 1.5,
+        textTransform: 'none',
+        fontWeight: 500
+    }
+});
 
 /**
- * Enhanced Filter component with improved layout and visual feedback
+ * Enhanced Filter component with improved layout, performance, and visual feedback
  *
  * @param {Array} columns - Array of column definitions with filter configurations
  * @param {Function} onChange - Callback when filter values change
- * @param {Function} onClear - Optional callback to clear all filters
  * @param {Object} filter - Current filter state
  * @returns {JSX.Element}
  */
 const Filter = ({
                     columns,
                     onChange,
-                    onClear,
                     filter
                 }) => {
     const theme = useTheme();
+    const styles = useStyles(theme);
 
-    // Count active filters
-    const countActiveFilters = () => {
-        let count = 0;
-        if (filter) {
-            Object.keys(filter).forEach(key => {
-                if (filter[key] && filter[key] !== '') {
-                    count++;
-                }
-            });
-        }
-        return count;
-    };
 
-    // Get active filter count
-    const filterCount = countActiveFilters();
-
-    // Check if a column has active filters
-    const hasActiveFilter = (col) => {
+    // Check if a column has active filters - memoized utility function
+    const hasActiveFilter = useCallback((col) => {
         if (!col.filter || !filter) return false;
 
         if (Array.isArray(col.filter)) {
             return col.filter.some(f => {
-                const fieldName = f.name.includes('.') ? f.name.split('.')[0] : f.name;
-                return filter[fieldName] &&
-                    (typeof filter[fieldName] === 'object' ?
-                        Object.values(filter[fieldName]).some(v => v && v !== '') :
-                        filter[fieldName] !== '');
+                return !!f.value;
             });
-        } else {
-            const fieldName = col.filter.name.includes('.') ? col.filter.name.split('.')[0] : col.filter.name;
-            return filter[fieldName] && filter[fieldName] !== '';
         }
-    };
+
+        const fieldName = col.filter.name.includes('.') ? col.filter.name.split('.')[0] : col.filter.name;
+        return filter[fieldName] && filter[fieldName] !== '';
+    }, [filter]);
+
+    // Count active filters - memoized to prevent recalculation on each render
+    const filterCount = useMemo(() => {
+        if (!filter) return 0;
+
+        return columns.reduce((count, col) => {
+            if (hasActiveFilter(col))
+                count++;
+            return count;
+        }, 0);
+    }, [filter]);
+
+    // Create synthetic event and trigger onChange
+    const triggerFilterChange = useCallback((name, value) => {
+        const syntheticEvent = {
+            target: {
+                name,
+                value
+            }
+        };
+        onChange(syntheticEvent);
+    }, [onChange]);
 
     // Handle clear filters for a specific column
-    const handleClearColumnFilter = (col) => (e) => {
+    const handleClearColumnFilter = useCallback((col) => (e) => {
         e.stopPropagation();
 
-        if (onClear && col.filter) {
-            const fieldsToReset = {};
+        if ( !col.filter) return;
+
+        if (Array.isArray(col.filter)) {
+            col.filter.forEach(f => {
+                triggerFilterChange(f.name, '');
+            });
+        } else {
+            triggerFilterChange(col.filter.name, '');
+        }
+    }, [triggerFilterChange]);
+
+    // Clear all filters
+    const handleClearAllFilters = useCallback((e) => {
+        e.stopPropagation();
+
+        // Create synthetic events to clear all filter fields
+        columns.forEach(col => {
+            if (!col.filter) return;
 
             if (Array.isArray(col.filter)) {
                 col.filter.forEach(f => {
-                    fieldsToReset[f.name] = '';
+                    triggerFilterChange(f.name, '');
                 });
             } else {
-                fieldsToReset[col.filter.name] = '';
+                triggerFilterChange(col.filter.name, '');
             }
+        });
+    }, [columns, triggerFilterChange]);
 
-            // Create a synthetic event with target.name and target.value for each field
-            Object.keys(fieldsToReset).forEach(name => {
-                const syntheticEvent = {
-                    target: {
-                        name: name,
-                        value: ''
-                    }
-                };
-                onChange(syntheticEvent);
-            });
-        }
-    };
+    // Render multiple filter fields
+    const renderFilterFields = useCallback((filterFields, columnIndex) => (
+        <Stack spacing={1.5} direction="column">
+            {filterFields.map((field, i) => (
+                <RenderFormField
+                    key={`filter-${columnIndex}-${i}`}
+                    size="small"
+                    field={field}
+                    onchange={onChange}
+                    defaultValue={field.value}
+                />
+            ))}
+        </Stack>
+    ), [onChange]);
 
-    // Clear all filters
-    const handleClearAllFilters = (e) => {
-        e.stopPropagation();
-        if (onClear) {
-            onClear();
-        } else {
-            // Create synthetic events to clear all filter fields
-            columns.forEach(col => {
-                if (col.filter) {
-                    if (Array.isArray(col.filter)) {
-                        col.filter.forEach(f => {
-                            const syntheticEvent = {
-                                target: {
-                                    name: f.name,
-                                    value: ''
-                                }
-                            };
-                            onChange(syntheticEvent);
-                        });
-                    } else {
-                        const syntheticEvent = {
-                            target: {
-                                name: col.filter.name,
-                                value: ''
-                            }
-                        };
-                        onChange(syntheticEvent);
-                    }
-                }
-            });
-        }
-    };
+    // Render single filter field
+    const renderSingleFilterField = useCallback((field, columnIndex) => (
+        <RenderFormField
+            key={`filter-${columnIndex}`}
+            field={field}
+            onchange={onChange}
+            size="small"
+            defaultValue={field.value}
+        />
+    ), [onChange]);
 
     // Render the filter badge if needed
-    const renderFilterBadge = (col, index) => {
-        if (hasActiveFilter(col)) {
+    const renderFilterCell = useCallback((col, index) => {
+        const isActive = hasActiveFilter(col);
+
+        if (!col.filter) return null;
+
+        if (isActive) {
             return (
                 <Badge
                     color="primary"
                     variant="dot"
                     overlap="circular"
-                    sx={{
-                        '& .MuiBadge-badge': {
-                            right: 6,
-                            top: 6,
-                            height: 8,
-                            minWidth: 8,
-                            borderRadius: '50%'
-                        }
-                    }}
+                    sx={styles.badgeStyles}
                 >
-                    <Box
-                        sx={{
-                            position: 'relative',
-                            width: '100%',
-                            '&::before': {
-                                content: '""',
-                                position: 'absolute',
-                                top: 0,
-                                right: 0,
-                                bottom: 0,
-                                left: 0,
-                                backgroundColor: alpha(theme.palette.primary.main, 0.1),
-                                borderLeft: `3px solid ${theme.palette.primary.main}`,
-                                borderRadius: '0 4px 4px 0',
-                                zIndex: -1
-                            }
-                        }}
-                    >
+                    <Box sx={styles.activeFilterBox}>
                         {Array.isArray(col.filter) ? (
                             <Stack
                                 spacing={1.5}
                                 direction="column"
-                                sx={{
-                                    p: 1.5,
-                                    position: 'relative',
-                                }}
+                                sx={styles.filterContentBox}
                             >
-                                <Box
-                                    sx={{
-                                        position: 'absolute',
-                                        top: -12,
-                                        right: -12,
-                                        zIndex: 2
-                                    }}
-                                >
+                                <Box sx={styles.clearButton}>
                                     <Tooltip title="Clear filters">
                                         <IconButton
                                             size="small"
                                             onClick={handleClearColumnFilter(col)}
-                                            sx={{
-                                                backgroundColor: alpha(theme.palette.background.paper, 0.9),
-                                                border: '1px solid',
-                                                borderColor: theme.palette.divider,
-                                                boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-                                                '&:hover': {
-                                                    backgroundColor: alpha(theme.palette.error.light, 0.1),
-                                                }
-                                            }}
+                                            sx={styles.clearIconButton}
                                         >
-                                            <ClearAllIcon fontSize="small" color="error" />
+                                            <ClearAllIcon fontSize="small" color="error"/>
                                         </IconButton>
                                     </Tooltip>
                                 </Box>
-
-                                {col.filter.map((column, i) => (
-                                    <RenderFormField
-                                        key={`filter-${index}-${i}`}
-                                        size="small"
-                                        field={column}
-                                        onchange={onChange}
-                                    />
-                                ))}
+                                {renderFilterFields(col.filter, index)}
                             </Stack>
                         ) : (
-                            <Box
-                                sx={{
-                                    p: 1.5,
-                                    position: 'relative'
-                                }}
-                            >
-                                <Box
-                                    sx={{
-                                        position: 'absolute',
-                                        top: -12,
-                                        right: -12,
-                                        zIndex: 2
-                                    }}
-                                >
+                            <Box sx={styles.filterContentBox}>
+                                <Box sx={styles.clearButton}>
                                     <Tooltip title="Clear filter">
                                         <IconButton
                                             size="small"
                                             onClick={handleClearColumnFilter(col)}
-                                            sx={{
-                                                backgroundColor: alpha(theme.palette.background.paper, 0.9),
-                                                border: '1px solid',
-                                                borderColor: theme.palette.divider,
-                                                boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-                                                '&:hover': {
-                                                    backgroundColor: alpha(theme.palette.error.light, 0.1),
-                                                }
-                                            }}
+                                            sx={styles.clearIconButton}
                                         >
-                                            <ClearAllIcon fontSize="small" color="error" />
+                                            <ClearAllIcon fontSize="small" color="error"/>
                                         </IconButton>
                                     </Tooltip>
                                 </Box>
-
-                                <RenderFormField
-                                    key={`filter-${index}`}
-                                    field={col.filter}
-                                    onchange={onChange}
-                                    size="small"
-                                />
+                                {renderSingleFilterField(col.filter, index)}
                             </Box>
                         )}
                     </Box>
@@ -265,106 +270,75 @@ const Filter = ({
 
         // Regular filter without active state
         return (
-            <Box sx={{ p: 1.5 }}>
-                {Array.isArray(col.filter) ? (
-                    <Stack spacing={1.5} direction="column">
-                        {col.filter.map((column, i) => (
-                            <RenderFormField
-                                key={`filter-${index}-${i}`}
-                                size="small"
-                                field={column}
-                                onchange={onChange}
-                            />
-                        ))}
-                    </Stack>
-                ) : (
-                    <RenderFormField
-                        key={`filter-${index}`}
-                        field={col.filter}
-                        onchange={onChange}
-                        size="small"
-                    />
-                )}
+            <Box sx={styles.filterContentBox}>
+                {Array.isArray(col.filter) ?
+                    renderFilterFields(col.filter, index) :
+                    renderSingleFilterField(col.filter, index)
+                }
             </Box>
         );
+    }, [hasActiveFilter, handleClearColumnFilter, renderFilterFields, renderSingleFilterField, styles]);
+
+    // Animation properties
+    const animationProps = {
+        initial: {opacity: 0},
+        animate: {opacity: 1},
+        exit: {opacity: 0},
+        transition: {duration: 0.3}
     };
 
     return (
-        <TableRow
-            component={motion.tr}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
+        <Grid
+            container
+            component={motion.div}
+            {...animationProps}
+            spacing={1}
+            sx={styles.filterContainer}
         >
             {/* Header cell with clear filters button */}
             {filterCount > 0 && (
-                <TableCell
-                    colSpan={columns.length}
-                    sx={{
-                        p: 1,
-                        backgroundColor: alpha(theme.palette.primary.main, 0.05),
-                        borderBottom: '1px solid',
-                        borderBottomColor: theme.palette.divider
-                    }}
-                >
-                    <Box
-                        sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between'
-                        }}
-                    >
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <FilterListIcon color="primary" fontSize="small" />
-
+                <Grid item xs={12} sx={styles.headerCell}>
+                    <Box sx={styles.headerBox}>
+                        <Box sx={styles.filterIndicator}>
+                            <FilterListIcon color="primary" fontSize="small"/>
                             <Typography variant="body2" fontWeight={500}>
                                 Active Filters:
                             </Typography>
-
                             <Chip
                                 label={filterCount}
                                 color="primary"
                                 size="small"
-                                sx={{ fontWeight: 600, height: 20, minWidth: 20 }}
+                                sx={styles.filterCountChip}
                             />
                         </Box>
-
                         <Button
                             variant="outlined"
                             size="small"
-                            startIcon={<ClearAllIcon />}
+                            startIcon={<ClearAllIcon/>}
                             onClick={handleClearAllFilters}
                             color="inherit"
-                            sx={{
-                                borderRadius: 1.5,
-                                textTransform: 'none',
-                                fontWeight: 500
-                            }}
+                            sx={styles.clearAllButton}
                         >
                             Clear All Filters
                         </Button>
                     </Box>
-                </TableCell>
+                </Grid>
             )}
-
             {/* Filter cells */}
-            {columns.map((col, index) => (
-                <TableCell
+            {columns.map((col, index) => col.filter && <Grid
+                    item
                     key={index}
-                    sx={{
-                        backgroundColor: alpha(theme.palette.background.default, 0.5),
-                        borderBottom: '1px solid',
-                        borderBottomColor: theme.palette.divider,
-                        p: 0,
-                        verticalAlign: 'top'
-                    }}
+                    sx={styles.filterCell}
+                    xs={12}
+                    sm={6}
+                    md={4}
+                    lg={3}
                 >
-                    {col.filter && renderFilterBadge(col, index)}
-                </TableCell>
-            ))}
-        </TableRow>
+                    {renderFilterCell(col, index)}
+                </Grid>
+            )}
+        </Grid>
     );
 };
 
-export default Filter;
+export default React.memo(Filter);
