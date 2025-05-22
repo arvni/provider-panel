@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useSubmitForm } from "@/Services/api";
+import React, {useState} from "react";
+import {useSubmitForm} from "@/Services/api";
 import EditLayout from "@/Pages/Order/EditLayout";
 import {
     Alert,
@@ -43,7 +43,7 @@ import {
     Error as ErrorIcon,
     Warning as WarningIcon
 } from "@mui/icons-material";
-import { motion, AnimatePresence } from "framer-motion";
+import {motion, AnimatePresence} from "framer-motion";
 
 /**
  * Enhanced Finalize component for reviewing and submitting orders
@@ -54,7 +54,7 @@ import { motion, AnimatePresence } from "framer-motion";
  * @param {string|number} props.step Current step in the process
  * @returns {JSX.Element} Rendered component
  */
-const Finalize = ({ auth, order, step }) => {
+const Finalize = ({auth, order, step}) => {
     const theme = useTheme();
 
     // State for expanded sections
@@ -78,8 +78,8 @@ const Finalize = ({ auth, order, step }) => {
         clearErrors,
         processing
     } = useSubmitForm(
-        { ...order, _method: "put", status: "requested" },
-        route("orders.update", { order: order.id, step })
+        {...order, _method: "put", status: "requested"},
+        route("orders.update", {order: order.id, step})
     );
 
     /**
@@ -87,7 +87,7 @@ const Finalize = ({ auth, order, step }) => {
      * Same logic as Show.jsx component
      */
     const processConsentData = (consents) => {
-        if (!consents) return { restConsents: [], consentForm: null };
+        if (!consents) return {restConsents: [], consentForm: null};
 
         let consentForm, restConsents;
         if (Array.isArray(consents)) {
@@ -101,11 +101,11 @@ const Finalize = ({ auth, order, step }) => {
                 .filter(Boolean); // Remove any null/undefined values
         }
 
-        return { restConsents, consentForm };
+        return {restConsents, consentForm};
     };
 
     // Process consent data
-    const { restConsents, consentForm } = processConsentData(data.consents);
+    const {restConsents, consentForm} = processConsentData(data.consents);
 
     /**
      * Handle form submission with validation
@@ -152,7 +152,7 @@ const Finalize = ({ auth, order, step }) => {
                     ...prev,
                     ...Object.entries(sectionsWithErrors)
                         .filter(([_, hasError]) => hasError)
-                        .reduce((acc, [section]) => ({ ...acc, [section]: true }), {})
+                        .reduce((acc, [section]) => ({...acc, [section]: true}), {})
                 }));
             }
         }
@@ -176,12 +176,12 @@ const Finalize = ({ auth, order, step }) => {
             isValid = false;
         } else {
             const requiredPatientFields = [
-                { field: 'fullName', message: 'Patient name is required' },
-                { field: 'dateOfBirth', message: 'Date of birth is required' },
-                { field: 'gender', message: 'Gender is required' }
+                {field: 'fullName', message: 'Patient name is required'},
+                {field: 'dateOfBirth', message: 'Date of birth is required'},
+                {field: 'gender', message: 'Gender is required'}
             ];
 
-            requiredPatientFields.forEach(({ field, message }) => {
+            requiredPatientFields.forEach(({field, message}) => {
                 if (!processedData.patient[field]) {
                     setError(`patient.${field}`, message);
                     isValid = false;
@@ -197,12 +197,12 @@ const Finalize = ({ auth, order, step }) => {
             processedData.orderForms.forEach((form, formIndex) => {
                 if (form.formData && Array.isArray(form.formData)) {
                     form.formData.forEach((field, fieldIndex) => {
-                        if (field.required && (!field.value && field.value !== 0 && field.value !== false) && field.type!=="description") {
+                        if (field.required && (!field.value && field.value !== 0 && field.value !== false) && field.type !== "description") {
                             setError(`orderForms[${formIndex}].formData[${fieldIndex}].value`,
                                 `${field.label || 'This field'} is required`);
                             setError(`orderForms[${formIndex}].hasErrors`,
                                 'This form has required fields that need to be completed');
-                            isValid = field.type!=="description";
+                            isValid = field.type !== "description";
                         }
                     });
                 }
@@ -306,55 +306,55 @@ const Finalize = ({ auth, order, step }) => {
      */
     const getSectionStatus = (section) => {
         if (hasSectionErrors(section)) {
-            return { color: 'error', label: 'Errors', icon: <ErrorIcon fontSize="small" /> };
+            return {color: 'error', label: 'Errors', icon: <ErrorIcon fontSize="small"/>};
         }
 
         // Define completion criteria for each section
         switch (section) {
             case 'tests':
                 return data.tests && data.tests.length > 0
-                    ? { color: 'success', label: 'Complete', icon: <CheckCircle fontSize="small" /> }
-                    : { color: 'warning', label: 'Incomplete', icon: <WarningIcon fontSize="small" /> };
+                    ? {color: 'success', label: 'Complete', icon: <CheckCircle fontSize="small"/>}
+                    : {color: 'warning', label: 'Incomplete', icon: <WarningIcon fontSize="small"/>};
 
             case 'patient':
                 const patientComplete = data.patient && data.patient.fullName &&
                     data.patient.dateOfBirth && data.patient.gender;
                 return patientComplete
-                    ? { color: 'success', label: 'Complete', icon: <CheckCircle fontSize="small" /> }
-                    : { color: 'warning', label: 'Incomplete', icon: <WarningIcon fontSize="small" /> };
+                    ? {color: 'success', label: 'Complete', icon: <CheckCircle fontSize="small"/>}
+                    : {color: 'warning', label: 'Incomplete', icon: <WarningIcon fontSize="small"/>};
 
             case 'samples':
                 const samplesComplete = data.samples && data.samples.length > 0 &&
                     data.samples.every(sample => sample.sample_type && sample.collectionDate);
                 return samplesComplete
-                    ? { color: 'success', label: 'Complete', icon: <CheckCircle fontSize="small" /> }
-                    : { color: 'warning', label: 'Incomplete', icon: <WarningIcon fontSize="small" /> };
+                    ? {color: 'success', label: 'Complete', icon: <CheckCircle fontSize="small"/>}
+                    : {color: 'warning', label: 'Incomplete', icon: <WarningIcon fontSize="small"/>};
 
             case 'forms':
                 const formsComplete = data.orderForms && data.orderForms.length > 0;
                 return formsComplete
-                    ? { color: 'success', label: 'Complete', icon: <CheckCircle fontSize="small" /> }
-                    : { color: 'warning', label: 'Incomplete', icon: <WarningIcon fontSize="small" /> };
+                    ? {color: 'success', label: 'Complete', icon: <CheckCircle fontSize="small"/>}
+                    : {color: 'warning', label: 'Incomplete', icon: <WarningIcon fontSize="small"/>};
 
             case 'consent':
                 // Use processed consent data
                 if (!restConsents || restConsents.length === 0) {
-                    return { color: 'warning', label: 'Incomplete', icon: <WarningIcon fontSize="small" /> };
+                    return {color: 'warning', label: 'Incomplete', icon: <WarningIcon fontSize="small"/>};
                 }
 
                 const allAgreed = restConsents.every(consent => !!consent.value);
                 return allAgreed
-                    ? { color: 'success', label: 'Complete', icon: <CheckCircle fontSize="small" /> }
-                    : { color: 'warning', label: 'Incomplete', icon: <WarningIcon fontSize="small" /> };
+                    ? {color: 'success', label: 'Complete', icon: <CheckCircle fontSize="small"/>}
+                    : {color: 'warning', label: 'Incomplete', icon: <WarningIcon fontSize="small"/>};
 
             default:
-                return { color: 'info', label: 'Unknown', icon: null };
+                return {color: 'info', label: 'Unknown', icon: null};
         }
     };
 
     // Animation variants
     const containerVariants = {
-        hidden: { opacity: 0 },
+        hidden: {opacity: 0},
         visible: {
             opacity: 1,
             transition: {
@@ -365,11 +365,11 @@ const Finalize = ({ auth, order, step }) => {
     };
 
     const itemVariants = {
-        hidden: { y: 20, opacity: 0 },
+        hidden: {y: 20, opacity: 0},
         visible: {
             y: 0,
             opacity: 1,
-            transition: { duration: 0.4 }
+            transition: {duration: 0.4}
         }
     };
 
@@ -386,16 +386,16 @@ const Finalize = ({ auth, order, step }) => {
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
-                sx={{ width: '100%' }}
+                sx={{width: '100%'}}
             >
                 {/* Help section */}
                 <AnimatePresence>
                     {showHelp && (
                         <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
-                            exit={{ opacity: 0, height: 0 }}
-                            transition={{ duration: 0.3 }}
+                            initial={{opacity: 0, height: 0}}
+                            animate={{opacity: 1, height: 'auto'}}
+                            exit={{opacity: 0, height: 0}}
+                            transition={{duration: 0.3}}
                         >
                             <Alert
                                 severity="info"
@@ -414,20 +414,23 @@ const Finalize = ({ auth, order, step }) => {
                                 <Typography variant="body2" paragraph>
                                     Please review all information carefully before submitting your order.
                                 </Typography>
-                                <Box component="ul" sx={{ m: 0, pl: 2, mb: 0 }}>
-                                    <Box component="li" sx={{ mb: 0.5 }}>
+                                <Box component="ul" sx={{m: 0, pl: 2, mb: 0}}>
+                                    <Box component="li" sx={{mb: 0.5}}>
                                         <Typography variant="body2">
-                                            <strong>Review all sections:</strong> Ensure all patient and sample information is correct
+                                            <strong>Review all sections:</strong> Ensure all patient and sample
+                                            information is correct
                                         </Typography>
                                     </Box>
-                                    <Box component="li" sx={{ mb: 0.5 }}>
+                                    <Box component="li" sx={{mb: 0.5}}>
                                         <Typography variant="body2">
-                                            <strong>Submission:</strong> Once submitted, certain details cannot be modified
+                                            <strong>Submission:</strong> Once submitted, certain details cannot be
+                                            modified
                                         </Typography>
                                     </Box>
                                     <Box component="li">
                                         <Typography variant="body2">
-                                            <strong>Confirmation:</strong> You'll receive a confirmation email after submission
+                                            <strong>Confirmation:</strong> You'll receive a confirmation email after
+                                            submission
                                         </Typography>
                                     </Box>
                                 </Box>
@@ -440,10 +443,10 @@ const Finalize = ({ auth, order, step }) => {
                 <AnimatePresence>
                     {showSuccess && (
                         <motion.div
-                            initial={{ opacity: 0, y: -20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -20 }}
-                            transition={{ duration: 0.3 }}
+                            initial={{opacity: 0, y: -20}}
+                            animate={{opacity: 1, y: 0}}
+                            exit={{opacity: 0, y: -20}}
+                            transition={{duration: 0.3}}
                         >
                             <Alert
                                 severity="success"
@@ -478,8 +481,8 @@ const Finalize = ({ auth, order, step }) => {
                         mb: 3
                     }}
                 >
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <DoneAllIcon color="primary" />
+                    <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
+                        <DoneAllIcon color="primary"/>
                         <Typography variant="h5" fontWeight={600}>
                             Order Summary
                         </Typography>
@@ -490,7 +493,7 @@ const Finalize = ({ auth, order, step }) => {
                                 onClick={toggleHelp}
                                 color={showHelp ? "primary" : "default"}
                             >
-                                <HelpIcon />
+                                <HelpIcon/>
                             </IconButton>
                         </Tooltip>
                     </Box>
@@ -499,7 +502,7 @@ const Finalize = ({ auth, order, step }) => {
                         label={`Order ID: ${data.id}`}
                         color="primary"
                         variant="outlined"
-                        sx={{ fontWeight: 500 }}
+                        sx={{fontWeight: 500}}
                     />
                 </Box>
 
@@ -522,11 +525,13 @@ const Finalize = ({ auth, order, step }) => {
                     </Typography>
 
                     <Typography variant="body2" paragraph>
-                        Please review all information below carefully. To finalize your order, click the "Submit Order" button at the bottom of the page.
+                        Please review all information below carefully. To finalize your order, click the "Submit Order"
+                        button at the bottom of the page.
                     </Typography>
 
                     <Typography variant="body2">
-                        After submission, you'll receive a confirmation email with your order details. If you need to make changes, please do so before submitting.
+                        After submission, you'll receive a confirmation email with your order details. If you need to
+                        make changes, please do so before submitting.
                     </Typography>
                 </Paper>
 
@@ -560,8 +565,8 @@ const Finalize = ({ auth, order, step }) => {
                         }}
                         onClick={() => toggleSection('tests')}
                     >
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <MedicalServices />
+                        <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
+                            <MedicalServices/>
                             <Typography variant="h6" fontWeight={600}>
                                 Requested Tests
                             </Typography>
@@ -570,19 +575,19 @@ const Finalize = ({ auth, order, step }) => {
                                 color={getSectionStatus('tests').color}
                                 size="small"
                                 icon={getSectionStatus('tests').icon}
-                                sx={{ ml: 1, fontWeight: 500 }}
+                                sx={{ml: 1, fontWeight: 500}}
                             />
                         </Box>
 
-                        {expandedSections.tests ? <ExpandLess /> : <ExpandMore />}
+                        {expandedSections.tests ? <ExpandLess/> : <ExpandMore/>}
                     </Box>
 
                     <Collapse in={expandedSections.tests}>
-                        <Box sx={{ p: 3 }}>
+                        <Box sx={{p: 3}}>
                             {errors.tests && (
                                 <Alert
                                     severity="error"
-                                    sx={{ mb: 3, borderRadius: 1 }}
+                                    sx={{mb: 3, borderRadius: 1}}
                                 >
                                     {errors.tests}
                                 </Alert>
@@ -621,12 +626,12 @@ const Finalize = ({ auth, order, step }) => {
                                 </Alert>
                             )}
 
-                            <Box sx={{ mt: 2, textAlign: 'right' }}>
+                            <Box sx={{mt: 2, textAlign: 'right'}}>
                                 <Button
                                     variant="outlined"
                                     size="small"
                                     component="a"
-                                    href={route("orders.edit", { order: order.id, step: "test method" })}
+                                    href={route("orders.edit", {order: order.id, step: "test method"})}
                                     sx={{
                                         borderRadius: 2,
                                         textTransform: 'none'
@@ -669,8 +674,8 @@ const Finalize = ({ auth, order, step }) => {
                         }}
                         onClick={() => toggleSection('patient')}
                     >
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <Person />
+                        <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
+                            <Person/>
                             <Typography variant="h6" fontWeight={600}>
                                 Patient Details
                             </Typography>
@@ -679,19 +684,19 @@ const Finalize = ({ auth, order, step }) => {
                                 color={getSectionStatus('patient').color}
                                 size="small"
                                 icon={getSectionStatus('patient').icon}
-                                sx={{ ml: 1, fontWeight: 500 }}
+                                sx={{ml: 1, fontWeight: 500}}
                             />
                         </Box>
 
-                        {expandedSections.patient ? <ExpandLess /> : <ExpandMore />}
+                        {expandedSections.patient ? <ExpandLess/> : <ExpandMore/>}
                     </Box>
 
                     <Collapse in={expandedSections.patient}>
-                        <Box sx={{ p: 3 }}>
+                        <Box sx={{p: 3}}>
                             {errors.patient && (
                                 <Alert
                                     severity="error"
-                                    sx={{ mb: 3, borderRadius: 1 }}
+                                    sx={{mb: 3, borderRadius: 1}}
                                 >
                                     {errors.patient}
                                 </Alert>
@@ -703,12 +708,12 @@ const Finalize = ({ auth, order, step }) => {
                                         <List dense>
                                             <ListItem>
                                                 <ListItemIcon>
-                                                    <Person color="info" />
+                                                    <Person color="info"/>
                                                 </ListItemIcon>
                                                 <ListItemText
                                                     primary="Full Name"
                                                     secondary={data.patient?.fullName || "Not specified"}
-                                                    primaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
+                                                    primaryTypographyProps={{variant: 'body2', color: 'text.secondary'}}
                                                     secondaryTypographyProps={{
                                                         variant: 'body1',
                                                         fontWeight: '500',
@@ -717,21 +722,21 @@ const Finalize = ({ auth, order, step }) => {
                                                 />
                                             </ListItem>
                                             {errors['patient.fullName'] && (
-                                                <Typography variant="caption" color="error" sx={{ pl: 9 }}>
+                                                <Typography variant="caption" color="error" sx={{pl: 9}}>
                                                     {errors['patient.fullName']}
                                                 </Typography>
                                             )}
 
-                                            <Divider component="li" variant="inset" />
+                                            <Divider component="li" variant="inset"/>
 
                                             <ListItem>
                                                 <ListItemIcon>
-                                                    <EventNote color="info" />
+                                                    <EventNote color="info"/>
                                                 </ListItemIcon>
                                                 <ListItemText
                                                     primary="Date of Birth"
                                                     secondary={formatDate(data.patient?.dateOfBirth)}
-                                                    primaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
+                                                    primaryTypographyProps={{variant: 'body2', color: 'text.secondary'}}
                                                     secondaryTypographyProps={{
                                                         variant: 'body1',
                                                         color: errors['patient.dateOfBirth'] ? 'error.main' : 'text.primary'
@@ -739,35 +744,35 @@ const Finalize = ({ auth, order, step }) => {
                                                 />
                                             </ListItem>
                                             {errors['patient.dateOfBirth'] && (
-                                                <Typography variant="caption" color="error" sx={{ pl: 9 }}>
+                                                <Typography variant="caption" color="error" sx={{pl: 9}}>
                                                     {errors['patient.dateOfBirth']}
                                                 </Typography>
                                             )}
 
-                                            <Divider component="li" variant="inset" />
+                                            <Divider component="li" variant="inset"/>
 
                                             <ListItem>
                                                 <ListItemIcon>
-                                                    <Assignment color="info" />
+                                                    <Assignment color="info"/>
                                                 </ListItemIcon>
                                                 <ListItemText
                                                     primary="Reference ID"
                                                     secondary={data.patient?.reference_id || "Not specified"}
-                                                    primaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
-                                                    secondaryTypographyProps={{ variant: 'body1' }}
+                                                    primaryTypographyProps={{variant: 'body2', color: 'text.secondary'}}
+                                                    secondaryTypographyProps={{variant: 'body1'}}
                                                 />
                                             </ListItem>
 
-                                            <Divider component="li" variant="inset" />
+                                            <Divider component="li" variant="inset"/>
 
                                             <ListItem>
                                                 <ListItemIcon>
-                                                    <Person color="info" />
+                                                    <Person color="info"/>
                                                 </ListItemIcon>
                                                 <ListItemText
                                                     primary="Gender"
-                                                    secondary={data.patient?.gender ? "Male" : "Female"}
-                                                    primaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
+                                                    secondary={(data.patient?.gender * 1) ? "Male" : "Female"}
+                                                    primaryTypographyProps={{variant: 'body2', color: 'text.secondary'}}
                                                     secondaryTypographyProps={{
                                                         variant: 'body1',
                                                         color: errors['patient.gender'] ? 'error.main' : 'text.primary'
@@ -775,21 +780,21 @@ const Finalize = ({ auth, order, step }) => {
                                                 />
                                             </ListItem>
                                             {errors['patient.gender'] && (
-                                                <Typography variant="caption" color="error" sx={{ pl: 9 }}>
+                                                <Typography variant="caption" color="error" sx={{pl: 9}}>
                                                     {errors['patient.gender']}
                                                 </Typography>
                                             )}
 
-                                            <Divider component="li" variant="inset" />
+                                            <Divider component="li" variant="inset"/>
 
                                             <ListItem>
                                                 <ListItemIcon>
-                                                    <MedicalServices color="info" />
+                                                    <MedicalServices color="info"/>
                                                 </ListItemIcon>
                                                 <ListItemText
                                                     primary="Consanguineous Parents"
                                                     secondary={data.patient?.consanguineousParents ? "Yes" : "No"}
-                                                    primaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
+                                                    primaryTypographyProps={{variant: 'body2', color: 'text.secondary'}}
                                                     secondaryTypographyProps={{
                                                         variant: 'body1',
                                                         color: errors['patient.consanguineousParents'] ? 'error.main' : 'text.primary'
@@ -797,7 +802,7 @@ const Finalize = ({ auth, order, step }) => {
                                                 />
                                             </ListItem>
                                             {errors['patient.consanguineousParents'] && (
-                                                <Typography variant="caption" color="error" sx={{ pl: 9 }}>
+                                                <Typography variant="caption" color="error" sx={{pl: 9}}>
                                                     {errors['patient.consanguineousParents']}
                                                 </Typography>
                                             )}
@@ -814,23 +819,23 @@ const Finalize = ({ auth, order, step }) => {
                                                 <ListItemText
                                                     primary="Email"
                                                     secondary={data?.patient?.contact?.email || "Not specified"}
-                                                    primaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
-                                                    secondaryTypographyProps={{ variant: 'body1' }}
+                                                    primaryTypographyProps={{variant: 'body2', color: 'text.secondary'}}
+                                                    secondaryTypographyProps={{variant: 'body1'}}
                                                 />
                                             </ListItem>
 
-                                            <Divider component="li" />
+                                            <Divider component="li"/>
 
                                             <ListItem>
                                                 <ListItemText
                                                     primary="Phone"
                                                     secondary={data?.patient?.contact?.phone || "Not specified"}
-                                                    primaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
-                                                    secondaryTypographyProps={{ variant: 'body1' }}
+                                                    primaryTypographyProps={{variant: 'body2', color: 'text.secondary'}}
+                                                    secondaryTypographyProps={{variant: 'body1'}}
                                                 />
                                             </ListItem>
 
-                                            <Divider component="li" />
+                                            <Divider component="li"/>
 
                                             <ListItem>
                                                 <ListItemText
@@ -839,8 +844,8 @@ const Finalize = ({ auth, order, step }) => {
                                    ${data?.patient?.contact?.city ? ", " + data?.patient?.contact?.city : ""}
                                    ${data?.patient?.contact?.state ? ", " + data?.patient?.contact?.state : ""}
                                    ${data?.patient?.contact?.country?.label ? ", " + data?.patient?.contact?.country?.label : ""}`}
-                                                    primaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
-                                                    secondaryTypographyProps={{ variant: 'body1' }}
+                                                    primaryTypographyProps={{variant: 'body2', color: 'text.secondary'}}
+                                                    secondaryTypographyProps={{variant: 'body1'}}
                                                 />
                                             </ListItem>
                                         </List>
@@ -852,12 +857,12 @@ const Finalize = ({ auth, order, step }) => {
                                 </Alert>
                             )}
 
-                            <Box sx={{ mt: 2, textAlign: 'right' }}>
+                            <Box sx={{mt: 2, textAlign: 'right'}}>
                                 <Button
                                     variant="outlined"
                                     size="small"
                                     component="a"
-                                    href={route("orders.edit", { order: order.id, step: "patient details" })}
+                                    href={route("orders.edit", {order: order.id, step: "patient details"})}
                                     sx={{
                                         borderRadius: 2,
                                         textTransform: 'none'
@@ -900,8 +905,8 @@ const Finalize = ({ auth, order, step }) => {
                         }}
                         onClick={() => toggleSection('samples')}
                     >
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <ScienceOutlined />
+                        <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
+                            <ScienceOutlined/>
                             <Typography variant="h6" fontWeight={600}>
                                 Sample Materials
                             </Typography>
@@ -910,19 +915,19 @@ const Finalize = ({ auth, order, step }) => {
                                 color={getSectionStatus('samples').color}
                                 size="small"
                                 icon={getSectionStatus('samples').icon}
-                                sx={{ ml: 1, fontWeight: 500 }}
+                                sx={{ml: 1, fontWeight: 500}}
                             />
                         </Box>
 
-                        {expandedSections.samples ? <ExpandLess /> : <ExpandMore />}
+                        {expandedSections.samples ? <ExpandLess/> : <ExpandMore/>}
                     </Box>
 
                     <Collapse in={expandedSections.samples}>
-                        <Box sx={{ p: 3 }}>
+                        <Box sx={{p: 3}}>
                             {errors.samples && (
                                 <Alert
                                     severity="error"
-                                    sx={{ mb: 3, borderRadius: 1 }}
+                                    sx={{mb: 3, borderRadius: 1}}
                                 >
                                     {errors.samples}
                                 </Alert>
@@ -1022,12 +1027,12 @@ const Finalize = ({ auth, order, step }) => {
                                 </Alert>
                             )}
 
-                            <Box sx={{ mt: 2, textAlign: 'right' }}>
+                            <Box sx={{mt: 2, textAlign: 'right'}}>
                                 <Button
                                     variant="outlined"
                                     size="small"
                                     component="a"
-                                    href={route("orders.edit", { order: order.id, step: "sample details" })}
+                                    href={route("orders.edit", {order: order.id, step: "sample details"})}
                                     sx={{
                                         borderRadius: 2,
                                         textTransform: 'none'
@@ -1070,8 +1075,8 @@ const Finalize = ({ auth, order, step }) => {
                         }}
                         onClick={() => toggleSection('forms')}
                     >
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <Assignment />
+                        <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
+                            <Assignment/>
                             <Typography variant="h6" fontWeight={600}>
                                 Clinical Details
                             </Typography>
@@ -1080,19 +1085,19 @@ const Finalize = ({ auth, order, step }) => {
                                 color={getSectionStatus('forms').color}
                                 size="small"
                                 icon={getSectionStatus('forms').icon}
-                                sx={{ ml: 1, fontWeight: 500 }}
+                                sx={{ml: 1, fontWeight: 500}}
                             />
                         </Box>
 
-                        {expandedSections.forms ? <ExpandLess /> : <ExpandMore />}
+                        {expandedSections.forms ? <ExpandLess/> : <ExpandMore/>}
                     </Box>
 
                     <Collapse in={expandedSections.forms}>
-                        <Box sx={{ p: 3 }}>
+                        <Box sx={{p: 3}}>
                             {errors.orderForms && (
                                 <Alert
                                     severity="error"
-                                    sx={{ mb: 3, borderRadius: 1 }}
+                                    sx={{mb: 3, borderRadius: 1}}
                                 >
                                     {errors.orderForms}
                                 </Alert>
@@ -1126,7 +1131,8 @@ const Finalize = ({ auth, order, step }) => {
                                                 </Typography>
 
                                                 {errors[`orderForms[${formIndex}].hasErrors`] && (
-                                                    <Typography variant="caption" color="error" sx={{ display: 'block', mb: 1 }}>
+                                                    <Typography variant="caption" color="error"
+                                                                sx={{display: 'block', mb: 1}}>
                                                         {errors[`orderForms[${formIndex}].hasErrors`]}
                                                     </Typography>
                                                 )}
@@ -1134,7 +1140,7 @@ const Finalize = ({ auth, order, step }) => {
                                                 <List dense>
                                                     {orderForm.formData && orderForm.formData.map((item, itemIndex) => (
                                                         <React.Fragment key={`form-${formIndex}-item-${itemIndex}`}>
-                                                            {itemIndex > 0 && <Divider component="li" />}
+                                                            {itemIndex > 0 && <Divider component="li"/>}
                                                             <ListItem>
                                                                 <ListItemText
                                                                     primary={item.label}
@@ -1154,7 +1160,8 @@ const Finalize = ({ auth, order, step }) => {
                                                                 />
                                                             </ListItem>
                                                             {errors[`orderForms[${formIndex}].formData[${itemIndex}].value`] && (
-                                                                <Typography variant="caption" color="error" sx={{ ml: 2 }}>
+                                                                <Typography variant="caption" color="error"
+                                                                            sx={{ml: 2}}>
                                                                     {errors[`orderForms[${formIndex}].formData[${itemIndex}].value`]}
                                                                 </Typography>
                                                             )}
@@ -1171,12 +1178,12 @@ const Finalize = ({ auth, order, step }) => {
                                 </Alert>
                             )}
 
-                            <Box sx={{ mt: 2, textAlign: 'right' }}>
+                            <Box sx={{mt: 2, textAlign: 'right'}}>
                                 <Button
                                     variant="outlined"
                                     size="small"
                                     component="a"
-                                    href={route("orders.edit", { order: order.id, step: "clinical details" })}
+                                    href={route("orders.edit", {order: order.id, step: "clinical details"})}
                                     sx={{
                                         borderRadius: 2,
                                         textTransform: 'none'
@@ -1219,8 +1226,8 @@ const Finalize = ({ auth, order, step }) => {
                         }}
                         onClick={() => toggleSection('consent')}
                     >
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <Assignment />
+                        <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
+                            <Assignment/>
                             <Typography variant="h6" fontWeight={600}>
                                 Consent Information
                             </Typography>
@@ -1229,19 +1236,19 @@ const Finalize = ({ auth, order, step }) => {
                                 color={getSectionStatus('consent').color}
                                 size="small"
                                 icon={getSectionStatus('consent').icon}
-                                sx={{ ml: 1, fontWeight: 500 }}
+                                sx={{ml: 1, fontWeight: 500}}
                             />
                         </Box>
 
-                        {expandedSections.consent ? <ExpandLess /> : <ExpandMore />}
+                        {expandedSections.consent ? <ExpandLess/> : <ExpandMore/>}
                     </Box>
 
                     <Collapse in={expandedSections.consent}>
-                        <Box sx={{ p: 3 }}>
+                        <Box sx={{p: 3}}>
                             {errors.consents && (
                                 <Alert
                                     severity="error"
-                                    sx={{ mb: 3, borderRadius: 1 }}
+                                    sx={{mb: 3, borderRadius: 1}}
                                 >
                                     {errors.consents}
                                 </Alert>
@@ -1252,7 +1259,7 @@ const Finalize = ({ auth, order, step }) => {
                                 <List>
                                     {restConsents.map((consent, index) => (
                                         <React.Fragment key={`consent-${index}`}>
-                                            {index > 0 && <Divider />}
+                                            {index > 0 && <Divider/>}
                                             <ListItem
                                                 sx={{
                                                     py: 2,
@@ -1263,9 +1270,9 @@ const Finalize = ({ auth, order, step }) => {
                                             >
                                                 <ListItemIcon>
                                                     {consent.value ? (
-                                                        <CheckCircle color="success" />
+                                                        <CheckCircle color="success"/>
                                                     ) : (
-                                                        <ErrorIcon color="error" />
+                                                        <ErrorIcon color="error"/>
                                                     )}
                                                 </ListItemIcon>
                                                 <ListItemText
@@ -1286,11 +1293,12 @@ const Finalize = ({ auth, order, step }) => {
                                                     label={consent.value ? "Agreed" : "Not Agreed"}
                                                     color={consent.value ? "success" : "error"}
                                                     size="small"
-                                                    sx={{ fontWeight: 500 }}
+                                                    sx={{fontWeight: 500}}
                                                 />
                                             </ListItem>
                                             {errors[`consents[${index}].value`] && (
-                                                <Typography variant="caption" color="error" sx={{ ml: 9, display: 'block', mt: -1, mb: 1 }}>
+                                                <Typography variant="caption" color="error"
+                                                            sx={{ml: 9, display: 'block', mt: -1, mb: 1}}>
                                                     {errors[`consents[${index}].value`]}
                                                 </Typography>
                                             )}
@@ -1305,11 +1313,11 @@ const Finalize = ({ auth, order, step }) => {
 
                             {/* Display consent form files if available */}
                             {consentForm && consentForm.length > 0 && (
-                                <Box sx={{ mt: 3 }}>
+                                <Box sx={{mt: 3}}>
                                     <Typography variant="subtitle2" fontWeight={600} gutterBottom>
                                         Consent Form Files
                                     </Typography>
-                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                                    <Box sx={{display: 'flex', flexWrap: 'wrap', gap: 1}}>
                                         {consentForm.map((file, index) => (
                                             <Button
                                                 key={index}
@@ -1317,7 +1325,7 @@ const Finalize = ({ auth, order, step }) => {
                                                 target="_blank"
                                                 variant="outlined"
                                                 size="small"
-                                                startIcon={<Download />}
+                                                startIcon={<Download/>}
                                                 sx={{
                                                     borderRadius: 1,
                                                     textTransform: 'none'
@@ -1330,12 +1338,12 @@ const Finalize = ({ auth, order, step }) => {
                                 </Box>
                             )}
 
-                            <Box sx={{ mt: 2, textAlign: 'right' }}>
+                            <Box sx={{mt: 2, textAlign: 'right'}}>
                                 <Button
                                     variant="outlined"
                                     size="small"
                                     component="a"
-                                    href={route("orders.edit", { order: order.id, step: "consent form" })}
+                                    href={route("orders.edit", {order: order.id, step: "consent form"})}
                                     sx={{
                                         borderRadius: 2,
                                         textTransform: 'none'
@@ -1365,7 +1373,7 @@ const Finalize = ({ auth, order, step }) => {
                         variant="contained"
                         color="primary"
                         size="large"
-                        startIcon={<Send />}
+                        startIcon={<Send/>}
                         onClick={handleSubmit}
                         disabled={processing}
                         sx={{
@@ -1395,7 +1403,8 @@ const Finalize = ({ auth, order, step }) => {
                             Please Correct the Following Issues
                         </Typography>
                         <Typography variant="body2">
-                            There are validation errors in your order. Please review the sections marked with errors and make the necessary corrections before submitting.
+                            There are validation errors in your order. Please review the sections marked with errors and
+                            make the necessary corrections before submitting.
                         </Typography>
                     </Alert>
                 )}
