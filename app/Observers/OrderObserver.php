@@ -26,8 +26,7 @@ class OrderObserver
     {
         if (in_array($order->status->value, [OrderStatus::REPORTED->value, OrderStatus::RECEIVED->value, OrderStatus::PROCESSING->value])) {
             $order->load("User");
-            $notifyUser = User::query()->where("userName", "notify")->first();
-            $users = [$order->User, $notifyUser];
+            $users = [$order->User];
             Notification::send($users, new OrderStatusUpdated($order));
         }
     }
@@ -39,25 +38,8 @@ class OrderObserver
     {
         if (!in_array($order->status->value, [OrderStatus::REQUESTED->value, OrderStatus::PENDING->value])) {
             $order->load("User");
-            $notifyUser = User::query()->where("userName", "notify")->first();
-            $users = [$order->User, $notifyUser];
+            $users = [$order->User];
             Notification::send($users, new OrderRemovedByAdmin($order->orderId));
         }
-    }
-
-    /**
-     * Handle the Order "restored" event.
-     */
-    public function restored(Order $order): void
-    {
-        //
-    }
-
-    /**
-     * Handle the Order "force deleted" event.
-     */
-    public function forceDeleted(Order $order): void
-    {
-        //
     }
 }

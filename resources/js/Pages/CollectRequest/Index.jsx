@@ -10,8 +10,7 @@ import {
     Stack,
     TextField,
     Tooltip,
-    Typography,
-    useTheme
+    Typography
 } from "@mui/material";
 import {
     RemoveRedEye,
@@ -33,6 +32,8 @@ import AdminLayout from "@/Layouts/AuthenticatedLayout";
 import { router } from "@inertiajs/react";
 import DeleteButton from "@/Components/DeleteButton.jsx";
 import { format, isValid } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
+
 
 /**
  * Breadcrumbs for the layout
@@ -83,7 +84,7 @@ function Index({ collectRequests: { data: collectRequestsData, ...pagination }, 
         try {
             const date = new Date(dateString);
             if (isValid(date)) {
-                return format(date, 'MMM d, yyyy h:mm a');
+                return formatInTimeZone(date,'Asia/Muscat', 'MMM d, yyyy h:mm a',);
             }
         } catch (e) {
             // Fall back to original string if parsing fails

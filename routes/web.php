@@ -25,6 +25,7 @@ use App\Http\Controllers\DownloadOrderSummaryController;
 use App\Http\Controllers\DownloadReportController;
 use App\Http\Controllers\GetFileController;
 use App\Http\Controllers\ListTestController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrderMaterialController;
 use App\Http\Controllers\Admin\OrderMaterialController as OrderMaterialAdminController;
@@ -52,6 +53,15 @@ Route::get('/', function () {
 
 
 Route::middleware('auth')->group(function () {
+    
+    Route::prefix('notifications')->group(function () {
+        Route::get('/', [NotificationController::class, 'index']);
+        Route::patch('/{id}/read', [NotificationController::class, 'markAsRead']);
+        Route::patch('/mark-all-read', [NotificationController::class, 'markAllAsRead']);
+        Route::delete('/{id}', [NotificationController::class, 'destroy']);
+    });
+
+
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
     Route::prefix("admin")->as("admin.")->group(function () {
         Route::post("/users/sync", SyncReferrersController::class)->name("users.sync");

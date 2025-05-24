@@ -7,8 +7,8 @@ import { createTheme, ThemeProvider, responsiveFontSizes } from '@mui/material/s
 import { CssBaseline } from '@mui/material';
 import { SnackbarProvider } from "notistack";
 import { SWRConfig } from "swr";
-import { fetcher } from "@/Services/api";
 import LoadingBar from 'react-top-loading-bar';
+import {swrConfig} from "@/Layouts/Components/Notification/lib/swrConfig.js";
 
 // Create a responsive theme with consistent branding colors
 let theme = createTheme({
@@ -137,20 +137,6 @@ let theme = createTheme({
 theme = responsiveFontSizes(theme);
 
 const appName = import.meta.env.VITE_APP_NAME || 'Bion Genetic Lab';
-
-// Global SWR configuration
-const swrConfig = {
-    refreshInterval: 10000,
-    fetcher,
-    revalidateOnFocus: true,
-    shouldRetryOnError: true,
-    dedupingInterval: 2000,
-    errorRetryCount: 3,
-    focusThrottleInterval: 5000,
-    onError: (error) => {
-        console.error('SWR Global Error:', error);
-    },
-};
 
 // Snackbar configuration
 const snackbarConfig = {

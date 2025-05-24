@@ -35,6 +35,7 @@ import ChangePassword from "@/Pages/User/Components/ChangePassword";
 import {changePasswordValidator} from "@/Services/validate";
 import {useSnackbar} from "notistack";
 import {motion, AnimatePresence} from "framer-motion";
+import NotificationButton from "@/Layouts/Components/Notification/NotificationButton.jsx";
 
 /**
  * Enhanced Header component with improved user experience and visual design
@@ -199,34 +200,9 @@ export default function Header({toggleDrawer, auth, breadcrumbs, open, colorMode
                             </Tooltip>
                         )}
 
-                        {/* Notifications button (example)
-                        <Tooltip title="Notifications">
-                            <IconButton
-                                size="medium"
-                                color="inherit"
-                                sx={{
-                                    borderRadius: 1.5,
-                                    transition: 'all 0.2s',
-                                    '&:hover': {
-                                        backgroundColor: alpha(theme.palette.primary.main, 0.1),
-                                    }
-                                }}
-                            >
-                                <Badge
-                                    badgeContent={0}
-                                    color="error"
-                                    sx={{
-                                        '& .MuiBadge-badge': {
-                                            top: 5,
-                                            right: 5,
-                                        }
-                                    }}
-                                >
-                                    <NotificationsNone/>
-                                </Badge>
-                            </IconButton>
-                        </Tooltip>
-                        */}
+                        {/* Notifications button*/}
+                        <NotificationButton/>
+
                         {/* User profile button */}
                         <Box
                             sx={{
