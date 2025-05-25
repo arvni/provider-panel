@@ -4,6 +4,7 @@ namespace App\Notifications;
 
 use App\Enums\CollectRequestStatus;
 use App\Models\CollectRequest;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -55,7 +56,8 @@ class AdminCollectRequestNotification extends Notification implements ShouldQueu
             ->line("• Created: {$this->collectRequest->created_at->format('M d, Y H:i')}");
 
         if ($this->collectRequest->preferred_date) {
-            $message->line("• Preferred Date: {$this->collectRequest->preferred_date->format('M d, Y')}");
+            $date = Carbon::parse($this->collectRequest->preferred_date, "Asia/Muscat");
+            $message->line("• Preferred Date: {$date->format('M d, Y')}");
         }
 
         // Add change details for updates
@@ -98,7 +100,7 @@ class AdminCollectRequestNotification extends Notification implements ShouldQueu
             'action' => $this->action,
             'status' => $this->collectRequest->status->value,
             'status_label' => $this->collectRequest->status->getLabel(),
-            'preferred_date' => $this->collectRequest->preferred_date?->toDateString(),
+            'preferred_date' => Carbon::parse($this->collectRequest->preferred_date, "Asia/Muscat")?->toDateString(),
             'changes' => $this->changes,
             'message' => $this->getActionMessage(),
             'url' => $this->getAdminUrl(),
@@ -159,7 +161,7 @@ class AdminCollectRequestNotification extends Notification implements ShouldQueu
      */
     private function getAdminUrl(): string
     {
-        return route("admin.collectRequests", $this->collectRequest->id);
+        return route("admin.collectRequests.show", $this->collectRequest->id);
     }
 
     /**
