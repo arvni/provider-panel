@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\CollectRequest;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -48,9 +49,9 @@ class CollectRequestUpdated extends Notification implements ShouldQueue
             ->line("Your collect request #{$this->collectRequest->id} has been {$this->action}.")
             ->line("Status: {$statusLabel}")
             ->when($this->collectRequest->preferred_date, function ($message) {
-                return $message->line("Preferred Date: {$this->collectRequest->preferred_date->format('M d, Y')}");
+                $date = Carbon::parse($this->collectRequest->preferred_date, "Asia/Muscat")->format('M d, Y');
+                return $message->line("Preferred Date: {$date}");
             })
-
             ->line('Thank you for using our service!');
     }
 
@@ -66,7 +67,7 @@ class CollectRequestUpdated extends Notification implements ShouldQueue
             'action' => $this->action,
             'status' => $this->collectRequest->status->value,
             'status_label' => $this->collectRequest->status->getLabel(),
-            'preferred_date' => $this->collectRequest->preferred_date?->toDateString(),
+            'preferred_date' => Carbon::parse($this->collectRequest->preferred_date,"Asia/Muscat")?->toDateString(),
             'message' => "Collect request #{$this->collectRequest->id} has been {$this->action}",
         ];
     }
