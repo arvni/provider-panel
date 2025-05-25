@@ -4,7 +4,6 @@ namespace App\Notifications;
 
 use App\Enums\CollectRequestStatus;
 use App\Models\CollectRequest;
-use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;

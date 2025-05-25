@@ -36,9 +36,6 @@ class CollectRequest extends Model
 
     protected $casts = [
         'details' => 'json',
-        'created_at' => 'datetime:Y-m-d H:i',
-        'updated_at' => 'datetime:Y-m-d H:i',
-        'preferred_date' => 'date:Y-m-d',
         'status' => CollectRequestStatus::class
     ];
 

@@ -3,8 +3,10 @@
 namespace App\Services;
 
 use App\Models\CollectRequest;
+use App\Models\OrderMaterial;
 use App\Models\User;
 use App\Notifications\AdminCollectRequestNotification;
+use App\Notifications\AdminOrderMaterialNotification;
 use Exception;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Log;
@@ -16,8 +18,8 @@ class AdminNotificationService
      */
     public static function sendCollectRequestNotification(
         CollectRequest $collectRequest,
-        string                     $action,
-        ?array                     $changes = null
+        string         $action,
+        ?array         $changes = null
     ): void
     {
         try {
@@ -72,7 +74,7 @@ class AdminNotificationService
      */
     public static function sendUrgentNotification(
         CollectRequest $collectRequest,
-        string                     $reason
+        string         $reason
     ): void
     {
         try {
@@ -93,6 +95,36 @@ class AdminNotificationService
         } catch (Exception $e) {
             Log::error('Failed to send urgent admin notification', [
                 'collect_request_id' => $collectRequest->id,
+                'reason' => $reason,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Send urgent notification (for high priority cases)
+     */
+    public static function sendOrderMaterialNotification(
+        OrderMaterial $orderMaterial,
+        string        $reason
+    ): void
+    {
+        try {
+            $admins = static::getAdminUsers();
+
+            $notification = new AdminOrderMaterialNotification(
+                $orderMaterial,
+            );
+
+            // Send via multiple channels for urgent notifications
+            foreach ($admins as $admin) {
+                $admin->notify($notification);
+                // Could also send SMS or Slack notification here
+            }
+
+        } catch (Exception $e) {
+            Log::error('Failed to send urgent admin notification', [
+                'collect_request_id' => $orderMaterial->id,
                 'reason' => $reason,
                 'error' => $e->getMessage()
             ]);

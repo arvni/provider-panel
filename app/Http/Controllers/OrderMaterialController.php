@@ -9,7 +9,9 @@ use App\Http\Requests\StoreOrderMaterialRequest;
 use App\Http\Requests\UpdateOrderMaterialRequest;
 use App\Models\SampleType;
 use App\Models\User;
+use App\Notifications\AdminOrderMaterialNotification;
 use App\Notifications\OrderMaterialRequested;
+use App\Services\AdminNotificationService;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -38,8 +40,8 @@ class OrderMaterialController extends Controller
     {
         $requestInputs = $request->all();
         $orderMaterials = fn() => $this->orderMaterialRepository->getUserOrders($requestInputs);
-        $sampleTypes=SampleType::where("orderable",true)->get();
-        $data = ["orderMaterials" => $orderMaterials, "request" => $requestInputs,"sampleTypes"=>$sampleTypes];
+        $sampleTypes = SampleType::where("orderable", true)->get();
+        $data = ["orderMaterials" => $orderMaterials, "request" => $requestInputs, "sampleTypes" => $sampleTypes];
         return Inertia::render('OrderMaterial/Index', $data);
     }
 
@@ -48,10 +50,10 @@ class OrderMaterialController extends Controller
      */
     public function store(StoreOrderMaterialRequest $request)
     {
-        $orderMaterial=$this->orderMaterialRepository->create($request->all());
-        $notifyUser=User::where("userName","notify")->first();
-        $users = [$orderMaterial->User,$notifyUser];
+        $orderMaterial = $this->orderMaterialRepository->create($request->all());
+        $users = [$orderMaterial->User];
         Notification::send($users, new OrderMaterialRequested($orderMaterial->id));
+        AdminNotificationService::sendOrderMaterialNotification($orderMaterial, "Order Material Created By " . auth()->user()->name);
         return redirect()->back()->with(["status" => " order material successfully Added", "success" => true]);
     }
 
