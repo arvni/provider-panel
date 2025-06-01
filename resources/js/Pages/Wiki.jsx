@@ -246,7 +246,7 @@ function Index({ tests: { data: testsData, ...pagination }, request }) {
                             <IconButton
                                 size="small"
                                 color="secondary"
-                                href={route("file", { type: "instruction", id: row.consent_id })}
+                                href={route("file", { type: "consent", id: row.consent_id })}
                                 target="_blank"
                             >
                                 <ArticleOutlined fontSize="small" />
@@ -259,7 +259,7 @@ function Index({ tests: { data: testsData, ...pagination }, request }) {
                             <IconButton
                                 size="small"
                                 color="info"
-                                href={route("file", { type: "consent", id: row.instruction_id })}
+                                href={route("file", { type: 'instruction', id: row.instruction_id })}
                                 target="_blank"
                             >
                                 <GradingOutlined fontSize="small" />
