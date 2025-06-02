@@ -307,23 +307,6 @@ export default function Dashboard({ auth, recentlyOrders = [], notDownloadedRepo
                                     >
                                         Reports Ready To Download
                                     </Typography>
-
-                                    {notDownloadedReports > 0 && (
-                                        <Button
-                                            variant="outlined"
-                                            color="success"
-                                            size="small"
-                                            component={Link}
-                                            href={route('reports.index')}
-                                            startIcon={<FileDownloadIcon />}
-                                            sx={{
-                                                borderRadius: '8px',
-                                                textTransform: 'none',
-                                            }}
-                                        >
-                                            View Reports
-                                        </Button>
-                                    )}
                                 </Paper>
                             </Grid>
                         </Grid>
