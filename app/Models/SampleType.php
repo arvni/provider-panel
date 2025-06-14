@@ -14,7 +14,8 @@ class SampleType extends Model
     protected $fillable = [
         "name",
         "sample_id_required",
-        "orderable"
+        "orderable",
+        "server_id"
     ];
     protected $casts = ["
     sample_id_required" => "boolean",

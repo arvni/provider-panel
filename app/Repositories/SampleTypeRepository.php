@@ -129,4 +129,9 @@ class SampleTypeRepository extends BaseRepository implements SampleTypeRepositor
             $sampleType->save();
         return $sampleType;
     }
+
+    public function getByServerId(int $id): ?SampleType
+    {
+        return $this->query->where("server_id", $id)->first();
+    }
 }

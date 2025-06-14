@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, {useState, useEffect} from "react";
 import {
     Button,
     Card,
@@ -26,7 +26,7 @@ import {
     Timer as TimerIcon
 } from "@mui/icons-material";
 import TestDetails from "./TestDetails";
-import { motion } from "framer-motion";
+import {motion} from "framer-motion";
 
 /**
  * Enhanced TestCard component with improved design and interactions
@@ -77,11 +77,11 @@ const TestCard = (props) => {
             whileHover={{
                 y: -4,
                 boxShadow: theme.shadows[6],
-                transition: { duration: 0.2 }
+                transition: {duration: 0.2}
             }}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
+            initial={{opacity: 0, y: 20}}
+            animate={{opacity: 1, y: 0}}
+            transition={{duration: 0.3}}
             elevation={selected ? 6 : 1}
             sx={{
                 width: "100%",
@@ -110,7 +110,7 @@ const TestCard = (props) => {
                 >
                     <Badge
                         badgeContent={
-                            <CheckIcon sx={{ fontSize: 12, color: 'white' }} />
+                            <CheckIcon sx={{fontSize: 12, color: 'white'}}/>
                         }
                         color="primary"
                         sx={{
@@ -138,7 +138,7 @@ const TestCard = (props) => {
                         : theme.palette.divider
                 }}
                 title={
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
                         <ScienceIcon
                             color={selected ? "primary" : "action"}
                             fontSize="small"
@@ -147,7 +147,7 @@ const TestCard = (props) => {
                             variant="subtitle1"
                             fontWeight={600}
                             color={selected ? "primary.main" : "text.primary"}
-                            sx={{ flex: 1 }}
+                            sx={{flex: 1}}
                         >
                             {props.test.name}
                         </Typography>
@@ -156,22 +156,21 @@ const TestCard = (props) => {
             />
 
             {/* Card content */}
-            <CardContent sx={{ p: 2 }}>
+            <CardContent sx={{p: 2}}>
                 <Grid container spacing={2}>
                     <Grid item xs={12} sm={8}>
-                        <Box sx={{ mb: 2 }}>
-                            <Typography
-                                variant="body2"
-                                color="text.secondary"
-                                sx={{
+                        <Box sx={{mb: 2}}>
+                            <div
+                                style={{
                                     display: '-webkit-box',
                                     overflow: 'hidden',
                                     WebkitBoxOrient: 'vertical',
                                     WebkitLineClamp: expanded ? 'unset' : 2,
                                 }}
-                            >
-                                {props.test.description || "No description available for this test."}
-                            </Typography>
+                                dangerouslySetInnerHTML={{
+                                    __html: props.test.description || "<p>No description available for this test.</p>"
+                                }}
+                            />
 
                             {(props.test.description?.length > 120) && (
                                 <Button
@@ -249,7 +248,7 @@ const TestCard = (props) => {
                                     gap: 0.5
                                 }}
                             >
-                                <TimerIcon fontSize="small" color="action" />
+                                <TimerIcon fontSize="small" color="action"/>
                                 Turnaround Time
                             </Typography>
 
@@ -277,7 +276,7 @@ const TestCard = (props) => {
                             </Typography>
 
                             {props.test.requirements && (
-                                <Box sx={{ mt: 2 }}>
+                                <Box sx={{mt: 2}}>
                                     <Typography
                                         variant="subtitle2"
                                         sx={{
@@ -287,7 +286,7 @@ const TestCard = (props) => {
                                             gap: 0.5
                                         }}
                                     >
-                                        <InfoIcon fontSize="small" color="action" />
+                                        <InfoIcon fontSize="small" color="action"/>
                                         Requirements
                                     </Typography>
 
@@ -315,7 +314,7 @@ const TestCard = (props) => {
                     size="small"
                     color="info"
                     onClick={handleOpenDetails}
-                    endIcon={<ArrowForwardIcon />}
+                    endIcon={<ArrowForwardIcon/>}
                     sx={{
                         borderRadius: 1.5,
                         textTransform: 'none'
@@ -329,7 +328,7 @@ const TestCard = (props) => {
                     size="small"
                     color={selected ? "error" : "primary"}
                     onClick={handleSelect}
-                    startIcon={selected ? <RemoveIcon /> : <AddIcon />}
+                    startIcon={selected ? <RemoveIcon/> : <AddIcon/>}
                     sx={{
                         borderRadius: 1.5,
                         textTransform: 'none',
@@ -345,11 +344,11 @@ const TestCard = (props) => {
             </CardActions>
 
             {/* Test details dialog */}
-            <TestDetails
+            {open && <TestDetails
                 test={props.test}
                 open={open}
                 onClose={handleCloseDetails}
-            />
+            />}
         </Card>
     );
 };

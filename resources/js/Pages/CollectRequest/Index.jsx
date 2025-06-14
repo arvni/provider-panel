@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, {useState, useMemo} from "react";
 import {
     Box,
     Button,
@@ -27,12 +27,12 @@ import {
 } from "@mui/icons-material";
 import PageHeader from "@/Components/PageHeader";
 import TableLayout from "@/Layouts/TableLayout";
-import { usePageReload } from "@/Services/api";
+import {usePageReload} from "@/Services/api";
 import AdminLayout from "@/Layouts/AuthenticatedLayout";
-import { router } from "@inertiajs/react";
+import {router} from "@inertiajs/react";
 import DeleteButton from "@/Components/DeleteButton.jsx";
-import { format, isValid } from 'date-fns';
-import { formatInTimeZone } from 'date-fns-tz';
+import {format, isValid} from 'date-fns';
+import {formatInTimeZone} from 'date-fns-tz';
 
 
 /**
@@ -42,7 +42,7 @@ const breadcrumbs = [
     {
         title: "Collection Requests",
         link: "",
-        icon: <LocalShipping fontSize="small" />
+        icon: <LocalShipping fontSize="small"/>
     },
 ];
 
@@ -55,7 +55,7 @@ const breadcrumbs = [
  * @param {Object} props.request Request parameters
  * @returns {JSX.Element} Rendered component
  */
-function Index({ collectRequests: { data: collectRequestsData, ...pagination }, request }) {
+function Index({collectRequests: {data: collectRequestsData, ...pagination}, request}) {
 
     // Page reload state
     const {
@@ -84,7 +84,7 @@ function Index({ collectRequests: { data: collectRequestsData, ...pagination }, 
         try {
             const date = new Date(dateString);
             if (isValid(date)) {
-                return formatInTimeZone(date,'Asia/Muscat', 'MMM d, yyyy h:mm a',);
+                return formatInTimeZone(date, 'Asia/Muscat', 'MMM d, yyyy h:mm a',);
             }
         } catch (e) {
             // Fall back to original string if parsing fails
@@ -123,15 +123,15 @@ function Index({ collectRequests: { data: collectRequestsData, ...pagination }, 
     const getStatusIcon = (status) => {
         switch (status?.toLowerCase()) {
             case 'requested':
-                return <Receipt fontSize="small" />;
+                return <Receipt fontSize="small"/>;
             case 'scheduled':
-                return <Schedule fontSize="small" />;
+                return <Schedule fontSize="small"/>;
             case 'picked up':
-                return <LocalShipping fontSize="small" />;
+                return <LocalShipping fontSize="small"/>;
             case 'received':
-                return <CheckCircle fontSize="small" />;
+                return <CheckCircle fontSize="small"/>;
             default:
-                return <Receipt fontSize="small" />;
+                return <Receipt fontSize="small"/>;
         }
     };
 
@@ -169,9 +169,12 @@ function Index({ collectRequests: { data: collectRequestsData, ...pagination }, 
      * Apply search filter
      */
     const applySearch = () => {
-        const filters = { ...data.filters, search: searchTerm };
+        const filters = {...data.filters, search: searchTerm};
         onFilterChange(filters);
-        handlePage({ preventDefault: () => {} });
+        handlePage({
+            preventDefault: () => {
+            }
+        });
     };
 
     /**
@@ -180,7 +183,10 @@ function Index({ collectRequests: { data: collectRequestsData, ...pagination }, 
     const clearFilters = () => {
         setSearchTerm("");
         onFilterChange({});
-        handlePage({ preventDefault: () => {} });
+        handlePage({
+            preventDefault: () => {
+            }
+        });
     };
 
     /**
@@ -211,7 +217,7 @@ function Index({ collectRequests: { data: collectRequestsData, ...pagination }, 
             sortable: true,
             render: (row) => (
                 <Stack direction="row" spacing={1} alignItems="center">
-                    <Person color="primary" />
+                    <Person color="primary"/>
                     <Typography variant="body2">
                         {row.user_name || "—"}
                     </Typography>
@@ -256,12 +262,12 @@ function Index({ collectRequests: { data: collectRequestsData, ...pagination }, 
             type: "text",
             sortable: true,
             render: (row) => (
-                <Stack direction="row" spacing={1} alignItems="center">
-                    <Event color="info" fontSize="small" />
+                row.preferred_date ? <Stack direction="row" spacing={1} alignItems="center">
+                    <Event color="info" fontSize="small"/>
                     <Typography variant="body2" color="text.secondary">
-                        {formatDate(row.preferred_date)}
+                        {new Date(row.preferred_date).toDateString()}
                     </Typography>
-                </Stack>
+                </Stack> : null
             )
         },
         {
@@ -289,7 +295,7 @@ function Index({ collectRequests: { data: collectRequestsData, ...pagination }, 
                             size="small"
                             color="primary"
                         >
-                            <RemoveRedEye fontSize="small" />
+                            <RemoveRedEye fontSize="small"/>
                         </IconButton>
                     </Tooltip>
 
@@ -297,7 +303,7 @@ function Index({ collectRequests: { data: collectRequestsData, ...pagination }, 
                         <DeleteButton
                             url={route("admin.collectRequests.destroy", row.id)}
                             size="small"
-                            IconProps={{ fontSize: 'small' }}
+                            IconProps={{fontSize: 'small'}}
                         />
                     )}
                 </Stack>
@@ -310,7 +316,7 @@ function Index({ collectRequests: { data: collectRequestsData, ...pagination }, 
             <PageHeader
                 title="Collection Requests"
                 subtitle="Manage pickup and delivery requests"
-                icon={<LocalShipping fontSize="large" />}
+                icon={<LocalShipping fontSize="large"/>}
             />
 
             <Paper
@@ -332,12 +338,12 @@ function Index({ collectRequests: { data: collectRequestsData, ...pagination }, 
                     }}
                 >
                     <Stack
-                        direction={{ xs: 'column', sm: 'row' }}
+                        direction={{xs: 'column', sm: 'row'}}
                         spacing={2}
-                        alignItems={{ xs: 'stretch', sm: 'center' }}
+                        alignItems={{xs: 'stretch', sm: 'center'}}
                         justifyContent="space-between"
                     >
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <Box sx={{display: 'flex', alignItems: 'center', gap: 2}}>
                             <TextField
                                 placeholder="Search requests..."
                                 variant="outlined"
@@ -348,7 +354,7 @@ function Index({ collectRequests: { data: collectRequestsData, ...pagination }, 
                                 InputProps={{
                                     startAdornment: (
                                         <InputAdornment position="start">
-                                            <Search fontSize="small" color="action" />
+                                            <Search fontSize="small" color="action"/>
                                         </InputAdornment>
                                     ),
                                     endAdornment: searchTerm && (
@@ -363,17 +369,17 @@ function Index({ collectRequests: { data: collectRequestsData, ...pagination }, 
                                                     }
                                                 }}
                                             >
-                                                <ClearIcon fontSize="small" />
+                                                <ClearIcon fontSize="small"/>
                                             </IconButton>
                                         </InputAdornment>
                                     )
                                 }}
-                                sx={{ minWidth: 250 }}
+                                sx={{minWidth: 250}}
                             />
 
                             <Button
                                 variant="outlined"
-                                startIcon={<FilterAlt />}
+                                startIcon={<FilterAlt/>}
                                 size="medium"
                                 onClick={() => setShowFilters(!showFilters)}
                                 color={Object.keys(data.filters || {}).length > 0 ? "primary" : "inherit"}
@@ -384,7 +390,7 @@ function Index({ collectRequests: { data: collectRequestsData, ...pagination }, 
                                         label={Object.keys(data.filters || {}).length}
                                         size="small"
                                         color="primary"
-                                        sx={{ ml: 1 }}
+                                        sx={{ml: 1}}
                                     />
                                 )}
                             </Button>
@@ -392,7 +398,7 @@ function Index({ collectRequests: { data: collectRequestsData, ...pagination }, 
                             {Object.keys(data.filters || {}).length > 0 && (
                                 <Button
                                     variant="text"
-                                    startIcon={<ClearIcon />}
+                                    startIcon={<ClearIcon/>}
                                     size="medium"
                                     onClick={clearFilters}
                                 >
@@ -408,7 +414,7 @@ function Index({ collectRequests: { data: collectRequestsData, ...pagination }, 
                                     disabled={processing}
                                     color="inherit"
                                 >
-                                    <RefreshIcon />
+                                    <RefreshIcon/>
                                 </IconButton>
                             </Tooltip>
                         </Box>
@@ -431,9 +437,9 @@ function Index({ collectRequests: { data: collectRequestsData, ...pagination }, 
                             </Typography>
 
                             <Stack
-                                direction={{ xs: 'column', md: 'row' }}
+                                direction={{xs: 'column', md: 'row'}}
                                 spacing={2}
-                                sx={{ mt: 1 }}
+                                sx={{mt: 1}}
                             >
                                 <TextField
                                     label="Customer Name"
@@ -473,10 +479,13 @@ function Index({ collectRequests: { data: collectRequestsData, ...pagination }, 
                                     <option value="received">Received</option>
                                 </TextField>
 
-                                <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-end' }}>
+                                <Box sx={{display: 'flex', gap: 1, alignItems: 'flex-end'}}>
                                     <Button
                                         variant="contained"
-                                        onClick={() => handlePage({ preventDefault: () => {} })}
+                                        onClick={() => handlePage({
+                                            preventDefault: () => {
+                                            }
+                                        })}
                                         disabled={processing}
                                     >
                                         Apply Filters
@@ -496,7 +505,7 @@ function Index({ collectRequests: { data: collectRequestsData, ...pagination }, 
                 </Box>
 
                 {/* Table container */}
-                <Box sx={{ overflowX: "auto" }}>
+                <Box sx={{overflowX: "auto"}}>
                     <TableLayout
                         columns={columns}
                         data={collectRequestsData}
@@ -530,11 +539,11 @@ function Index({ collectRequests: { data: collectRequestsData, ...pagination }, 
                                     gap: 2
                                 }}
                             >
-                                <LocalShipping fontSize="large" color="disabled" sx={{ fontSize: 64 }} />
+                                <LocalShipping fontSize="large" color="disabled" sx={{fontSize: 64}}/>
                                 <Typography variant="h6" color="text.secondary">
                                     No Collection Requests Found
                                 </Typography>
-                                <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 400, mx: 'auto' }}>
+                                <Typography variant="body2" color="text.secondary" sx={{maxWidth: 400, mx: 'auto'}}>
                                     {data.filters && Object.keys(data.filters).length > 0
                                         ? "Try adjusting your filters or search terms to find what you're looking for."
                                         : "There are no collection requests in the system yet."}

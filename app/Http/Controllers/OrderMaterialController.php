@@ -54,6 +54,7 @@ class OrderMaterialController extends Controller
         $users = [$orderMaterial->User];
         Notification::send($users, new OrderMaterialRequested($orderMaterial->id));
         AdminNotificationService::sendOrderMaterialNotification($orderMaterial, "Order Material Created By " . auth()->user()->name);
+
         return redirect()->back()->with(["status" => " order material successfully Added", "success" => true]);
     }
 

@@ -31,7 +31,7 @@ use App\Http\Controllers\OrderMaterialController;
 use App\Http\Controllers\Admin\OrderMaterialController as OrderMaterialAdminController;
 use App\Http\Controllers\StoreCollectRequestController;
 use App\Models\CollectRequest;
-use App\Services\RequestLogistic;
+use App\Services\MaterialOrder;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -53,7 +53,7 @@ Route::get('/', function () {
 
 
 Route::middleware('auth')->group(function () {
-    
+
     Route::prefix('notifications')->group(function () {
         Route::get('/', [NotificationController::class, 'index']);
         Route::patch('/{id}/read', [NotificationController::class, 'markAsRead']);
@@ -80,7 +80,6 @@ Route::middleware('auth')->group(function () {
         Route::resource("tests", TestController::class)->except("show");
         Route::resource("orderMaterials", OrderMaterialAdminController::class)->only(["show", "index", "destroy"]);
         Route::get("/materials", ExportExcelMaterialsController::class)->name("materials");
-        Route::post("orderMaterials/{orderMaterial}/generate-material", GenerateMaterialController::class)->name("orderMaterials.generate");
     });
     Route::get("patient-list", PatientListController::class)->name("api.patients.list");
     Route::get("/files/{type}/{id}/{filename?}", GetFileController::class)->name("file");

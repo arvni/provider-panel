@@ -84,7 +84,7 @@ class AdminOrderMaterialNotification extends Notification implements ShouldQueue
             'amount' => $this->orderMaterial->amount,
             'status' => $this->orderMaterial->status->value ?? null,
             'delivery_date' => $this->orderMaterial->delivery_date?->toDateString(),
-            'message' => "A new material order has been submitted by {$this->orderMaterial->user->name} for {$this->orderMaterial->amount} of {$this->orderMaterial->sampleType->name}.",
+            'message' => "A new material order has been submitted by {$this->orderMaterial->user->name} for {$this->orderMaterial->amount} of {$this->orderMaterial->SampleType->name}.",
             'url' => $this->getAdminUrl(),
             'priority' =>  'high',
             'timestamp' => now()->toISOString(),

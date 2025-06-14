@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\ListInstructionsController;
 use App\Http\Controllers\Api\ListOrderFormsController;
 use App\Http\Controllers\Api\ListRolesController;
 use App\Http\Controllers\Api\ListSampleTypesController;
+use App\Http\Controllers\OrderMaterialUpdateWebhookController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -26,3 +27,5 @@ Route::get("instructions", ListInstructionsController::class)->name("api.instruc
 Route::get("order-forms", ListOrderFormsController::class)->name("api.orderForms.list");
 Route::get("/tests", LisTestController::class)->name("api.tests.list");
 Route::get("/check-materials", CheckMaterialController::class)->name("api.check_materials");
+
+Route::post("/order-materials/{orderMaterial}", OrderMaterialUpdateWebhookController::class)->name("api.orderMaterials.updateStatus");

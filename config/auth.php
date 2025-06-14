@@ -40,6 +40,10 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+//        'api' => [
+//            'driver' => 'sanctum',
+//            'provider' => 'api_users',
+//        ],
     ],
 
     /*
@@ -65,10 +69,10 @@ return [
             'model' => App\Models\User::class,
         ],
 
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
+//        'api_users' => [
+//            'driver' => 'eloquent',
+//            'model' => App\Models\ApiUser::class,
+//        ],
     ],
 
     /*

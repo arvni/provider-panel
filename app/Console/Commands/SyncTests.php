@@ -30,6 +30,7 @@ class SyncTests extends Command
     public function handle()
     {
         $tests = ApiService::get(config("api.tests_path", "http://localhost:8001/api/tests"));
+        $testsId = [];
         foreach ($tests->json() as $test) {
             $t = Test::where("server_id", $test["id"])->first();
             if (!$t)
@@ -40,7 +41,7 @@ class SyncTests extends Command
                         "code" => $test["code"],
                         "shortName" => $test["name"],
                         "description" => $test["description"],
-                        "turnaroundTime" => $test["methods_max_turnaround_time"]/24?? 0,
+                        "turnaroundTime" => $test["methods_max_turnaround_time"] / 24 ?? 0,
                         "is_active" => false
                     ]
                 );
@@ -51,13 +52,15 @@ class SyncTests extends Command
                     "code" => $test["code"],
                     "shortName" => $test["name"],
                     "description" => $test["description"],
-                    "turnaroundTime" => $test["methods_max_turnaround_time"]/24 ?? 0,
+                    "turnaroundTime" => $test["methods_max_turnaround_time"] ?? 1,
+                    "is_active" => $test["status"]
                 ]);
             if ($t->isDirty())
                 $t->save();
+            $testsId[] = $t->id;
             $output = [];
             foreach ($test["sample_types"] as $sample_type) {
-                $st = SampleType::find($sample_type["id"]);
+                $st = SampleType::where("server_id", $sample_type["id"])->first();
                 if (!$st)
                     $st = SampleType::create([
                         "id" => $sample_type["id"],
@@ -79,5 +82,6 @@ class SyncTests extends Command
             }
             $t->ServerSampleTypes()->sync($output);
         }
+        Test::whereNotIn("id", $testsId)->update(["is_active" => false]);
     }
 }

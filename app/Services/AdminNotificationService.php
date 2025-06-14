@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Jobs\SendCollectionRequest;
+use App\Jobs\SendOrderMaterial;
 use App\Models\CollectRequest;
 use App\Models\OrderMaterial;
 use App\Models\User;
@@ -121,6 +123,8 @@ class AdminNotificationService
                 $admin->notify($notification);
                 // Could also send SMS or Slack notification here
             }
+
+            SendOrderMaterial::dispatch($orderMaterial);
 
         } catch (Exception $e) {
             Log::error('Failed to send urgent admin notification', [

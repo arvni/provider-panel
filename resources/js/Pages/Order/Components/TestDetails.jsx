@@ -438,28 +438,6 @@ const TestDetails = ({ test, open = false, onClose }) => {
                 >
                     Back to Test Catalog
                 </Button>
-
-                {files.length > 0 && (
-                    <Box>
-                        {files.map((file) => (
-                            <Button
-                                key={file.type}
-                                variant="outlined"
-                                color="primary"
-                                href={file.route}
-                                target="_blank"
-                                startIcon={<DownloadIcon />}
-                                sx={{
-                                    ml: 1,
-                                    borderRadius: 1.5,
-                                    textTransform: 'none'
-                                }}
-                            >
-                                {file.name}
-                            </Button>
-                        ))}
-                    </Box>
-                )}
             </DialogActions>
         </Dialog>
     );

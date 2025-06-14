@@ -1,19 +1,16 @@
 import TableLayout from "@/Layouts/TableLayout";
 
-import React, {useState} from "react";
+import React from "react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import {useForm, usePage} from "@inertiajs/react";
+import {usePage} from "@inertiajs/react";
 import {usePageReload} from "@/Services/api";
 import {Avatar, IconButton, Paper, Stack} from "@mui/material";
 import PageHeader from "@/Components/PageHeader";
-import {Edit as EditIcon, RemoveRedEye} from "@mui/icons-material";
-import GenerateForm from "@/Pages/OrderMaterial/Components/GenerateForm.jsx";
-import DeleteButton from "@/Components/DeleteButton.jsx";
+import {RemoveRedEye} from "@mui/icons-material";
 import Excel from "@/../images/excel.png";
 
 const Index = () => {
     const {orderMaterials: {data: orderMaterialsData, ...pagination}, request} = usePage().props;
-    const {post, setData, data, reset} = useForm();
     const {
         data: queryData,
         processing,
@@ -53,8 +50,10 @@ const Index = () => {
         {
             field: "created_at",
             title: "Ordered At",
-            type: "text",
+            type: "datetime",
             sortable: true,
+            valueGetter: (value) => new Date(value),
+
         },
         {
             field: "id",
@@ -64,27 +63,11 @@ const Index = () => {
                 {row.materials_count === row.amount ? <IconButton href={route("admin.orderMaterials.show", row.id)}
                                                                   color="success" target="_blank">
                     <RemoveRedEye/>
-                </IconButton> : <IconButton onClick={handleGenerate(row)}>
-                    <EditIcon/>
-                </IconButton>}
-                {row.deletable ? <DeleteButton url={route("admin.orderMaterials.destroy", row.id)}/> : null}
+                </IconButton> :null}
             </Stack>
         }
     ];
 
-    const [openGenerateForm, setOpenGenerateForm] = useState(false);
-
-    const handleSubmitForm = () => post(route('admin.orderMaterials.generate', data.id), {
-        onSuccess: (e) => {
-            window.open(route("admin.orderMaterials.show", data.id), "_blank");
-            setOpenGenerateForm(false);
-            reset();
-        },
-    });
-    const handleGenerate = (row) => () => {
-        setData(row)
-        setOpenGenerateForm(true);
-    }
     const handlePage = (e) => e.preventDefault() || reload();
     return (
         <>
@@ -115,14 +98,6 @@ const Index = () => {
                         onChange: onPageSizeChange
                     }}
                 />
-                <GenerateForm title={`Order Material Generate`}
-                              loading={processing}
-                              open={openGenerateForm}
-                              values={data}
-                              reset={reset}
-                              setValues={setData}
-                              setOpen={setOpenGenerateForm}
-                              submit={handleSubmitForm}/>
             </Paper>
         </>);
 }

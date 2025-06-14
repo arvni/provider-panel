@@ -14,6 +14,7 @@ interface SampleTypeRepositoryInterface
     public function update(SampleType $sampleType, array $newDetails);
     public function delete(SampleType $sampleType): ?bool;
     public function getById(int $id): SampleType;
+    public function getByServerId(int $id): ?SampleType;
 
 
 }

@@ -10,6 +10,8 @@ class Material extends Model
     use HasFactory;
 
     protected $fillable = [
+        "order_material_id",
+        "sample_type_id",
         "barcode",
         "expire_date"
     ];

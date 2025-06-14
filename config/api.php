@@ -1,13 +1,47 @@
 <?php
 
 return [
-    "server_url" => env("SERVER_URL", "http://localhost:8002/"),
-    "tests_path" => env("SERVER_URL", "").env("TESTS_PATH", "tests/"),
-    "referrers_path" => env("SERVER_URL", "").env("REFERRER_PATH", "referrers/"),
-    "orders_path" => env("SERVER_URL", "").env("ORDER_PATH", "orders/"),
-    "report_path" => env("SERVER_URL", "").env("REPORT_PATH", "orders/"),
-    "login_path" => env("LOGIN_PATH", "login/"),
-    "email" => env("API_LOGIN_EMAIL",""),
-    "password" => ENV("API_LOGIN_PASSWORD",""),
-    "logistic_request" => env("LOGISTIC_REQUEST", "logistic-request/"),
+    /*
+    |--------------------------------------------------------------------------
+    | API Server Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configuration for the external API server including base URL and
+    | authentication credentials.
+    |
+    */
+
+    'server_url' => env('SERVER_URL', 'http://localhost:8002'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | API Endpoints
+    |--------------------------------------------------------------------------
+    |
+    | Define the various API endpoint paths. These will be appended to the
+    | server_url to form complete URLs.
+    |
+    */
+
+    'tests_path' => env('TESTS_PATH', 'tests'),
+    'referrers_path' => env('REFERRER_PATH', 'referrers'),
+    'orders_path' => env('ORDER_PATH', 'orders'),
+    'order_materials_path' => env('ORDER_MATERIAL_PATH', 'order-materials'),
+    'report_path' => env('REPORT_PATH', 'reports'),
+    'sample_types_path' => env('SAMPLE_TYPES_PATH', 'sample-types'),
+    'login_path' => env('LOGIN_PATH', 'login'),
+    'logistic_request' => env('LOGISTIC_REQUEST', 'logistic-request'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Authentication
+    |--------------------------------------------------------------------------
+    |
+    | API authentication credentials. These should be set in your .env file
+    | and never committed to version control.
+    |
+    */
+
+    'email' => env('API_LOGIN_EMAIL'),
+    'password' => env('API_LOGIN_PASSWORD'),
 ];

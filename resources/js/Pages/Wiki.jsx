@@ -1,37 +1,29 @@
-import React, { useState, useMemo } from "react";
+import React, {useState, useMemo} from "react";
 import {
     Box,
-    Button,
     Chip,
-    Collapse,
     IconButton,
-    InputAdornment,
     Paper,
     Stack,
-    TextField,
     Tooltip,
     Typography,
 } from "@mui/material";
 import PageHeader from "@/Components/PageHeader";
 import TableLayout from "@/Layouts/TableLayout";
-import { usePageReload } from "@/Services/api";
+import {usePageReload} from "@/Services/api";
 import AdminLayout from "@/Layouts/AuthenticatedLayout";
 import {
     ArticleOutlined,
     Assignment,
-    FilterAlt,
     GradingOutlined,
     MedicalInformation,
     RemoveRedEye,
     Science,
-    Search,
     ShoppingCart,
     Timer,
-    Clear as ClearIcon,
-    Refresh as RefreshIcon
 } from "@mui/icons-material";
 import TestDetails from "@/Pages/Order/Components/TestDetails.jsx";
-import { router } from "@inertiajs/react";
+import {router} from "@inertiajs/react";
 
 /**
  * Breadcrumbs for the layout
@@ -40,7 +32,7 @@ const breadcrumbs = [
     {
         title: "Diagnostic Tests",
         link: "",
-        icon: <MedicalInformation fontSize="small" />
+        icon: <MedicalInformation fontSize="small"/>
     },
 ];
 
@@ -53,7 +45,7 @@ const breadcrumbs = [
  * @param {Object} props.request Request parameters
  * @returns {JSX.Element} Rendered component
  */
-function Index({ tests: { data: testsData, ...pagination }, request }) {
+function Index({tests: {data: testsData, ...pagination}, request}) {
 
     // Page reload state
     const {
@@ -110,7 +102,7 @@ function Index({ tests: { data: testsData, ...pagination }, request }) {
     const createOrder = (id) => (e) => {
         e.preventDefault();
         e.stopPropagation();
-        router.visit(route("orders.create", { test: id }));
+        router.visit(route("orders.create", {test: id}));
     };
 
     /**
@@ -130,7 +122,7 @@ function Index({ tests: { data: testsData, ...pagination }, request }) {
                     size="small"
                     color="info"
                     variant="outlined"
-                    icon={<Timer fontSize="small" />}
+                    icon={<Timer fontSize="small"/>}
                 />
             );
         }
@@ -141,7 +133,7 @@ function Index({ tests: { data: testsData, ...pagination }, request }) {
                 size="small"
                 color="success"
                 variant="outlined"
-                icon={<Timer fontSize="small" />}
+                icon={<Timer fontSize="small"/>}
             />
         );
     };
@@ -163,7 +155,7 @@ function Index({ tests: { data: testsData, ...pagination }, request }) {
 
             sortable: true,
             render: (row) => (
-                <Typography variant="body2" fontWeight="500" fontFamily="monospace" sx={{ letterSpacing: '0.5px' }}>
+                <Typography variant="body2" fontWeight="500" fontFamily="monospace" sx={{letterSpacing: '0.5px'}}>
                     {row.code || "—"}
                 </Typography>
             )
@@ -181,7 +173,7 @@ function Index({ tests: { data: testsData, ...pagination }, request }) {
             sortable: true,
             render: (row) => (
                 <Stack direction="row" spacing={1} alignItems="center">
-                    <MedicalInformation color="primary" fontSize="small" />
+                    <MedicalInformation color="primary" fontSize="small"/>
                     <Typography variant="body2" fontWeight="500">
                         {row.name || "—"}
                     </Typography>
@@ -215,7 +207,7 @@ function Index({ tests: { data: testsData, ...pagination }, request }) {
             sortable: true,
             render: (row) => (
                 <Stack direction="row" spacing={1} alignItems="center">
-                    <Science fontSize="small" color="success" />
+                    <Science fontSize="small" color="success"/>
                     <Typography variant="body2">
                         {row.default_sample_type_name || "—"}
                     </Typography>
@@ -233,10 +225,10 @@ function Index({ tests: { data: testsData, ...pagination }, request }) {
                             <IconButton
                                 size="small"
                                 color="primary"
-                                href={route("file", { type: "orderForm", id: row.order_form_id })}
+                                href={route("file", {type: "orderForm", id: row.order_form_id})}
                                 target="_blank"
                             >
-                                <Assignment fontSize="small" />
+                                <Assignment fontSize="small"/>
                             </IconButton>
                         </Tooltip>
                     )}
@@ -246,10 +238,10 @@ function Index({ tests: { data: testsData, ...pagination }, request }) {
                             <IconButton
                                 size="small"
                                 color="secondary"
-                                href={route("file", { type: "consent", id: row.consent_id })}
+                                href={route("file", {type: "consent", id: row.consent_id})}
                                 target="_blank"
                             >
-                                <ArticleOutlined fontSize="small" />
+                                <ArticleOutlined fontSize="small"/>
                             </IconButton>
                         </Tooltip>
                     )}
@@ -259,10 +251,10 @@ function Index({ tests: { data: testsData, ...pagination }, request }) {
                             <IconButton
                                 size="small"
                                 color="info"
-                                href={route("file", { type: 'instruction', id: row.instruction_id })}
+                                href={route("file", {type: 'instruction', id: row.instruction_id})}
                                 target="_blank"
                             >
-                                <GradingOutlined fontSize="small" />
+                                <GradingOutlined fontSize="small"/>
                             </IconButton>
                         </Tooltip>
                     )}
@@ -288,13 +280,13 @@ function Index({ tests: { data: testsData, ...pagination }, request }) {
                             size="small"
                             color="info"
                         >
-                            <RemoveRedEye fontSize="small" />
+                            <RemoveRedEye fontSize="small"/>
                         </IconButton>
                     </Tooltip>
 
                     <Tooltip title="Place an Order">
                         <IconButton
-                            href={route("orders.create", { test: row.id })}
+                            href={route("orders.create", {test: row.id})}
                             onClick={createOrder(row.id)}
                             size="small"
                             color="primary"
@@ -306,7 +298,7 @@ function Index({ tests: { data: testsData, ...pagination }, request }) {
                                 }
                             }}
                         >
-                            <ShoppingCart fontSize="small" />
+                            <ShoppingCart fontSize="small"/>
                         </IconButton>
                     </Tooltip>
                 </Stack>
@@ -323,13 +315,12 @@ function Index({ tests: { data: testsData, ...pagination }, request }) {
     };
 
 
-
     return (
         <>
             <PageHeader
                 title="Diagnostic Tests"
                 subtitle="Browse available tests and place orders"
-                icon={<MedicalInformation fontSize="large" />}
+                icon={<MedicalInformation fontSize="large"/>}
             />
 
             <Paper
@@ -343,7 +334,7 @@ function Index({ tests: { data: testsData, ...pagination }, request }) {
             >
 
                 {/* Table container */}
-                <Box sx={{ overflowX: "auto" }}>
+                <Box sx={{overflowX: "auto"}}>
                     <TableLayout
                         columns={columns}
                         data={testsData}
@@ -377,11 +368,11 @@ function Index({ tests: { data: testsData, ...pagination }, request }) {
                                     gap: 2
                                 }}
                             >
-                                <MedicalInformation fontSize="large" color="disabled" sx={{ fontSize: 64 }} />
+                                <MedicalInformation fontSize="large" color="disabled" sx={{fontSize: 64}}/>
                                 <Typography variant="h6" color="text.secondary">
                                     No Tests Found
                                 </Typography>
-                                <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 400, mx: 'auto' }}>
+                                <Typography variant="body2" color="text.secondary" sx={{maxWidth: 400, mx: 'auto'}}>
                                     {data.filters && Object.keys(data.filters).length > 0
                                         ? "Try adjusting your filters or search terms to find what you're looking for."
                                         : "There are no diagnostic tests available at the moment."}
@@ -392,7 +383,7 @@ function Index({ tests: { data: testsData, ...pagination }, request }) {
                 </Box>
 
                 {/* Test details dialog */}
-                {test && <TestDetails test={test} open={openShowForm} onClose={handleCloseShowForm} />}
+                {openShowForm && test && <TestDetails test={test} open={openShowForm} onClose={handleCloseShowForm}/>}
             </Paper>
         </>
     );

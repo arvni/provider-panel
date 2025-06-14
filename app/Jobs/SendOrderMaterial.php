@@ -3,26 +3,23 @@
 namespace App\Jobs;
 
 use App\Exceptions\ApiServiceException;
-use App\Models\CollectRequest;
-use App\Services\RequestLogistic;
+use App\Models\OrderMaterial;
+use App\Services\MaterialOrder;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class SendCollectionRequest implements ShouldQueue
+class SendOrderMaterial implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
      * Create a new job instance.
      */
-    protected CollectRequest $collectRequest;
-
-    public function __construct(CollectRequest $collectRequest)
+    public function __construct(protected OrderMaterial $orderMaterial)
     {
-        $this->collectRequest = $collectRequest;
     }
 
     /**
@@ -31,7 +28,7 @@ class SendCollectionRequest implements ShouldQueue
      */
     public function handle(): void
     {
-        $res = RequestLogistic::send($this->collectRequest);
+        $res = MaterialOrder::send($this->orderMaterial);
         if (!$res->ok())
             $this->fail($res->toException());
     }

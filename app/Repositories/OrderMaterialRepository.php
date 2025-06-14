@@ -8,7 +8,9 @@ use App\Interfaces\OrderMaterialRepositoryInterface;
 use App\Models\OrderMaterial;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 
 class OrderMaterialRepository extends BaseRepository implements OrderMaterialRepositoryInterface
 {
@@ -29,7 +31,9 @@ class OrderMaterialRepository extends BaseRepository implements OrderMaterialRep
 
     public function getUserOrders(array $queryData = [])
     {
-        $this->query = auth()->user()->OrderMaterials()->getQuery()->with("SampleType");
+        $this->query = auth()->user()->OrderMaterials()
+            ->getQuery()
+            ->withAggregate("SampleType","name");
         return $this->list($queryData);
     }
 
@@ -77,4 +81,12 @@ class OrderMaterialRepository extends BaseRepository implements OrderMaterialRep
         }
     }
 
+    /**
+     * @param $id
+     * @return Model|Builder|array|null
+     */
+    public function findById($id): Model|Builder|array|null
+    {
+        return $this->query->find($id)->first();
+    }
 }
