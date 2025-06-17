@@ -1,10 +1,8 @@
 <?php
-
 namespace App\Services;
 
 use App\Exceptions\ApiServiceException;
 use Exception;
-use GuzzleHttp\Psr7\Utils;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
@@ -19,164 +17,56 @@ class ApiService
     private const REQUEST_TIMEOUT = 180;
     private const MAX_RETRY_ATTEMPTS = 3;
     private const RETRY_DELAY_MS = 1000;
-    private const HEALTH_CHECK_TIMEOUT = 10;
 
     /**
      * Make a GET request to the API
      *
-     * @param string $endpoint
+     * @param string $url
      * @param array $query
      * @return Response
      * @throws ApiServiceException
      */
-    public static function get(string $endpoint, array $query = []): Response
+    public static function get(string $url, array $query = []): Response
     {
-        return self::makeRequest('GET', self::buildUrl($endpoint), ['query' => $query]);
+        return self::makeRequest('GET', $url, ['query' => $query]);
     }
 
     /**
      * Make a POST request to the API
      *
-     * @param string $endpoint
+     * @param string $url
      * @param array $data
      * @return Response
      * @throws ApiServiceException
      */
-    public static function post(string $endpoint, array $data = []): Response
+    public static function post(string $url, array $data = []): Response
     {
-        return self::makeRequest('POST', self::buildUrl($endpoint), ['json' => $data]);
+        return self::makeRequest('POST', $url, ['json' => $data]);
     }
 
     /**
      * Make a PUT request to the API
      *
-     * @param string $endpoint
+     * @param string $url
      * @param array $data
      * @return Response
      * @throws ApiServiceException
      */
-    public static function put(string $endpoint, array $data = []): Response
+    public static function put(string $url, array $data = []): Response
     {
-        return self::makeRequest('PUT', self::buildUrl($endpoint), ['json' => $data]);
-    }
-
-    /**
-     * Make a PATCH request to the API
-     *
-     * @param string $endpoint
-     * @param array $data
-     * @return Response
-     * @throws ApiServiceException
-     */
-    public static function patch(string $endpoint, array $data = []): Response
-    {
-        return self::makeRequest('PATCH', self::buildUrl($endpoint), ['json' => $data]);
+        return self::makeRequest('PUT', $url, ['json' => $data]);
     }
 
     /**
      * Make a DELETE request to the API
      *
-     * @param string $endpoint
+     * @param string $url
      * @return Response
      * @throws ApiServiceException
      */
-    public static function delete(string $endpoint): Response
+    public static function delete(string $url): Response
     {
-        return self::makeRequest('DELETE', self::buildUrl($endpoint));
-    }
-
-    /**
-     * Upload a file to the API
-     *
-     * @param string $endpoint
-     * @param array $files
-     * @param string $data
-     * @param array $options
-     * @return Response
-     * @throws ApiServiceException
-     */
-    public static function upload(string $endpoint, array $files, string $data, array $options = [])
-    {
-        $defaultOptions = [
-            'timeout' => 600,        // 10 minutes total timeout
-            'read_timeout' => 300,   // 5 minutes read timeout
-            'connect_timeout' => 60, // 1 minute connection timeout
-        ];
-
-        $options = array_merge($defaultOptions, $options);
-
-        return self::makeRequest('POST', $endpoint, [
-            'multipart' => self::prepareMultipartData($files, $data),
-            'timeout' => $options['timeout'],
-            'read_timeout' => $options['read_timeout'],
-            'connect_timeout' => $options['connect_timeout'],
-        ]);
-    }
-
-    private static function prepareMultipartData(array $files, string $data): array
-    {
-        $multipart = [];
-
-        // Add JSON data
-        $multipart[] = [
-            'name' => 'data',
-            'contents' => $data,
-            'headers' => ['Content-Type' => 'application/json']
-        ];
-
-        // Add files with stream handling for large files
-        foreach ($files as $fieldName => $filePath) {
-            if (!file_exists($filePath)) {
-                continue;
-            }
-
-            // Use streams for better memory management with large files
-            $stream = Utils::streamFor(fopen($filePath, 'r'));
-
-            $multipart[] = [
-                'name' => $fieldName,
-                'contents' => $stream,
-                'filename' => basename($filePath),
-                'headers' => [
-                    'Content-Type' => self::getMimeType($filePath),
-                    'Content-Length' => filesize($filePath)
-                ]
-            ];
-        }
-        return $multipart;
-    }
-
-    /**
-     * Get MIME type for file
-     */
-    private static function getMimeType(string $filePath): string
-    {
-        $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
-
-        $mimeTypes = [
-            'pdf' => 'application/pdf',
-            'jpg' => 'image/jpeg',
-            'jpeg' => 'image/jpeg',
-            'png' => 'image/png',
-            'doc' => 'application/msword',
-            'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        ];
-
-        return $mimeTypes[$extension] ?? 'application/octet-stream';
-    }
-
-    /**
-     * Build full URL from endpoint
-     *
-     * @param string $endpoint
-     * @return string
-     */
-    private static function buildUrl(string $endpoint): string
-    {
-        $baseUrl = rtrim(config('api.server_url'), '/');
-        $endpoint = ltrim($endpoint, '/');
-
-        return $baseUrl . '/' . $endpoint;
+        return self::makeRequest('DELETE', $url);
     }
 
     /**
@@ -196,50 +86,21 @@ class ApiService
             try {
                 $token = self::getApiToken();
 
-                $httpClient = Http::withToken($token)
-                    ->timeout(self::REQUEST_TIMEOUT);
-
-                // Handle multipart requests differently
-                if (isset($options['multipart'])) {
-                    $httpClient = $httpClient->asMultipart();
-                    foreach ($options['multipart'] as $file) {
-                        $httpClient = $httpClient->attach($file["name"], $file["contents"], $file["filename"]);
-                    }
-                } else {
-                    $httpClient->withHeaders([
-                        'Accept' => 'application/json',
-                        'Content-Type' => 'application/json',
-                        'User-Agent' => 'Laravel-ApiService/1.0'
-                    ]);
-                }
-
-                $response = $httpClient->retry(2, self::RETRY_DELAY_MS)
+                $response = Http::withToken($token)
+                    ->timeout(self::REQUEST_TIMEOUT)
+                    ->retry(2, self::RETRY_DELAY_MS)
                     ->send($method, $url, $options);
 
                 // If token is invalid, clear cache and retry once
                 if ($response->status() === 401 && $attempt === 0) {
-                    Log::info("Token expired, refreshing...", ['url' => $url]);
                     self::clearTokenCache();
                     $attempt++;
                     continue;
                 }
 
                 if ($response->successful()) {
-                    Log::debug("API request successful", [
-                        'method' => $method,
-                        'url' => $url,
-                        'status' => $response->status()
-                    ]);
                     return $response;
                 }
-
-                // Log unsuccessful responses
-                Log::warning("API request failed", [
-                    'method' => $method,
-                    'url' => $url,
-                    'status' => $response->status(),
-                    'response' => $response->body()
-                ]);
 
                 throw new ApiServiceException(
                     "API request failed with status {$response->status()}: {$response->body()}",
@@ -247,17 +108,13 @@ class ApiService
                 );
 
             } catch (ConnectionException $e) {
-                $attempt++;
-
-                Log::warning("API connection failed", [
-                    'attempt' => $attempt,
-                    'max_attempts' => self::MAX_RETRY_ATTEMPTS,
+                Log::warning("API connection failed on attempt " . ($attempt + 1), [
                     'url' => $url,
                     'method' => $method,
                     'error' => $e->getMessage()
                 ]);
 
-                if ($attempt >= self::MAX_RETRY_ATTEMPTS) {
+                if ($attempt === self::MAX_RETRY_ATTEMPTS - 1) {
                     throw new ApiServiceException(
                         "API connection failed after " . self::MAX_RETRY_ATTEMPTS . " attempts: " . $e->getMessage(),
                         503,
@@ -265,8 +122,8 @@ class ApiService
                     );
                 }
 
-                // Exponential backoff
-                sleep(pow(2, $attempt - 1));
+                $attempt++;
+                sleep(1); // Wait before retry
 
             } catch (RequestException $e) {
                 Log::error("API request exception", [
@@ -278,12 +135,9 @@ class ApiService
 
                 throw new ApiServiceException(
                     "API request failed: " . $e->getMessage(),
-                    $e->getCode() ?: 500,
+                    500,
                     $e
                 );
-
-            } catch (ApiServiceException $e) {
-                throw $e; // Re-throw our custom exceptions
 
             } catch (Exception $e) {
                 Log::error("Unexpected API service error", [
@@ -310,7 +164,7 @@ class ApiService
      * @return string
      * @throws ApiServiceException
      */
-    private static function getApiToken(): string
+    public static function getApiToken(): string
     {
         // Try to get token from cache
         $cachedToken = Cache::get(self::TOKEN_CACHE_KEY);
@@ -338,7 +192,7 @@ class ApiService
     private static function fetchNewToken(): string
     {
         try {
-            $loginUrl = self::buildUrl(config('api.login_path'));
+            $loginUrl = config('api.server_url') . config('api.login_path');
             $credentials = [
                 'email' => config('api.email'),
                 'password' => config('api.password')
@@ -348,13 +202,7 @@ class ApiService
                 throw new ApiServiceException("API credentials not configured", 500);
             }
 
-            Log::info("Attempting to fetch new API token");
-
             $response = Http::timeout(self::REQUEST_TIMEOUT)
-                ->withHeaders([
-                    'Accept' => 'application/json',
-                    'Content-Type' => 'application/json'
-                ])
                 ->retry(2, self::RETRY_DELAY_MS)
                 ->post($loginUrl, $credentials);
 
@@ -371,11 +219,8 @@ class ApiService
                 );
             }
 
-            $responseData = $response->json();
-            $token = $responseData['access_token'] ?? $responseData['token'] ?? null;
-
+            $token = $response->json('access_token');
             if (empty($token)) {
-                Log::error("No access token in response", ['response' => $responseData]);
                 throw new ApiServiceException("No access token received from API", 500);
             }
 
@@ -386,7 +231,7 @@ class ApiService
                 now()->addMinutes(self::TOKEN_EXPIRY_MINUTES)
             );
 
-            Log::info("Successfully fetched and cached new API token");
+            Log::info("Successfully fetched new API token");
             return $token;
 
         } catch (ApiServiceException $e) {
@@ -408,7 +253,7 @@ class ApiService
     /**
      * Clear the cached token
      */
-    public static function clearTokenCache(): void
+    private static function clearTokenCache(): void
     {
         Cache::forget(self::TOKEN_CACHE_KEY);
         Log::info("Cleared cached API token");
@@ -422,48 +267,12 @@ class ApiService
     public static function healthCheck(): bool
     {
         try {
-            $healthUrl = self::buildUrl('/health');
-            $response = Http::timeout(self::HEALTH_CHECK_TIMEOUT)->get($healthUrl);
-
-            $isHealthy = $response->successful();
-
-            Log::debug("API health check", [
-                'healthy' => $isHealthy,
-                'status' => $response->status()
-            ]);
-
-            return $isHealthy;
+            $healthUrl = config('api.server_url') . '/health';
+            $response = Http::timeout(10)->get($healthUrl);
+            return $response->successful();
         } catch (Exception $e) {
             Log::warning("API health check failed", ['error' => $e->getMessage()]);
             return false;
         }
-    }
-
-    /**
-     * Get cached token info for debugging
-     *
-     * @return array
-     */
-    public static function getTokenInfo(): array
-    {
-        $cachedToken = Cache::get(self::TOKEN_CACHE_KEY);
-
-        return [
-            'has_cached_token' => !empty($cachedToken),
-            'cache_key' => self::TOKEN_CACHE_KEY,
-            'expires_at' => Cache::get(self::TOKEN_CACHE_KEY . '_expires'),
-        ];
-    }
-
-    /**
-     * Force refresh the API token
-     *
-     * @return string
-     * @throws ApiServiceException
-     */
-    public static function refreshToken(): string
-    {
-        self::clearTokenCache();
-        return self::fetchNewToken();
     }
 }
