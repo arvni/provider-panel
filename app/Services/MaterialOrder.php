@@ -40,7 +40,7 @@ class MaterialOrder
             $requestData = self::prepareRequestData($orderMaterial);
 
             // Build endpoint URL
-            $endpoint = config('api.order_materials_path') . "/" . $orderMaterial->User->referrer_id;
+            $endpoint =config("api.server_url") .  config('api.order_materials_path') . "/" . $orderMaterial->User->referrer_id;
 
             // Send using ApiService upload method
             $response = ApiService::post($endpoint, ['data' => $requestData]);

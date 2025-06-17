@@ -61,7 +61,8 @@ class RequestLogistic
 
         $jsonString = json_encode($jsonData);
         $request->attach("data", $jsonString, 'data.json');
+        $url=config("api.server_url") . config("api.logistic_request").'/'.$collectRequest->User->referrer_id;
         // Send the POST request with JSON data
-        return $request->post(config("api.server_url") . config("api.logistic_request").$collectRequest->User->referrer_id);
+        return $request->post($url);
     }
 }
