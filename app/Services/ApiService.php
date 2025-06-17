@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Exceptions\ApiServiceException;
 use Exception;
+use GuzzleHttp\Psr7\Utils;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
@@ -89,31 +90,79 @@ class ApiService
      *
      * @param string $endpoint
      * @param array $files
-     * @param array $data
+     * @param string $data
+     * @param array $options
      * @return Response
      * @throws ApiServiceException
      */
-    public static function upload(string $endpoint, array $files, string $jsonData): Response
+    public static function upload(string $endpoint, array $files, string $data, array $options = [])
+    {
+        $defaultOptions = [
+            'timeout' => 600,        // 10 minutes total timeout
+            'read_timeout' => 300,   // 5 minutes read timeout
+            'connect_timeout' => 60, // 1 minute connection timeout
+        ];
+
+        $options = array_merge($defaultOptions, $options);
+
+        return self::makeRequest('POST', $endpoint, [
+            'multipart' => self::prepareMultipartData($files, $data),
+            'timeout' => $options['timeout'],
+            'read_timeout' => $options['read_timeout'],
+            'connect_timeout' => $options['connect_timeout'],
+        ]);
+    }
+
+    private static function prepareMultipartData(array $files, string $data): array
     {
         $multipart = [];
 
-        // Add regular form data
+        // Add JSON data
         $multipart[] = [
-            'name' => "data",
-            'contents' => $jsonData,
-            'filename' => 'data.json'
+            'name' => 'data',
+            'contents' => $data,
+            'headers' => ['Content-Type' => 'application/json']
         ];
 
-        // Add files
-        foreach ($files as $key => $file) {
+        // Add files with stream handling for large files
+        foreach ($files as $fieldName => $filePath) {
+            if (!file_exists($filePath)) {
+                continue;
+            }
+
+            // Use streams for better memory management with large files
+            $stream = Utils::streamFor(fopen($filePath, 'r'));
+
             $multipart[] = [
-                'name' => $key,
-                'contents' => fopen($file, 'r'),
-                'filename' => basename($file)
+                'name' => $fieldName,
+                'contents' => $stream,
+                'filename' => basename($filePath),
+                'headers' => [
+                    'Content-Type' => self::getMimeType($filePath),
+                    'Content-Length' => filesize($filePath)
+                ]
             ];
         }
+        return $multipart;
+    }
 
-        return self::makeRequest('POST', self::buildUrl($endpoint), ['multipart' => $multipart]);
+    /**
+     * Get MIME type for file
+     */
+    private static function getMimeType(string $filePath): string
+    {
+        $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+
+        $mimeTypes = [
+            'pdf' => 'application/pdf',
+            'jpg' => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'png' => 'image/png',
+            'doc' => 'application/msword',
+            'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        ];
+
+        return $mimeTypes[$extension] ?? 'application/octet-stream';
     }
 
     /**
