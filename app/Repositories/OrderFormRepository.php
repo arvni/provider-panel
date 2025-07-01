@@ -87,4 +87,8 @@ class OrderFormRepository extends BaseRepository implements OrderFormRepositoryI
     }
 
 
+    public function getByServerId(int $id)
+    {
+        return $this->query->where("server_id", $id)->first();
+    }
 }

@@ -101,6 +101,16 @@ class TestRepository extends BaseRepository implements TestRepositoryInterface
     {
         return $this->query->where("id", $id)->with(["Consent:name,id", "Instruction:name,id", "OrderForm", "SampleTypes"])->first();
     }
+    /**
+     * find test by id
+     *
+     * @param $id
+     * @return Test|null
+     */
+    public function getByServerId($id): ?Test
+    {
+        return $this->query->where("server_id", $id)->first();
+    }
 
     /**
      *

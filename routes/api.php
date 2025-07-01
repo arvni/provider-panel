@@ -7,7 +7,11 @@ use App\Http\Controllers\Api\ListInstructionsController;
 use App\Http\Controllers\Api\ListOrderFormsController;
 use App\Http\Controllers\Api\ListRolesController;
 use App\Http\Controllers\Api\ListSampleTypesController;
-use App\Http\Controllers\OrderMaterialUpdateWebhookController;
+use App\Http\Controllers\Webhook\ConsentUpdateWebhookController;
+use App\Http\Controllers\Webhook\InstructionUpdateWebhookController;
+use App\Http\Controllers\Webhook\OrderFormUpdateWebhookController;
+use App\Http\Controllers\Webhook\OrderMaterialUpdateWebhookController;
+use App\Http\Controllers\Webhook\SampleTypeUpdateWebhookController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -29,3 +33,7 @@ Route::get("/tests", LisTestController::class)->name("api.tests.list");
 Route::get("/check-materials", CheckMaterialController::class)->name("api.check_materials");
 
 Route::post("/order-materials/{orderMaterial}", OrderMaterialUpdateWebhookController::class)->name("api.orderMaterials.updateStatus");
+Route::post("/request-forms/{orderFormID}", OrderFormUpdateWebhookController::class)->name("api.orderForms.update-by-webhook");
+Route::post("/consent-forms/{consentFormId}", ConsentUpdateWebhookController::class)->name("api.consents.update-by-webhook");
+Route::post("/instructions/{instructionId}", InstructionUpdateWebhookController::class)->name("api.instructions.update-by-webhook");
+Route::post("/sample-types/{sampleTypeId}", SampleTypeUpdateWebhookController::class)->name("api.sa,ple-types.update-by-webhook");

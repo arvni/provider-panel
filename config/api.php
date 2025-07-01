@@ -11,7 +11,7 @@ return [
     |
     */
 
-    'server_url' => env('SERVER_URL', 'http://localhost:8002'),
+    'server_url' => env('SERVER_URL', 'http://localhost:8002/api/'),
 
     /*
     |--------------------------------------------------------------------------

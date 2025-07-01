@@ -17,7 +17,8 @@ class OrderForm extends Model
     protected $fillable = [
         "name",
         "file",
-        "formData"
+        "formData",
+        "server_id"
     ];
 
     protected $casts = [

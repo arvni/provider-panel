@@ -2,6 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Exceptions\ApiServiceException;
+use App\Models\Consent;
+use App\Models\Instruction;
+use App\Models\OrderForm;
 use App\Models\SampleType;
 use App\Models\Test;
 use App\Services\ApiService;
@@ -26,13 +30,18 @@ class SyncTests extends Command
 
     /**
      * Execute the console command.
+     * @throws ApiServiceException
      */
     public function handle()
     {
-        $tests = ApiService::get(config("api.tests_path", "http://localhost:8001/api/tests"));
+        $url = config("api.server_url") . config("api.tests_path", "tests");
+        $tests = ApiService::get($url);
         $testsId = [];
         foreach ($tests->json() as $test) {
             $t = Test::where("server_id", $test["id"])->first();
+            $orderForm = $this->getOrderForm($test["request_form"]);
+            $consent = $this->getConsent($test["consent_form"]);
+            $instruction = $this->getInstruction($test["instruction"]);
             if (!$t)
                 $t = Test::factory()->create(
                     [
@@ -42,46 +51,85 @@ class SyncTests extends Command
                         "shortName" => $test["name"],
                         "description" => $test["description"],
                         "turnaroundTime" => $test["methods_max_turnaround_time"] / 24 ?? 0,
-                        "is_active" => false
+                        "is_active" => false,
+                        "consent_id" => $consent->id,
+                        "instruction_id"=>$instruction->id,
+                        "order_form"=>$orderForm->id
                     ]
                 );
             else
                 $t->fill([
-                    "server_id" => $test["id"],
                     "name" => $test["fullName"],
                     "code" => $test["code"],
                     "shortName" => $test["name"],
                     "description" => $test["description"],
                     "turnaroundTime" => $test["methods_max_turnaround_time"] ?? 1,
-                    "is_active" => $test["status"]
+                    "is_active" => $test["status"],
+                    "consent_id" => $consent->id,
+                    "instruction_id"=>$instruction->id,
+                    "order_form"=>$orderForm->id
                 ]);
             if ($t->isDirty())
                 $t->save();
             $testsId[] = $t->id;
-            $output = [];
-            foreach ($test["sample_types"] as $sample_type) {
-                $st = SampleType::where("server_id", $sample_type["id"])->first();
-                if (!$st)
-                    $st = SampleType::create([
-                        "id" => $sample_type["id"],
-                        "name" => $sample_type["name"],
-                    ]);
-                else
-                    $st->fill([
-                        "name" => $sample_type["name"]
-                    ]);
-                if ($st->isDirty())
-                    $st->save();
-
-                $output[$st->id] = [
-                    "id" => Str::uuid(),
-                    "description" => $sample_type["pivot"]["description"],
-                    "is_default" => $sample_type["pivot"]["defaultType"]
-                ];
-
-            }
-            $t->ServerSampleTypes()->sync($output);
+            $this->syncSampleTypes($t, $test["sample_types"]);
         }
         Test::whereNotIn("id", $testsId)->update(["is_active" => false]);
+    }
+
+    private function syncSampleTypes(Test $test, $sampleTypes): void
+    {
+        $output = [];
+        foreach ($sampleTypes as $sampleTypeData) {
+            $st = SampleType::where("server_id", $sampleTypeData["id"])->first();
+            if (!$st)
+                $st = SampleType::create([
+                    "id" => $sampleTypeData["id"],
+                    "name" => $sampleTypeData["name"],
+                ]);
+            $output[$st->id] = [
+                "id" => Str::uuid(),
+                "description" => $sampleTypeData["pivot"]["description"],
+                "is_default" => $sampleTypeData["pivot"]["defaultType"]
+            ];
+
+        }
+        $test->ServerSampleTypes()->sync($output);
+    }
+
+    private function getOrderForm($order_form): OrderForm
+    {
+        $orderForm = OrderForm::where("server_id", $order_form["id"])->first();
+        if (!$orderForm) {
+            $orderForm = OrderForm::create([
+                "server_id" => $order_form["id"],
+                "name" => $order_form["name"]
+            ]);
+        }
+        return $orderForm;
+    }
+
+    private function getConsent($consentData): Consent
+    {
+        $consent = Consent::where("server_id", $consentData["id"])->first();;
+        if (!$consent) {
+            $consent = Consent::create([
+                "server_id" => $consentData["id"],
+                "name" => $consentData["name"]
+            ]);
+        }
+        return $consent;
+    }
+
+    private function getInstruction($instructionData): Instruction
+    {
+        $instruction = Instruction::where("server_id", $instructionData["id"])->first();;
+        if (!$instruction) {
+            $instruction = Consent::create([
+                "server_id" => $instructionData["id"],
+                "name" => $instructionData["name"]
+            ]);
+        }
+        return $instruction;
     }
 }

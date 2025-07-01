@@ -79,10 +79,14 @@ class ConsentRepository extends BaseRepository implements ConsentRepositoryInter
         }
     }
 
-    public function getById($id): Consent|null
+    public function getById($id): ?Consent
     {
         return $this->query->where("id", $id)->first();
     }
 
 
+    public function getByServerId(int $id): ?Consent
+    {
+        return $this->query->where("server_id", $id)->first();
+    }
 }

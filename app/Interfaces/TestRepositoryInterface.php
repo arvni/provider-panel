@@ -11,7 +11,8 @@ interface TestRepositoryInterface
     public function getAll(array $queryData);
     public function getPaginate(array $queryData);
     public function create(array $testData);
-    public function getById($id): Test|null;
+    public function getById($id): ?Test;
+    public function getByServerId($id): ?Test;
     public function show(Test $test);
     public function edit(Test $test, array $newTestData);
     public function destroy(Test $test);

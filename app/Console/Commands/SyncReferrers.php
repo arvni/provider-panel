@@ -2,12 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\Exceptions\ApiServiceException;
 use App\Models\User;
 use App\Services\ApiService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 
 class SyncReferrers extends Command
@@ -28,11 +27,13 @@ class SyncReferrers extends Command
 
     /**
      * Execute the console command.
+     * @throws ApiServiceException
      */
     public function handle()
     {
         $this->info("fetch referrers from server :" . config("api.referrers_path"));
-        $data = ApiService::get(config("api.referrers_path"));
+        $url=config("api.server_url").config("api.referrers_path");
+        $data = ApiService::get($url);
 
         if ($data->ok()) {
             $referrers = $data->json();

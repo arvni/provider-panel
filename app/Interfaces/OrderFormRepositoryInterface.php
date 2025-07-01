@@ -15,4 +15,5 @@ interface OrderFormRepositoryInterface
     public function update(OrderForm $orderForm, $newOrderFormDetails);
     public function delete(OrderForm $orderForm);
     public function getById(int $id);
+    public function getByServerId(int $id);
 }

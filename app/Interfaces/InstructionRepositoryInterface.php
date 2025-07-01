@@ -15,4 +15,5 @@ interface InstructionRepositoryInterface
     public function update(Instruction $instruction, $newInstructionDetails);
     public function delete(Instruction $instruction);
     public function getById(int $id);
+    public function getByServerId(int $id);
 }

@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Webhook;
 
 use App\Enums\OrderMaterialStatus;
+use App\Http\Controllers\Controller;
 use App\Interfaces\MaterialRepositoryInterface;
 use App\Interfaces\OrderMaterialRepositoryInterface;
 use App\Interfaces\SampleTypeRepositoryInterface;

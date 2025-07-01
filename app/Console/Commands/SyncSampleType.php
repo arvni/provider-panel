@@ -2,11 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Exceptions\ApiServiceException;
 use App\Models\SampleType;
-use App\Models\Test;
 use App\Services\ApiService;
 use Illuminate\Console\Command;
-use Illuminate\Support\Str;
 
 class SyncSampleType extends Command
 {
@@ -26,10 +25,12 @@ class SyncSampleType extends Command
 
     /**
      * Execute the console command.
+     * @throws ApiServiceException
      */
-    public function handle()
+    public function handle(): void
     {
-        $sampleTypes = ApiService::get(config("api.sample_types_path"));
+        $url=config("api.server_url") .config("api.sample_types_path");
+        $sampleTypes = ApiService::get($url);
         foreach ($sampleTypes->json() as $sampleType) {
             $t = SampleType::where("name", $sampleType["name"])->orWhere("server_id",$sampleType["id"])->first();
             if ($t) {
@@ -37,6 +38,7 @@ class SyncSampleType extends Command
                     "server_id" => $sampleType["id"],
                     "name" => $sampleType["name"],
                     "orderable" => $sampleType["orderable"],
+                    "sample_id_required"=>$sampleType["required_barcode"]
                 ]);
                 if ($t->isDirty())
                     $t->save();

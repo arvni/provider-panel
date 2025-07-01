@@ -83,4 +83,8 @@ class InstructionRepository extends BaseRepository implements InstructionReposit
     }
 
 
+    public function getByServerId(int $id): Instruction|null
+    {
+        return $this->query->where("server_id", $id)->first();
+    }
 }
