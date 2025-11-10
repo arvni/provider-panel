@@ -40,7 +40,7 @@ class ConsentUpdateWebhookController extends Controller
             if ($cF) {
                 $this->consentRepository->update($cF,
                     [
-                        "name" => $jsonData["request_form"]["name"],
+                        "name" => $jsonData["consent_form"]["name"],
                         "file" => $request->hasFile("file") ? $request->file("file") : null,
                         "server_id"=>$consentFormId
                     ]
@@ -48,7 +48,7 @@ class ConsentUpdateWebhookController extends Controller
             } else {
                 $this->consentRepository->create(
                     [
-                        "name" => $jsonData["request_form"]["name"],
+                        "name" => $jsonData["consent_form"]["name"],
                         "file" => $request->hasFile("file") ? $request->file("file") : null,
                         "server_id"=>$consentFormId
                     ]);

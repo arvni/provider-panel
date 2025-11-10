@@ -14,9 +14,11 @@ import { motion, AnimatePresence } from "framer-motion";
  * @param {Object} props.order Order data
  * @param {string|number} props.step Current step in the process
  * @param {Array} props.sampleTypes Available sample types
+ * @param {Array} props.patients Available patients
+ * @param {Array} props.orderItems Available order items (tests)
  * @returns {JSX.Element} Rendered component
  */
-const SampleDetails = ({ auth, order, step, sampleTypes }) => {
+const SampleDetails = ({ auth, order, step, sampleTypes, patients = [], orderItems = [] }) => {
     // Initialize form with existing samples or an empty sample
     const initialData = {
         ...order,
@@ -168,6 +170,14 @@ const SampleDetails = ({ auth, order, step, sampleTypes }) => {
                 )}
             </AnimatePresence>
 
+            {/* Info about patient-test assignment */}
+            {patients.length > 0 && orderItems.length > 0 && (
+                <Alert severity="info" sx={{ mb: 3 }}>
+                    You can now assign each sample to a specific patient and test.
+                    This helps organize which samples are for which patient's tests.
+                </Alert>
+            )}
+
             {/* Render the actual form component */}
             <SampleDetailsForm
                 samples={data.samples}
@@ -179,6 +189,8 @@ const SampleDetails = ({ auth, order, step, sampleTypes }) => {
                 setError={setError}
                 clearErrors={clearErrors}
                 disabled={processing}
+                patients={patients}
+                orderItems={orderItems}
             />
         </EditLayout>
     );

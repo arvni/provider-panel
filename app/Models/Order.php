@@ -32,14 +32,17 @@ class Order extends Model
         "sent_at",
         "received_at",
         "reported_at",
-        "server_id"
+        "server_id",
+        "main_patient_id",
+        "patient_ids"
     ];
     protected $casts = [
         "status" => OrderStatus::class,
         "step" => OrderStep::class,
         "orderForms" => "json",
         "files" => "json",
-        "consents" => "json"
+        "consents" => "json",
+        "patient_ids" => "json"
     ];
 
     protected $appends = [
@@ -65,7 +68,24 @@ class Order extends Model
 
     public function Patient()
     {
-        return $this->belongsTo(Patient::class);
+        return $this->belongsTo(Patient::class, 'main_patient_id');
+    }
+
+    /**
+     * Get the main patient (alias for Patient relationship)
+     */
+    public function MainPatient()
+    {
+        return $this->belongsTo(Patient::class, 'main_patient_id');
+    }
+
+    /**
+     * Get all patients in this order
+     */
+    public function Patients()
+    {
+        // Get unique patients from all order items
+        return Patient::whereIn('id', $this->patient_ids ?? [])->get();
     }
 
     public function User()

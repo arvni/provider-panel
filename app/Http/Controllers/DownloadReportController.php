@@ -26,7 +26,8 @@ class DownloadReportController extends Controller
         $this->authorize("report", $order);
         $filename ="$order->orderId.zip";
         $path = "Users/$order->user_id/Orders/$filename";
-        $report = ApiService::get(config("api.report_path")."$order->server_id/report");
+        $url=config("api.server_url").config("api.report_path")."$order->server_id/report";
+        $report = ApiService::get($url);
         abort_if(!$report->ok(), $report->status());
         if (Storage::exists($path))
             Storage::delete($path);

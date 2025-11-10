@@ -45,7 +45,9 @@ const SampleDetailsForm = ({
                                user,
                                setError,
                                clearErrors,
-                               disabled = false
+                               disabled = false,
+                               patients = [],
+                               orderItems = []
                            }) => {
     const [validatingIds, setValidatingIds] = useState({});
     const [expandedSamples, setExpandedSamples] = useState({});
@@ -391,6 +393,8 @@ const SampleDetailsForm = ({
                                         isExpanded={expandedSamples[index]}
                                         toggleExpand={() => toggleSampleExpansion(index)}
                                         disabled={disabled}
+                                        patients={patients}
+                                        orderItems={orderItems}
                                     />
                                 ))}
 

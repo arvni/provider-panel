@@ -5,6 +5,7 @@ enum OrderStep: string
 {
     case TEST_METHOD="test method";
     case PATIENT_DETAILS="patient details";
+    case PATIENT_TEST_ASSIGNMENT="patient test assignment";
     case CLINICAL_DETAILS="clinical details";
     case SAMPLE_DETAILS="sample details";
     case CONSENT_FORM="consent form";

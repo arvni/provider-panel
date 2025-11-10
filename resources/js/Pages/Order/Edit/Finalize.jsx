@@ -41,7 +41,9 @@ import {
     Help as HelpIcon,
     DoneAll as DoneAllIcon,
     Error as ErrorIcon,
-    Warning as WarningIcon
+    Warning as WarningIcon,
+    FileCopy as FileCopyIcon,
+    Download as DownloadIcon
 } from "@mui/icons-material";
 import {motion, AnimatePresence} from "framer-motion";
 
@@ -52,15 +54,18 @@ import {motion, AnimatePresence} from "framer-motion";
  * @param {Object} props.auth Authentication information
  * @param {Object} props.order Order data
  * @param {string|number} props.step Current step in the process
+ * @param {Array} props.patients All patients in the order
  * @returns {JSX.Element} Rendered component
  */
-const Finalize = ({auth, order, step}) => {
+const Finalize = ({auth, order, step, patients = []}) => {
     const theme = useTheme();
 
     // State for expanded sections
     const [expandedSections, setExpandedSections] = useState({
         tests: true,
         patient: true,
+        allPatients: patients.length > 1,  // Expand if multiple patients
+        patientTestAssignment: true,
         samples: true,
         forms: true,
         consent: true
@@ -875,6 +880,213 @@ const Finalize = ({auth, order, step}) => {
                     </Collapse>
                 </Paper>
 
+                {/* All Patients Section (if multiple patients) */}
+                {patients.length > 1 && (
+                    <Paper
+                        component={motion.div}
+                        variants={itemVariants}
+                        elevation={0}
+                        sx={{
+                            mb: 3,
+                            borderRadius: 2,
+                            overflow: 'hidden',
+                            border: '1px solid',
+                            borderColor: theme.palette.divider
+                        }}
+                    >
+                        <Box
+                            sx={{
+                                p: 2,
+                                bgcolor: alpha(theme.palette.secondary.main, 0.8),
+                                color: theme.palette.secondary.contrastText,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                cursor: 'pointer'
+                            }}
+                            onClick={() => toggleSection('allPatients')}
+                        >
+                            <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
+                                <Person/>
+                                <Typography variant="h6" fontWeight={600}>
+                                    All Patients ({patients.length})
+                                </Typography>
+                                <Chip
+                                    label="Multiple Patients"
+                                    color="info"
+                                    size="small"
+                                    sx={{ml: 1, fontWeight: 500}}
+                                />
+                            </Box>
+
+                            {expandedSections.allPatients ? <ExpandLess/> : <ExpandMore/>}
+                        </Box>
+
+                        <Collapse in={expandedSections.allPatients}>
+                            <Box sx={{p: 3}}>
+                                <TableContainer>
+                                    <Table>
+                                        <TableHead>
+                                            <TableRow>
+                                                <TableCell>#</TableCell>
+                                                <TableCell>Full Name</TableCell>
+                                                <TableCell>Date of Birth</TableCell>
+                                                <TableCell>Gender</TableCell>
+                                                <TableCell>Status</TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {patients.map((patient, index) => (
+                                                <TableRow key={patient.id}>
+                                                    <TableCell>{index + 1}</TableCell>
+                                                    <TableCell>
+                                                        <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
+                                                            <Typography fontWeight={patient.id === order.main_patient_id ? 600 : 400}>
+                                                                {patient.fullName || patient.full_name}
+                                                            </Typography>
+                                                            {patient.id === order.main_patient_id && (
+                                                                <Chip
+                                                                    label="Main Patient"
+                                                                    size="small"
+                                                                    color="primary"
+                                                                    variant="outlined"
+                                                                />
+                                                            )}
+                                                        </Box>
+                                                    </TableCell>
+                                                    <TableCell>{formatDate(patient.dateOfBirth)}</TableCell>
+                                                    <TableCell>{(patient.gender * 1) ? "Male" : "Female"}</TableCell>
+                                                    <TableCell>
+                                                        <Chip
+                                                            label="Active"
+                                                            size="small"
+                                                            color="success"
+                                                            variant="outlined"
+                                                        />
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </TableContainer>
+
+                                <Box sx={{mt: 2, textAlign: 'right'}}>
+                                    <Button
+                                        variant="outlined"
+                                        size="small"
+                                        component="a"
+                                        href={route("orders.edit", {order: order.id, step: "patient details"})}
+                                        sx={{
+                                            borderRadius: 2,
+                                            textTransform: 'none'
+                                        }}
+                                    >
+                                        Edit Patients
+                                    </Button>
+                                </Box>
+                            </Box>
+                        </Collapse>
+                    </Paper>
+                )}
+
+                {/* Patient-Test Assignment Section */}
+                {patients.length > 0 && order.order_items && order.order_items.length > 0 && (
+                    <Paper
+                        component={motion.div}
+                        variants={itemVariants}
+                        elevation={0}
+                        sx={{
+                            mb: 3,
+                            borderRadius: 2,
+                            overflow: 'hidden',
+                            border: '1px solid',
+                            borderColor: theme.palette.divider
+                        }}
+                    >
+                        <Box
+                            sx={{
+                                p: 2,
+                                bgcolor: alpha(theme.palette.info.main, 0.8),
+                                color: theme.palette.info.contrastText,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                cursor: 'pointer'
+                            }}
+                            onClick={() => toggleSection('patientTestAssignment')}
+                        >
+                            <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
+                                <MedicalServices/>
+                                <Typography variant="h6" fontWeight={600}>
+                                    Patient-Test Assignments
+                                </Typography>
+                            </Box>
+
+                            {expandedSections.patientTestAssignment ? <ExpandLess/> : <ExpandMore/>}
+                        </Box>
+
+                        <Collapse in={expandedSections.patientTestAssignment}>
+                            <Box sx={{p: 3}}>
+                                <TableContainer>
+                                    <Table>
+                                        <TableHead>
+                                            <TableRow>
+                                                <TableCell>Test Name</TableCell>
+                                                <TableCell>Assigned Patients</TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {order.order_items.map((orderItem, index) => (
+                                                <TableRow key={orderItem.id || index}>
+                                                    <TableCell>
+                                                        <Typography fontWeight={500}>
+                                                            {orderItem.test?.name || orderItem.Test?.name || "Unknown Test"}
+                                                        </Typography>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Box sx={{display: 'flex', flexWrap: 'wrap', gap: 1}}>
+                                                            {orderItem.patients && orderItem.patients.length > 0 ? (
+                                                                orderItem.patients.map((patient) => (
+                                                                    <Chip
+                                                                        key={patient.id}
+                                                                        label={patient.fullName || patient.full_name}
+                                                                        size="small"
+                                                                        color={patient.id === order.main_patient_id ? "primary" : "default"}
+                                                                        variant={patient.id === order.main_patient_id ? "filled" : "outlined"}
+                                                                    />
+                                                                ))
+                                                            ) : (
+                                                                <Typography variant="body2" color="text.secondary">
+                                                                    No patients assigned
+                                                                </Typography>
+                                                            )}
+                                                        </Box>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </TableContainer>
+
+                                <Box sx={{mt: 2, textAlign: 'right'}}>
+                                    <Button
+                                        variant="outlined"
+                                        size="small"
+                                        component="a"
+                                        href={route("orders.edit", {order: order.id, step: "patient test assignment"})}
+                                        sx={{
+                                            borderRadius: 2,
+                                            textTransform: 'none'
+                                        }}
+                                    >
+                                        Edit Assignments
+                                    </Button>
+                                </Box>
+                            </Box>
+                        </Collapse>
+                    </Paper>
+                )}
+
                 {/* Sample Details Section */}
                 <Paper
                     component={motion.div}
@@ -941,6 +1153,8 @@ const Finalize = ({auth, order, step}) => {
                                                 <TableCell>#</TableCell>
                                                 <TableCell>Sample Type</TableCell>
                                                 <TableCell>Sample ID</TableCell>
+                                                <TableCell>Patient</TableCell>
+                                                <TableCell>Test</TableCell>
                                                 <TableCell>Collection Date</TableCell>
                                                 <TableCell>Expiration Date</TableCell>
                                             </TableRow>
@@ -995,6 +1209,16 @@ const Finalize = ({auth, order, step}) => {
                                                                 {errors[`samples[${index}].sampleId`] || errors[`samples.${index}.sampleId`]}
                                                             </Typography>
                                                         )}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Typography variant="body2">
+                                                            {sample.patient?.fullName || sample.patient?.full_name || "-"}
+                                                        </Typography>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Typography variant="body2">
+                                                            {sample.order_item?.test?.name || sample.order_item?.Test?.name || "-"}
+                                                        </Typography>
                                                     </TableCell>
                                                     <TableCell>
                                                         <Typography
@@ -1176,6 +1400,81 @@ const Finalize = ({auth, order, step}) => {
                                 <Alert severity="warning">
                                     Clinical information is missing. Please complete the Clinical Details section.
                                 </Alert>
+                            )}
+
+                            {/* Clinical Details Files Section */}
+                            {data.files && data.files.length > 0 && (
+                                <Box sx={{mt: 3}}>
+                                    <Typography
+                                        variant="subtitle2"
+                                        fontWeight={600}
+                                        sx={{mb: 2, display: 'flex', alignItems: 'center', gap: 1}}
+                                    >
+                                        <FileCopyIcon fontSize="small" color="primary"/>
+                                        Uploaded Files ({data.files.length})
+                                    </Typography>
+
+                                    <Grid container spacing={2}>
+                                        {data.files.map((file, index) => (
+                                            <Grid item xs={12} sm={6} md={4} key={index}>
+                                                <Box sx={{
+                                                    p: 2,
+                                                    borderRadius: 1,
+                                                    border: '1px solid',
+                                                    borderColor: alpha(theme.palette.primary.main, 0.2),
+                                                    backgroundColor: alpha(theme.palette.primary.main, 0.03),
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: 1.5,
+                                                    transition: 'all 0.2s',
+                                                    '&:hover': {
+                                                        borderColor: theme.palette.primary.main,
+                                                        backgroundColor: alpha(theme.palette.primary.main, 0.08),
+                                                    }
+                                                }}>
+                                                    <FileCopyIcon color="primary" sx={{fontSize: 28}}/>
+                                                    <Box sx={{flex: 1, minWidth: 0}}>
+                                                        <Typography
+                                                            variant="body2"
+                                                            fontWeight={500}
+                                                            sx={{
+                                                                mb: 0.5,
+                                                                overflow: 'hidden',
+                                                                textOverflow: 'ellipsis',
+                                                                whiteSpace: 'nowrap'
+                                                            }}
+                                                        >
+                                                            File {index + 1}
+                                                        </Typography>
+                                                        <Button
+                                                            href={"/files/" + file}
+                                                            target="_blank"
+                                                            variant="text"
+                                                            size="small"
+                                                            startIcon={<DownloadIcon/>}
+                                                            sx={{
+                                                                textTransform: 'none',
+                                                                fontSize: '0.75rem',
+                                                                p: 0,
+                                                                minWidth: 0
+                                                            }}
+                                                        >
+                                                            <span style={{
+                                                                overflow: 'hidden',
+                                                                textOverflow: 'ellipsis',
+                                                                whiteSpace: 'nowrap',
+                                                                display: 'block',
+                                                                maxWidth: '180px'
+                                                            }}>
+                                                                {file.split('/').pop()}
+                                                            </span>
+                                                        </Button>
+                                                    </Box>
+                                                </Box>
+                                            </Grid>
+                                        ))}
+                                    </Grid>
+                                </Box>
                             )}
 
                             <Box sx={{mt: 2, textAlign: 'right'}}>

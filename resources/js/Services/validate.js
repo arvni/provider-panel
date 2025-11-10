@@ -245,25 +245,31 @@ export const clinicalDetailsValidate = (data, setError) => {
     // File validation
     if (data.files && Array.isArray(data.files)) {
         data.files.forEach((file, index) => {
-            if (typeof file === 'string' && file.trim() === ''){
-                isValid = false;
-            } else if (typeof file === 'string') {
-                return;
-            }
-            // Check if file has valid extension
-            const acceptedFileTypes = ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'];
-            const fileExtension = file.name.split('.').pop().toLowerCase();
-
-            if (!acceptedFileTypes.includes(fileExtension)) {
-                setError(`files[${index}]`, `File "${file.name}" is not an accepted file type. Please upload only PDF, JPG, PNG, DOC, or DOCX files.`);
-                isValid = false;
+            // Skip validation for existing file paths (strings)
+            if (typeof file === 'string') {
+                if (file.trim() === '') {
+                    isValid = false;
+                }
+                return; // Already uploaded files are valid
             }
 
-            // Check file size (max 10MB)
-            const maxSize = 10 * 1024 * 1024; // 10MB in bytes
-            if (file.size > maxSize) {
-                setError(`files[${index}]`, `File "${file.name}" exceeds the maximum allowed size of 10MB.`);
-                isValid = false;
+            // Only validate new File objects
+            if (file instanceof File) {
+                // Check if file has valid extension
+                const acceptedFileTypes = ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'];
+                const fileExtension = file.name.split('.').pop().toLowerCase();
+
+                if (!acceptedFileTypes.includes(fileExtension)) {
+                    setError(`files[${index}]`, `File "${file.name}" is not an accepted file type. Please upload only PDF, JPG, PNG, DOC, or DOCX files.`);
+                    isValid = false;
+                }
+
+                // Check file size (max 10MB)
+                const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+                if (file.size > maxSize) {
+                    setError(`files[${index}]`, `File "${file.name}" exceeds the maximum allowed size of 10MB.`);
+                    isValid = false;
+                }
             }
         });
     }
@@ -361,20 +367,28 @@ export const consentFormValidate = (data, setError) => {
     // File validation (if present but not required)
     if (data.consentForm && Array.isArray(data.consentForm) && data.consentForm.length > 0) {
         data.consentForm.forEach((file, index) => {
-            // Check if file has valid extension
-            const acceptedFileTypes = ['pdf', 'jpg', 'jpeg', 'png'];
-            const fileExtension = file.name.split('.').pop().toLowerCase();
-
-            if (!acceptedFileTypes.includes(fileExtension)) {
-                setError('consentForm', `File "${file.name}" is not an accepted file type. Please upload only PDF, JPG, or PNG files.`);
-                isValid = false;
+            // Skip validation for existing file paths (strings)
+            if (typeof file === 'string') {
+                return; // Already uploaded files are valid
             }
 
-            // Check file size (max 10MB)
-            const maxSize = 10 * 1024 * 1024; // 10MB in bytes
-            if (file.size > maxSize) {
-                setError('consentForm', `File "${file.name}" exceeds the maximum allowed size of 10MB.`);
-                isValid = false;
+            // Only validate new File objects
+            if (file instanceof File) {
+                // Check if file has valid extension
+                const acceptedFileTypes = ['pdf', 'jpg', 'jpeg', 'png'];
+                const fileExtension = file.name.split('.').pop().toLowerCase();
+
+                if (!acceptedFileTypes.includes(fileExtension)) {
+                    setError('consentForm', `File "${file.name}" is not an accepted file type. Please upload only PDF, JPG, or PNG files.`);
+                    isValid = false;
+                }
+
+                // Check file size (max 10MB)
+                const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+                if (file.size > maxSize) {
+                    setError('consentForm', `File "${file.name}" exceeds the maximum allowed size of 10MB.`);
+                    isValid = false;
+                }
             }
         });
     }

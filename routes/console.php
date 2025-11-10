@@ -2,6 +2,7 @@
 
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schedule;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,4 +18,17 @@ use Illuminate\Support\Facades\Artisan;
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
+
+/*
+|--------------------------------------------------------------------------
+| Task Scheduling
+|--------------------------------------------------------------------------
+|
+| Here you may define all of your scheduled tasks.
+|
+*/
+
+Schedule::command('sync:orders')->everyFiveMinutes();
+Schedule::command('sync:referrers')->hourly();
+Schedule::command('sync:tests')->hourly();
 

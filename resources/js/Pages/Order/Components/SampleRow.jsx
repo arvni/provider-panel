@@ -43,6 +43,8 @@ import { motion } from "framer-motion";
  * @param {boolean} props.isExpanded Whether the sample details are expanded
  * @param {Function} props.toggleExpand Function to toggle expansion
  * @param {boolean} props.disabled Whether the inputs are disabled
+ * @param {Array} props.patients Available patients
+ * @param {Array} props.orderItems Available order items (tests)
  * @returns {JSX.Element} Rendered component
  */
 const SampleRow = ({
@@ -56,7 +58,9 @@ const SampleRow = ({
                        validatingIds = {},
                        isExpanded = false,
                        toggleExpand,
-                       disabled = false
+                       disabled = false,
+                       patients = [],
+                       orderItems = []
                    }) => {
     const theme = useTheme();
 
@@ -329,6 +333,100 @@ const SampleRow = ({
                                 }}
                             />
                         </Grid>
+
+                        {/* Test Selection (if order items available) */}
+                        {orderItems.length > 0 && (
+                            <Grid item xs={12} md={6}>
+                                <TextField
+                                    select
+                                    fullWidth
+                                    onChange={(e) => handleChange(index)(e)}
+                                    name="order_item_id"
+                                    value={sample?.order_item_id || ''}
+                                    label="Test (Optional)"
+                                    disabled={disabled}
+                                    helperText="Select which test this sample is for"
+                                    InputProps={{
+                                        startAdornment: (
+                                            <InputAdornment position="start">
+                                                <Science color="primary" />
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                    sx={{
+                                        '& .MuiOutlinedInput-root': {
+                                            borderRadius: 1.5,
+                                        }
+                                    }}
+                                >
+                                    <MenuItem value="">
+                                        <em>None</em>
+                                    </MenuItem>
+                                    {orderItems.map(orderItem => (
+                                        <MenuItem value={orderItem.id} key={orderItem.id}>
+                                            {orderItem.test?.name || orderItem.Test?.name || 'Unknown Test'}
+                                        </MenuItem>
+                                    ))}
+                                </TextField>
+                            </Grid>
+                        )}
+
+                        {/* Patient Selection (filtered by selected test) */}
+                        {patients.length > 0 && (
+                            <Grid item xs={12} md={6}>
+                                <TextField
+                                    select
+                                    fullWidth
+                                    onChange={(e) => handleChange(index)(e)}
+                                    name="patient_id"
+                                    value={sample?.patient_id || ''}
+                                    label="Patient (Optional)"
+                                    disabled={disabled || !sample?.order_item_id}
+                                    helperText={
+                                        !sample?.order_item_id
+                                            ? "Please select a test first"
+                                            : "Select which patient this sample belongs to (filtered by test)"
+                                    }
+                                    InputProps={{
+                                        startAdornment: (
+                                            <InputAdornment position="start">
+                                                <Science color="primary" />
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                    sx={{
+                                        '& .MuiOutlinedInput-root': {
+                                            borderRadius: 1.5,
+                                        }
+                                    }}
+                                >
+                                    <MenuItem value="">
+                                        <em>None</em>
+                                    </MenuItem>
+                                    {(() => {
+                                        // Filter patients based on selected test
+                                        if (sample?.order_item_id) {
+                                            const selectedOrderItem = orderItems.find(item => item.id === sample.order_item_id);
+                                            if (selectedOrderItem && selectedOrderItem.patients && selectedOrderItem.patients.length > 0) {
+                                                // Show only patients assigned to this test
+                                                return selectedOrderItem.patients.map(patient => (
+                                                    <MenuItem value={patient.id} key={patient.id}>
+                                                        {patient.fullName || patient.full_name}
+                                                        {selectedOrderItem.patients.find(p => p.id === patient.id && p.pivot?.is_main) && ' (Main)'}
+                                                    </MenuItem>
+                                                ));
+                                            }
+                                        }
+                                        // If no test selected or no patients for that test, show all patients
+                                        return patients.map(patient => (
+                                            <MenuItem value={patient.id} key={patient.id}>
+                                                {patient.fullName || patient.full_name}
+                                            </MenuItem>
+                                        ));
+                                    })()}
+                                </TextField>
+                            </Grid>
+                        )}
 
                         {/* Optional Notes Field */}
                         <Grid item xs={12}>

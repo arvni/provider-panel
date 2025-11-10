@@ -90,7 +90,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
     public function getRecentlyOrders()
     {
         return $this->query
-            ->select(["id", "patient_id", "updated_at", "created_at", "status", "user_id"])
+            ->select(["id", "main_patient_id", "updated_at", "created_at", "status", "user_id"])
             ->where("user_id", auth()->user()->id)
             ->withAggregate("Tests", "name")
             ->withAggregate("Patient", "fullName")
@@ -200,38 +200,93 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
 
         switch ($step) {
             case OrderStep::PATIENT_DETAILS:
-                if (isset($newDetails["id"])) {
-                    $patient = Patient::find($newDetails["id"]);
-                    $patient->fill([
-                        "fullName" => $newDetails["fullName"],
-                        "nationality" => $newDetails["nationality"]["code"],
-                        "dateOfBirth" => $newDetails["dateOfBirth"],
-                        "gender" => $newDetails["gender"],
-                        "consanguineousParents" => $newDetails["consanguineousParents"],
-                        "contact" => $newDetails["contact"] ?? null,
-                        "extra" => $newDetails["extra"] ?? null,
-                        "isFetus" => $newDetails["isFetus"] ?? false,
-                        "reference_id" => $newDetails["reference_id"] ?? null
-                    ]);
-                    if ($patient->isDirty())
-                        $patient->save();
-                    $order->Patient()->associate($newDetails["id"]);
+                $patientIds = [];
+                $mainPatientId = null;
+
+                // Handle multiple patients
+                $patients = $newDetails["patients"] ?? [$newDetails]; // Support both array and single patient
+
+                foreach ($patients as $index => $patientData) {
+                    if (isset($patientData["id"])) {
+                        $patient = Patient::find($patientData["id"]);
+                        $patient->fill([
+                            "fullName" => $patientData["fullName"],
+                            "nationality" => $patientData["nationality"]["code"],
+                            "dateOfBirth" => $patientData["dateOfBirth"],
+                            "gender" => $patientData["gender"],
+                            "consanguineousParents" => $patientData["consanguineousParents"],
+                            "contact" => $patientData["contact"] ?? null,
+                            "extra" => $patientData["extra"] ?? null,
+                            "isFetus" => $patientData["isFetus"] ?? false,
+                            "reference_id" => $patientData["reference_id"] ?? null,
+                            "id_no" => $patientData["id_no"] ?? null
+                        ]);
+                        if ($patient->isDirty())
+                            $patient->save();
+                        $patientIds[] = $patient->id;
+                        if ($index === 0) $mainPatientId = $patient->id;
+                    } else {
+                        $patient = new Patient([
+                            "fullName" => $patientData["fullName"],
+                            "nationality" => $patientData["nationality"]["code"],
+                            "dateOfBirth" => $patientData["dateOfBirth"],
+                            "gender" => $patientData["gender"],
+                            "consanguineousParents" => $patientData["consanguineousParents"],
+                            "contact" => $patientData["contact"] ?? null,
+                            "extra" => $patientData["extra"] ?? null,
+                            "isFetus" => $patientData["isFetus"] ?? false,
+                            "reference_id" => $patientData["reference_id"] ?? null,
+                            "id_no" => $patientData["id_no"] ?? null
+                        ]);
+                        auth()->user()->Patients()->save($patient);
+                        $patientIds[] = $patient->id;
+                        if ($index === 0) $mainPatientId = $patient->id;
+                    }
+
+                    // Handle patient relations if provided
+                    if (isset($patientData["relations"]) && !empty($patientData["relations"])) {
+                        foreach ($patientData["relations"] as $relation) {
+                            if (isset($relation["related_patient_id"])) {
+                                $patient->RelatedPatients()->syncWithoutDetaching([
+                                    $relation["related_patient_id"] => [
+                                        "relation_type" => $relation["relation_type"] ?? null,
+                                        "notes" => $relation["notes"] ?? null
+                                    ]
+                                ]);
+                            }
+                        }
+                    }
+                }
+
+                // Set main patient and patient_ids
+                $order->MainPatient()->associate($mainPatientId);
+                $order->patient_ids = $patientIds;
+                break;
+
+            case OrderStep::PATIENT_TEST_ASSIGNMENT:
+                // Handle patient-test assignments
+                if (isset($newDetails["assignments"]) && !empty($newDetails["assignments"])) {
+                    foreach ($newDetails["assignments"] as $assignment) {
+                        $orderItem = $order->OrderItems()->where('test_id', $assignment['test_id'])->first();
+                        if ($orderItem) {
+                            // Clear existing assignments
+                            $orderItem->Patients()->detach();
+
+                            // Assign patients to this test
+                            foreach ($assignment['patient_ids'] as $idx => $patientId) {
+                                $orderItem->Patients()->attach($patientId, [
+                                    'is_main' => $idx === 0 // First patient is main
+                                ]);
+                            }
+                        }
+                    }
                 } else {
-                    $patient = new Patient(
-                        [
-                            "fullName" => $newDetails["fullName"],
-                            "nationality" => $newDetails["nationality"]["code"],
-                            "dateOfBirth" => $newDetails["dateOfBirth"],
-                            "gender" => $newDetails["gender"],
-                            "consanguineousParents" => $newDetails["consanguineousParents"],
-                            "contact" => $newDetails["contact"] ?? null,
-                            "extra" => $newDetails["extra"] ?? null,
-                            "isFetus" => $newDetails["isFetus"] ?? false,
-                            "reference_id" => $newDetails["reference_id"] ?? null
-                        ]
-                    );
-                    auth()->user()->Patients()->save($patient);
-                    $order->Patient()->associate($patient);
+                    // Default: assign all tests to main patient
+                    foreach ($order->OrderItems as $orderItem) {
+                        $orderItem->Patients()->syncWithoutDetaching([
+                            $order->main_patient_id => ['is_main' => true]
+                        ]);
+                    }
                 }
                 break;
             case OrderStep::SAMPLE_DETAILS:
@@ -242,6 +297,15 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
                         $sample = Sample::find($sampleDetails["id"]);
                         $sample->fill($sampleDetails);
                         $sample->SampleType()->associate($sampleType->id);
+
+                        // Associate patient and order item if provided
+                        if (isset($sampleDetails["patient_id"])) {
+                            $sample->Patient()->associate($sampleDetails["patient_id"]);
+                        }
+                        if (isset($sampleDetails["order_item_id"])) {
+                            $sample->OrderItem()->associate($sampleDetails["order_item_id"]);
+                        }
+
                         if ($sampleType->sample_id_required) {
                             $material = Material::where("barcode", $sampleDetails["sampleId"])->first();
                             $sample->Material()->associate($material->id);
@@ -347,6 +411,15 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         $sample = new Sample($sampleDetails);
         $sample->SampleType()->associate($sampleType->id);
         $sample->Order()->associate($order->id);
+
+        // Associate patient and order item if provided
+        if (isset($sampleDetails["patient_id"])) {
+            $sample->Patient()->associate($sampleDetails["patient_id"]);
+        }
+        if (isset($sampleDetails["order_item_id"])) {
+            $sample->OrderItem()->associate($sampleDetails["order_item_id"]);
+        }
+
         if ($sampleType->sample_id_required) {
             $material = Material::where("barcode", $sampleDetails["sampleId"])->first();
             $sample->Material()->associate($material->id);

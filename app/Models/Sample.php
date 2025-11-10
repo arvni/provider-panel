@@ -11,10 +11,12 @@ class Sample extends Model
 
     protected $fillable = [
         "sampleId",
-        "collectionDate"
+        "collectionDate",
+        "patient_id",
+        "order_item_id"
     ];
 
-    protected $with = ["SampleType"];
+    protected $with = ["SampleType", "Patient", "OrderItem"];
 
     public function Order()
     {
@@ -29,6 +31,16 @@ class Sample extends Model
     public function Material()
     {
         return $this->belongsTo(Material::class);
+    }
+
+    public function Patient()
+    {
+        return $this->belongsTo(Patient::class);
+    }
+
+    public function OrderItem()
+    {
+        return $this->belongsTo(OrderItem::class);
     }
 
 }

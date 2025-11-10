@@ -63,7 +63,6 @@ class SyncReferrers extends Command
                         'mobile' => $referrer["phoneNo"],
                         'active' => $referrer["isActive"],
                     ]);
-                    //Password::sendResetLink(["email"=>$referrer["email"]]);
                 }
             }
         }

@@ -70,8 +70,23 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        $order->load(["Patient", "Samples.Material", "Tests"]);
-        return Inertia::render("Order/Show", compact("order"));
+        $order->load([
+            "Patient",
+            "Samples.Material",
+            "Samples.Patient",
+            "Samples.OrderItem.Test",
+            "Tests",
+            "OrderItems.Patients",
+            "OrderItems.Test"
+        ]);
+
+        // Get all patients from patient_ids
+        $patients = [];
+        if (!empty($order->patient_ids)) {
+            $patients = \App\Models\Patient::whereIn('id', $order->patient_ids)->get();
+        }
+
+        return Inertia::render("Order/Show", compact("order", "patients"));
     }
 
     /**
@@ -96,13 +111,43 @@ class OrderController extends Controller
                     "sampleIdRequired" => $sampleType->sample_id_required
                 ]);
             $data[] = "sampleTypes";
-            $order->load("Samples");
+            $order->load("Samples", "OrderItems.Test", "OrderItems.Patients");
+
+            // Get all patients from patient_ids
+            $patients = \App\Models\Patient::whereIn('id', $order->patient_ids ?? [])->get();
+            $data[] = "patients";
+
+            // Get order items (tests with assigned patients)
+            $orderItems = $order->OrderItems;
+            $data[] = "orderItems";
         } elseif ($step === OrderStep::PATIENT_DETAILS) {
             $order->load("patient","Tests");
+            // Load all patients if patient_ids exists
+            if (!empty($order->patient_ids)) {
+                $order->patients = \App\Models\Patient::whereIn('id', $order->patient_ids)->get();
+            }
             $genders = $order->tests->map(fn($test) => $test->gender)->flatten()->unique();
             $data[] = "genders";
+        } elseif ($step === OrderStep::PATIENT_TEST_ASSIGNMENT) {
+            $order->load(["Tests", "OrderItems.Patients", "OrderItems.Test"]);
+            // Get all patients from patient_ids
+            $patients = \App\Models\Patient::whereIn('id', $order->patient_ids ?? [])->get();
+            $data[] = "patients";
         } elseif ($step === OrderStep::FINALIZE) {
-            $order->load(["Patient", "Samples.Material", "Tests"]);
+            $order->load([
+                "Patient",
+                "Samples.Material",
+                "Samples.Patient",
+                "Samples.OrderItem.Test",
+                "Tests",
+                "OrderItems.Patients",
+                "OrderItems.Test"
+            ]);
+            // Get all patients from patient_ids
+            if (!empty($order->patient_ids)) {
+                $patients = \App\Models\Patient::whereIn('id', $order->patient_ids)->get();
+                $data[] = "patients";
+            }
         } elseif ($step === OrderStep::TEST_METHOD) {
             $order->load("Tests");
         } elseif ($step === OrderStep::CONSENT_FORM) {

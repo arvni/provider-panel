@@ -29,7 +29,8 @@ import {
     ArrowBack as ArrowBackIcon,
     SaveAlt as SaveIcon,
     Cancel as CancelIcon,
-    HelpOutline as HelpIcon
+    HelpOutline as HelpIcon,
+    PersonSearch as PersonSearchIcon
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
 
@@ -37,6 +38,7 @@ import { motion } from "framer-motion";
 const stepIcons = {
     "test method": ScienceIcon,
     "patient details": PersonIcon,
+    "patient test assignment": PersonSearchIcon,
     "clinical details": AssignmentIcon,
     "sample details": BiotechIcon,
     "consent form": FactCheckIcon,
@@ -47,6 +49,7 @@ const stepIcons = {
 const stepDescriptions = {
     "test method": "Select the tests to be performed",
     "patient details": "Enter patient information and demographics",
+    "patient test assignment": "Assign patients to specific tests",
     "clinical details": "Provide relevant clinical information",
     "sample details": "Add details about the sample(s) collected",
     "consent form": "Complete the required consent forms",
@@ -74,7 +77,7 @@ const CustomConnector = styled(StepConnector)(({ theme }) => ({
 
 
 // Define steps for the order editing process
-const steps = ["test method", "patient details", "clinical details", "sample details", "consent form", "finalize"];
+const steps = ["test method", "patient details", "patient test assignment", "clinical details", "sample details", "consent form", "finalize"];
 
 /**
  * Enhanced EditLayout component with improved stepper and navigation

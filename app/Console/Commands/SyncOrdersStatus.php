@@ -50,7 +50,8 @@ class SyncOrdersStatus extends Command
             $orderIds = $query->clone()
                 ->get(["id", "created_at"])
                 ->map(fn($item) => $item->orderId);
-            $ordersStatus = ApiService::post(config("api.orders_path"), ["orders" => $orderIds]);
+            $url=config("api.server_url").config("api.orders_path");
+            $ordersStatus = ApiService::post($url, ["orders" => $orderIds]);
             if ($ordersStatus->ok()) {
                 foreach ($ordersStatus["data"] as $orderStatus) {
                     $id = last(explode(".", $orderStatus["order_id"]));
