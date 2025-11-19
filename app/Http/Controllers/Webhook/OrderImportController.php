@@ -138,6 +138,7 @@ class OrderImportController extends Controller
             'order.patients.*.nationality' => 'required',
             'order.patients.*.dateOfBirth' => 'required|date',
             'order.patients.*.gender' => 'required|in:-1,0,1',
+            'order.patients.*.id_no' => 'nullable|string',
 
             // Order items
             'order.orderItems' => 'required|array|min:1',
