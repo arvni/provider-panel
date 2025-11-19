@@ -15,6 +15,8 @@ return new class extends Migration {
             $table->dropConstrainedForeignIdFor(Order::class);
         });
 
+        Artisan::call('db:seed --class=SamplesTableSeeder', );
+
     }
 
     /**

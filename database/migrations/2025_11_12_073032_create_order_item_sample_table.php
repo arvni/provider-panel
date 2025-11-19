@@ -13,11 +13,11 @@ return new class extends Migration {
     public function up(): void
     {
 
-        /*Schema::create('order_item_sample', function (Blueprint $table) {
+        Schema::create('order_item_sample', function (Blueprint $table) {
             $table->foreignIdFor(OrderItem::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(Sample::class)->constrained()->cascadeOnDelete();
             $table->unique(['sample_id', 'order_item_id']);
-        });*/
+        });
         Artisan::call('db:seed --class=SamplesTableSeeder', );
     }
 
