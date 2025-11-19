@@ -221,8 +221,8 @@ class OrderImportController extends Controller
             'files' => [],
             'main_patient_id' => $mainPatient->id,
             'patient_ids' => $patientIds,
-            'created_at' => $orderData["created_at"] ?? now(),
-            'updated_at' => $orderData["updated_at"] ?? now(),
+            'created_at' => Carbon::parse($orderData["created_at"] ?? now()),
+            'updated_at' => Carbon::parse($orderData["updated_at"] ?? now()),
         ]);
 
         Log::info('Order created', ['order_id' => $order->id]);
