@@ -165,7 +165,8 @@ class OrderImportController extends Controller
             'order.orderItems.*.patients.*.gender' => 'required|in:-1,0,1',
             'order.orderItems.*.patients.*.fullName' => 'required|string',
             'order.orderItems.*.patients.*.is_main' => 'required|boolean',
-
+            'order.created_at' => 'nullable',
+            'order.updated_at' => 'nullable',
             // User/referrer info
             'referrer_id' => 'required|integer|exists:users,referrer_id',
         ]);
@@ -220,6 +221,8 @@ class OrderImportController extends Controller
             'files' => [],
             'main_patient_id' => $mainPatient->id,
             'patient_ids' => $patientIds,
+            'created_at' => $orderData["created_at"] ?? now(),
+            'updated_at' => $orderData["updated_at"] ?? now(),
         ]);
 
         Log::info('Order created', ['order_id' => $order->id]);
@@ -388,14 +391,24 @@ class OrderImportController extends Controller
             }
         }
 
-        // Create sample
-        $sample = Sample::create([
-            'sampleId' => $sampleData['sampleId'] ?? null,
-            'sample_type_id' => $sampleType->id,
-            'material_id' => $materialId,
-            'patient_id' => $patient?->id ?? null,
-            'collectionDate' => $sampleData['collectionDate'] ?? null,
-        ]);
+        $query = Sample::where("sample_type_id", $sampleType->id);
+
+        if (isset($sampleData['sampleId'])) {
+            $query->where('sampleId', $sampleData['sampleId']);
+        } else
+            $query = null;
+        $sample = null;
+        if ($query)
+            $sample = $query->first();
+        if (!$sample)
+            // Create sample
+            $sample = Sample::create([
+                'sampleId' => $sampleData['sampleId'] ?? null,
+                'sample_type_id' => $sampleType->id,
+                'material_id' => $materialId,
+                'patient_id' => $patient?->id ?? null,
+                'collectionDate' => $sampleData['collectionDate'] ?? null,
+            ]);
 
         Log::info('Sample created', ['sample_id' => $sample->id]);
 
@@ -415,8 +428,6 @@ class OrderImportController extends Controller
         // Update order status and other fields
         $order->update([
             'status' => $orderData['status'],
-            'orderForms' => $orderData['orderForms'] ?? $order->orderForms,
-            'consents' => $orderData['consents'] ?? $order->consents,
         ]);
 
         Log::info('Order updated', ['order_id' => $order->id]);
