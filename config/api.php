@@ -27,7 +27,7 @@ return [
     'referrers_path' => env('REFERRER_PATH', 'referrers'),
     'orders_path' => env('ORDER_PATH', 'orders'),
     'order_materials_path' => env('ORDER_MATERIAL_PATH', 'order-materials'),
-    'report_path' => env('REPORT_PATH', 'orders'),
+    'report_path' => env('REPORT_PATH', 'orders/'),
     'sample_types_path' => env('SAMPLE_TYPES_PATH', 'sample-types'),
     'login_path' => env('LOGIN_PATH', 'login'),
     'logistic_request' => env('LOGISTIC_REQUEST', 'logistic-request'),
