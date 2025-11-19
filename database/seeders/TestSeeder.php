@@ -17,7 +17,8 @@ class TestSeeder extends Seeder
      */
     public function run(): void
     {
-        $tests = ApiService::get(config("api.tests_path", "http://localhost:8001/api/tests"));
+        $url = config("api.server_url") . config("api.tests_path");
+        $tests = ApiService::get($url);
         foreach ($tests->json() as $test) {
             $t = Test::where("server_id", $test["id"])->first();
             if (!$t)
@@ -28,7 +29,7 @@ class TestSeeder extends Seeder
                         "code" => $test["code"],
                         "shortName" => $test["name"],
                         "description" => $test["description"],
-                        "turnaroundTime" => $test["methods_max_turnaround_time"]/24?? 0,
+                        "turnaroundTime" => $test["methods_max_turnaround_time"] / 24 ?? 0,
                         "is_active" => false
                     ]
                 );
@@ -39,7 +40,7 @@ class TestSeeder extends Seeder
                     "code" => $test["code"],
                     "shortName" => $test["name"],
                     "description" => $test["description"],
-                    "turnaroundTime" => $test["methods_max_turnaround_time"]/24 ?? 0,
+                    "turnaroundTime" => $test["methods_max_turnaround_time"] / 24 ?? 0,
                 ]);
             if ($t->isDirty())
                 $t->save();

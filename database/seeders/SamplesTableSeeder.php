@@ -16,7 +16,8 @@ class SamplesTableSeeder extends Seeder
         Sample::query()
             ->whereNull("patient_id")
             ->whereNotNull("order_id")
-            ->with("Order.OrderItems")->chunk(100, function ($samples) {
+            ->with("Order.OrderItems")
+            ->chunk(100, function ($samples) {
                 foreach ($samples as $sample) {
                     $sample->OrderItems()->sync($sample->Order->OrderItems->pluck("id"));
                     $sample->Patient()->associate($sample->Order->main_patient_id);
