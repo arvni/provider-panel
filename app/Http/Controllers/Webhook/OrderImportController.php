@@ -130,6 +130,7 @@ class OrderImportController extends Controller
             'order.main_patient.gender' => 'required|in:-1,0,1',
             'order.main_patient.reference_id' => 'nullable|string',
             'order.main_patient.id_no' => 'nullable|string',
+            'order.main_patient.idNo' => 'nullable|string',
 
             // All patients
             'order.patients' => 'nullable|array',
@@ -139,6 +140,7 @@ class OrderImportController extends Controller
             'order.patients.*.dateOfBirth' => 'required|date',
             'order.patients.*.gender' => 'required|in:-1,0,1',
             'order.patients.*.id_no' => 'nullable|string',
+            'order.patients.*.idNo' => 'nullable|string',
 
             // Order items
             'order.orderItems' => 'required|array|min:1',
@@ -261,8 +263,8 @@ class OrderImportController extends Controller
             $query->where('server_id', $patientData['id']);
         } elseif (!empty($patientData['reference_id'])) {
             $query->where('reference_id', $patientData['reference_id']);
-        } elseif (!empty($patientData['id_no'])) {
-            $query->where('id_no', $patientData['id_no']);
+        } elseif (!empty($patientData['id_no']) || !empty($patientData['idNo'])) {
+            $query->where('id_no', $patientData['id_no']??$patientData['idNo']);
         } else {
             // If no unique identifier, create new patient
             $query = null;
