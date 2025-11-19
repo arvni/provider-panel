@@ -19,8 +19,7 @@ class Order extends Model
     protected $searchable = [
         "id",
         "Patient.fullName",
-        "Patient.reference_id",
-        "Samples.sampleId"
+        "Patient.reference_id"
     ];
 
     protected $fillable = [
@@ -34,7 +33,8 @@ class Order extends Model
         "reported_at",
         "server_id",
         "main_patient_id",
-        "patient_ids"
+        "patient_ids",
+        'user_id'
     ];
     protected $casts = [
         "status" => OrderStatus::class,
@@ -93,9 +93,18 @@ class Order extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function Samples()
+    /**
+     * Get all samples for this order through its order items
+     * Note: This returns a collection, not a relationship.
+     * Use OrderItems()->with('Samples') for eager loading in queries.
+     */
+    public function getSamplesAttribute()
     {
-        return $this->hasMany(Sample::class);
+        if (!$this->relationLoaded('OrderItems')) {
+            $this->load('OrderItems.Samples');
+        }
+
+        return $this->OrderItems->pluck('Samples')->flatten();
     }
 
     public function OrderItems()

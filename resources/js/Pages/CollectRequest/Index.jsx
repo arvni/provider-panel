@@ -23,7 +23,8 @@ import {
     CheckCircle,
     Receipt,
     Event,
-    Person
+    Person,
+    Send
 } from "@mui/icons-material";
 import PageHeader from "@/Components/PageHeader";
 import TableLayout from "@/Layouts/TableLayout";
@@ -144,6 +145,24 @@ function Index({collectRequests: {data: collectRequestsData, ...pagination}, req
     const handleShow = (id) => (e) => {
         e.preventDefault();
         router.visit(route("admin.collectRequests.show", id));
+    };
+
+    /**
+     * Handle send to server action
+     *
+     * @param {number} id Collection request ID
+     * @returns {Function} Click handler
+     */
+    const handleSendToServer = (id) => (e) => {
+        e.preventDefault();
+        if (confirm('Are you sure you want to send this collection request to the server?')) {
+            router.post(route("admin.collectRequests.send", id), {}, {
+                preserveScroll: true,
+                onSuccess: () => {
+                    reload();
+                }
+            });
+        }
     };
 
     /**
@@ -285,7 +304,7 @@ function Index({collectRequests: {data: collectRequestsData, ...pagination}, req
             field: "actions",
             title: "Actions",
             type: "actions",
-            width: "120px",
+            width: "150px",
             render: (row) => (
                 <Stack direction="row" spacing={1}>
                     <Tooltip title="View Details">
@@ -298,6 +317,23 @@ function Index({collectRequests: {data: collectRequestsData, ...pagination}, req
                             <RemoveRedEye fontSize="small"/>
                         </IconButton>
                     </Tooltip>
+
+                    {!row.server_id && (
+                        <Tooltip title="Send to Server">
+                            <IconButton
+                                onClick={handleSendToServer(row.id)}
+                                size="small"
+                                color="success"
+                                sx={{
+                                    '&:hover': {
+                                        bgcolor: 'success.lighter'
+                                    }
+                                }}
+                            >
+                                <Send fontSize="small"/>
+                            </IconButton>
+                        </Tooltip>
+                    )}
 
                     {row.deletable && (
                         <DeleteButton

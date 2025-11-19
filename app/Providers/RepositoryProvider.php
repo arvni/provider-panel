@@ -26,7 +26,8 @@ class RepositoryProvider extends ServiceProvider
             "Test",
             "Order",
             "CollectRequest",
-            "Material"
+            "Material",
+            "Patient"
         );
 
         foreach ($models as $model) {

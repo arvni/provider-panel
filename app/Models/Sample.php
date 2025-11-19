@@ -13,15 +13,14 @@ class Sample extends Model
         "sampleId",
         "collectionDate",
         "patient_id",
-        "order_item_id"
+        'user_id',
+        'sample_type_id',
+        'material_id'
     ];
 
-    protected $with = ["SampleType", "Patient", "OrderItem"];
-
-    public function Order()
-    {
-        return $this->belongsTo(Order::class);
-    }
+    // Removed eager loading of OrderItems to prevent circular references
+    // Use explicit ->with('OrderItems') when needed
+    protected $with = ["SampleType", "Patient"];
 
     public function SampleType()
     {
@@ -38,9 +37,9 @@ class Sample extends Model
         return $this->belongsTo(Patient::class);
     }
 
-    public function OrderItem()
+    public function OrderItems()
     {
-        return $this->belongsTo(OrderItem::class);
+        return $this->belongsToMany(OrderItem::class, 'order_item_sample');
     }
 
 }

@@ -391,7 +391,7 @@ const Drawer = ({ toggleDrawer, auth, open, colorMode = 'light' }) => {
                                 boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
                             }}
                         >
-                            {auth.user.name.charAt(0).toUpperCase()}
+                            {auth?.user?.name?.charAt(0).toUpperCase() || 'U'}
                         </Avatar>
                         <Box sx={{ overflow: 'hidden' }}>
                             <Typography
@@ -402,7 +402,7 @@ const Drawer = ({ toggleDrawer, auth, open, colorMode = 'light' }) => {
                                     lineHeight: 1.2
                                 }}
                             >
-                                {auth.user.name}
+                                {auth?.user?.name || 'User'}
                             </Typography>
                             <Typography
                                 variant="caption"
@@ -413,7 +413,7 @@ const Drawer = ({ toggleDrawer, auth, open, colorMode = 'light' }) => {
                                     lineHeight: 1.2
                                 }}
                             >
-                                {auth.user.email}
+                                {auth?.user?.email || ''}
                             </Typography>
                         </Box>
                     </Box>

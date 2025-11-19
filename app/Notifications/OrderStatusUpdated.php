@@ -167,8 +167,10 @@ class OrderStatusUpdated extends Notification implements ShouldQueue
             $details[] = "Tests: {$testNames}";
         }
 
-        if ($this->order->Samples->isNotEmpty()) {
-            $details[] = "Samples: {$this->order->Samples->count()}";
+        // Get samples through order items
+        $samples = $this->order->samples ?? collect();
+        if ($samples->isNotEmpty()) {
+            $details[] = "Samples: {$samples->count()}";
         }
 
         $timeline = $this->getTimelineInfo();

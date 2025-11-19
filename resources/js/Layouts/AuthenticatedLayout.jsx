@@ -30,7 +30,7 @@ import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import {motion, AnimatePresence} from 'framer-motion';
 
-export default function Authenticated({auth, breadcrumbs, children, title}) {
+export default function Authenticated({auth: authProp, breadcrumbs, children, title}) {
     const [open, setOpen] = useRemember(true, 'sidebar-open');
     const [loading, setLoading] = useState(false);
     const [scrollPosition, setScrollPosition] = useState(0);
@@ -38,7 +38,10 @@ export default function Authenticated({auth, breadcrumbs, children, title}) {
     const [showScrollTop, setShowScrollTop] = useState(false);
     const [notification, setNotification] = useState({open: false, message: '', severity: 'info'});
     const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
-    const {flash} = usePage().props;
+    const {flash, auth: globalAuth} = usePage().props;
+
+    // Use auth from props or fall back to global auth from usePage
+    const auth = authProp || globalAuth;
 
     // Create a theme based on color mode
     const theme = useMemo(() =>

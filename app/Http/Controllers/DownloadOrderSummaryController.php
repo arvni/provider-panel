@@ -14,7 +14,19 @@ class DownloadOrderSummaryController extends Controller
      */
     public function __invoke(Order $order)
     {
-        $order->load("Patient", "User", "Samples", "Tests");
+        $this->authorize("view", $order);
+        $order->load([
+            "Patient",
+            "User",
+            "OrderItems.Samples.SampleType",
+            "OrderItems.Samples.Material",
+            "OrderItems.Samples.Patient",
+            "Tests"
+        ]);
+
+        // Flatten samples for PDF view
+        $order->samples = $order->OrderItems->pluck('Samples')->flatten()->values();
+
         $rendered = view("Order", ["order" => $order])->render();
         $pdf = Pdf::loadHTML($rendered);
         $pdf->setPaper("a5");

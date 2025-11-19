@@ -16,4 +16,5 @@ interface CollectRequestRepositoryInterface
     public function update(CollectRequest $collectRequest, $newCollectRequestDetails);
     public function delete(CollectRequest $collectRequest);
     public function getById(int $id);
+    public function getByServerId(int $id);
 }

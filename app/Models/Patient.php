@@ -22,7 +22,8 @@ class Patient extends Model
         "extra",
         "isFetus",
         "reference_id",
-        "id_no"
+        "id_no",
+        "user_id"
     ];
     protected $casts = [
         "gender" => Gender::class,

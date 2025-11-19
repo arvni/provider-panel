@@ -47,10 +47,10 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
     public function getAll(array $queryData = []): array|Collection
     {
         $this->query
+            ->with("OrderItems.Samples")
             ->withAggregate("Patient", "fullName")
             ->withAggregate("Patient", "reference_id")
-            ->withAggregate("Patient", "dateOfBirth")
-            ->withAggregate("Samples", "sampleId");
+            ->withAggregate("Patient", "dateOfBirth");
 
         if (isset($queryData['filters'])) {
             $this->applyFilter($queryData['filters']);
@@ -71,12 +71,12 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
     public function list(array $queryData = []): LengthAwarePaginator
     {
         $this->query
-            ->with("Tests:id,name",)
+            ->with("Tests:id,name")
+            ->with("OrderItems.Samples")
             ->withAggregate("User", "name")
             ->withAggregate("Patient", "fullName")
             ->withAggregate("Patient", "reference_id")
-            ->withAggregate("Patient", "dateOfBirth")
-            ->withAggregate("Samples", "sampleId");
+            ->withAggregate("Patient", "dateOfBirth");
 
         if (isset($queryData['filters'])) {
             $this->applyFilter($queryData['filters']);
@@ -205,7 +205,9 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
 
                 // Handle multiple patients
                 $patients = $newDetails["patients"] ?? [$newDetails]; // Support both array and single patient
+                $savedPatients = []; // Store saved patients with their index
 
+                // First pass: Create/update all patients
                 foreach ($patients as $index => $patientData) {
                     if (isset($patientData["id"])) {
                         $patient = Patient::find($patientData["id"]);
@@ -218,8 +220,8 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
                             "contact" => $patientData["contact"] ?? null,
                             "extra" => $patientData["extra"] ?? null,
                             "isFetus" => $patientData["isFetus"] ?? false,
-                            "reference_id" => $patientData["reference_id"] ?? null,
-                            "id_no" => $patientData["id_no"] ?? null
+                            "reference_id" => !empty($patientData["reference_id"]) ? $patientData["reference_id"] : null,
+                            "id_no" => !empty($patientData["id_no"]) ? $patientData["id_no"] : null
                         ]);
                         if ($patient->isDirty())
                             $patient->save();
@@ -235,20 +237,34 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
                             "contact" => $patientData["contact"] ?? null,
                             "extra" => $patientData["extra"] ?? null,
                             "isFetus" => $patientData["isFetus"] ?? false,
-                            "reference_id" => $patientData["reference_id"] ?? null,
-                            "id_no" => $patientData["id_no"] ?? null
+                            "reference_id" => !empty($patientData["reference_id"]) ? $patientData["reference_id"] : null,
+                            "id_no" => !empty($patientData["id_no"]) ? $patientData["id_no"] : null
                         ]);
                         auth()->user()->Patients()->save($patient);
                         $patientIds[] = $patient->id;
                         if ($index === 0) $mainPatientId = $patient->id;
                     }
 
-                    // Handle patient relations if provided
+                    $savedPatients[$index] = ['patient' => $patient, 'data' => $patientData];
+                }
+
+                // Second pass: Handle patient relations after all patients are saved
+                foreach ($savedPatients as $index => $item) {
+                    $patient = $item['patient'];
+                    $patientData = $item['data'];
+
                     if (isset($patientData["relations"]) && !empty($patientData["relations"])) {
                         foreach ($patientData["relations"] as $relation) {
-                            if (isset($relation["related_patient_id"])) {
+                            $relatedPatientId = $relation["related_patient_id"];
+
+                            // If related_patient_id is 'main', replace with main patient ID
+                            if ($relatedPatientId === 'main') {
+                                $relatedPatientId = $mainPatientId;
+                            }
+
+                            if ($relatedPatientId) {
                                 $patient->RelatedPatients()->syncWithoutDetaching([
-                                    $relation["related_patient_id"] => [
+                                    $relatedPatientId => [
                                         "relation_type" => $relation["relation_type"] ?? null,
                                         "notes" => $relation["notes"] ?? null
                                     ]
@@ -302,24 +318,34 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
                         if (isset($sampleDetails["patient_id"])) {
                             $sample->Patient()->associate($sampleDetails["patient_id"]);
                         }
-                        if (isset($sampleDetails["order_item_id"])) {
-                            $sample->OrderItem()->associate($sampleDetails["order_item_id"]);
-                        }
 
                         if ($sampleType->sample_id_required) {
                             $material = Material::where("barcode", $sampleDetails["sampleId"])->first();
-                            $sample->Material()->associate($material->id);
-                        } else
-                            $sample->Material()->disAssociate();
+                            if ($material) {
+                                $sample->Material()->associate($material->id);
+                            } else {
+                                throw new \Exception("Material with barcode '{$sampleDetails["sampleId"]}' not found.");
+                            }
+                        } else {
+                            $sample->Material()->dissociate();
+                        }
                         if ($sample->isDirty())
                             $sample->save();
                         $samplesIds[] = $sample->id;
                     } else {
-                        $sample = $this->createSample($sampleDetails, $order, $sampleType);
+                        $sample = $this->createSample($sampleDetails, $sampleType);
                         $samplesIds[] = $sample->id;
                     }
+                    // Attach sample to order item using pivot table
+                    if (isset($sampleDetails["order_item_id"])) {
+                        $sample->OrderItems()->syncWithoutDetaching([$sampleDetails["order_item_id"]]);
+                    }
                 }
-                $order->Samples()->whereNotIn("id", $samplesIds)->delete();
+                // Delete samples not in the current list - query through order items
+                $orderItemIds = $order->OrderItems()->pluck('id')->toArray();
+                Sample::whereHas('OrderItems', function ($q) use ($orderItemIds) {
+                    $q->whereIn('order_items.id', $orderItemIds);
+                })->whereNotIn("id", $samplesIds)->delete();
                 break;
             case OrderStep::FINALIZE:
                 $order->status = OrderStatus::REQUESTED;
@@ -406,26 +432,33 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         }
     }
 
-    protected function createSample($sampleDetails, Order $order, SampleType $sampleType)
+    protected function createSample($sampleDetails, SampleType $sampleType)
     {
         $sample = new Sample($sampleDetails);
         $sample->SampleType()->associate($sampleType->id);
-        $sample->Order()->associate($order->id);
 
-        // Associate patient and order item if provided
+        // Associate patient if provided
         if (isset($sampleDetails["patient_id"])) {
             $sample->Patient()->associate($sampleDetails["patient_id"]);
-        }
-        if (isset($sampleDetails["order_item_id"])) {
-            $sample->OrderItem()->associate($sampleDetails["order_item_id"]);
         }
 
         if ($sampleType->sample_id_required) {
             $material = Material::where("barcode", $sampleDetails["sampleId"])->first();
-            $sample->Material()->associate($material->id);
-        } else
-            $sample->Material()->disAssociate();
+            if ($material) {
+                $sample->Material()->associate($material->id);
+            } else {
+                throw new \Exception("Material with barcode '{$sampleDetails["sampleId"]}' not found.");
+            }
+        } else {
+            $sample->Material()->dissociate();
+        }
         $sample->save();
+
+        // Attach to order item using pivot table if provided
+        if (isset($sampleDetails["order_item_id"])) {
+            $sample->OrderItems()->attach($sampleDetails["order_item_id"]);
+        }
+
         return $sample;
     }
 
@@ -433,7 +466,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
     {
         $material = $this->materialRepository->getByBarcode($barcode);
         $order = $this->create(["tests" => $tests]);
-        $this->createSample(["sampleId" => $barcode], $order, $material->sampleType);
+        $this->createSample(["sampleId" => $barcode], $material->sampleType);
         return $order;
     }
 }

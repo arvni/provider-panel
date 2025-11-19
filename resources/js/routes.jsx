@@ -14,6 +14,7 @@ import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import PlaylistAddCheckIcon from '@mui/icons-material/PlaylistAddCheck';
 import VaccinesIcon from '@mui/icons-material/Vaccines';
 import ImportContactsIcon from '@mui/icons-material/ImportContacts';
+import PeopleIcon from '@mui/icons-material/People';
 
 
 
@@ -27,6 +28,16 @@ const routes = [
         title: "Orders",
         route: route("orders.index"),
         icon: <AssignmentIcon/>,
+    },
+    {
+        title: "Patients",
+        route: route("patients.index"),
+        icon: <PeopleIcon/>,
+    },
+    {
+        title: "Collection Requests",
+        route: route("collectRequests.index"),
+        icon: <LocalShippingIcon/>,
     },
     {
         title: "Order Materials",

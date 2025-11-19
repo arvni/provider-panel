@@ -257,6 +257,46 @@ const PatientDetailsForm = (props) => {
                                         }}
                                     />
                                 </Grid>
+
+                                {/* Relationship Selector - Only for additional patients */}
+                                {props.isAdditional && (
+                                    <Grid item xs={12} sm={6}>
+                                        <FormControl
+                                            fullWidth
+                                            error={!!props.errors["relation_type"]}
+                                        >
+                                            <InputLabel>Relationship to Main Patient *</InputLabel>
+                                            <Select
+                                                value={props.patient?.relations?.[0]?.relation_type || ""}
+                                                label="Relationship to Main Patient *"
+                                                onChange={(e) => {
+                                                    const relations = [{
+                                                        related_patient_id: 'main',
+                                                        relation_type: e.target.value
+                                                    }];
+                                                    props.onChange("relations", relations);
+                                                }}
+                                                startAdornment={
+                                                    <InputAdornment position="start">
+                                                        <PersonSearchIcon color="action" fontSize="small"/>
+                                                    </InputAdornment>
+                                                }
+                                            >
+                                                <MenuItem value="Mother">Mother</MenuItem>
+                                                <MenuItem value="Father">Father</MenuItem>
+                                                <MenuItem value="Sibling">Sibling</MenuItem>
+                                                <MenuItem value="Spouse">Spouse</MenuItem>
+                                                <MenuItem value="Child">Child</MenuItem>
+                                                <MenuItem value="Twin">Twin</MenuItem>
+                                                <MenuItem value="Partner">Partner</MenuItem>
+                                                <MenuItem value="Other">Other</MenuItem>
+                                            </Select>
+                                            {props.errors["relation_type"] && (
+                                                <FormHelperText>{props.errors["relation_type"]}</FormHelperText>
+                                            )}
+                                        </FormControl>
+                                    </Grid>
+                                )}
                                 <Grid item xs={12} sm={6}>
                                     <TextField
                                         fullWidth

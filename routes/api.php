@@ -7,9 +7,11 @@ use App\Http\Controllers\Api\ListInstructionsController;
 use App\Http\Controllers\Api\ListOrderFormsController;
 use App\Http\Controllers\Api\ListRolesController;
 use App\Http\Controllers\Api\ListSampleTypesController;
+use App\Http\Controllers\Webhook\CollectRequestUpdateWebhookController;
 use App\Http\Controllers\Webhook\ConsentUpdateWebhookController;
 use App\Http\Controllers\Webhook\InstructionUpdateWebhookController;
 use App\Http\Controllers\Webhook\OrderFormUpdateWebhookController;
+use App\Http\Controllers\Webhook\OrderImportController;
 use App\Http\Controllers\Webhook\OrderMaterialUpdateWebhookController;
 use App\Http\Controllers\Webhook\SampleTypeUpdateWebhookController;
 use Illuminate\Support\Facades\Route;
@@ -37,3 +39,7 @@ Route::post("/request-forms/{orderFormID}", OrderFormUpdateWebhookController::cl
 Route::post("/consent-forms/{consentFormId}", ConsentUpdateWebhookController::class)->name("api.consents.update-by-webhook");
 Route::post("/instructions/{instructionId}", InstructionUpdateWebhookController::class)->name("api.instructions.update-by-webhook");
 Route::post("/sample-types/{sampleTypeId}", SampleTypeUpdateWebhookController::class)->name("api.sa,ple-types.update-by-webhook");
+Route::post("/collect-requests/", CollectRequestUpdateWebhookController::class)->name("api.collect-request.update-by-webhook");
+
+// Order import webhook
+Route::post("/webhooks/orders/import", [OrderImportController::class, 'import'])->name("api.webhooks.orders.import");

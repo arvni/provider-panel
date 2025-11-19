@@ -21,7 +21,7 @@ class CollectRequestPolicy
      */
     public function view(User $user, CollectRequest $collectRequest): bool
     {
-        return $user->can("Admin.CollectRequest.Show");
+        return $user->can("Admin.CollectRequest.Show") || $collectRequest->user_id === $user->id;
     }
 
     /**

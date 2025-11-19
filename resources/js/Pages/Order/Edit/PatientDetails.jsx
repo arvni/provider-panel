@@ -42,7 +42,8 @@ const PatientDetails = ({ auth, order, step, genders }) => {
             contact: null,
             isFetus: false,
             reference_id: "",
-            id_no: ""
+            id_no: "",
+            relations: []
         }];
 
     // State for multiple patients
@@ -101,7 +102,8 @@ const PatientDetails = ({ auth, order, step, genders }) => {
             contact: null,
             isFetus: false,
             reference_id: "",
-            id_no: ""
+            id_no: "",
+            relations: []
         }]);
     };
 
@@ -277,6 +279,8 @@ const PatientDetails = ({ auth, order, step, genders }) => {
                         <CardContent sx={{ p: 0 }}>
                             <PatientDetailsForm
                                 patient={patient}
+                                patientIndex={index}
+                                isAdditional={index > 0}
                                 genders={genders}
                                 onChange={(key, value) => handleChange(index, key, value)}
                                 onSubmit={handleSubmit}

@@ -7,6 +7,11 @@ import {
     Button,
     Chip,
     Collapse,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
     Divider,
     Grid,
     IconButton,
@@ -73,6 +78,7 @@ const Finalize = ({auth, order, step, patients = []}) => {
 
     const [showHelp, setShowHelp] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
+    const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
     // Setup form with existing data
     const {
@@ -116,50 +122,58 @@ const Finalize = ({auth, order, step, patients = []}) => {
      * Handle form submission with validation
      */
     const handleSubmit = () => {
-        // Confirm submission
-        if (window.confirm("Are you sure you want to finalize this order? After submission, certain details cannot be modified.")) {
-            // Reset all previous errors
-            Object.keys(errors).forEach(key => clearErrors(key));
+        // Show confirmation dialog
+        setShowConfirmDialog(true);
+    };
 
-            // Create processed data with normalized consent structure
-            const processedData = {
-                ...data,
-                consents: restConsents,
-                consentForm: consentForm
+    /**
+     * Handle confirmed submission
+     */
+    const handleConfirmedSubmit = () => {
+        // Close dialog
+        setShowConfirmDialog(false);
+
+        // Reset all previous errors
+        Object.keys(errors).forEach(key => clearErrors(key));
+
+        // Create processed data with normalized consent structure
+        const processedData = {
+            ...data,
+            consents: restConsents,
+            consentForm: consentForm
+        };
+
+        // Validate the entire order with processed data
+        if (validateFullOrderWithProcessedConsents(processedData, setError)) {
+
+            // Submit the order
+            submit({
+                onSuccess: () => {
+                    // Show success message
+                    setShowSuccess(true);
+
+                    // Redirect to order confirmation page after successful submission (optional)
+                    setTimeout(() => {
+                        window.location.href = route("orders.index");
+                    }, 5000);
+                }
+            });
+        } else {
+            // Expand sections with errors for better visibility
+            const sectionsWithErrors = {
+                tests: Object.keys(errors).some(key => key.startsWith('tests')),
+                patient: Object.keys(errors).some(key => key.startsWith('patient')),
+                samples: Object.keys(errors).some(key => key.startsWith('samples')),
+                forms: Object.keys(errors).some(key => key.startsWith('orderForms')),
+                consent: Object.keys(errors).some(key => key.startsWith('consents'))
             };
 
-            // Validate the entire order with processed data
-            if (validateFullOrderWithProcessedConsents(processedData, setError)) {
-
-                // Submit the order
-                submit({
-                    onSuccess: () => {
-                        // Show success message
-                        setShowSuccess(true);
-
-                        // Redirect to order confirmation page after successful submission (optional)
-                        setTimeout(() => {
-                            window.location.href = route("orders.index");
-                        }, 5000);
-                    }
-                });
-            } else {
-                // Expand sections with errors for better visibility
-                const sectionsWithErrors = {
-                    tests: Object.keys(errors).some(key => key.startsWith('tests')),
-                    patient: Object.keys(errors).some(key => key.startsWith('patient')),
-                    samples: Object.keys(errors).some(key => key.startsWith('samples')),
-                    forms: Object.keys(errors).some(key => key.startsWith('orderForms')),
-                    consent: Object.keys(errors).some(key => key.startsWith('consents'))
-                };
-
-                setExpandedSections(prev => ({
-                    ...prev,
-                    ...Object.entries(sectionsWithErrors)
-                        .filter(([_, hasError]) => hasError)
-                        .reduce((acc, [section]) => ({...acc, [section]: true}), {})
-                }));
-            }
+            setExpandedSections(prev => ({
+                ...prev,
+                ...Object.entries(sectionsWithErrors)
+                    .filter(([_, hasError]) => hasError)
+                    .reduce((acc, [section]) => ({...acc, [section]: true}), {})
+            }));
         }
     };
 
@@ -1708,6 +1722,116 @@ const Finalize = ({auth, order, step, patients = []}) => {
                     </Alert>
                 )}
             </Box>
+
+            {/* Confirmation Dialog */}
+            <Dialog
+                open={showConfirmDialog}
+                onClose={() => setShowConfirmDialog(false)}
+                maxWidth="sm"
+                fullWidth
+                PaperProps={{
+                    sx: {
+                        borderRadius: 2,
+                        boxShadow: theme.shadows[10]
+                    }
+                }}
+            >
+                <DialogTitle sx={{
+                    pb: 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1.5
+                }}>
+                    <Box
+                        sx={{
+                            width: 48,
+                            height: 48,
+                            borderRadius: '50%',
+                            bgcolor: alpha(theme.palette.warning.main, 0.1),
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }}
+                    >
+                        <WarningIcon color="warning" sx={{ fontSize: 28 }} />
+                    </Box>
+                    <Box>
+                        <Typography variant="h6" fontWeight={600}>
+                            Confirm Order Submission
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                            Order ID: {data.id}
+                        </Typography>
+                    </Box>
+                </DialogTitle>
+
+                <DialogContent sx={{ pt: 2 }}>
+                    <DialogContentText>
+                        <Typography variant="body1" paragraph>
+                            Are you sure you want to finalize and submit this order?
+                        </Typography>
+
+                        <Box
+                            sx={{
+                                mt: 2,
+                                p: 2,
+                                bgcolor: alpha(theme.palette.warning.main, 0.05),
+                                borderRadius: 1,
+                                border: '1px solid',
+                                borderColor: alpha(theme.palette.warning.main, 0.2)
+                            }}
+                        >
+                            <Stack spacing={1}>
+                                <Typography variant="body2" fontWeight={600} color="warning.dark">
+                                    Important Notice:
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    • After submission, certain details cannot be modified
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    • You will receive a confirmation email with order details
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    • Please ensure all information is accurate before proceeding
+                                </Typography>
+                            </Stack>
+                        </Box>
+                    </DialogContentText>
+                </DialogContent>
+
+                <DialogActions sx={{ p: 2.5, pt: 1 }}>
+                    <Button
+                        onClick={() => setShowConfirmDialog(false)}
+                        variant="outlined"
+                        color="inherit"
+                        sx={{
+                            borderRadius: 1.5,
+                            textTransform: 'none',
+                            px: 3
+                        }}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={handleConfirmedSubmit}
+                        variant="contained"
+                        color="primary"
+                        startIcon={<Send />}
+                        disabled={processing}
+                        sx={{
+                            borderRadius: 1.5,
+                            textTransform: 'none',
+                            px: 3,
+                            boxShadow: 'none',
+                            '&:hover': {
+                                boxShadow: theme.shadows[2]
+                            }
+                        }}
+                    >
+                        {processing ? 'Submitting...' : 'Confirm & Submit'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </EditLayout>
     );
 };

@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCollectRequestRequest;
 use App\Http\Requests\UpdateCollectRequestRequest;
 use App\Interfaces\CollectRequestRepositoryInterface;
+use App\Jobs\SendCollectionRequest;
 use App\Models\CollectRequest;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\RedirectResponse;
@@ -71,6 +72,32 @@ class CollectRequestController extends Controller
         if ($request->get("status")==CollectRequestStatus::PICKED_UP->value)
             $collectRequest->Orders()->update(["status"=>OrderStatus::SENT]);
         return back()->with(["status" => __("messages.successfullyUpdated")]);
+    }
+
+    /**
+     * Send collection request to main server
+     * @param CollectRequest $collectRequest
+     * @return RedirectResponse
+     */
+    public function send(CollectRequest $collectRequest): RedirectResponse
+    {
+        $this->authorize("update", $collectRequest);
+
+        // Check if already sent
+        if ($collectRequest->server_id) {
+            return back()->with([
+                "status" => "Collection request has already been sent to the server.",
+                "error" => true
+            ]);
+        }
+
+        // Dispatch the job
+        SendCollectionRequest::dispatch($collectRequest);
+
+        return back()->with([
+            "status" => "Collection request has been queued for sending to the server.",
+            "success" => true
+        ]);
     }
 
     /**

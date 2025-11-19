@@ -835,297 +835,330 @@ const Show = ({ order: { consents, ...restOrder }, patients = [] }) => {
                                     </Box>
                                 </Box>
 
-                                <Typography
-                                    variant="subtitle1"
-                                    fontWeight={600}
-                                    sx={{
-                                        mb: 2,
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: 1,
-                                        '@media print': {
-                                            fontSize: '8px !important',
-                                            fontWeight: 'bold !important',
-                                            marginBottom: '2mm !important',
-                                            color: '#000 !important'
-                                        }
-                                    }}
-                                >
-                                    <ScienceIcon
-                                        fontSize="small"
-                                        color="primary"
-                                        sx={{
-                                            '@media print': {
-                                                display: 'none !important'
-                                            }
-                                        }}
-                                    />
-                                    Material Details
-                                </Typography>
-
-                                {restOrder.samples?.map((sample, index) => (
-                                    <Box
-                                        key={sample.id}
-                                        sx={{
-                                            mb: 2,
-                                            ml: 3,
-                                            p: 2,
-                                            borderRadius: 1,
-                                            border: '1px solid',
-                                            borderColor: alpha(theme.palette.primary.main, 0.2),
-                                            backgroundColor: alpha(theme.palette.primary.main, 0.03),
-                                            '@media print': {
-                                                marginLeft: '0 !important',
-                                                marginBottom: '2mm !important',
-                                                padding: '2mm !important',
-                                                border: '1px solid #ccc !important',
-                                                borderRadius: '0 !important',
-                                                backgroundColor: '#f9f9f9 !important'
-                                            }
-                                        }}
-                                    >
+                                {restOrder.order_items && restOrder.order_items.length > 0 && (
+                                    <>
                                         <Typography
-                                            variant="subtitle2"
+                                            variant="subtitle1"
                                             fontWeight={600}
                                             sx={{
-                                                mb: 1,
+                                                mb: 2,
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: 1,
                                                 '@media print': {
-                                                    fontSize: '7px !important',
+                                                    fontSize: '8px !important',
                                                     fontWeight: 'bold !important',
-                                                    marginBottom: '1mm !important',
+                                                    marginBottom: '2mm !important',
                                                     color: '#000 !important'
                                                 }
                                             }}
                                         >
-                                            Sample #{index + 1}
+                                            <ScienceIcon
+                                                fontSize="small"
+                                                color="primary"
+                                                sx={{
+                                                    '@media print': {
+                                                        display: 'none !important'
+                                                    }
+                                                }}
+                                            />
+                                            Material Details
                                         </Typography>
 
-                                        <Grid container spacing={1} sx={{
-                                            '@media print': {
-                                                gap: '1mm !important',
-                                                margin: '0 !important'
-                                            }
-                                        }}>
-                                            <Grid item xs={6} sx={{
-                                                '@media print': {
-                                                    width: '48% !important',
-                                                    maxWidth: '48% !important',
-                                                    flexBasis: '48% !important',
-                                                    padding: '0 !important'
-                                                }
-                                            }}>
-                                                <Typography
-                                                    variant="body2"
-                                                    color="text.secondary"
-                                                    sx={{
-                                                        '@media print': {
-                                                            fontSize: '6px !important',
-                                                            color: '#666 !important'
-                                                        }
-                                                    }}
-                                                >
-                                                    Sample Type:
-                                                </Typography>
-                                                <Typography
-                                                    variant="body2"
-                                                    fontWeight={500}
-                                                    sx={{
-                                                        '@media print': {
-                                                            fontSize: '6px !important',
-                                                            fontWeight: 'bold !important',
-                                                            color: '#000 !important'
-                                                        }
-                                                    }}
-                                                >
-                                                    {sample.sample_type?.name || "Not specified"}
-                                                </Typography>
-                                            </Grid>
+                                        {restOrder.order_items.map((orderItem, orderItemIndex) => (
+                                            orderItem.samples && orderItem.samples.length > 0 && (
+                                                <Box key={orderItem.id || orderItemIndex} sx={{ mb: 2 }}>
+                                                    {/* Test Context */}
+                                                    {orderItem.test && (
+                                                        <Typography
+                                                            variant="caption"
+                                                            sx={{
+                                                                display: 'block',
+                                                                ml: 3,
+                                                                mb: 1,
+                                                                color: 'text.secondary',
+                                                                fontWeight: 600,
+                                                                '@media print': {
+                                                                    fontSize: '6px !important',
+                                                                    marginLeft: '0 !important',
+                                                                    marginBottom: '1mm !important',
+                                                                    color: '#666 !important'
+                                                                }
+                                                            }}
+                                                        >
+                                                            For Test: {orderItem.test.name}
+                                                        </Typography>
+                                                    )}
 
-                                            <Grid item xs={6} sx={{
-                                                '@media print': {
-                                                    width: '48% !important',
-                                                    maxWidth: '48% !important',
-                                                    flexBasis: '48% !important',
-                                                    padding: '0 !important'
-                                                }
-                                            }}>
-                                                <Typography
-                                                    variant="body2"
-                                                    color="text.secondary"
-                                                    sx={{
-                                                        '@media print': {
-                                                            fontSize: '6px !important',
-                                                            color: '#666 !important'
-                                                        }
-                                                    }}
-                                                >
-                                                    Sample ID:
-                                                </Typography>
-                                                <Typography
-                                                    variant="body2"
-                                                    fontWeight={500}
-                                                    sx={{
-                                                        '@media print': {
-                                                            fontSize: '6px !important',
-                                                            fontWeight: 'bold !important',
-                                                            color: '#000 !important'
-                                                        }
-                                                    }}
-                                                >
-                                                    {sample.sampleId || "Not specified"}
-                                                </Typography>
-                                            </Grid>
+                                                    {orderItem.samples.map((sample, sampleIndex) => (
+                                                        <Box
+                                                            key={sample.id || sampleIndex}
+                                                            sx={{
+                                                                mb: 2,
+                                                                ml: 3,
+                                                                p: 2,
+                                                                borderRadius: 1,
+                                                                border: '1px solid',
+                                                                borderColor: alpha(theme.palette.primary.main, 0.2),
+                                                                backgroundColor: alpha(theme.palette.primary.main, 0.03),
+                                                                '@media print': {
+                                                                    marginLeft: '0 !important',
+                                                                    marginBottom: '2mm !important',
+                                                                    padding: '2mm !important',
+                                                                    border: '1px solid #ccc !important',
+                                                                    borderRadius: '0 !important',
+                                                                    backgroundColor: '#f9f9f9 !important'
+                                                                }
+                                                            }}
+                                                        >
+                                                            <Typography
+                                                                variant="subtitle2"
+                                                                fontWeight={600}
+                                                                sx={{
+                                                                    mb: 1,
+                                                                    '@media print': {
+                                                                        fontSize: '7px !important',
+                                                                        fontWeight: 'bold !important',
+                                                                        marginBottom: '1mm !important',
+                                                                        color: '#000 !important'
+                                                                    }
+                                                                }}
+                                                            >
+                                                                Sample #{sampleIndex + 1}
+                                                            </Typography>
 
-                                            <Grid item xs={6} sx={{
-                                                '@media print': {
-                                                    width: '48% !important',
-                                                    maxWidth: '48% !important',
-                                                    flexBasis: '48% !important',
-                                                    padding: '0 !important'
-                                                }
-                                            }}>
-                                                <Typography
-                                                    variant="body2"
-                                                    color="text.secondary"
-                                                    sx={{
-                                                        '@media print': {
-                                                            fontSize: '6px !important',
-                                                            color: '#666 !important'
-                                                        }
-                                                    }}
-                                                >
-                                                    Collection Date:
-                                                </Typography>
-                                                <Typography
-                                                    variant="body2"
-                                                    fontWeight={500}
-                                                    sx={{
-                                                        '@media print': {
-                                                            fontSize: '6px !important',
-                                                            fontWeight: 'bold !important',
-                                                            color: '#000 !important'
-                                                        }
-                                                    }}
-                                                >
-                                                    {formatDate(sample.collectionDate)}
-                                                </Typography>
-                                            </Grid>
+                                                            <Grid container spacing={1} sx={{
+                                                                '@media print': {
+                                                                    gap: '1mm !important',
+                                                                    margin: '0 !important'
+                                                                }
+                                                            }}>
+                                                                <Grid item xs={6} sx={{
+                                                                    '@media print': {
+                                                                        width: '48% !important',
+                                                                        maxWidth: '48% !important',
+                                                                        flexBasis: '48% !important',
+                                                                        padding: '0 !important'
+                                                                    }
+                                                                }}>
+                                                                    <Typography
+                                                                        variant="body2"
+                                                                        color="text.secondary"
+                                                                        sx={{
+                                                                            '@media print': {
+                                                                                fontSize: '6px !important',
+                                                                                color: '#666 !important'
+                                                                            }
+                                                                        }}
+                                                                    >
+                                                                        Sample Type:
+                                                                    </Typography>
+                                                                    <Typography
+                                                                        variant="body2"
+                                                                        fontWeight={500}
+                                                                        sx={{
+                                                                            '@media print': {
+                                                                                fontSize: '6px !important',
+                                                                                fontWeight: 'bold !important',
+                                                                                color: '#000 !important'
+                                                                            }
+                                                                        }}
+                                                                    >
+                                                                        {sample.sample_type?.name || "Not specified"}
+                                                                    </Typography>
+                                                                </Grid>
 
-                                            {sample?.material && (
-                                                <Grid item xs={6} sx={{
-                                                    '@media print': {
-                                                        width: '48% !important',
-                                                        maxWidth: '48% !important',
-                                                        flexBasis: '48% !important',
-                                                        padding: '0 !important'
-                                                    }
-                                                }}>
-                                                    <Typography
-                                                        variant="body2"
-                                                        color="text.secondary"
-                                                        sx={{
-                                                            '@media print': {
-                                                                fontSize: '6px !important',
-                                                                color: '#666 !important'
-                                                            }
-                                                        }}
-                                                    >
-                                                        Expire Date:
-                                                    </Typography>
-                                                    <Typography
-                                                        variant="body2"
-                                                        fontWeight={500}
-                                                        sx={{
-                                                            '@media print': {
-                                                                fontSize: '6px !important',
-                                                                fontWeight: 'bold !important',
-                                                                color: '#000 !important'
-                                                            }
-                                                        }}
-                                                    >
-                                                        {formatDate(sample.material?.expire_date)}
-                                                    </Typography>
-                                                </Grid>
-                                            )}
+                                                                <Grid item xs={6} sx={{
+                                                                    '@media print': {
+                                                                        width: '48% !important',
+                                                                        maxWidth: '48% !important',
+                                                                        flexBasis: '48% !important',
+                                                                        padding: '0 !important'
+                                                                    }
+                                                                }}>
+                                                                    <Typography
+                                                                        variant="body2"
+                                                                        color="text.secondary"
+                                                                        sx={{
+                                                                            '@media print': {
+                                                                                fontSize: '6px !important',
+                                                                                color: '#666 !important'
+                                                                            }
+                                                                        }}
+                                                                    >
+                                                                        Sample ID:
+                                                                    </Typography>
+                                                                    <Typography
+                                                                        variant="body2"
+                                                                        fontWeight={500}
+                                                                        sx={{
+                                                                            '@media print': {
+                                                                                fontSize: '6px !important',
+                                                                                fontWeight: 'bold !important',
+                                                                                color: '#000 !important'
+                                                                            }
+                                                                        }}
+                                                                    >
+                                                                        {sample.sampleId || "Not specified"}
+                                                                    </Typography>
+                                                                </Grid>
 
-                                            {/* Patient Assignment */}
-                                            {sample?.patient && (
-                                                <Grid item xs={6} sx={{
-                                                    '@media print': {
-                                                        width: '48% !important',
-                                                        maxWidth: '48% !important',
-                                                        flexBasis: '48% !important',
-                                                        padding: '0 !important'
-                                                    }
-                                                }}>
-                                                    <Typography
-                                                        variant="body2"
-                                                        color="text.secondary"
-                                                        sx={{
-                                                            '@media print': {
-                                                                fontSize: '6px !important',
-                                                                color: '#666 !important'
-                                                            }
-                                                        }}
-                                                    >
-                                                        Patient:
-                                                    </Typography>
-                                                    <Typography
-                                                        variant="body2"
-                                                        fontWeight={500}
-                                                        sx={{
-                                                            '@media print': {
-                                                                fontSize: '6px !important',
-                                                                fontWeight: 'bold !important',
-                                                                color: '#000 !important'
-                                                            }
-                                                        }}
-                                                    >
-                                                        {sample.patient?.fullName || sample.patient?.full_name || "Not specified"}
-                                                    </Typography>
-                                                </Grid>
-                                            )}
+                                                                <Grid item xs={6} sx={{
+                                                                    '@media print': {
+                                                                        width: '48% !important',
+                                                                        maxWidth: '48% !important',
+                                                                        flexBasis: '48% !important',
+                                                                        padding: '0 !important'
+                                                                    }
+                                                                }}>
+                                                                    <Typography
+                                                                        variant="body2"
+                                                                        color="text.secondary"
+                                                                        sx={{
+                                                                            '@media print': {
+                                                                                fontSize: '6px !important',
+                                                                                color: '#666 !important'
+                                                                            }
+                                                                        }}
+                                                                    >
+                                                                        Collection Date:
+                                                                    </Typography>
+                                                                    <Typography
+                                                                        variant="body2"
+                                                                        fontWeight={500}
+                                                                        sx={{
+                                                                            '@media print': {
+                                                                                fontSize: '6px !important',
+                                                                                fontWeight: 'bold !important',
+                                                                                color: '#000 !important'
+                                                                            }
+                                                                        }}
+                                                                    >
+                                                                        {formatDate(sample.collectionDate)}
+                                                                    </Typography>
+                                                                </Grid>
 
-                                            {/* Test Assignment */}
-                                            {sample?.order_item?.test && (
-                                                <Grid item xs={6} sx={{
-                                                    '@media print': {
-                                                        width: '48% !important',
-                                                        maxWidth: '48% !important',
-                                                        flexBasis: '48% !important',
-                                                        padding: '0 !important'
-                                                    }
-                                                }}>
-                                                    <Typography
-                                                        variant="body2"
-                                                        color="text.secondary"
-                                                        sx={{
-                                                            '@media print': {
-                                                                fontSize: '6px !important',
-                                                                color: '#666 !important'
-                                                            }
-                                                        }}
-                                                    >
-                                                        For Test:
-                                                    </Typography>
-                                                    <Typography
-                                                        variant="body2"
-                                                        fontWeight={500}
-                                                        sx={{
-                                                            '@media print': {
-                                                                fontSize: '6px !important',
-                                                                fontWeight: 'bold !important',
-                                                                color: '#000 !important'
-                                                            }
-                                                        }}
-                                                    >
-                                                        {sample.order_item?.test?.name || sample.order_item?.Test?.name || "Not specified"}
-                                                    </Typography>
-                                                </Grid>
-                                            )}
-                                        </Grid>
-                                    </Box>
-                                ))}
+                                                                {sample?.material && (
+                                                                    <>
+                                                                        <Grid item xs={6} sx={{
+                                                                            '@media print': {
+                                                                                width: '48% !important',
+                                                                                maxWidth: '48% !important',
+                                                                                flexBasis: '48% !important',
+                                                                                padding: '0 !important'
+                                                                            }
+                                                                        }}>
+                                                                            <Typography
+                                                                                variant="body2"
+                                                                                color="text.secondary"
+                                                                                sx={{
+                                                                                    '@media print': {
+                                                                                        fontSize: '6px !important',
+                                                                                        color: '#666 !important'
+                                                                                    }
+                                                                                }}
+                                                                            >
+                                                                                Material Barcode:
+                                                                            </Typography>
+                                                                            <Typography
+                                                                                variant="body2"
+                                                                                fontWeight={500}
+                                                                                sx={{
+                                                                                    '@media print': {
+                                                                                        fontSize: '6px !important',
+                                                                                        fontWeight: 'bold !important',
+                                                                                        color: '#000 !important'
+                                                                                    }
+                                                                                }}
+                                                                            >
+                                                                                {sample.material?.barcode || "Not specified"}
+                                                                            </Typography>
+                                                                        </Grid>
+
+                                                                        {sample.material.expire_date && (
+                                                                            <Grid item xs={6} sx={{
+                                                                                '@media print': {
+                                                                                    width: '48% !important',
+                                                                                    maxWidth: '48% !important',
+                                                                                    flexBasis: '48% !important',
+                                                                                    padding: '0 !important'
+                                                                                }
+                                                                            }}>
+                                                                                <Typography
+                                                                                    variant="body2"
+                                                                                    color="text.secondary"
+                                                                                    sx={{
+                                                                                        '@media print': {
+                                                                                            fontSize: '6px !important',
+                                                                                            color: '#666 !important'
+                                                                                        }
+                                                                                    }}
+                                                                                >
+                                                                                    Expire Date:
+                                                                                </Typography>
+                                                                                <Typography
+                                                                                    variant="body2"
+                                                                                    fontWeight={500}
+                                                                                    sx={{
+                                                                                        '@media print': {
+                                                                                            fontSize: '6px !important',
+                                                                                            fontWeight: 'bold !important',
+                                                                                            color: '#000 !important'
+                                                                                        }
+                                                                                    }}
+                                                                                >
+                                                                                    {formatDate(sample.material?.expire_date)}
+                                                                                </Typography>
+                                                                            </Grid>
+                                                                        )}
+                                                                    </>
+                                                                )}
+
+                                                                {/* Patient Assignment */}
+                                                                {sample?.patient && (
+                                                                    <Grid item xs={6} sx={{
+                                                                        '@media print': {
+                                                                            width: '48% !important',
+                                                                            maxWidth: '48% !important',
+                                                                            flexBasis: '48% !important',
+                                                                            padding: '0 !important'
+                                                                        }
+                                                                    }}>
+                                                                        <Typography
+                                                                            variant="body2"
+                                                                            color="text.secondary"
+                                                                            sx={{
+                                                                                '@media print': {
+                                                                                    fontSize: '6px !important',
+                                                                                    color: '#666 !important'
+                                                                                }
+                                                                            }}
+                                                                        >
+                                                                            Patient:
+                                                                        </Typography>
+                                                                        <Typography
+                                                                            variant="body2"
+                                                                            fontWeight={500}
+                                                                            sx={{
+                                                                                '@media print': {
+                                                                                    fontSize: '6px !important',
+                                                                                    fontWeight: 'bold !important',
+                                                                                    color: '#000 !important'
+                                                                                }
+                                                                            }}
+                                                                        >
+                                                                            {sample.patient?.fullName || sample.patient?.full_name || "Not specified"}
+                                                                        </Typography>
+                                                                    </Grid>
+                                                                )}
+                                                            </Grid>
+                                                        </Box>
+                                                    ))}
+                                                </Box>
+                                            )
+                                        ))}
+                                    </>
+                                )}
                             </Grid>
                         </Grid>
                     </CardContent>

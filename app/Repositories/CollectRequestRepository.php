@@ -30,10 +30,21 @@ class CollectRequestRepository extends BaseRepository implements CollectRequestR
             ->withAggregate("User", "name")
             ->withCount("Orders");
 
+        // Filter by user_id if provided (for regular users)
+        if (isset($queryData["user_id"])) {
+            $this->query->where("user_id", $queryData["user_id"]);
+        }
+
         if (isset($queryData["filters"]))
             $this->applyFilter($queryData["filters"]);
-        if (isset($queryData["sort"]))
+
+        // Apply sorting - default to newest first (created_at desc)
+        if (isset($queryData["sort"])) {
             $this->applyOrderBy($queryData["sort"]);
+        } else {
+            $this->query->orderBy("created_at", "desc");
+        }
+
         return $this->applyPagination($queryData["pageSize"] ?? $this->pageSize);
     }
 
@@ -67,7 +78,20 @@ class CollectRequestRepository extends BaseRepository implements CollectRequestR
 
     public function show(CollectRequest $collectRequest): CollectRequest
     {
-        $collectRequest->load(["Orders.Patient", "Orders.Samples", "Orders.Tests", "User",]);
+        $collectRequest->load([
+            "Orders.Patient",
+            "Orders.OrderItems.Samples.SampleType",
+            "Orders.OrderItems.Samples.Material",
+            "Orders.OrderItems.Samples.Patient",
+            "Orders.Tests",
+            "User"
+        ]);
+
+        // Flatten samples for each order for frontend compatibility
+        foreach ($collectRequest->Orders as $order) {
+            $order->samples = $order->OrderItems->pluck('Samples')->flatten()->values();
+        }
+
         return $collectRequest;
     }
 
@@ -97,6 +121,11 @@ class CollectRequestRepository extends BaseRepository implements CollectRequestR
     public function getById($id): CollectRequest|null
     {
         return $this->query->where("id", $id)->first();
+    }
+
+    public function getByServerId($id): CollectRequest|null
+    {
+        return $this->query->where("server_id", $id)->first();
     }
 
 

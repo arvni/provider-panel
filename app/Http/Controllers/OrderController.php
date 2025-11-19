@@ -9,6 +9,7 @@ use App\Interfaces\TestRepositoryInterface;
 use App\Models\Order;
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
+use App\Models\Patient;
 use App\Models\SampleType;
 use App\Repositories\ConsentTermRepository;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -24,12 +25,13 @@ class OrderController extends Controller
     private OrderRepositoryInterface $orderRepository;
     protected ConsentTermRepositoryInterface $consentTermRepository;
     protected TestRepositoryInterface $testRepository;
-    public function __construct(OrderRepositoryInterface $orderRepository,
+
+    public function __construct(OrderRepositoryInterface       $orderRepository,
                                 ConsentTermRepositoryInterface $consentTermRepository,
-                                TestRepositoryInterface $testRepository)
+                                TestRepositoryInterface        $testRepository)
     {
         $this->orderRepository = $orderRepository;
-        $this->testRepository=$testRepository;
+        $this->testRepository = $testRepository;
         $this->consentTermRepository = $consentTermRepository;
         $this->middleware("indexProvider")->only("index");
     }
@@ -50,10 +52,10 @@ class OrderController extends Controller
      */
     public function create(Request $request)
     {
-        $tests=[];
+        $tests = [];
         if ($request->has("test"))
-            $tests[]=$this->testRepository->getById($request->get("test"));
-        return Inertia::render("Order/Add",compact("tests"));
+            $tests[] = $this->testRepository->getById($request->get("test"));
+        return Inertia::render("Order/Add", compact("tests"));
     }
 
     /**
@@ -70,22 +72,22 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
+        $this->authorize("view", $order);
         $order->load([
             "Patient",
-            "Samples.Material",
-            "Samples.Patient",
-            "Samples.OrderItem.Test",
             "Tests",
             "OrderItems.Patients",
-            "OrderItems.Test"
+            "OrderItems.Test",
+            "OrderItems.Samples.Patient",
+            "OrderItems.Samples.Material",
+            "OrderItems.Samples.SampleType",
         ]);
 
         // Get all patients from patient_ids
         $patients = [];
         if (!empty($order->patient_ids)) {
-            $patients = \App\Models\Patient::whereIn('id', $order->patient_ids)->get();
+            $patients = Patient::whereIn('id', $order->patient_ids)->get();
         }
-
         return Inertia::render("Order/Show", compact("order", "patients"));
     }
 
@@ -111,41 +113,81 @@ class OrderController extends Controller
                     "sampleIdRequired" => $sampleType->sample_id_required
                 ]);
             $data[] = "sampleTypes";
-            $order->load("Samples", "OrderItems.Test", "OrderItems.Patients");
+            $order->load("OrderItems.Samples.SampleType", "OrderItems.Samples.Material", "OrderItems.Samples.Patient", "OrderItems.Test", "OrderItems.Patients");
 
             // Get all patients from patient_ids
-            $patients = \App\Models\Patient::whereIn('id', $order->patient_ids ?? [])->get();
+            $patients = Patient::whereIn('id', $order->patient_ids ?? [])->get();
             $data[] = "patients";
 
             // Get order items (tests with assigned patients)
             $orderItems = $order->OrderItems;
             $data[] = "orderItems";
+
+            // Flatten samples for frontend compatibility
+            $order->samples = $order->OrderItems->pluck('Samples')->flatten()->values();
         } elseif ($step === OrderStep::PATIENT_DETAILS) {
-            $order->load("patient","Tests");
-            // Load all patients if patient_ids exists
+            $order->load("patient.RelatedPatients", "Tests");
+
+            // Format main patient relations
+            if ($order->patient) {
+                if ($order->patient->RelatedPatients && $order->patient->RelatedPatients->count() > 0) {
+                    $order->patient->relations = $order->patient->RelatedPatients->map(function ($relatedPatient) {
+                        return [
+                            'related_patient_id' => $relatedPatient->id,
+                            'relation_type' => $relatedPatient->pivot->relation_type,
+                            'notes' => $relatedPatient->pivot->notes
+                        ];
+                    })->toArray();
+                } else {
+                    $order->patient->relations = [];
+                }
+            }
+
+            // Load all patients with their relations if patient_ids exists
             if (!empty($order->patient_ids)) {
-                $order->patients = \App\Models\Patient::whereIn('id', $order->patient_ids)->get();
+                $order->patients = Patient::whereIn('id', $order->patient_ids)
+                    ->with('RelatedPatients')
+                    ->get()
+                    ->map(function ($patient) use ($order) {
+                        // Format relations for frontend
+                        if ($patient->RelatedPatients && $patient->RelatedPatients->count() > 0) {
+                            $patient->relations = $patient->RelatedPatients->map(function ($relatedPatient) {
+                                return [
+                                    'related_patient_id' => $relatedPatient->id,
+                                    'relation_type' => $relatedPatient->pivot->relation_type,
+                                    'notes' => $relatedPatient->pivot->notes
+                                ];
+                            })->toArray();
+                        } else {
+                            $patient->relations = [];
+                        }
+                        return $patient;
+                    });
             }
             $genders = $order->tests->map(fn($test) => $test->gender)->flatten()->unique();
             $data[] = "genders";
         } elseif ($step === OrderStep::PATIENT_TEST_ASSIGNMENT) {
             $order->load(["Tests", "OrderItems.Patients", "OrderItems.Test"]);
             // Get all patients from patient_ids
-            $patients = \App\Models\Patient::whereIn('id', $order->patient_ids ?? [])->get();
+            $patients = Patient::whereIn('id', $order->patient_ids ?? [])->get();
             $data[] = "patients";
         } elseif ($step === OrderStep::FINALIZE) {
             $order->load([
                 "Patient",
-                "Samples.Material",
-                "Samples.Patient",
-                "Samples.OrderItem.Test",
+                "OrderItems.Samples.Material",
+                "OrderItems.Samples.Patient",
+                "OrderItems.Samples.SampleType",
                 "Tests",
                 "OrderItems.Patients",
                 "OrderItems.Test"
             ]);
+
+            // Flatten samples for frontend compatibility (same as SAMPLE_DETAILS step)
+            $order->samples = $order->OrderItems->pluck('Samples')->flatten()->values();
+
             // Get all patients from patient_ids
             if (!empty($order->patient_ids)) {
-                $patients = \App\Models\Patient::whereIn('id', $order->patient_ids)->get();
+                $patients = Patient::whereIn('id', $order->patient_ids)->get();
                 $data[] = "patients";
             }
         } elseif ($step === OrderStep::TEST_METHOD) {

@@ -10,7 +10,8 @@ enum CollectRequestStatus: string
 
     case REQUESTED = 'requested';
     case SCHEDULED = 'scheduled';
-    case PICKED_UP = 'picked up';
+    case PICKED_UP = 'picked_up';
+    case ON_THE_WAY = 'sample_collector_on_the_way';
     case RECEIVED = 'received';
 
     /**
@@ -23,6 +24,7 @@ enum CollectRequestStatus: string
             self::SCHEDULED => 'Scheduled',
             self::PICKED_UP => 'Picked Up',
             self::RECEIVED => 'Received',
+            self::ON_THE_WAY => 'Sample Collector On The Way',
         };
     }
 
@@ -36,6 +38,7 @@ enum CollectRequestStatus: string
             self::SCHEDULED => 'yellow',
             self::PICKED_UP => 'orange',
             self::RECEIVED => 'green',
+            self::ON_THE_WAY => 'cyan',
         };
     }
 
@@ -46,7 +49,8 @@ enum CollectRequestStatus: string
     {
         return match($this) {
             self::REQUESTED => [self::SCHEDULED],
-            self::SCHEDULED => [self::PICKED_UP],
+            self::SCHEDULED => [self::ON_THE_WAY],
+            self::ON_THE_WAY => [self::PICKED_UP],
             self::PICKED_UP => [self::RECEIVED],
             self::RECEIVED => [],
         };

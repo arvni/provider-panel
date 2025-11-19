@@ -326,6 +326,7 @@ const Index = ({orders: {data: ordersData, ...pagination}, request}) => {
                         startIcon={<DownloadIcon/>}
                         href={route("orders.report", row.id)}
                         sx={{borderRadius: 1.5, textTransform: 'none'}}
+                        target="_blank"
                     >
                         Download
                     </Button>

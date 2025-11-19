@@ -2,8 +2,9 @@
 
 use App\Http\Controllers\AddOrderByBarcodeController;
 use App\Http\Controllers\Admin\ChangePasswordController;
-use App\Http\Controllers\Admin\CollectRequestController;
+use App\Http\Controllers\Admin\CollectRequestController as AdminCollectRequestController;
 use App\Http\Controllers\Admin\ConsentController;
+use App\Http\Controllers\CollectRequestController;
 use App\Http\Controllers\Admin\ConsentTermController;
 use App\Http\Controllers\Admin\EditUserTestsListController;
 use App\Http\Controllers\Admin\ExportExcelMaterialsController;
@@ -29,9 +30,13 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrderMaterialController;
 use App\Http\Controllers\Admin\OrderMaterialController as OrderMaterialAdminController;
+use App\Http\Controllers\PatientController;
 use App\Http\Controllers\StoreCollectRequestController;
 use App\Models\CollectRequest;
+use App\Models\Sample;
 use App\Services\MaterialOrder;
+use App\Services\RequestLogistic;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -75,13 +80,19 @@ Route::middleware('auth')->group(function () {
         Route::resource("/consents", ConsentController::class)->except(["create", "edit"]);
         Route::resource("/instructions", InstructionController::class)->except(["create", "edit"]);
         Route::resource("orderForms", OrderFormController::class)->except("show");
-        Route::resource("collectRequests", CollectRequestController::class)->except(["edit"]);
+        Route::post("collectRequests/{collectRequest}/send", [AdminCollectRequestController::class, 'send'])->name("collectRequests.send");
+        Route::resource("collectRequests", AdminCollectRequestController::class)->except(["edit"]);
         Route::resource("sampleTypes", SampleTypeController::class);
         Route::resource("tests", TestController::class)->except("show");
         Route::resource("orderMaterials", OrderMaterialAdminController::class)->only(["show", "index", "destroy"]);
         Route::get("/materials", ExportExcelMaterialsController::class)->name("materials");
     });
     Route::get("patient-list", PatientListController::class)->name("api.patients.list");
+    Route::resource("patients", PatientController::class)->only(["index", "edit", "update", "destroy"]);
+    Route::resource("collectRequests", CollectRequestController::class)->only(["index", "show"])->names([
+        'index' => 'collectRequests.index',
+        'show' => 'collectRequests.show',
+    ]);
     Route::get("/files/{type}/{id}/{filename?}", GetFileController::class)->name("file");
     Route::post("orders/logistic", StoreCollectRequestController::class)->name("orders.logistic");
     Route::post("orders/create-by-barcode", AddOrderByBarcodeController::class)->name("orders.create-by-barcode");
@@ -94,6 +105,9 @@ Route::middleware('auth')->group(function () {
     Route::get("/tests/list", ListUserTestsController::class)->name("api.user.tests.list");
     Route::get("/tests-by-barcode", ListTestsByBarcodeController::class)->name("tests-by-barcode");
     Route::get("tests", ListTestController::class)->name("tests.index");
+});
+
+Route::get("tester/", function () {
 });
 
 require __DIR__ . '/auth.php';

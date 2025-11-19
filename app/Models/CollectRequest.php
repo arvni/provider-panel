@@ -18,7 +18,8 @@ class CollectRequest extends Model
     protected $searchable = [
         'user.name',
         'details',
-        'status'
+        'status',
+        'server_id'
     ];
 
     protected $fillable = [
@@ -26,7 +27,8 @@ class CollectRequest extends Model
         'details',
         'status',
         'preferred_date',
-        'notes'
+        'notes',
+        'server_id'
     ];
 
     protected $appends = [

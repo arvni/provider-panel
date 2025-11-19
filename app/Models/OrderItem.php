@@ -63,4 +63,9 @@ class OrderItem extends Model
             ->withPivot('is_main')
             ->withTimestamps();
     }
+
+    public function Samples()
+    {
+        return $this->belongsToMany(Sample::class, 'order_item_sample');
+    }
 }

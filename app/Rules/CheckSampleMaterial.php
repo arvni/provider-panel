@@ -17,17 +17,54 @@ class CheckSampleMaterial implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        $sampleTypeCheckNeeded = SampleType::query()->where("id", $value["sample_type"]["id"])->where("sample_id_required", true);
+        // Check if sample type requires material validation
+        $sampleTypeId = $value["sample_type"]["id"] ?? null;
+        if (!$sampleTypeId) {
+            return; // No sample type provided, skip validation
+        }
+
+        $sampleTypeCheckNeeded = SampleType::query()
+            ->where("id", $sampleTypeId)
+            ->where("sample_id_required", true);
 
         if ($sampleTypeCheckNeeded->clone()->count()) {
-            $query = Material::query()->where("barcode", $value["sampleId"] ?? "")->where("user_id", auth()->user()->id);
-            if ($query->clone()->count() < 1)
-                $fail("There isn't any Material With this sample ID");
-            $material = $query->whereHas("Sample", function ($q) use ($value) {
-                $q->whereNot("id", $value["id"] ?? null);
+            $barcode = $value["sampleId"] ?? "";
+
+            // First check if material exists at all
+            $materialExists = Material::query()->where("barcode", $barcode)->exists();
+            if (!$materialExists) {
+                $fail("Material with barcode '{$barcode}' not found in the system.");
+                return;
+            }
+
+            // Then check if it belongs to current user
+            $query = Material::query()
+                ->where("barcode", $barcode)
+                ->where("user_id", auth()->user()->id);
+
+            if ($query->clone()->count() < 1) {
+                $fail("Material with barcode '{$barcode}' does not belong to your account.");
+                return;
+            }
+
+            // Finally check if it's already used by a different sample
+            $currentSampleId = $value["id"] ?? null;
+
+            $material = $query->whereHas("Sample", function ($q) use ($currentSampleId) {
+                if ($currentSampleId) {
+                    // Exclude current sample from check (allow editing existing sample)
+                    $q->where("id", "!=", $currentSampleId);
+                }
             });
-            if ($material->count())
-                $fail("this material used before");
+
+            if ($material->count()) {
+                if ($currentSampleId) {
+                    $fail("Material with barcode '{$barcode}' has already been used by a different sample.");
+                } else {
+                    $fail("Material with barcode '{$barcode}' has already been used.");
+                }
+                return;
+            }
         }
     }
 
