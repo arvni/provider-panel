@@ -462,11 +462,16 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         return $sample;
     }
 
-    public function createOrderByBarcode(string $barcode,array $tests): Order
+    /**
+     * @throws \Exception
+     */
+    public function createOrderByBarcode(string $barcode, array $tests): Order
     {
         $material = $this->materialRepository->getByBarcode($barcode);
         $order = $this->create(["tests" => $tests]);
-        $this->createSample(["sampleId" => $barcode], $material->sampleType);
+        $order->load("OrderItems");
+        $this->createSample(["sampleId" => $barcode, "order_item_id"=>$order->OrderItems?->first()->id], $material->sampleType);
+
         return $order;
     }
 }

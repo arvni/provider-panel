@@ -261,8 +261,6 @@ class OrderImportController extends Controller
 
         if (!empty($patientData['id'])) {
             $query->where('server_id', $patientData['id']);
-        } elseif (!empty($patientData['reference_id'])) {
-            $query->where('reference_id', $patientData['reference_id']);
         } elseif (!empty($patientData['id_no']) || !empty($patientData['idNo'])) {
             $query->where('id_no', $patientData['id_no']??$patientData['idNo']);
         } else {
@@ -284,8 +282,7 @@ class OrderImportController extends Controller
         ];
 
         if ($patient) {
-            $patient->update($patientAttributes);
-            Log::info('Patient updated', ['patient_id' => $patient->id]);
+            return $patient;
         } else {
             $patient = Patient::create($patientAttributes);
             Log::info('Patient created', ['patient_id' => $patient->id]);

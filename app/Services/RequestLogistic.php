@@ -232,7 +232,8 @@ class RequestLogistic
                     'sample_type_id' => $sample->SampleType->server_id ?? null,
                     'material_id' => $sample->material_id,
                     'sampleType' => $sample->SampleType ? [
-                        'id' => $sample->SampleType->server_id,
+                        'id'=>$sample->sampleType->id,
+                        'server_id' => $sample->SampleType->server_id,
                         'name' => $sample->SampleType->name,
                         'sample_id_required' => $sample->SampleType->sample_id_required,
                     ] : null,
@@ -265,7 +266,8 @@ class RequestLogistic
                 'server_id' => $orderItem->server_id,
                 'test_id' => $orderItem->Test->server_id ?? $orderItem->test_id,
                 'test' => $orderItem->Test ? [
-                    'id' => $orderItem->Test->server_id,
+                    'id' => $orderItem->Test->id,
+                    'server_id' => $orderItem->Test->server_id,
                     'name' => $orderItem->Test->name,
                     'code' => $orderItem->Test->code,
                     'shortName' => $orderItem->Test->shortName,
