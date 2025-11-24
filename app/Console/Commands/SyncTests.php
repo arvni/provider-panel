@@ -39,9 +39,6 @@ class SyncTests extends Command
         $testsId = [];
         foreach ($tests->json() as $test) {
             $t = Test::where("server_id", $test["id"])->first();
-            $orderForm = $this->getOrderForm($test["request_form"]);
-            $consent = $this->getConsent($test["consent_form"]);
-            $instruction = $this->getInstruction($test["instruction"]);
             if (!$t)
                 $t = Test::factory()->create(
                     [
@@ -52,9 +49,6 @@ class SyncTests extends Command
                         "description" => $test["description"],
                         "turnaroundTime" => $test["methods_max_turnaround_time"] / 24 ?? 0,
                         "is_active" => false,
-                        "consent_id" => $consent->id,
-                        "instruction_id"=>$instruction->id,
-                        "order_form"=>$orderForm->id
                     ]
                 );
             else
@@ -65,9 +59,6 @@ class SyncTests extends Command
                     "description" => $test["description"],
                     "turnaroundTime" => $test["methods_max_turnaround_time"] ?? 1,
                     "is_active" => $test["status"],
-                    "consent_id" => $consent->id,
-                    "instruction_id"=>$instruction->id,
-                    "order_form"=>$orderForm->id
                 ]);
             if ($t->isDirty())
                 $t->save();
@@ -84,7 +75,7 @@ class SyncTests extends Command
             $st = SampleType::where("server_id", $sampleTypeData["id"])->first();
             if (!$st)
                 $st = SampleType::create([
-                    "id" => $sampleTypeData["id"],
+                    "server_id" => $sampleTypeData["id"],
                     "name" => $sampleTypeData["name"],
                 ]);
             $output[$st->id] = [
