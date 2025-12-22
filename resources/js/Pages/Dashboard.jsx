@@ -409,7 +409,7 @@ export default function Dashboard({ auth, recentlyOrders = [], notDownloadedRepo
                                                                 {order.patient_full_name}
                                                             </TableCell>
                                                             <TableCell>
-                                                                {order.tests_name.split(',').map((test, i) => (
+                                                                {order.tests_name?.split(',')?.map((test, i) => (
                                                                     <Chip
                                                                         key={i}
                                                                         label={test.trim()}
