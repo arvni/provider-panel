@@ -98,7 +98,7 @@ const AddForm = ({
      * @param {number} amount Amount to change by
      */
     const adjustQuantity = (amount) => {
-        const currentValue = parseInt(values.amount) || 0;
+        const currentValue = parseInt(values?.amount) || 0;
         const newValue = Math.max(1, Math.min(100, currentValue + amount));
 
         setValues(prevState => ({
@@ -253,7 +253,7 @@ const AddForm = ({
                                 label="Quantity *"
                                 name="amount"
                                 type="number"
-                                value={values.amount || ""}
+                                value={values?.amount || ""}
                                 onChange={handleChange}
                                 inputProps={{
                                     min: 1,
@@ -265,7 +265,7 @@ const AddForm = ({
                                         <IconButton
                                             onClick={() => adjustQuantity(-1)}
                                             edge="start"
-                                            disabled={values.amount <= 1 || loading}
+                                            disabled={values?.amount <= 1 || loading}
                                             size="small"
                                         >
                                             <RemoveIcon fontSize="small" />
@@ -277,7 +277,7 @@ const AddForm = ({
                                         <IconButton
                                             onClick={() => adjustQuantity(1)}
                                             edge="end"
-                                            disabled={values.amount >= 100 || loading}
+                                            disabled={values?.amount >= 100 || loading}
                                             size="small"
                                         >
                                             <AddIcon fontSize="small" />
@@ -307,7 +307,7 @@ const AddForm = ({
                             multiline
                             rows={2}
                             placeholder="Enter any special instructions or notes about this order"
-                            value={values.notes || ""}
+                            value={values?.notes || ""}
                             onChange={handleChange}
                             disabled={loading}
                         />

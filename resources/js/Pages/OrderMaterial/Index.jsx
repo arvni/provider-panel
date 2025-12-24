@@ -45,7 +45,7 @@ const Index = () => {
     const [searchTerm, setSearchTerm] = useState("");
 
     // Form state for adding new order material
-    const {post, setData, data, reset, processing: submitting} = useForm();
+    const {post, setData, data, reset, processing: submitting} = useForm({amount:1});
 
     // Page reload state
     const {
@@ -123,7 +123,7 @@ const Index = () => {
             sortable: true,
             render: (row) => (
                 <Typography variant="body2" fontWeight={500}>
-                    {row.amount || "—"}
+                    {row?.amount || "—"}
                 </Typography>
             )
         },
@@ -488,7 +488,7 @@ const Index = () => {
                 </Box>
 
                 {/* Add form dialog */}
-                <AddForm
+                {openAddForm&&<AddForm
                     title="Order New Material"
                     loading={submitting}
                     open={openAddForm}
@@ -498,7 +498,7 @@ const Index = () => {
                     setOpen={setOpenAddForm}
                     submit={handleSubmitForm}
                     sampleTypes={sampleTypes}
-                />
+                />}
             </Paper>
         </>
     );
