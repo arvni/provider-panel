@@ -233,7 +233,7 @@ class RequestLogistic
                     'material_id' => $sample->material_id,
                     'collectionDate'=> $sample->collectionDate,
                     'sample_type' => $sample->SampleType ? [
-                        'id'=>$sample->sampleType->id,
+                        'id'=>$sample->SampleType->id,
                         'server_id' => $sample->SampleType->server_id,
                         'name' => $sample->SampleType->name,
                         'sample_id_required' => $sample->SampleType->sample_id_required,
