@@ -15,7 +15,12 @@ class Sample extends Model
         "patient_id",
         'user_id',
         'sample_type_id',
-        'material_id'
+        'material_id',
+        'pooling'
+    ];
+
+    protected $casts = [
+        'pooling' => 'boolean'
     ];
 
     // Removed eager loading of OrderItems to prevent circular references

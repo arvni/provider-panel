@@ -50,18 +50,18 @@ const LoginForm = ({ siteKey }) => {
         script.defer = true;
 
         // Define the callback function that will be called when Turnstile is loaded
-        window.onloadTurnstileCallback = function() {
+        window.onloadTurnstileCallback = function () {
             if (turnstileWidgetRef.current) {
                 const widgetId = window.turnstile.render(turnstileWidgetRef.current, {
                     sitekey: siteKey,
                     theme: 'light',
-                    callback: function(token) {
+                    callback: function (token) {
                         formChange("cf-turnstile-response", token);
                     },
-                    'expired-callback': function() {
+                    'expired-callback': function () {
                         formChange("cf-turnstile-response", "");
                     },
-                    'error-callback': function() {
+                    'error-callback': function () {
                         formChange("cf-turnstile-response", "");
                     }
                 });
@@ -102,7 +102,11 @@ const LoginForm = ({ siteKey }) => {
         clearErrors();
 
         if (loginFormValidator(data, setError)) {
-            submit();
+            submit({
+                onError: () => {
+                    resetTurnstile();
+                }
+            });
         } else {
             resetTurnstile();
         }
@@ -140,8 +144,6 @@ const LoginForm = ({ siteKey }) => {
             initial="hidden"
             animate="visible"
             onSubmit={handleSubmit}
-            method="post"
-            action={route("login")}
             sx={{
                 width: "100%",
                 display: "flex",

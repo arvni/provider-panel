@@ -1021,6 +1021,41 @@ const Show = ({ order: { consents, ...restOrder }, patients = [] }) => {
                                                                             }
                                                                         }}
                                                                     >
+                                                                        Pooling:
+                                                                    </Typography>
+                                                                    <Typography
+                                                                        variant="body2"
+                                                                        fontWeight={500}
+                                                                        sx={{
+                                                                            '@media print': {
+                                                                                fontSize: '6px !important',
+                                                                                fontWeight: 'bold !important',
+                                                                                color: '#000 !important'
+                                                                            }
+                                                                        }}
+                                                                    >
+                                                                        {sample.pooling ? "Yes" : "No"}
+                                                                    </Typography>
+                                                                </Grid>
+
+                                                                <Grid item xs={6} sx={{
+                                                                    '@media print': {
+                                                                        width: '48% !important',
+                                                                        maxWidth: '48% !important',
+                                                                        flexBasis: '48% !important',
+                                                                        padding: '0 !important'
+                                                                    }
+                                                                }}>
+                                                                    <Typography
+                                                                        variant="body2"
+                                                                        color="text.secondary"
+                                                                        sx={{
+                                                                            '@media print': {
+                                                                                fontSize: '6px !important',
+                                                                                color: '#666 !important'
+                                                                            }
+                                                                        }}
+                                                                    >
                                                                         Collection Date:
                                                                     </Typography>
                                                                     <Typography

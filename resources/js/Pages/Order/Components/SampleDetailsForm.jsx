@@ -117,6 +117,7 @@ const SampleDetailsForm = ({
             sample_type: null,
             sampleId: "",
             collectionDate: "",
+            pooling: false,
             notes: ""
         };
 

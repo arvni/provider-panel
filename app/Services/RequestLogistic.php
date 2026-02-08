@@ -326,22 +326,22 @@ class RequestLogistic
         // Prepare tests data with server IDs
         $testsData = $order->Tests->map(function ($test) {
             return [
-                'id' => $test->server_id,
-                'local_id' => $test->id,
+                'id' => $test->id,
+                'server_id' => $test->server_id,
                 'name' => $test->name,
-                'code' => $test->code,
                 'shortName' => $test->shortName,
-                'gender' => $test->gender,
-                'description' => $test->description,
-                'turnaroundTime' => $test->turnaroundTime,
             ];
         })->toArray();
+
+        // Check if any sample has pooling
+        $pooling = $order->OrderItems->pluck('Samples')->flatten()->contains('pooling', true);
 
         return [
             'id' => $order->id,
             'server_id' => $order->server_id,
             'status' => $order->status->value,
             'step' => $order->step->value,
+            'pooling' => $pooling,
             'orderForms' => $orderForms,
             'consents' => $order->consents ?? [],
             'patient' => $patientData,

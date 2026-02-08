@@ -32,10 +32,10 @@ class LoginRequest extends FormRequest
         return [
             'email' => ['required', 'string', 'email', 'exists:users,email'],
             'password' => ['required', 'string'],
-            //'cf-turnstile-response'=>[
-            //  "required",
-            //   app(Turnstile::class)
-            //],
+            'cf-turnstile-response'=>[
+             "required",
+              app(Turnstile::class)
+            ],
         ];
     }
 

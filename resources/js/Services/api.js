@@ -1,5 +1,5 @@
-import {router, useForm} from "@inertiajs/react";
-import {useEffect, useRef, useState} from "react";
+import { router, useForm } from "@inertiajs/react";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 
 export const useSubmitForm = (defaultValues, route) => {
@@ -52,11 +52,11 @@ export const uploadFiles = (url) => {
         })
     }
     const resetProgress = () => setProgress(0);
-    return {progress, upload, resetProgress}
+    return { progress, upload, resetProgress }
 }
 
 export const useChangePage = () => {
-    const {processing, get: goto} = useForm();
+    const { processing, get: goto } = useForm();
     const get = (url) => goto(url);
     return {
         processing, get
@@ -82,13 +82,13 @@ export const usePageReload = (request, only = []) => {
         reload();
     }, [data]);
     const onPageChange = (event, page) => {
-        setData((prevData) => ({...prevData, page}));
+        setData((prevData) => ({ ...prevData, page }));
     };
     const onPageSizeChange = (pageSize) => {
-        setData((prevData) => ({...prevData, pageSize}));
+        setData((prevData) => ({ ...prevData, pageSize }));
     };
     const onFilterChange = (e) => {
-        const {name, value} = e.target;
+        const { name, value } = e.target;
 
         // Get the current value at the path
         const oldValue = getValueByPath(data?.filters, name);
@@ -104,7 +104,7 @@ export const usePageReload = (request, only = []) => {
         }
     };
     const onOrderByChange = (field, type) => {
-        setData((prevData) => ({...prevData, sort: {field, type}}));
+        setData((prevData) => ({ ...prevData, sort: { field, type } }));
     };
     const get = (url) => {
         router.visit(url, {
@@ -119,11 +119,11 @@ export const usePageReload = (request, only = []) => {
         setProcessing(false);
     }
 
-    return {processing, reload, get, data, setData, onPageChange, onPageSizeChange, onFilterChange, onOrderByChange}
+    return { processing, reload, get, data, setData, onPageChange, onPageSizeChange, onFilterChange, onOrderByChange }
 }
 
 function changeObjectWithNestedName(name, value, prevValues) {
-    const output = {...prevValues}, nestedProperties = name.split("."),
+    const output = { ...prevValues }, nestedProperties = name.split("."),
         lastPart = nestedProperties.pop();
     let currentObject = output;
     for (let i = 0; i < nestedProperties.length; i++) {
@@ -164,18 +164,18 @@ export const useGetData = () => {
         if (query) {
             url += "?" + new URLSearchParams(query).toString();
         }
-        return axios.get(url).then(({data}) => {
+        return axios.get(url).then(({ data }) => {
             setLoading(false);
             return data;
         });
     }
 
-    return {getData, loading};
+    return { getData, loading };
 }
 
 export const useDelete = () => {
-    const {post, processing} = useForm({_method: "delete"});
-    return {submit: post, processing}
+    const { post, processing } = useForm({ _method: "delete" });
+    return { submit: post, processing }
 }
 
 export async function fetcher(resource) {

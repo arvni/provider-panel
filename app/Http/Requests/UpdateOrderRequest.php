@@ -64,6 +64,7 @@ class UpdateOrderRequest extends FormRequest
                     "samples" => ["required", new CheckSamples($this->route()->parameter("order"))],
                     "samples.*" => ["required", new CheckSampleMaterial()],
                     "samples.*.collectionDate" => "required|date|before_or_equal:today",
+                    "samples.*.pooling" => "boolean",
                 ];
             default:
                 return [];

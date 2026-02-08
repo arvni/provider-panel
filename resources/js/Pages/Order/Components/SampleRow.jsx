@@ -12,7 +12,9 @@ import {
     Fade,
     Collapse,
     Stack,
-    useTheme
+    useTheme,
+    Checkbox,
+    FormControlLabel
 } from "@mui/material";
 import MenuItem from "@mui/material/MenuItem";
 import {
@@ -48,20 +50,20 @@ import { motion } from "framer-motion";
  * @returns {JSX.Element} Rendered component
  */
 const SampleRow = ({
-                       sample,
-                       index,
-                       handleChange,
-                       checkSampleId,
-                       deleteSample,
-                       errors,
-                       sampleTypes,
-                       validatingIds = {},
-                       isExpanded = false,
-                       toggleExpand,
-                       disabled = false,
-                       patients = [],
-                       orderItems = []
-                   }) => {
+    sample,
+    index,
+    handleChange,
+    checkSampleId,
+    deleteSample,
+    errors,
+    sampleTypes,
+    validatingIds = {},
+    isExpanded = false,
+    toggleExpand,
+    disabled = false,
+    patients = [],
+    orderItems = []
+}) => {
     const theme = useTheme();
 
     /**
@@ -427,6 +429,46 @@ const SampleRow = ({
                                 </TextField>
                             </Grid>
                         )}
+
+
+                        {/* Pooling Checkbox */}
+                        <Grid item xs={12} md={4}>
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={!!sample?.pooling}
+                                        onChange={(e) => {
+                                            // Create a synthetic event or directly call change handler logic if needed, 
+                                            // but handleChange expects (index)(e) where e.target has name/value.
+                                            // Checkbox uses 'checked' not 'value' usually, but handleChange implementation might need check.
+                                            // Let's verify handleChange in SampleDetailsForm. 
+                                            // It uses: const {name, value} = e.target;
+                                            // So for checkbox we need to ensure e.target.value is set or handle it differently.
+                                            // Actually, standard handleChange usually reads value. 
+                                            // We should pass the checked state as value or modify handleChange.
+                                            // Let's wrapping it to pass standard event structure.
+                                            const event = {
+                                                target: {
+                                                    name: 'pooling',
+                                                    value: e.target.checked
+                                                }
+                                            };
+                                            handleChange(index)(event);
+                                        }}
+                                        name="pooling"
+                                        color="primary"
+                                        disabled={disabled}
+                                    />
+                                }
+                                label="Pooling"
+                                sx={{
+                                    height: '100%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    '& .MuiTypography-root': { fontWeight: 500 }
+                                }}
+                            />
+                        </Grid>
 
                         {/* Optional Notes Field */}
                         <Grid item xs={12}>
