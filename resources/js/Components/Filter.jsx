@@ -216,8 +216,15 @@ const Filter = ({
     // Render the filter badge if needed
     const renderFilterCell = useCallback((col, index) => {
         const isActive = hasActiveFilter(col);
+        const isArrayFilter = Array.isArray(col.filter);
 
         if (!col.filter) return null;
+
+        const columnTitle = isArrayFilter && col.title ? (
+            <Typography variant="caption" color="text.secondary" fontWeight={500} sx={{ mb: 0.5, display: 'block' }}>
+                {col.title}
+            </Typography>
+        ) : null;
 
         if (isActive) {
             return (
@@ -228,7 +235,7 @@ const Filter = ({
                     sx={styles.badgeStyles}
                 >
                     <Box sx={styles.activeFilterBox}>
-                        {Array.isArray(col.filter) ? (
+                        {isArrayFilter ? (
                             <Stack
                                 spacing={1.5}
                                 direction="column"
@@ -245,6 +252,7 @@ const Filter = ({
                                         </IconButton>
                                     </Tooltip>
                                 </Box>
+                                {columnTitle}
                                 {renderFilterFields(col.filter, index)}
                             </Stack>
                         ) : (
@@ -271,10 +279,14 @@ const Filter = ({
         // Regular filter without active state
         return (
             <Box sx={styles.filterContentBox}>
-                {Array.isArray(col.filter) ?
-                    renderFilterFields(col.filter, index) :
+                {isArrayFilter ? (
+                    <>
+                        {columnTitle}
+                        {renderFilterFields(col.filter, index)}
+                    </>
+                ) : (
                     renderSingleFilterField(col.filter, index)
-                }
+                )}
             </Box>
         );
     }, [hasActiveFilter, handleClearColumnFilter, renderFilterFields, renderSingleFilterField, styles]);
@@ -297,7 +309,7 @@ const Filter = ({
         >
             {/* Header cell with clear filters button */}
             {filterCount > 0 && (
-                <Grid item xs={12} sx={styles.headerCell}>
+                <Grid size={12} sx={styles.headerCell}>
                     <Box sx={styles.headerBox}>
                         <Box sx={styles.filterIndicator}>
                             <FilterListIcon color="primary" fontSize="small"/>
@@ -326,13 +338,9 @@ const Filter = ({
             )}
             {/* Filter cells */}
             {columns.map((col, index) => col.filter && <Grid
-                    item
+                    size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
                     key={index}
                     sx={styles.filterCell}
-                    xs={12}
-                    sm={6}
-                    md={4}
-                    lg={3}
                 >
                     {renderFilterCell(col, index)}
                 </Grid>

@@ -25,9 +25,6 @@ import {
 import TestDetails from "@/Pages/Order/Components/TestDetails.jsx";
 import {router} from "@inertiajs/react";
 
-/**
- * Breadcrumbs for the layout
- */
 const breadcrumbs = [
     {
         title: "Diagnostic Tests",
@@ -36,18 +33,8 @@ const breadcrumbs = [
     },
 ];
 
-/**
- * Tests Index component
- * Lists available diagnostic tests with filtering and pagination
- *
- * @param {Object} props Component props
- * @param {Object} props.tests Tests data with pagination
- * @param {Object} props.request Request parameters
- * @returns {JSX.Element} Rendered component
- */
 function Index({tests: {data: testsData, ...pagination}, request}) {
 
-    // Page reload state
     const {
         data,
         processing,
@@ -58,20 +45,9 @@ function Index({tests: {data: testsData, ...pagination}, request}) {
         onPageChange
     } = usePageReload(request, ["tests", "request"]);
 
-    // State for test details modal
     const [test, setTest] = useState();
     const [openShowForm, setOpenShowForm] = useState(false);
 
-    // State for search and filters
-    const [searchTerm, setSearchTerm] = useState("");
-    const [showFilters, setShowFilters] = useState(false);
-
-    /**
-     * Open test details modal
-     *
-     * @param {number} id Test ID
-     * @returns {Function} Click handler
-     */
     const handleShow = (id) => () => {
         let testIndex = testsData.findIndex(item => item.id === id);
         if (testIndex >= 0) {
@@ -80,37 +56,17 @@ function Index({tests: {data: testsData, ...pagination}, request}) {
         }
     };
 
-    /**
-     * Close test details modal
-     */
     const handleCloseShowForm = () => {
         setOpenShowForm(false);
-        resetTest();
+        setTest(null);
     };
 
-    /**
-     * Reset test state
-     */
-    const resetTest = () => setTest(null);
-
-    /**
-     * Navigate to create order page
-     *
-     * @param {number} id Test ID
-     * @returns {Function} Click handler
-     */
     const createOrder = (id) => (e) => {
         e.preventDefault();
         e.stopPropagation();
         router.visit(route("orders.create", {test: id}));
     };
 
-    /**
-     * Format turnaround time
-     *
-     * @param {number} days Days
-     * @returns {string} Formatted turnaround time
-     */
     const formatTurnaroundTime = (days) => {
         if (!days && days !== 0) return "—";
 
@@ -138,9 +94,6 @@ function Index({tests: {data: testsData, ...pagination}, request}) {
         );
     };
 
-    /**
-     * Table columns definition
-     */
     const columns = useMemo(() => [
         {
             field: "code",
@@ -152,7 +105,6 @@ function Index({tests: {data: testsData, ...pagination}, request}) {
                 type: "text",
                 value: data?.filters?.code
             },
-
             sortable: true,
             render: (row) => (
                 <Typography variant="body2" fontWeight="500" fontFamily="monospace" sx={{letterSpacing: '0.5px'}}>
@@ -306,15 +258,6 @@ function Index({tests: {data: testsData, ...pagination}, request}) {
         },
     ], [data?.filters]);
 
-    /**
-     * Handle page change
-     */
-    const handlePage = (e) => {
-        e.preventDefault();
-        reload();
-    };
-
-
     return (
         <>
             <PageHeader
@@ -332,8 +275,6 @@ function Index({tests: {data: testsData, ...pagination}, request}) {
                     overflow: 'hidden'
                 }}
             >
-
-                {/* Table container */}
                 <Box sx={{overflowX: "auto"}}>
                     <TableLayout
                         columns={columns}
@@ -341,15 +282,12 @@ function Index({tests: {data: testsData, ...pagination}, request}) {
                         onPageChange={onPageChange}
                         pagination={pagination}
                         onFilterChange={onFilterChange}
-                        onFilter={handlePage}
                         filter
                         onOrderByChange={onOrderByChange}
                         loading={processing}
+                        onRefresh={reload}
                         tableModel={{
-                            orderBy: data.sort ?? {
-                                field: "id",
-                                type: "asc"
-                            },
+                            sort: data.sort ?? { field: "id", type: "asc" },
                             page: data.page,
                             filter: data.filters
                         }}
@@ -382,14 +320,12 @@ function Index({tests: {data: testsData, ...pagination}, request}) {
                     />
                 </Box>
 
-                {/* Test details dialog */}
                 {openShowForm && test && <TestDetails test={test} open={openShowForm} onClose={handleCloseShowForm}/>}
             </Paper>
         </>
     );
 }
 
-// Set layout wrapper
 Index.layout = (page) => (
     <AdminLayout
         auth={page.props.auth}

@@ -4,7 +4,6 @@ import DialogContent  from "@mui/material/DialogContent";
 import DialogContentText  from "@mui/material/DialogContentText";
 import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
-import { GridToolbar } from "@mui/x-data-grid";
 import ReportProblemIcon from "@mui/icons-material/ReportProblem";
 
 const DeleteForm = ({title,agreeCB,disAgreeCB,openDelete}) => {
@@ -12,7 +11,7 @@ const DeleteForm = ({title,agreeCB,disAgreeCB,openDelete}) => {
 
 
     return (
-        <Dialog components={{ Toolbar: GridToolbar }} open={openDelete} onClose={disAgreeCB} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description" >
+        <Dialog open={openDelete} onClose={disAgreeCB} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description" >
                 <DialogTitle id="alert-dialog-title">
                     <ReportProblemIcon color='red'/>
                     </DialogTitle>

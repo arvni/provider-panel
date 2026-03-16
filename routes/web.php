@@ -88,7 +88,7 @@ Route::middleware('auth')->group(function () {
         Route::get("/materials", ExportExcelMaterialsController::class)->name("materials");
     });
     Route::get("patient-list", PatientListController::class)->name("api.patients.list");
-    Route::resource("patients", PatientController::class)->only(["index", "edit", "update", "destroy"]);
+    Route::resource("patients", PatientController::class)->only(["index", "show", "edit", "update", "destroy"]);
     Route::resource("collectRequests", CollectRequestController::class)->only(["index", "show"])->names([
         'index' => 'collectRequests.index',
         'show' => 'collectRequests.show',

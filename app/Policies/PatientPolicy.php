@@ -20,7 +20,7 @@ class PatientPolicy
      */
     public function view(User $user, Patient $patient): bool
     {
-        return $user->id === $patient->user_id;
+        return $user->can('Admin.Patient.Show') || $user->id === $patient->user_id;
     }
 
     /**
@@ -28,7 +28,7 @@ class PatientPolicy
      */
     public function update(User $user, Patient $patient): bool
     {
-        return $user->id === $patient->user_id;
+        return $user->can('Admin.Patient.Update') || $user->id === $patient->user_id;
     }
 
     /**
@@ -36,6 +36,6 @@ class PatientPolicy
      */
     public function delete(User $user, Patient $patient): bool
     {
-        return $user->id === $patient->user_id;
+        return $user->can('Admin.Patient.Delete') || $user->id === $patient->user_id;
     }
 }

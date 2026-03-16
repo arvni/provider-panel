@@ -54,11 +54,15 @@ class PatientRepository extends BaseRepository implements PatientRepositoryInter
     }
 
     /**
-     * Show a patient with all relations
+     * Show a patient with all relations and orders
      */
     public function show(Patient $patient): Patient
     {
-        $patient->load(['RelatedPatients', 'Orders', 'OrderItems']);
+        $patient->load([
+            'RelatedPatients',
+            'Orders' => fn($q) => $q->with('Tests:id,name')->latest(),
+            'OrderItems.Test:id,name',
+        ]);
         return $patient;
     }
 
@@ -165,6 +169,23 @@ class PatientRepository extends BaseRepository implements PatientRepositoryInter
 
         if (isset($filters['nationality'])) {
             $this->query->where('nationality', $filters['nationality']);
+        }
+
+        if (isset($filters['dateOfBirth'])) {
+            if (!empty($filters['dateOfBirth']['from'])) {
+                $this->query->where('dateOfBirth', '>=', $filters['dateOfBirth']['from']);
+            }
+            if (!empty($filters['dateOfBirth']['to'])) {
+                $this->query->where('dateOfBirth', '<=', $filters['dateOfBirth']['to']);
+            }
+        }
+
+        if (isset($filters['has_orders']) && $filters['has_orders'] !== '') {
+            if ($filters['has_orders'] === '1') {
+                $this->query->has('Orders');
+            } elseif ($filters['has_orders'] === '0') {
+                $this->query->doesntHave('Orders');
+            }
         }
     }
 }

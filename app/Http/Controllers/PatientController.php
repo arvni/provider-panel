@@ -33,6 +33,20 @@ class PatientController extends Controller
     }
 
     /**
+     * Display the specified patient
+     */
+    public function show(Patient $patient): Response
+    {
+        $this->authorize('view', $patient);
+
+        $patient = $this->patientRepository->show($patient);
+
+        return Inertia::render('Patient/Show', [
+            'patient' => $patient,
+        ]);
+    }
+
+    /**
      * Show the form for editing the specified patient
      */
     public function edit(Patient $patient): Response

@@ -28,7 +28,7 @@ import {
     ScienceOutlined,
     DragIndicator
 } from "@mui/icons-material";
-import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
+import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import DeleteButton from "@/Components/DeleteButton";
 import AddSampleTypeForm from "./AddSampleTypeForm";
 import { makeId } from "@/Services/makeUUID";
@@ -63,22 +63,25 @@ const SampleTypeForm = ({ error, sampleTypes = [], onChange, disabled = false })
         let newSampleTypes = [...sampleTypes];
         let index = newSampleTypes.findIndex((item) => item.id === sampleType.id);
 
+        // Always store a plain copy, never the state reference itself
+        const newItem = {
+            ...sampleType,
+            sample_type: sampleType.sample_type ? { ...sampleType.sample_type } : undefined,
+        };
+
         if (index === -1) {
             // Add new sample type
-            newSampleTypes.push(sampleType);
+            newSampleTypes.push(newItem);
         } else {
             // Update existing sample type
-            newSampleTypes.splice(index, 1, sampleType);
+            newSampleTypes.splice(index, 1, newItem);
         }
 
         // If this is a default sample type, update other sample types to not be default
-        if (sampleType.is_default) {
-            newSampleTypes = newSampleTypes.map(item => {
-                if (item.id !== sampleType.id) {
-                    return { ...item, is_default: false };
-                }
-                return item;
-            });
+        if (newItem.is_default) {
+            newSampleTypes = newSampleTypes.map(item =>
+                item.id !== newItem.id ? { ...item, is_default: false } : item
+            );
         }
 
         onChange("sample_types", newSampleTypes);
@@ -133,7 +136,11 @@ const SampleTypeForm = ({ error, sampleTypes = [], onChange, disabled = false })
      */
     const handleEditSampleType = (index) => () => {
         if (sampleTypes && sampleTypes[index]) {
-            setSampleType({...sampleTypes[index]});
+            const item = sampleTypes[index];
+            setSampleType({
+                ...item,
+                sample_type: item.sample_type ? { ...item.sample_type } : undefined,
+            });
         }
         setOpenAddSampleType(true);
     };
@@ -155,7 +162,7 @@ const SampleTypeForm = ({ error, sampleTypes = [], onChange, disabled = false })
 
         // If we deleted the default sample type, set the first remaining one as default
         if (isDefault && newSampleTypes.length > 0) {
-            newSampleTypes[0].is_default = true;
+            newSampleTypes[0] = { ...newSampleTypes[0], is_default: true };
         }
 
         onChange("sample_types", newSampleTypes);

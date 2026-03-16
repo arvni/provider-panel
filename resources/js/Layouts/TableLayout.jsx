@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import {
     Table,
     TableBody,
@@ -30,6 +30,13 @@ import SearchOffIcon from '@mui/icons-material/SearchOff';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { motion } from "framer-motion";
+
+const spinKeyframes = {
+    '@keyframes spin': {
+        '0%': { transform: 'rotate(0deg)' },
+        '100%': { transform: 'rotate(360deg)' },
+    },
+};
 
 /**
  * Enhanced empty state message with illustration and helpful text
@@ -260,14 +267,8 @@ const TableLayout = ({
                                         onClick={onRefresh}
                                         disabled={loading}
                                         sx={{
-                                            transition: 'transform 0.3s',
-                                            ...(loading && {
-                                                animation: 'spin 1s linear infinite',
-                                            }),
-                                            '@keyframes spin': {
-                                                '0%': { transform: 'rotate(0deg)' },
-                                                '100%': { transform: 'rotate(360deg)' }
-                                            }
+                                            ...(loading && { animation: 'spin 1s linear infinite' }),
+                                            ...spinKeyframes,
                                         }}
                                     >
                                         <RefreshIcon />
@@ -325,7 +326,7 @@ const TableLayout = ({
                                                     title={title}
                                                     field={rest.field}
                                                     onClick={onOrderByChange}
-                                                    currentOrder={tableModel.orderBy}
+                                                    currentOrder={tableModel.sort}
                                                 />
                                             ) : (
                                                 title

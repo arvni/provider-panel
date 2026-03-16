@@ -48,9 +48,13 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
     {
         $this->query
             ->with("OrderItems.Samples")
-            ->withAggregate("Patient", "fullName")
-            ->withAggregate("Patient", "reference_id")
-            ->withAggregate("Patient", "dateOfBirth");
+            ->select('orders.*')
+            ->leftJoin('patients', 'patients.id', '=', 'orders.main_patient_id')
+            ->addSelect([
+                'patients.fullName as patient_full_name',
+                'patients.dateOfBirth as patient_date_of_birth',
+                'patients.reference_id as patient_reference_id',
+            ]);
 
         if (isset($queryData['filters'])) {
             $this->applyFilter($queryData['filters']);
@@ -74,9 +78,12 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
             ->with("Tests:id,name")
             ->with("OrderItems.Samples")
             ->withAggregate("User", "name")
-            ->withAggregate("Patient", "fullName")
-            ->withAggregate("Patient", "reference_id")
-            ->withAggregate("Patient", "dateOfBirth");
+            ->leftJoin('patients', 'patients.id', '=', 'orders.main_patient_id')
+            ->addSelect([
+                'patients.fullName as patient_full_name',
+                'patients.dateOfBirth as patient_date_of_birth',
+                'patients.reference_id as patient_reference_id',
+            ]);
 
         if (isset($queryData['filters'])) {
             $this->applyFilter($queryData['filters']);
@@ -137,6 +144,28 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
 
         if (isset($filters['patient_reference_id'])) {
             $this->query->search($filters['patient_reference_id'], ['Patient.reference_id']);
+        }
+
+        if (isset($filters['bion_id']) && $filters['bion_id'] !== '') {
+            $this->query->where('orders.server_id', 'like', '%' . $filters['bion_id'] . '%');
+        }
+
+        if (isset($filters['patient_date_of_birth'])) {
+            if (!empty($filters['patient_date_of_birth']['from'])) {
+                $this->query->where('patients.dateOfBirth', '>=', $filters['patient_date_of_birth']['from']);
+            }
+            if (!empty($filters['patient_date_of_birth']['to'])) {
+                $this->query->where('patients.dateOfBirth', '<=', $filters['patient_date_of_birth']['to']);
+            }
+        }
+
+        if (isset($filters['sent_at'])) {
+            if (!empty($filters['sent_at']['from'])) {
+                $this->query->whereDate('orders.sent_at', '>=', $filters['sent_at']['from']);
+            }
+            if (!empty($filters['sent_at']['to'])) {
+                $this->query->whereDate('orders.sent_at', '<=', $filters['sent_at']['to']);
+            }
         }
     }
 
