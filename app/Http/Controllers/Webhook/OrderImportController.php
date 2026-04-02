@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Webhook;
 
+use App\Enums\OrderStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Material;
 use App\Models\Order;
@@ -35,6 +36,14 @@ class OrderImportController extends Controller
      */
     public function import(Request $request): JsonResponse
     {
+        // Verify webhook signature before processing
+        $signature = $request->header('X-Webhook-Signature');
+        $expectedSignature = hash_hmac('sha256', $request->getContent(), config('webhook.secret'));
+        if (!hash_equals((string) $signature, $expectedSignature)) {
+            Log::warning('Order import webhook signature mismatch');
+            return response()->json(['error' => 'Invalid signature'], 401);
+        }
+
         try {
             // Validate the incoming webhook payload
             $validator = $this->validateWebhookPayload($request);
@@ -42,7 +51,7 @@ class OrderImportController extends Controller
             if ($validator->fails()) {
                 Log::warning('Order import webhook validation failed', [
                     'errors' => $validator->errors()->toArray(),
-                    'payload' => $request->all()
+                    'order_id' => $request->input('order.id'),
                 ]);
 
                 return response()->json([
@@ -60,9 +69,9 @@ class OrderImportController extends Controller
             ]);
 
             // Process the order import in a database transaction
-//           = DB::transaction(function () use ($data) {
-            $result = $this->processOrderImport($data);
-//            });
+            $result = DB::transaction(function () use ($data) {
+                return $this->processOrderImport($data);
+            });
 
             Log::info('Order import successful', [
                 'local_order_id' => $result['order_id'],
@@ -94,13 +103,13 @@ class OrderImportController extends Controller
         } catch (Exception $e) {
             Log::error('Order import failed', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'payload' => $request->all()
+                'order_id' => $request->input('order.id'),
+                'server_id' => $request->input('order.server_id'),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to import order: ' . $e->getMessage()
+                'message' => 'Failed to import order',
             ], 500);
         }
     }
@@ -226,6 +235,8 @@ class OrderImportController extends Controller
             'patient_ids' => $patientIds,
             'created_at' => Carbon::parse($orderData["created_at"] ?? now()),
             'updated_at' => Carbon::parse($orderData["updated_at"] ?? now()),
+            'sent_at' => $orderData['status'] === OrderStatus::SENT->value ? now() : null,
+            'reported_at' => $orderData['status'] === OrderStatus::REPORTED->value ? now() : null,
         ]);
 
         Log::info('Order created', ['order_id' => $order->id]);
@@ -425,10 +436,18 @@ class OrderImportController extends Controller
      */
     private function updateExistingOrder(Order $order, array $orderData, int $userId): array
     {
+        $updateFields = ['status' => $orderData['status']];
+
+        if ($orderData['status'] === OrderStatus::SENT->value && is_null($order->sent_at)) {
+            $updateFields['sent_at'] = now();
+        }
+
+        if ($orderData['status'] === OrderStatus::REPORTED->value && is_null($order->reported_at)) {
+            $updateFields['reported_at'] = now();
+        }
+
         // Update order status and other fields
-        $order->update([
-            'status' => $orderData['status'],
-        ]);
+        $order->update($updateFields);
 
         Log::info('Order updated', ['order_id' => $order->id]);
 

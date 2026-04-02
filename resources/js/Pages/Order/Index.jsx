@@ -21,6 +21,8 @@ import {
     LocalShipping as ShippingIcon,
     Download as DownloadIcon,
     ViewList as ViewListIcon,
+    CheckCircle as CheckCircleIcon,
+    Schedule as ScheduleIcon,
 } from "@mui/icons-material";
 import ClientLayout from "@/Layouts/AuthenticatedLayout";
 import PageHeader from "@/Components/PageHeader";
@@ -118,14 +120,15 @@ const Index = ({orders: {data: ordersData, ...pagination}, request}) => {
     // Get status color
     const getStatusColor = (status) => {
         const statusMap = {
+            'pending': 'error',
             'requested': 'info',
             'logistic requested': 'warning',
             'sent': 'primary',
             'received': 'success',
             'processing': 'secondary',
+            'semi reported': 'warning',
             'reported': 'success',
             'report downloaded': 'default',
-            'pending': 'error'
         };
 
         return statusMap[status] || 'default';
@@ -211,11 +214,13 @@ const Index = ({orders: {data: ordersData, ...pagination}, request}) => {
                 type: "select",
                 options: [
                     {value: "", label: "All"},
+                    {value: "pending", label: "Pending"},
                     {value: "requested", label: "Requested"},
                     {value: "logistic requested", label: "Logistic Requested"},
                     {value: "sent", label: "Sent"},
                     {value: "received", label: "Received"},
                     {value: "processing", label: "Processing"},
+                    {value: "semi reported", label: "Semi Reported"},
                     {value: "reported", label: "Reported"},
                     {value: "report downloaded", label: "Report Downloaded"},
                 ],
@@ -231,6 +236,37 @@ const Index = ({orders: {data: ordersData, ...pagination}, request}) => {
             )
         },
         {
+            field: "step",
+            title: "Progress",
+            type: "text",
+            render: (row) => {
+                if (!row.editable || row.status !== "pending") return null;
+                const stepLabels = {
+                    "test method": { label: "Test Method", step: 1 },
+                    "patient details": { label: "Patient Details", step: 2 },
+                    "patient test assignment": { label: "Patient Assignment", step: 3 },
+                    "clinical details": { label: "Clinical Details", step: 4 },
+                    "sample details": { label: "Sample Details", step: 5 },
+                    "consent form": { label: "Consent Form", step: 6 },
+                    "finalize": { label: "Finalize", step: 7 },
+                };
+                const info = stepLabels[row.step];
+                if (!info) return null;
+                return (
+                    <Tooltip title={`Step ${info.step} of 7`}>
+                        <Chip
+                            icon={<ScheduleIcon fontSize="small" />}
+                            label={info.label}
+                            size="small"
+                            color="warning"
+                            variant="outlined"
+                            sx={{ fontSize: '0.7rem' }}
+                        />
+                    </Tooltip>
+                );
+            }
+        },
+        {
             field: "patient_full_name",
             title: "Patient Name",
             type: "text",
@@ -241,10 +277,12 @@ const Index = ({orders: {data: ordersData, ...pagination}, request}) => {
                 type: "text",
                 value: data?.filters?.patient_full_name,
             },
-            render: (row) => (
+            render: (row) => row.patient_full_name ? (
                 <Typography variant="body2" fontWeight={500}>
                     {row.patient_full_name}
                 </Typography>
+            ) : (
+                <Typography variant="body2" color="text.secondary">—</Typography>
             )
         },
         {
@@ -268,15 +306,18 @@ const Index = ({orders: {data: ordersData, ...pagination}, request}) => {
                     inputProps: {min: data?.filters?.patient_date_of_birth?.from}
                 }
             ],
-            render: (row) => (
-                <Typography variant="body2">
-                    {new Date(row.patient_date_of_birth).toLocaleDateString(undefined, {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric'
-                    })}
-                </Typography>
-            )
+            render: (row) => {
+                if (!row.patient_date_of_birth) return <Typography variant="body2" color="text.secondary">—</Typography>;
+                return (
+                    <Typography variant="body2">
+                        {new Date(row.patient_date_of_birth).toLocaleDateString(undefined, {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                        })}
+                    </Typography>
+                );
+            }
         },
         {
             field: "sent_at",
