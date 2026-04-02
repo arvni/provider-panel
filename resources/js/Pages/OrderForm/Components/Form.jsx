@@ -149,7 +149,7 @@ const Form = ({
     return (
         <Grid container spacing={3}>
             {/* Basic Information Section */}
-            <Grid item xs={12}>
+            <Grid size={12}>
                 <Paper
                     variant="outlined"
                     sx={{
@@ -163,7 +163,7 @@ const Form = ({
                     </Typography>
 
                     <Grid container spacing={3}>
-                        <Grid item xs={12} sm={6}>
+                        <Grid size={{ xs: 12, sm: 6 }}>
                             <TextField
                                 fullWidth
                                 label="Form Name"
@@ -184,7 +184,7 @@ const Form = ({
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid size={{ xs: 12, sm: 6 }}>
                             <Box>
                                 <Typography
                                     variant="subtitle2"
@@ -303,7 +303,7 @@ const Form = ({
             </Grid>
 
             {/* Form Fields Section */}
-            <Grid item xs={12}>
+            <Grid size={12}>
                 <Paper
                     variant="outlined"
                     sx={{
@@ -387,7 +387,7 @@ const Form = ({
             </Grid>
 
             {/* Form Actions */}
-            <Grid item xs={12}>
+            <Grid size={12}>
                 <Box
                     sx={{
                         display: 'flex',

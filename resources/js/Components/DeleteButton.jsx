@@ -1,63 +1,65 @@
 import {
-    Alert,
     Button,
-    Card,
-    CardActions,
-    CardContent,
     CircularProgress,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
     IconButton,
-    Popper,
+    Tooltip,
 } from "@mui/material";
-import {Delete as DeleteIcon} from "@mui/icons-material";
-import React, {useState} from "react";
-import {useDelete} from "@/Services/api";
+import { Delete as DeleteIcon } from "@mui/icons-material";
+import React, { useState } from "react";
+import { useDelete } from "@/Services/api";
 
+const DeleteButton = ({ url, onConfirm, size = "medium", disabled = false, IconProps = {}, tooltip = "Delete" }) => {
+    const [open, setOpen] = useState(false);
+    const { submit, processing } = useDelete();
 
-const DeleteButton = ({url , onConfirm }) => {
-    const [showConfirmation, setShowConfirmation] = useState(false);
-    const [anchorEl, setAnchorEl] = React.useState(null);
-    const {submit, processing: loading} = useDelete();
+    const handleConfirm = () => {
+        setOpen(false);
+        if (onConfirm) onConfirm();
+        else if (url) submit(url);
+    };
 
-    const handleOpenDelete = (event) => {
-        setAnchorEl(event.currentTarget);
-        setShowConfirmation(true);
-    }
-    const handleCloseDelete = (event) => {
-        setAnchorEl(null);
-        setShowConfirmation(false);
-    }
+    return (
+        <>
+            <Tooltip title={tooltip}>
+                <span>
+                    <IconButton
+                        color="error"
+                        size={size}
+                        disabled={disabled || processing}
+                        onClick={() => setOpen(true)}
+                        aria-label="delete"
+                    >
+                        {processing ? <CircularProgress size={size === "small" ? 16 : 20} color="error" /> : <DeleteIcon {...IconProps} />}
+                    </IconButton>
+                </span>
+            </Tooltip>
 
-    const handleDelete = (e) => {
-        if (onConfirm)
-            onConfirm();
-        else if(url)
-            submit(url);
-    }
-    return <>
-        <IconButton color="error" onClick={handleOpenDelete}>
-            {loading ? <CircularProgress size={25}/> : <DeleteIcon/>}
-        </IconButton>
-        <Popper open={showConfirmation && !loading} anchorEl={anchorEl} placement={"top-start"} modifiers={[{
-            name: 'arrow',
-            enabled: true,
-            options: {
-                element: anchorEl,
-            },
-        }]} sx={{zIndex: theme => theme.zIndex.modal + 10}}>
-            <Card sx={{minWidth: 275}}>
-                <CardContent>
-                    <Alert severity={"warning"}>
-                        Do You Agree With Deleting This ?
-                    </Alert>
-                </CardContent>
-                <CardActions>
-                    <Button size="small" onClick={handleDelete}>Yes</Button>
-                    <Button size="small" onClick={handleCloseDelete}>No</Button>
-                </CardActions>
-            </Card>
-        </Popper>
-
-    </>;
-}
+            <Dialog
+                open={open}
+                onClose={() => setOpen(false)}
+                maxWidth="xs"
+                fullWidth
+            >
+                <DialogContent>
+                    <DialogContentText>
+                        Are you sure you want to delete this item? This action cannot be undone.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
+                    <Button onClick={() => setOpen(false)} variant="outlined" size="small">
+                        Cancel
+                    </Button>
+                    <Button onClick={handleConfirm} color="error" variant="contained" size="small" autoFocus>
+                        Delete
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        </>
+    );
+};
 
 export default DeleteButton;

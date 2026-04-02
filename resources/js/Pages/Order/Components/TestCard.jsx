@@ -158,7 +158,7 @@ const TestCard = (props) => {
             {/* Card content */}
             <CardContent sx={{p: 2}}>
                 <Grid container spacing={2}>
-                    <Grid item xs={12} sm={8}>
+                    <Grid size={{ xs: 12, sm: 8 }}>
                         <Box sx={{mb: 2}}>
                             <div
                                 style={{
@@ -228,7 +228,7 @@ const TestCard = (props) => {
                         </Stack>
                     </Grid>
 
-                    <Grid item xs={12} sm={4}>
+                    <Grid size={{ xs: 12, sm: 4 }}>
                         <Paper
                             elevation={0}
                             sx={{

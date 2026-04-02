@@ -8,6 +8,7 @@ use App\Interfaces\InstructionRepositoryInterface;
 use App\Interfaces\OrderFormRepositoryInterface;
 use App\Interfaces\TestRepositoryInterface;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class TestUpdateWebhookController extends Controller
 {
@@ -34,13 +35,9 @@ class TestUpdateWebhookController extends Controller
             $jsonContents = file_get_contents($jsonFile->path());
             $jsonData = json_decode($jsonContents, true);
             $expectedSignature = hash_hmac('sha256', json_encode($jsonData), config('webhook.secret'));
-            if (!hash_equals($signature, $expectedSignature)) {
-                return response()->json([
-                    'error' => 'Invalid signature',
-                    'signature' => $signature,
-                    "expectedSignature" => $expectedSignature,
-                    "data" => $jsonData,
-                ], 401);
+            if (!hash_equals((string) $signature, $expectedSignature)) {
+                Log::warning('Webhook signature mismatch', ['route' => 'tests.update-by-webhook']);
+                return response()->json(['error' => 'Invalid signature'], 401);
             }
             $t = $this->testRepository->getByServerId($jsonData["test_id"]);
             $testData = $jsonData["test"];

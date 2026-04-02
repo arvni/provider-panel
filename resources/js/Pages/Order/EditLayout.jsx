@@ -70,7 +70,7 @@ const CustomConnector = styled(StepConnector)(({ theme }) => ({
     },
     '&.Mui-completed': {
         '& .MuiStepConnector-line': {
-            borderColor: theme.palette.primary.main,
+            borderColor: theme.palette.success.main,
         },
     },
 }));
@@ -82,7 +82,7 @@ const steps = ["test method", "patient details", "patient test assignment", "cli
 /**
  * Enhanced EditLayout component with improved stepper and navigation
  */
-const EditLayout = ({ auth, step, children, id, onSubmit }) => {
+const EditLayout = ({ auth, step, children, id, onSubmit, onPrevStep }) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -97,11 +97,15 @@ const EditLayout = ({ auth, step, children, id, onSubmit }) => {
         router.visit(route("orders.edit", { step: s, order: id }));
     };
 
-    // Handle previous step navigation
+    // Handle previous step navigation — auto-save if onPrevStep is provided
     const handlePrevStep = () => {
         if (activeStep > 0) {
             const prevStep = steps[activeStep - 1];
-            router.visit(route("orders.edit", { step: prevStep, order: id }));
+            if (onPrevStep) {
+                onPrevStep(prevStep);
+            } else {
+                router.visit(route("orders.edit", { step: prevStep, order: id }));
+            }
         }
     };
 
@@ -282,12 +286,12 @@ const EditLayout = ({ auth, step, children, id, onSubmit }) => {
                                                             alignItems: 'center',
                                                             justifyContent: 'center',
                                                             bgcolor: isCompleted
-                                                                ? theme.palette.primary.main
+                                                                ? theme.palette.success.main
                                                                 : isActive
                                                                     ? alpha(theme.palette.primary.main, 0.1)
                                                                     : theme.palette.grey[300],
                                                             color: isCompleted
-                                                                ? theme.palette.primary.contrastText
+                                                                ? theme.palette.success.contrastText
                                                                 : isActive
                                                                     ? theme.palette.primary.main
                                                                     : theme.palette.text.secondary,
@@ -306,7 +310,7 @@ const EditLayout = ({ auth, step, children, id, onSubmit }) => {
                                                 <Typography
                                                     variant="body2"
                                                     fontWeight={isActive || isCompleted ? 600 : 400}
-                                                    color={isActive ? 'primary.main' : isCompleted ? 'text.primary' : 'text.secondary'}
+                                                    color={isActive ? 'primary.main' : isCompleted ? 'success.main' : 'text.secondary'}
                                                     sx={{ textTransform: 'capitalize' }}
                                                 >
                                                     {item}

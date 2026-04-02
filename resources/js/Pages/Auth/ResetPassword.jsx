@@ -54,7 +54,7 @@ export default function ResetPassword({token, email,siteKey}) {
             <Head title="Reset Password"/>
             <Box component="form" onSubmit={handleSubmit} action={route("password.store")} method="post">
                 <Grid container spacing={2}>
-                    <Grid item xs={12} sx={{width: "100%"}}>
+                    <Grid size={12} sx={{width: "100%"}}>
                         <TextField
                             disabled
                             name="email"
@@ -69,7 +69,7 @@ export default function ResetPassword({token, email,siteKey}) {
                         />
                     </Grid>
 
-                    <Grid item xs={12} sx={{width: "100%"}}>
+                    <Grid size={12} sx={{width: "100%"}}>
                         <PasswordField
                             name="password"
                             value={data.password}
@@ -84,7 +84,7 @@ export default function ResetPassword({token, email,siteKey}) {
                         />
                     </Grid>
 
-                    <Grid item xs={12} sx={{width: "100%"}}>
+                    <Grid size={12} sx={{width: "100%"}}>
                         <PasswordField
                             name="password_confirmation"
                             value={data.password_confirmation}
@@ -99,7 +99,7 @@ export default function ResetPassword({token, email,siteKey}) {
                         />
                     </Grid>
 
-                    <Grid item xs={12} sx={{width: "100%"}}>
+                    <Grid size={12} sx={{width: "100%"}}>
                         <ReCAPTCHA
                             ref={recaptchaRef}
                             sitekey={siteKey}
@@ -107,7 +107,7 @@ export default function ResetPassword({token, email,siteKey}) {
                             onExpired={resetCaptcha}/>
                         {errors.captcha && <FormHelperText error={!!errors.captcha}>{errors.captcha}</FormHelperText>}
                     </Grid>
-                    <Grid item display={"flex"} flexDirection="row" justifyContent="center"
+                    <Grid display={"flex"} flexDirection="row" justifyContent="center"
                           alignItems={"center"} sx={{width: "100%"}}>
                         <LoadingButton loading={processing} type="submit" variant="contained">Update</LoadingButton>
                     </Grid>

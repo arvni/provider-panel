@@ -116,6 +116,16 @@ class CollectRequestRepository extends BaseRepository implements CollectRequestR
         if (isset($filters["user_name"])) {
             $this->query->search($filters["user_name"], ["User.name"]);
         }
+        if (isset($filters["status"]) && $filters["status"] !== '') {
+            $this->query->where("status", $filters["status"]);
+        }
+        if (isset($filters["synced"]) && $filters["synced"] !== '') {
+            if ($filters["synced"] === '1') {
+                $this->query->whereNotNull("server_id");
+            } elseif ($filters["synced"] === '0') {
+                $this->query->whereNull("server_id");
+            }
+        }
     }
 
     public function getById($id): CollectRequest|null

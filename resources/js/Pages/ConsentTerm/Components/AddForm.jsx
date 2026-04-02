@@ -19,10 +19,10 @@ const AddForm = ({values, setValues, submit, open, setOpen, title, loading, rese
         <DialogContent sx={{p: "1em"}}>
             <Container>
                 <Grid container sx={{marginTop: "1em"}} spacing={2}>
-                    <Grid item>
+                    <Grid>
                         <TextField label={"Title"} name={"name"} onChange={handleChange} value={values.name}/>
                     </Grid>
-                    <Grid item>
+                    <Grid>
                         <FormControlLabel control={<Switch/>} label="Is Active" checked={values.is_active} name="is_active" onChange={handleSwitchChange}/>
                     </Grid>
                 </Grid>

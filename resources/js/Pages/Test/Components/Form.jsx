@@ -165,7 +165,7 @@ const Form = ({
                 {expandedSections.basic && (
                     <Box sx={{ p: 3 }}>
                         <Grid container spacing={3}>
-                            <Grid item xs={12} sm={6} md={4}>
+                            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                                 <TextField
                                     error={hasError('name')}
                                     helperText={getErrorMessage('name')}
@@ -186,7 +186,7 @@ const Form = ({
                                 />
                             </Grid>
 
-                            <Grid item xs={12} sm={6} md={3}>
+                            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                                 <TextField
                                     error={hasError('code')}
                                     helperText={getErrorMessage('code')}
@@ -206,7 +206,7 @@ const Form = ({
                                 />
                             </Grid>
 
-                            <Grid item xs={12} sm={6} md={3}>
+                            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                                 <TextField
                                     error={hasError('shortName')}
                                     helperText={getErrorMessage('shortName')}
@@ -227,7 +227,7 @@ const Form = ({
                                 />
                             </Grid>
 
-                            <Grid item xs={12} sm={6} md={2}>
+                            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
                                 <Box sx={{ height: '100%', display: 'flex', alignItems: 'center' }}>
                                     <FormControlLabel
                                         control={
@@ -258,7 +258,7 @@ const Form = ({
                                 </Box>
                             </Grid>
 
-                            <Grid item xs={12} sm={6} md={3}>
+                            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                                 <TextField
                                     error={hasError('turnaroundTime')}
                                     helperText={getErrorMessage('turnaroundTime') || "Number of days to process this test"}
@@ -282,7 +282,7 @@ const Form = ({
                                 />
                             </Grid>
 
-                            <Grid item xs={12} sm={6} md={4}>
+                            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                                 <FormControl
                                     fullWidth
                                     required
@@ -383,7 +383,7 @@ const Form = ({
                         </Typography>
 
                         <Grid container spacing={3}>
-                            <Grid item xs={12} sm={6} md={4}>
+                            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                                 <SelectSearch
                                     name="consent"
                                     label="Consent Form"
@@ -398,7 +398,7 @@ const Form = ({
                                 />
                             </Grid>
 
-                            <Grid item xs={12} sm={6} md={4}>
+                            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                                 <SelectSearch
                                     name="order_form"
                                     label="Order Form"
@@ -413,7 +413,7 @@ const Form = ({
                                 />
                             </Grid>
 
-                            <Grid item xs={12} sm={6} md={4}>
+                            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                                 <SelectSearch
                                     name="instruction"
                                     label="Instruction"

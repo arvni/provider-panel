@@ -48,11 +48,11 @@ const Filter = ({defaultFilter, onFilter}) => {
             </AccordionSummary>
             <AccordionDetails>
                 <Grid container spacing={2}>
-                    <Grid item xs={12} sm={5}>
+                    <Grid size={{ xs: 12, sm: 5 }}>
                         <TextField sx={{width: "100%"}} name={"search"} value={filter?.search} onChange={handleChange}
                                    label={"Search title"}/>
                     </Grid>
-                    <Grid item xs={12} sm={5}>
+                    <Grid size={{ xs: 12, sm: 5 }}>
                         <Autocomplete name={"permission"}
                                       isOptionEqualToValue={(option, value) => option.id === value?.id}
                                       getOptionLabel={(option) => option?.name ?? ""} value={filter?.permission}
@@ -68,7 +68,7 @@ const Filter = ({defaultFilter, onFilter}) => {
                                           ),
                                       }} label={"Permission"}/>} loading={loading}/>
                     </Grid>
-                    <Grid item xs={12} sm={2} sx={{display: "flex"}} justifyContent={"center"}>
+                    <Grid size={{ xs: 12, sm: 2 }} sx={{display: "flex"}} justifyContent={"center"}>
                         <Button variant={"outlined"} onClick={onFilter(filter)}>Filter</Button>
                     </Grid>
                 </Grid>

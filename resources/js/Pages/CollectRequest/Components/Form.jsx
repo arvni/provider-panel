@@ -200,7 +200,7 @@ const Form = ({
             onClose={processing ? undefined : handleClose}
             fullWidth
             maxWidth="md"
-            TransitionComponent={SlideTransition}
+            slots={{ transition: SlideTransition }}
             PaperProps={{
                 elevation: 5,
                 sx: { borderRadius: 2 }
@@ -247,7 +247,7 @@ const Form = ({
 
                 <Grid container spacing={3}>
                     {/* Status field */}
-                    <Grid item xs={12}>
+                    <Grid size={12}>
                         <Paper
                             variant="outlined"
                             sx={{
@@ -311,7 +311,7 @@ const Form = ({
 
                     {/* Scheduled date field */}
                     {values.status === "scheduled" && (
-                        <Grid item xs={12} md={6}>
+                        <Grid size={{ xs: 12, md: 6 }}>
                             <TextField
                                 error={hasError('scheduleDate')}
                                 helperText={getErrorMessage('scheduleDate') || "Select the scheduled collection date and time"}
@@ -339,7 +339,7 @@ const Form = ({
 
                     {/* Pickup date field */}
                     {values.status === "picked up" && (
-                        <Grid item xs={12} md={6}>
+                        <Grid size={{ xs: 12, md: 6 }}>
                             <TextField
                                 error={hasError('pickupDate')}
                                 helperText={getErrorMessage('pickupDate') || "Select the actual pickup date and time"}
@@ -367,7 +367,7 @@ const Form = ({
 
                     {/* Status details field */}
                     {values.status !== "received" && (
-                        <Grid item xs={12}>
+                        <Grid size={12}>
                             <TextField
                                 error={hasError(`${values.status}Details`)}
                                 helperText={

@@ -4,9 +4,6 @@ import {
     Paper,
     Box,
     Typography,
-    Stepper,
-    Step,
-    StepLabel,
     Button,
     Divider,
     IconButton,
@@ -17,7 +14,6 @@ import {
     Tooltip,
     Card,
     CardContent,
-    useMediaQuery
 } from "@mui/material";
 import TestMethodForm from "./Components/TestMethodForm";
 import { useSubmitForm } from "@/Services/api";
@@ -27,8 +23,6 @@ import {
     Add as AddIcon,
     Save as SaveIcon,
     Cancel as CancelIcon,
-    Science as ScienceIcon,
-    Assignment as AssignmentIcon,
     Help as HelpIcon
 } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
@@ -38,7 +32,6 @@ import { motion, AnimatePresence } from "framer-motion";
  */
 const Add = ({ auth, tests = [] }) => {
     const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showHelp, setShowHelp] = useState(false);
 
@@ -60,13 +53,6 @@ const Add = ({ auth, tests = [] }) => {
         orderForms: [],
         samples: [{}]
     }, route("orders.store"));
-
-    // Simplified steps for the order creation process
-    const steps = [
-        { label: 'Select Test Method', icon: <ScienceIcon /> },
-        { label: 'Patient Information', icon: <AssignmentIcon /> },
-        { label: 'Samples', icon: <ScienceIcon /> }
-    ];
 
     // Handle form field changes
     const handleChange = (key, value) => {
@@ -226,81 +212,7 @@ const Add = ({ auth, tests = [] }) => {
                         </Box>
                     </Box>
 
-                    {/* Progress Stepper */}
-                    <Box
-                        component={motion.div}
-                        variants={itemVariants}
-                        sx={{ mb: 4 }}
-                    >
-                        <Stepper
-                            activeStep={0}
-                            alternativeLabel={!isMobile}
-                            orientation={isMobile ? "vertical" : "horizontal"}
-                            sx={{
-                                mb: 3
-                            }}
-                        >
-                            {steps.map((step, index) => (
-                                <Step key={step.label}>
-                                    <StepLabel
-                                        StepIconProps={{
-                                            icon: index === 0 ? (
-                                                <Box
-                                                    sx={{
-                                                        bgcolor: theme.palette.primary.main,
-                                                        color: theme.palette.primary.contrastText,
-                                                        borderRadius: '50%',
-                                                        width: 24,
-                                                        height: 24,
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                    }}
-                                                >
-                                                    {index + 1}
-                                                </Box>
-                                            ) : (
-                                                <Box
-                                                    sx={{
-                                                        bgcolor: theme.palette.grey[400],
-                                                        color: theme.palette.grey[50],
-                                                        borderRadius: '50%',
-                                                        width: 24,
-                                                        height: 24,
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                    }}
-                                                >
-                                                    {index + 1}
-                                                </Box>
-                                            )
-                                        }}
-                                    >
-                                        <Box
-                                            sx={{
-                                                display: 'flex',
-                                                flexDirection: isMobile ? 'row' : 'column',
-                                                alignItems: 'center',
-                                                gap: 1
-                                            }}
-                                        >
-                                            {isMobile && step.icon}
-                                            <Typography
-                                                variant="body2"
-                                                fontWeight={index === 0 ? 600 : 400}
-                                                color={index === 0 ? 'primary.main' : 'text.secondary'}
-                                            >
-                                                {step.label}
-                                            </Typography>
-                                        </Box>
-                                    </StepLabel>
-                                </Step>
-                            ))}
-                        </Stepper>
-
-                        <Divider sx={{ mb: 3 }} />
-                    </Box>
+                    <Divider sx={{ mb: 3 }} />
 
                     {/* Help Box */}
                     <AnimatePresence>

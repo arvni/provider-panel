@@ -195,9 +195,6 @@ const SampleDetailsForm = ({
                 // Call API to validate
                 const response = await axios.get(`${route("api.check_materials")}?${params}`);
 
-                // Validation successful
-                console.log(response.data);
-
                 // Clear validating state
                 setValidatingIds(prev => ({...prev, [index]: false}));
             } catch (error) {

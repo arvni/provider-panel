@@ -164,10 +164,12 @@ export const useGetData = () => {
         if (query) {
             url += "?" + new URLSearchParams(query).toString();
         }
-        return axios.get(url).then(({ data }) => {
-            setLoading(false);
+        try {
+            const { data } = await axios.get(url);
             return data;
-        });
+        } finally {
+            setLoading(false);
+        }
     }
 
     return { getData, loading };
@@ -183,19 +185,15 @@ export async function fetcher(resource) {
     try {
         result = await fetch(resource);
     } catch (e) {
-        console.log('***** Problem with fetch that results in an exception');
-        console.error(e);
-        throw new Error('Invalid Response');
+        throw new Error('Network error');
     }
     if (result.ok) {
         try {
             return await result.json();
         } catch (e) {
-            console.log('***** Problem with JSON payload', e);
-            throw 'Result OK but JSON broken';
+            throw new Error('Invalid JSON response');
         }
     } else {
-        console.log('****** Result ! OK', result.status, result.statusText);
-        throw result.statusText;
+        throw new Error(result.statusText || `HTTP ${result.status}`);
     }
 }

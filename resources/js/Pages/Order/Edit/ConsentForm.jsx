@@ -490,7 +490,7 @@ const ConsentForm = ({
                     component={motion.div}
                     variants={itemVariants}
                 >
-                    <Grid item xs={12}>
+                    <Grid size={12}>
                         <Paper
                             elevation={0}
                             sx={{
@@ -605,7 +605,7 @@ const ConsentForm = ({
                     </Grid>
 
                     {/* File uploader */}
-                    <Grid item xs={12}>
+                    <Grid size={12}>
                         <Paper
                             elevation={0}
                             sx={{

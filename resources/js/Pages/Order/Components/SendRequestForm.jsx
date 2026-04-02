@@ -96,7 +96,7 @@ const SendRequestForm = ({ open, onClose, orders }) => {
             maxWidth="md"
             fullWidth
             fullScreen={isMobile}
-            TransitionComponent={Zoom}
+            slots={{ transition: Zoom }}
             PaperProps={{
                 elevation: 5,
                 sx: {

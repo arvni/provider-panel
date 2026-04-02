@@ -30,12 +30,11 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email', 'exists:users,email'],
+            'email' => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
-            'cf-turnstile-response'=>[
-             "required",
-              app(Turnstile::class)
-            ],
+            'cf-turnstile-response' => config('services.turnstile.site_key')
+                ? ['required', app(Turnstile::class)]
+                : [],
         ];
     }
 

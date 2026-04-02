@@ -10,130 +10,61 @@ import { SWRConfig } from "swr";
 import LoadingBar from 'react-top-loading-bar';
 import {swrConfig} from "@/Layouts/Components/Notification/lib/swrConfig.js";
 
-// Create a responsive theme with consistent branding colors
+// Base theme — color mode is managed per-session in AuthenticatedLayout
 let theme = createTheme({
-    palette: {
-        primary: {
-            main: '#2a3990', // Professional blue for brand consistency
-            light: '#5561c1',
-            dark: '#001762',
-            contrastText: '#ffffff',
+    cssVariables: { colorSchemeSelector: 'data-mui-color-scheme' },
+    colorSchemes: {
+        light: {
+            palette: {
+                primary: { main: '#2a3990', light: '#5561c1', dark: '#001762' },
+                secondary: { main: '#42a5f5', light: '#80d6ff', dark: '#0077c2' },
+                background: { default: '#f5f7fa', paper: '#ffffff' },
+                text: { primary: '#212121', secondary: '#757575' },
+            },
         },
-        secondary: {
-            main: '#42a5f5', // Complementary blue
-            light: '#80d6ff',
-            dark: '#0077c2',
-            contrastText: '#ffffff',
-        },
-        background: {
-            default: '#f5f7fa',
-            paper: '#ffffff',
-        },
-        error: {
-            main: '#d32f2f',
-        },
-        warning: {
-            main: '#f57c00',
-        },
-        info: {
-            main: '#0288d1',
-        },
-        success: {
-            main: '#388e3c',
-        },
-        text: {
-            primary: '#212121',
-            secondary: '#757575',
+        dark: {
+            palette: {
+                primary: { main: '#5561c1', light: '#8490f5', dark: '#2a3990' },
+                background: { default: '#121212', paper: '#1e1e1e' },
+            },
         },
     },
     typography: {
         fontFamily: [
-            "Montserrat",
-            "-apple-system",
-            "BlinkMacSystemFont",
-            "Segoe UI",
-            "Roboto",
-            "Helvetica Neue",
-            "Arial",
-            "sans-serif",
+            "Montserrat", "-apple-system", "BlinkMacSystemFont",
+            "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "sans-serif",
         ].join(','),
-        h1: {
-            fontWeight: 700,
-        },
-        h2: {
-            fontWeight: 600,
-        },
-        h3: {
-            fontWeight: 600,
-        },
-        h4: {
-            fontWeight: 600,
-        },
-        h5: {
-            fontWeight: 600,
-        },
-        h6: {
-            fontWeight: 600,
-        },
-        button: {
-            fontWeight: 600,
-            textTransform: 'none', // More modern approach without all-caps buttons
-        },
+        h1: { fontWeight: 700 },
+        h2: { fontWeight: 600 },
+        h3: { fontWeight: 600 },
+        h4: { fontWeight: 600 },
+        h5: { fontWeight: 600 },
+        h6: { fontWeight: 600 },
+        button: { fontWeight: 600, textTransform: 'none' },
     },
-    shape: {
-        borderRadius: 8, // Consistent border radius throughout the app
-    },
+    shape: { borderRadius: 8 },
     components: {
         MuiButton: {
             styleOverrides: {
                 root: {
                     boxShadow: 'none',
-                    '&:hover': {
-                        boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-                    },
-                },
-            },
-        },
-        MuiPaper: {
-            styleOverrides: {
-                root: {
-                    boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
-                },
-                elevation1: {
-                    boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
-                },
-            },
-        },
-        MuiCard: {
-            styleOverrides: {
-                root: {
-                    overflow: 'hidden',
-                    transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
-                    '&:hover': {
-                        transform: 'translateY(-4px)',
-                        boxShadow: '0 10px 20px rgba(0,0,0,0.1)',
-                    },
+                    '&:hover': { boxShadow: '0 4px 8px rgba(0,0,0,0.1)' },
                 },
             },
         },
         MuiAppBar: {
             styleOverrides: {
-                root: {
-                    boxShadow: '0 1px 4px rgba(0,0,0,0.1)',
-                },
+                root: { boxShadow: '0 1px 4px rgba(0,0,0,0.1)' },
             },
         },
         MuiTextField: {
             styleOverrides: {
-                root: {
-                    marginBottom: '16px',
-                },
+                root: { marginBottom: '16px' },
             },
         },
     },
 });
 
-// Make typography responsive across different screen sizes
 theme = responsiveFontSizes(theme);
 
 const appName = import.meta.env.VITE_APP_NAME || 'Bion Genetic Lab';

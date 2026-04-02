@@ -38,7 +38,7 @@ const UserForm = ({values, setValues, cancel, submit, errors, edit}) => {
     return (
         <Container>
             <Grid container spacing={2}>
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                     <TextField error={Object.keys(errors).includes('name')}
                                helperText={errors?.name ?? ""}
                                fullWidth
@@ -47,7 +47,7 @@ const UserForm = ({values, setValues, cancel, submit, errors, edit}) => {
                                value={values.name}
                                onChange={handleChange}/>
                 </Grid>
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                     <TextField error={Object.keys(errors).includes('userName')}
                                helperText={errors?.userName ?? ""}
                                fullWidth
@@ -56,7 +56,7 @@ const UserForm = ({values, setValues, cancel, submit, errors, edit}) => {
                                value={values.userName}
                                onChange={handleChange}/>
                 </Grid>
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                     <TextField error={Object.keys(errors).includes('email')}
                                helperText={errors?.email ?? ""}
                                fullWidth
@@ -66,7 +66,7 @@ const UserForm = ({values, setValues, cancel, submit, errors, edit}) => {
                                value={values.email}
                                onChange={handleChange}/>
                 </Grid>
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                     <TextField error={Object.keys(errors).includes('mobile')}
                                helperText={errors?.mobile ?? ""}
                                label="Mobile"
@@ -75,7 +75,7 @@ const UserForm = ({values, setValues, cancel, submit, errors, edit}) => {
                                onChange={handleChange}
                                fullWidth/>
                 </Grid>
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                     <SelectSearch error={Object.keys(errors).includes("roles")}
                                   helperText={errors?.roles}
                                   label="Roles"
@@ -85,12 +85,12 @@ const UserForm = ({values, setValues, cancel, submit, errors, edit}) => {
                                   url={route("api.roles.list")}
                                   onchange={handleChange}
                                   required/>
-                </Grid><Grid item xs={12}>
+                </Grid><Grid size={12}>
                 <Divider>
                     <strong>Contact Information</strong>
                 </Divider>
             </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                     <TextField
                         multiline
                         rows={2}
@@ -102,7 +102,7 @@ const UserForm = ({values, setValues, cancel, submit, errors, edit}) => {
                         onChange={handleChangeMeta("contact")}
                         label="Address"/>
                 </Grid>
-                <Grid item xs={12} sm={6} md={4} lg={3}>
+                <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
                     <TextField
                         fullWidth
                         name="city"
@@ -112,7 +112,7 @@ const UserForm = ({values, setValues, cancel, submit, errors, edit}) => {
                         onChange={handleChangeMeta("contact")}
                         label="City"/>
                 </Grid>
-                <Grid item xs={12} sm={6} md={4} lg={3}>
+                <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
                     <Autocomplete
                         options={countries.map(item => item.label)}
                         value={values?.meta?.contact?.country ?? ""}
@@ -125,12 +125,12 @@ const UserForm = ({values, setValues, cancel, submit, errors, edit}) => {
                                                             error={errors.hasOwnProperty("meta.contact.country")}/>}
                     />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                     <Divider>
                         <strong> Billing Information</strong>
                     </Divider>
                 </Grid>
-                <Grid item xs={12} sm={6} md={4} lg={3}>
+                <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
                     <TextField
                         fullWidth
                         name="name"
@@ -142,7 +142,7 @@ const UserForm = ({values, setValues, cancel, submit, errors, edit}) => {
                         required
                     />
                 </Grid>
-                <Grid item xs={12} sm={6} md={4} lg={3}>
+                <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
                     <TextField
                         fullWidth
                         name="email"
@@ -154,7 +154,7 @@ const UserForm = ({values, setValues, cancel, submit, errors, edit}) => {
                         required
                     />
                 </Grid>
-                <Grid item xs={12} sm={6} md={4} lg={3}>
+                <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
                     <TextField
                         fullWidth
                         name="phone"
@@ -166,7 +166,7 @@ const UserForm = ({values, setValues, cancel, submit, errors, edit}) => {
                         required
                     />
                 </Grid>
-                <Grid item xs={12} sm={6} md={4} lg={3}>
+                <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
                     <Autocomplete
                         options={countries.map(item => item.label)}
                         value={values?.meta?.billing?.country ?? ""}
@@ -179,7 +179,7 @@ const UserForm = ({values, setValues, cancel, submit, errors, edit}) => {
                                                             error={errors.hasOwnProperty("meta.billing.country")}/>}
                     />
                 </Grid>
-                <Grid item xs={12} sm={6} md={4} lg={3}>
+                <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
                     <TextField
                         fullWidth
                         name="city"
@@ -189,7 +189,7 @@ const UserForm = ({values, setValues, cancel, submit, errors, edit}) => {
                         onChange={handleChangeMeta("billing")}
                         label="City"/>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                     <TextField
                         multiline
                         rows={2}
@@ -205,7 +205,7 @@ const UserForm = ({values, setValues, cancel, submit, errors, edit}) => {
             <Divider sx={{marginY: "1em"}}/>
             {!edit ? <>
                 <Grid container spacing={2}>
-                    <Grid item xs={12} sm={6}>
+                    <Grid size={{ xs: 12, sm: 6 }}>
                         <TextField error={Object.keys(errors).includes('password')}
                                    helperText={errors?.password ?? ""}
                                    label={"Password"}
@@ -214,7 +214,7 @@ const UserForm = ({values, setValues, cancel, submit, errors, edit}) => {
                                    onChange={handleChange}
                                    fullWidth/>
                     </Grid>
-                    <Grid item xs={12} sm={6}>
+                    <Grid size={{ xs: 12, sm: 6 }}>
                         <TextField error={Object.keys(errors).includes('password_confirmation')}
                                    helperText={errors?.password_confirmation ?? ""}
                                    label="Confirm Password"
@@ -227,10 +227,10 @@ const UserForm = ({values, setValues, cancel, submit, errors, edit}) => {
                 <Divider sx={{marginY: "1em"}}/>
             </> : null}
             <Grid container spacing={2} flex justifyContent={"flex-end"} justifyItems={"flex-end"}>
-                <Grid item>
+                <Grid>
                     <Button onClick={cancel}>Cancel</Button>
                 </Grid>
-                <Grid item>
+                <Grid>
                     <Button variant="contained" onClick={submit}>Submit</Button>
                 </Grid>
             </Grid>

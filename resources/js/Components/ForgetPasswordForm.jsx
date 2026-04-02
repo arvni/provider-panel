@@ -51,7 +51,7 @@ const ForgetPasswordForm = ({siteKey}) => {
 
     return<Box component="form" onSubmit={handleSubmit} method="post" action={route("login")}>
         <Grid container direction="column" spacing={2} alignItems="center" justifyContent="center">
-            <Grid item xs={12} sx={{width: "100%"}}>
+            <Grid size={12} sx={{width: "100%"}}>
                 <TextField
                     onChange={handleChange}
                     name="email"
@@ -66,7 +66,7 @@ const ForgetPasswordForm = ({siteKey}) => {
                     fullWidth
                 />
             </Grid>
-            {siteKey&&<Grid item xs={12} sx={{width: "100%"}}>
+            {siteKey&&<Grid size={12} sx={{width: "100%"}}>
                 <ReCAPTCHA
                     ref={recaptchaRef}
                     sitekey={siteKey}
@@ -74,7 +74,7 @@ const ForgetPasswordForm = ({siteKey}) => {
                     onExpired={resetCaptcha}/>
                 {errors.captcha && <FormHelperText error={!!errors.captcha}>{errors.captcha}</FormHelperText>}
             </Grid>}
-        <Grid item>
+        <Grid>
             <LoadingButton type="submit" loading={processing} variant="contained">Email Password Reset
                 Link</LoadingButton>
         </Grid>

@@ -381,7 +381,7 @@ const AddOrderByBarcode = () => {
                 maxWidth="sm"
                 fullWidth
                 fullScreen={isMobile}
-                TransitionComponent={Zoom}
+                slots={{ transition: Zoom }}
                 PaperProps={{
                     elevation: 5,
                     sx: {

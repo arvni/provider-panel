@@ -203,7 +203,7 @@ const SampleRow = ({
                 >
                     <Grid container spacing={3}>
                         {/* Sample Type */}
-                        <Grid item xs={12} md={4}>
+                        <Grid size={{ xs: 12, md: 4 }}>
                             <TextField
                                 select
                                 fullWidth
@@ -245,7 +245,7 @@ const SampleRow = ({
                         </Grid>
 
                         {/* Sample ID */}
-                        <Grid item xs={12} md={4}>
+                        <Grid size={{ xs: 12, md: 4 }}>
                             <TextField
                                 fullWidth
                                 onChange={(e) => handleChange(index)(e)}
@@ -295,7 +295,7 @@ const SampleRow = ({
                         </Grid>
 
                         {/* Collection Date */}
-                        <Grid item xs={12} md={4}>
+                        <Grid size={{ xs: 12, md: 4 }}>
                             <TextField
                                 fullWidth
                                 onChange={(e) => handleChange(index)(e)}
@@ -338,7 +338,7 @@ const SampleRow = ({
 
                         {/* Test Selection (if order items available) */}
                         {orderItems.length > 0 && (
-                            <Grid item xs={12} md={6}>
+                            <Grid size={{ xs: 12, md: 6 }}>
                                 <TextField
                                     select
                                     fullWidth
@@ -375,7 +375,7 @@ const SampleRow = ({
 
                         {/* Patient Selection (filtered by selected test) */}
                         {patients.length > 0 && (
-                            <Grid item xs={12} md={6}>
+                            <Grid size={{ xs: 12, md: 6 }}>
                                 <TextField
                                     select
                                     fullWidth
@@ -432,7 +432,7 @@ const SampleRow = ({
 
 
                         {/* Pooling Checkbox */}
-                        <Grid item xs={12} md={4}>
+                        <Grid size={{ xs: 12, md: 4 }}>
                             <FormControlLabel
                                 control={
                                     <Checkbox
@@ -471,7 +471,7 @@ const SampleRow = ({
                         </Grid>
 
                         {/* Optional Notes Field */}
-                        <Grid item xs={12}>
+                        <Grid size={12}>
                             <TextField
                                 fullWidth
                                 multiline

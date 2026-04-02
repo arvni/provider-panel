@@ -48,7 +48,7 @@ const ChangePasswordForm = ({
                 <Box component="form" onSubmit={handleSubmit} method="post" action={ route("password.update")}
                      sx={{pt: "1em"}}>
                     <Grid container direction="column" spacing={2} alignItems="center" justifyContent="center">
-                        {!user && <Grid item sx={{width: "100%"}}>
+                        {!user && <Grid sx={{width: "100%"}}>
                             <PasswordField
                                 fullwidth
                                 name="current_password"
@@ -60,7 +60,7 @@ const ChangePasswordForm = ({
                                 onChange={handleChange}
                             />
                         </Grid>}
-                        <Grid item sx={{width: "100%"}}>
+                        <Grid sx={{width: "100%"}}>
                             <PasswordField
                                 name="password"
                                 label="New Password"
@@ -72,7 +72,7 @@ const ChangePasswordForm = ({
                                 onChange={handleChange}
                             />
                         </Grid>
-                        <Grid item sx={{width: "100%"}}>
+                        <Grid sx={{width: "100%"}}>
                             <PasswordField
                                 name="password_confirmation"
                                 label="Password Confirmation"
@@ -85,7 +85,7 @@ const ChangePasswordForm = ({
                                 onChange={handleChange}
                             />
                         </Grid>
-                        <Grid item
+                        <Grid
                               sx={{
                                   justifyContent: "space-between",
                                   width: "100%",

@@ -304,7 +304,7 @@ export default function Authenticated({auth: authProp, breadcrumbs, children, ti
                         <Tooltip
                             title={getColorModeTooltip()}
                             placement="left"
-                            TransitionComponent={Zoom}
+                            slots={{ transition: Zoom }}
                         >
                             <IconButton
                                 color="primary"
@@ -331,7 +331,7 @@ export default function Authenticated({auth: authProp, breadcrumbs, children, ti
                             <Tooltip
                                 title="Scroll to top"
                                 placement="left"
-                                TransitionComponent={Zoom}
+                                slots={{ transition: Zoom }}
                             >
                                 <IconButton
                                     color="primary"
@@ -376,7 +376,7 @@ export default function Authenticated({auth: authProp, breadcrumbs, children, ti
                 autoHideDuration={6000}
                 onClose={() => setNotification({...notification, open: false})}
                 anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
-                TransitionComponent={Fade}
+                slots={{ transition: Fade }}
             >
                 <Alert
                     onClose={() => setNotification({...notification, open: false})}

@@ -115,7 +115,7 @@ const TestDetails = ({ test, open = false, onClose }) => {
             fullScreen={fullScreen}
             fullWidth
             maxWidth="md"
-            TransitionComponent={Transition}
+            slots={{ transition: Transition }}
             PaperProps={{
                 elevation: 5,
                 sx: {
@@ -167,7 +167,7 @@ const TestDetails = ({ test, open = false, onClose }) => {
                 {/* Test overview section */}
                 <Box sx={{ p: 3 }}>
                     <Grid container spacing={3}>
-                        <Grid item xs={12} md={8}>
+                        <Grid size={{ xs: 12, md: 8 }}>
                             <Typography
                                 variant="subtitle1"
                                 fontWeight={600}
@@ -237,7 +237,7 @@ const TestDetails = ({ test, open = false, onClose }) => {
                             )}
                         </Grid>
 
-                        <Grid item xs={12} md={4}>
+                        <Grid size={{ xs: 12, md: 4 }}>
                             {/* Turnaround time card */}
                             <Paper
                                 elevation={0}
@@ -376,7 +376,7 @@ const TestDetails = ({ test, open = false, onClose }) => {
 
                         <Grid container spacing={2}>
                             {test.sample_types.map((sampleType, index) => (
-                                <Grid item xs={12} sm={6} md={4} key={index}>
+                                <Grid size={{ xs: 12, sm: 6, md: 4 }} key={index}>
                                     <Paper
                                         elevation={0}
                                         sx={{

@@ -17,11 +17,11 @@ const AddForm = ({values, setValues, submit, open, setOpen, title, loading, rese
         <DialogContent sx={{p: "1em"}}>
             <Container>
                 <Grid container sx={{marginTop: "1em"}}>
-                    <Grid item xs={12} md={4}>
+                    <Grid size={{ xs: 12, md: 4 }}>
                         <TextField label="Title" name="name" onChange={handleChange} value={values.name}/>
                     </Grid>
 
-                    <Grid item xs={12} md={3}>
+                    <Grid size={{ xs: 12, md: 3 }}>
                         <FormControlLabel label="Orderable"
                                           control={<Switch/>}
                                           labelPlacement="start"
@@ -30,7 +30,7 @@ const AddForm = ({values, setValues, submit, open, setOpen, title, loading, rese
                                           checked={values.orderable}/>
                     </Grid>
 
-                    <Grid item xs={12} md={5}>
+                    <Grid size={{ xs: 12, md: 5 }}>
                         <FormControlLabel label="sample id required"
                                           control={<Switch/>}
                                           labelPlacement="start"

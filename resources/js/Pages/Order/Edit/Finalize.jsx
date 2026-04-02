@@ -723,7 +723,7 @@ const Finalize = ({auth, order, step, patients = []}) => {
 
                             {data.patient ? (
                                 <Grid container spacing={3}>
-                                    <Grid item xs={12} md={6}>
+                                    <Grid size={{ xs: 12, md: 6 }}>
                                         <List dense>
                                             <ListItem>
                                                 <ListItemIcon>
@@ -828,7 +828,7 @@ const Finalize = ({auth, order, step, patients = []}) => {
                                         </List>
                                     </Grid>
 
-                                    <Grid item xs={12} md={6}>
+                                    <Grid size={{ xs: 12, md: 6 }}>
                                         <Typography variant="subtitle2" color="text.secondary" gutterBottom>
                                             Contact Information
                                         </Typography>
@@ -1344,7 +1344,7 @@ const Finalize = ({auth, order, step, patients = []}) => {
                             {data.orderForms && data.orderForms.length > 0 ? (
                                 <Grid container spacing={3}>
                                     {data.orderForms.map((orderForm, formIndex) => (
-                                        <Grid item xs={12} md={6} key={orderForm.id || formIndex}>
+                                        <Grid size={{ xs: 12, md: 6 }} key={orderForm.id || formIndex}>
                                             <Paper
                                                 variant="outlined"
                                                 sx={{
@@ -1430,7 +1430,7 @@ const Finalize = ({auth, order, step, patients = []}) => {
 
                                     <Grid container spacing={2}>
                                         {data.files.map((file, index) => (
-                                            <Grid item xs={12} sm={6} md={4} key={index}>
+                                            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={index}>
                                                 <Box sx={{
                                                     p: 2,
                                                     borderRadius: 1,

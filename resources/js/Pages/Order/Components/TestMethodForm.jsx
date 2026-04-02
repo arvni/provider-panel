@@ -330,10 +330,7 @@ const TestMethodForm = (props) => {
             >
                 {/* Tests catalog */}
                 <Grid
-                    item
-                    xs={12}
-                    md={7}
-                    lg={8}
+                    size={{ xs: 12, md: 7, lg: 8 }}
                     order={{ xs: 2, md: 1 }}
                 >
                     <Paper
@@ -457,10 +454,7 @@ const TestMethodForm = (props) => {
 
                 {/* Selected tests sidebar */}
                 <Grid
-                    item
-                    xs={12}
-                    md={5}
-                    lg={4}
+                    size={{ xs: 12, md: 5, lg: 4 }}
                     order={{ xs: 1, md: 2 }}
                 >
                     <Box component="form" onSubmit={props.onSubmit} sx={{ height: '100%' }}>
@@ -680,7 +674,7 @@ const TestMethodForm = (props) => {
                 autoHideDuration={4000}
                 onClose={handleCloseNotification}
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                TransitionComponent={Fade}
+                slots={{ transition: Fade }}
             >
                 <Alert
                     onClose={handleCloseNotification}

@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useMemo, useCallback } from "react";
 import {
     Grid,
     Typography,
@@ -39,11 +40,6 @@ const ClinicalDetailsForm = (props) => {
     const [showHelp, setShowHelp] = React.useState(false);
     const [expandedForms, setExpandedForms] = React.useState({});
     const [formCompletion, setFormCompletion] = React.useState({});
-
-    // Calculate completion for each form on mount and when data changes
-    React.useEffect(() => {
-        calculateFormCompletionStatus();
-    }, [props.orderForms]);
 
     // Handle field value changes
     const handleChange = (orderFormId, elId, type) => (e, v) => {
@@ -87,25 +83,26 @@ const ClinicalDetailsForm = (props) => {
         }));
     };
 
-    // Calculate completion percentage for each form
-    const calculateFormCompletionStatus = () => {
+    // Calculate completion percentage for each form (memoized to avoid stale closure)
+    const calculateFormCompletionStatus = useCallback(() => {
         const completion = {};
-
         props.orderForms.forEach(form => {
             completion[form.id] = calculateFormCompletion(form);
         });
-
         setFormCompletion(completion);
-    };
+    }, [props.orderForms]);
 
-    // Get overall completion percentage
-    const getOverallCompletion = () => {
-        const formCompletionValues = Object.values(formCompletion);
-        if (formCompletionValues.length === 0) return 0;
+    // Run on mount and when orderForms data changes
+    React.useEffect(() => {
+        calculateFormCompletionStatus();
+    }, [calculateFormCompletionStatus]);
 
-        const totalCompletion = formCompletionValues.reduce((acc, val) => acc + val, 0);
-        return Math.round(totalCompletion / formCompletionValues.length);
-    };
+    // Get overall completion percentage (memoized)
+    const overallCompletion = useMemo(() => {
+        const values = Object.values(formCompletion);
+        if (values.length === 0) return 0;
+        return Math.round(values.reduce((acc, val) => acc + val, 0) / values.length);
+    }, [formCompletion]);
 
     // Animations
     const containerVariants = {
@@ -232,13 +229,13 @@ const ClinicalDetailsForm = (props) => {
                                 Overall Completion
                             </Typography>
                             <Typography variant="body2" fontWeight={600}>
-                                {getOverallCompletion()}%
+                                {overallCompletion}%
                             </Typography>
                         </Box>
                         <LinearProgress
                             variant="determinate"
-                            value={getOverallCompletion()}
-                            color={getOverallCompletion() === 100 ? "success" : "primary"}
+                            value={overallCompletion}
+                            color={overallCompletion === 100 ? "success" : "primary"}
                             sx={{
                                 height: 8,
                                 borderRadius: 4

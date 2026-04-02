@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { Link } from "@inertiajs/react";
 import {
     Box,
@@ -24,7 +24,7 @@ const LoginForm = ({ siteKey }) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const turnstileWidgetRef = useRef(null);
-    const [widgetId, setWidgetId] = useState(null);
+    const widgetIdRef = useRef(null);
 
     const {
         data,
@@ -43,44 +43,53 @@ const LoginForm = ({ siteKey }) => {
     }, route("login"));
 
     useEffect(() => {
-        // Load Cloudflare Turnstile script
-        const script = document.createElement('script');
-        script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=onloadTurnstileCallback';
-        script.async = true;
-        script.defer = true;
+        if (!siteKey) return;
 
-        // Define the callback function that will be called when Turnstile is loaded
-        window.onloadTurnstileCallback = function () {
-            if (turnstileWidgetRef.current) {
-                const widgetId = window.turnstile.render(turnstileWidgetRef.current, {
-                    sitekey: siteKey,
-                    theme: 'light',
-                    callback: function (token) {
-                        formChange("cf-turnstile-response", token);
-                    },
-                    'expired-callback': function () {
-                        formChange("cf-turnstile-response", "");
-                    },
-                    'error-callback': function () {
-                        formChange("cf-turnstile-response", "");
-                    }
-                });
-                setWidgetId(widgetId);
+        const renderWidget = () => {
+            if (!turnstileWidgetRef.current) return;
+            // Remove any existing widget before rendering a new one
+            if (widgetIdRef.current !== null && window.turnstile) {
+                window.turnstile.remove(widgetIdRef.current);
+                widgetIdRef.current = null;
             }
+            widgetIdRef.current = window.turnstile.render(turnstileWidgetRef.current, {
+                sitekey: siteKey,
+                theme: 'light',
+                callback: (token) => formChange("cf-turnstile-response", token),
+                'expired-callback': () => formChange("cf-turnstile-response", ""),
+                'error-callback': () => formChange("cf-turnstile-response", ""),
+            });
         };
 
+        // Reuse existing script if already loaded
+        if (window.turnstile) {
+            renderWidget();
+            return () => {
+                if (widgetIdRef.current !== null && window.turnstile) {
+                    window.turnstile.remove(widgetIdRef.current);
+                    widgetIdRef.current = null;
+                }
+            };
+        }
+
+        const existingScript = document.querySelector('script[src*="challenges.cloudflare.com/turnstile"]');
+        if (existingScript) {
+            existingScript.addEventListener('load', renderWidget);
+            return () => existingScript.removeEventListener('load', renderWidget);
+        }
+
+        const script = document.createElement('script');
+        script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+        script.async = true;
+        script.defer = true;
+        script.onload = renderWidget;
         document.body.appendChild(script);
 
         return () => {
-            // Cleanup
-            if (script.parentNode) {
-                document.body.removeChild(script);
+            if (widgetIdRef.current !== null && window.turnstile) {
+                window.turnstile.remove(widgetIdRef.current);
+                widgetIdRef.current = null;
             }
-            // Reset the widget if it exists
-            if (window.turnstile && widgetId) {
-                window.turnstile.remove(widgetId);
-            }
-            delete window.onloadTurnstileCallback;
         };
     }, [siteKey]);
 
@@ -91,8 +100,8 @@ const LoginForm = ({ siteKey }) => {
     }, [processing]);
 
     const resetTurnstile = () => {
-        if (window.turnstile && widgetId) {
-            window.turnstile.reset(widgetId);
+        if (window.turnstile && widgetIdRef.current !== null) {
+            window.turnstile.reset(widgetIdRef.current);
         }
         formChange("cf-turnstile-response", "");
     };

@@ -10,8 +10,8 @@ function renderPermissionGroup(permission, onChange, data, level = 0) {
     level += 1;
     if (!permission.hasOwnProperty("id")) {
 
-        return Object.keys(permission).map(item => <Grid item
-                                                         xs={[1, 2].includes(level) ? (Array.isArray(permission[item]) ? (permission[item].length * 4 > 12 ? 12 : permission[item].length * 4) : 12) : 3}>
+        return Object.keys(permission).map(item => <Grid
+                                                         size={[1, 2].includes(level) ? (Array.isArray(permission[item]) ? (permission[item].length * 4 > 12 ? 12 : permission[item].length * 4) : 12) : 3}>
             <>
                 {item != 0 && level < 3 ?
                     <Divider sx={{marginTop: "1em"}}>
@@ -25,7 +25,7 @@ function renderPermissionGroup(permission, onChange, data, level = 0) {
             </>
         </Grid>);
     }
-    return <Grid item xs={12} key={permission.id}>
+    return <Grid size={12} key={permission.id}>
         <FormControlLabel value={permission.id}
                           checked={data.permissions.map(item => item.id).includes(permission.id)}
                           onChange={onChange} control={<Switch color="primary"/>}
@@ -61,10 +61,10 @@ export default function ({data, setData, submit, permissions, edit, cancel}) {
             </Grid>
             <Divider sx={{my: "1em"}}/>
             <Grid container flex justifyItems={"flex-end"} justifyContent={"flex-end"} spacing={2}>
-                <Grid item>
+                <Grid>
                     <Button onClick={cancel}>Cancel</Button>
                 </Grid>
-                <Grid item>
+                <Grid>
                     <Button variant="contained" onClick={submit}>Submit</Button>
                 </Grid>
             </Grid>

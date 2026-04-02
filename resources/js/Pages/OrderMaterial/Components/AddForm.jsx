@@ -156,7 +156,7 @@ const AddForm = ({
             onClose={loading ? undefined : handleClose}
             maxWidth="sm"
             fullWidth
-            TransitionComponent={Transition}
+            slots={{ transition: Transition }}
             PaperProps={{
                 elevation: 5,
                 sx: { borderRadius: 2 }
@@ -203,7 +203,7 @@ const AddForm = ({
 
                 <Grid container spacing={3}>
                     {/* Sample Type Selection */}
-                    <Grid item xs={12}>
+                    <Grid size={12}>
                         <FormControl
                             fullWidth
                             variant="outlined"
@@ -240,7 +240,7 @@ const AddForm = ({
                     </Grid>
 
                     {/* Quantity Input */}
-                    <Grid item xs={12}>
+                    <Grid size={12}>
                         <FormControl
                             fullWidth
                             variant="outlined"
@@ -299,7 +299,7 @@ const AddForm = ({
                     </Grid>
 
                     {/* Additional Information - can be expanded with more fields if needed */}
-                    <Grid item xs={12}>
+                    <Grid size={12}>
                         <TextField
                             fullWidth
                             name="notes"

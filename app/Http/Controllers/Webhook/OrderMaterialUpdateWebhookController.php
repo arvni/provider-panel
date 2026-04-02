@@ -31,9 +31,9 @@ class OrderMaterialUpdateWebhookController extends Controller
         // Verify signature
         $signature = $request->header('X-Webhook-Signature');
         $expectedSignature = hash_hmac('sha256', json_encode($request->all()), config('webhook.secret'));
-        Log::debug('Webhook Signature: ' . $signature);
-        if (!hash_equals($signature, $expectedSignature)) {
-            return response()->json(['error' => 'Invalid signature', 'signature' => $signature, "expectedSignature" => $expectedSignature, "secret" => config('webhook.secret')], 401);
+        if (!hash_equals((string) $signature, $expectedSignature)) {
+            Log::warning('Webhook signature mismatch', ['route' => 'orderMaterials.updateStatus']);
+            return response()->json(['error' => 'Invalid signature'], 401);
         }
 
         // Process the order update

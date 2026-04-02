@@ -245,7 +245,7 @@ const AddRequirementForm = ({
                 elevation: 5,
                 sx: { borderRadius: 2 }
             }}
-            TransitionComponent={SlideTransition}
+            slots={{ transition: SlideTransition }}
         >
             {/* Dialog title */}
             <DialogTitle sx={{
@@ -278,7 +278,7 @@ const AddRequirementForm = ({
             <DialogContent sx={{ py: 3 }}>
                 <Grid container spacing={3}>
                     {/* Field Label */}
-                    <Grid item xs={12} md={6}>
+                    <Grid size={{ xs: 12, md: 6 }}>
                         <TextField
                             fullWidth
                             name="label"
@@ -297,7 +297,7 @@ const AddRequirementForm = ({
                     </Grid>
 
                     {/* Field Type */}
-                    <Grid item xs={12} md={6}>
+                    <Grid size={{ xs: 12, md: 6 }}>
                         <TextField
                             fullWidth
                             select
@@ -327,7 +327,7 @@ const AddRequirementForm = ({
                     </Grid>
 
                     {/* Required switch */}
-                    <Grid item xs={12} md={6}>
+                    <Grid size={{ xs: 12, md: 6 }}>
                         <FormControl component="fieldset">
                             <FormControlLabel
                                 control={
@@ -351,7 +351,7 @@ const AddRequirementForm = ({
 
                     {/* Placeholder field */}
                     {(data.type === 'text' || data.type === 'number') && (
-                        <Grid item xs={12} md={6}>
+                        <Grid size={{ xs: 12, md: 6 }}>
                             <TextField
                                 fullWidth
                                 name="placeholder"
@@ -367,7 +367,7 @@ const AddRequirementForm = ({
 
                     {/* Options for select type */}
                     {data.type === 'select' && (
-                        <Grid item xs={12}>
+                        <Grid size={12}>
                             <Autocomplete
                                 multiple
                                 value={data.options || []}
@@ -426,7 +426,7 @@ const AddRequirementForm = ({
 
                     {/* Field preview */}
                     {data.label && data.type && (
-                        <Grid item xs={12}>
+                        <Grid size={12}>
                             <Typography variant="subtitle2" gutterBottom>
                                 Field Preview
                             </Typography>

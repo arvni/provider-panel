@@ -70,58 +70,60 @@ const NotificationButton = () => {
 
     return (
         <>
-            <Tooltip title="Notifications">
+            <Box sx={{ position: 'relative', display: 'inline-flex' }}>
+                <Tooltip title="Notifications">
+                    <IconButton
+                        size="medium"
+                        color="inherit"
+                        onClick={handleClick}
+                        aria-label="Notifications"
+                        sx={{
+                            borderRadius: 1.5,
+                            transition: 'all 0.2s',
+                            '&:hover': {
+                                backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                            }
+                        }}
+                    >
+                        <Badge
+                            badgeContent={unreadCount}
+                            color="error"
+                            max={99}
+                            sx={{
+                                '& .MuiBadge-badge': {
+                                    top: 5,
+                                    right: 5,
+                                    animation: unreadCount > 0 ? 'pulse 2s infinite' : 'none',
+                                    fontSize: '0.75rem',
+                                    fontWeight: 600,
+                                }
+                            }}
+                        >
+                            <NotificationsNone />
+                        </Badge>
+                    </IconButton>
+                </Tooltip>
+
+                {/* Settings button — sibling, not nested inside the notification button */}
                 <IconButton
-                    size="medium"
-                    color="inherit"
-                    onClick={handleClick}
+                    size="small"
+                    onClick={handleSettingsClick}
                     sx={{
-                        borderRadius: 1.5,
-                        transition: 'all 0.2s',
-                        position: 'relative',
+                        position: 'absolute',
+                        top: 0,
+                        right: 0,
+                        width: 16,
+                        height: 16,
+                        backgroundColor: alpha(theme.palette.background.paper, 0.9),
+                        boxShadow: theme.shadows[2],
                         '&:hover': {
-                            backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                            backgroundColor: theme.palette.background.paper,
                         }
                     }}
                 >
-                    <Badge
-                        badgeContent={unreadCount}
-                        color="error"
-                        max={99}
-                        sx={{
-                            '& .MuiBadge-badge': {
-                                top: 5,
-                                right: 5,
-                                animation: unreadCount > 0 ? 'pulse 2s infinite' : 'none',
-                                fontSize: '0.75rem',
-                                fontWeight: 600,
-                            }
-                        }}
-                    >
-                        <NotificationsNone />
-                    </Badge>
-
-                    {/* Settings button overlay */}
-                    <IconButton
-                        size="small"
-                        onClick={handleSettingsClick}
-                        sx={{
-                            position: 'absolute',
-                            top: -2,
-                            right: -2,
-                            width: 16,
-                            height: 16,
-                            backgroundColor: alpha(theme.palette.background.paper, 0.9),
-                            boxShadow: theme.shadows[2],
-                            '&:hover': {
-                                backgroundColor: theme.palette.background.paper,
-                            }
-                        }}
-                    >
-                        <SettingsIcon sx={{ fontSize: 10 }} />
-                    </IconButton>
+                    <SettingsIcon sx={{ fontSize: 10 }} />
                 </IconButton>
-            </Tooltip>
+            </Box>
 
             {/* Settings Menu */}
             <Menu
@@ -184,7 +186,7 @@ const NotificationButton = () => {
             />
 
             {/* CSS for badge animation */}
-            <style jsx global>{`
+            <style>{`
                 @keyframes pulse {
                     0% { transform: scale(1); }
                     50% { transform: scale(1.1); }

@@ -27,7 +27,7 @@ import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import AddOrderByBarcode from "@/Components/AddOrderByBarcode.jsx";
 import { motion } from "framer-motion";
-import { Link } from "@inertiajs/react";
+import { Link, router } from "@inertiajs/react";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
 /**
@@ -151,14 +151,9 @@ export default function Dashboard({ auth, recentlyOrders = [], notDownloadedRepo
     const theme = useTheme();
     const [isRefreshing, setIsRefreshing] = useState(false);
 
-    // Simulate refresh functionality
     const handleRefresh = () => {
         setIsRefreshing(true);
-
-        // Simulate API call
-        setTimeout(() => {
-            setIsRefreshing(false);
-        }, 1500);
+        router.reload({ onFinish: () => setIsRefreshing(false) });
     };
 
     // Animation variants
@@ -204,10 +199,10 @@ export default function Dashboard({ auth, recentlyOrders = [], notDownloadedRepo
             >
                 <Grid container spacing={3}>
                     {/* Information cards row */}
-                    <Grid item xs={12} md={4} lg={3}>
+                    <Grid size={{ xs: 12, md: 4, lg: 3 }}>
                         <Grid container spacing={3} height="100%">
                             {/* Greeting card */}
-                            <Grid item xs={12} component={motion.div} variants={itemVariants}>
+                            <Grid size={12} component={motion.div} variants={itemVariants}>
                                 <Paper
                                     elevation={0}
                                     sx={{
@@ -247,7 +242,7 @@ export default function Dashboard({ auth, recentlyOrders = [], notDownloadedRepo
                                 </Paper>
                             </Grid>
                             {/* Reports card */}
-                            <Grid item xs={12} component={motion.div} variants={itemVariants}>
+                            <Grid size={12} component={motion.div} variants={itemVariants}>
                                 <Paper
                                     elevation={0}
                                     sx={{
@@ -311,10 +306,10 @@ export default function Dashboard({ auth, recentlyOrders = [], notDownloadedRepo
                             </Grid>
                         </Grid>
                     </Grid>
-                    <Grid item xs={12} md={8} lg={9} component={motion.div} variants={itemVariants}>
+                    <Grid size={{ xs: 12, md: 8, lg: 9 }} component={motion.div} variants={itemVariants}>
                         <Grid container  spacing={3}>
                             {/* Latest orders table */}
-                            <Grid item xs={12} component={motion.div} variants={itemVariants}>
+                            <Grid size={12} component={motion.div} variants={itemVariants}>
                                 <Paper
                                     elevation={0}
                                     sx={{
@@ -344,14 +339,8 @@ export default function Dashboard({ auth, recentlyOrders = [], notDownloadedRepo
                                                     size="small"
                                                     onClick={handleRefresh}
                                                     sx={{
-                                                        transition: 'transform 0.3s',
-                                                        ...(isRefreshing && {
-                                                            animation: 'spin 1s linear infinite',
-                                                        }),
-                                                        '@keyframes spin': {
-                                                            '0%': { transform: 'rotate(0deg)' },
-                                                            '100%': { transform: 'rotate(360deg)' }
-                                                        }
+                                                        ...(isRefreshing && { animation: 'spin 1s linear infinite' }),
+                                                        '@keyframes spin': { '0%': { transform: 'rotate(0deg)' }, '100%': { transform: 'rotate(360deg)' } },
                                                     }}
                                                 >
                                                     <RefreshIcon />
@@ -403,7 +392,7 @@ export default function Dashboard({ auth, recentlyOrders = [], notDownloadedRepo
                                                                     cursor: 'pointer'
                                                                 }
                                                             }}
-                                                            onClick={() => window.location.href = route('orders.show', order.id)}
+                                                            onClick={() => router.visit(route('orders.show', order.id))}
                                                         >
                                                             <TableCell sx={{ fontWeight: 500 }}>
                                                                 {order.patient_full_name}
@@ -461,7 +450,7 @@ export default function Dashboard({ auth, recentlyOrders = [], notDownloadedRepo
                                 </Paper>
                             </Grid>
                             {/* Barcode scanner section */}
-                            <Grid item xs={12} component={motion.div} variants={itemVariants}>
+                            <Grid size={12} component={motion.div} variants={itemVariants}>
                                 <Paper
                                     elevation={0}
                                     sx={{

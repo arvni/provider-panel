@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
     Button,
     Divider,
@@ -50,6 +50,7 @@ const TestSearchForm = (props) => {
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [recentSearches, setRecentSearches] = useState(props.recentSearches || []);
     const [expanded, setExpanded] = useState(false);
+    const debounceRef = useRef(null);
 
     // Keep track of local storage for recent searches
     useEffect(() => {
@@ -91,15 +92,23 @@ const TestSearchForm = (props) => {
         setShowSuggestions(false);
     };
 
-    // Input change handler
+    // Input change handler with debounced auto-search
     const changeHandler = (e) => {
+        const { name, value } = e.target;
         setValues(prevState => ({
             ...prevState,
-            [e.target.name]: e.target.value
+            [name]: value
         }));
 
-        if (e.target.name === 'search') {
-            setShowSuggestions(e.target.value.length > 0);
+        if (name === 'search') {
+            setShowSuggestions(value.length > 0);
+            // Debounce auto-search: trigger after 400ms of inactivity
+            if (debounceRef.current) clearTimeout(debounceRef.current);
+            debounceRef.current = setTimeout(() => {
+                if (value.trim()) {
+                    props.onSearch({ ...values, search: value });
+                }
+            }, 400);
         }
     };
 
@@ -382,7 +391,7 @@ const TestSearchForm = (props) => {
                         }}
                     >
                         <Grid container spacing={2}>
-                            <Grid item xs={12} sm={6} md={3}>
+                            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                                 <TextField
                                     fullWidth
                                     label="Test ID"
@@ -395,7 +404,7 @@ const TestSearchForm = (props) => {
                                 />
                             </Grid>
 
-                            <Grid item xs={12} sm={6} md={3}>
+                            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                                 <FormControl fullWidth size="small">
                                     <InputLabel id="category-label">Category</InputLabel>
                                     <Select
@@ -415,7 +424,7 @@ const TestSearchForm = (props) => {
                                 </FormControl>
                             </Grid>
 
-                            <Grid item xs={12} sm={6} md={3}>
+                            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                                 <FormControl fullWidth size="small">
                                     <InputLabel id="method-label">Method</InputLabel>
                                     <Select
@@ -435,7 +444,7 @@ const TestSearchForm = (props) => {
                                 </FormControl>
                             </Grid>
 
-                            <Grid item xs={12} sm={6} md={3}>
+                            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                                 <FormControl fullWidth size="small">
                                     <InputLabel id="turnaround-label">Turnaround Time</InputLabel>
                                     <Select

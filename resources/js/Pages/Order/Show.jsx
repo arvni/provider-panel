@@ -442,7 +442,7 @@ const Show = ({ order: { consents, ...restOrder }, patients = [] }) => {
                                 margin: '0 !important'
                             }
                         }}>
-                            <Grid item xs={12} md={6} sx={{
+                            <Grid size={{ xs: 12, md: 6 }} sx={{
                                 '@media print': {
                                     width: '48% !important',
                                     maxWidth: '48% !important',
@@ -684,7 +684,7 @@ const Show = ({ order: { consents, ...restOrder }, patients = [] }) => {
                                 </TableContainer>
                             </Grid>
 
-                            <Grid item xs={12} md={6} sx={{
+                            <Grid size={{ xs: 12, md: 6 }} sx={{
                                 '@media print': {
                                     width: '48% !important',
                                     maxWidth: '48% !important',
@@ -933,7 +933,7 @@ const Show = ({ order: { consents, ...restOrder }, patients = [] }) => {
                                                                     margin: '0 !important'
                                                                 }
                                                             }}>
-                                                                <Grid item xs={6} sx={{
+                                                                <Grid size={6} sx={{
                                                                     '@media print': {
                                                                         width: '48% !important',
                                                                         maxWidth: '48% !important',
@@ -968,7 +968,7 @@ const Show = ({ order: { consents, ...restOrder }, patients = [] }) => {
                                                                     </Typography>
                                                                 </Grid>
 
-                                                                <Grid item xs={6} sx={{
+                                                                <Grid size={6} sx={{
                                                                     '@media print': {
                                                                         width: '48% !important',
                                                                         maxWidth: '48% !important',
@@ -1003,7 +1003,7 @@ const Show = ({ order: { consents, ...restOrder }, patients = [] }) => {
                                                                     </Typography>
                                                                 </Grid>
 
-                                                                <Grid item xs={6} sx={{
+                                                                <Grid size={6} sx={{
                                                                     '@media print': {
                                                                         width: '48% !important',
                                                                         maxWidth: '48% !important',
@@ -1038,7 +1038,7 @@ const Show = ({ order: { consents, ...restOrder }, patients = [] }) => {
                                                                     </Typography>
                                                                 </Grid>
 
-                                                                <Grid item xs={6} sx={{
+                                                                <Grid size={6} sx={{
                                                                     '@media print': {
                                                                         width: '48% !important',
                                                                         maxWidth: '48% !important',
@@ -1075,7 +1075,7 @@ const Show = ({ order: { consents, ...restOrder }, patients = [] }) => {
 
                                                                 {sample?.material && (
                                                                     <>
-                                                                        <Grid item xs={6} sx={{
+                                                                        <Grid size={6} sx={{
                                                                             '@media print': {
                                                                                 width: '48% !important',
                                                                                 maxWidth: '48% !important',
@@ -1111,7 +1111,7 @@ const Show = ({ order: { consents, ...restOrder }, patients = [] }) => {
                                                                         </Grid>
 
                                                                         {sample.material.expire_date && (
-                                                                            <Grid item xs={6} sx={{
+                                                                            <Grid size={6} sx={{
                                                                                 '@media print': {
                                                                                     width: '48% !important',
                                                                                     maxWidth: '48% !important',
@@ -1151,7 +1151,7 @@ const Show = ({ order: { consents, ...restOrder }, patients = [] }) => {
 
                                                                 {/* Patient Assignment */}
                                                                 {sample?.patient && (
-                                                                    <Grid item xs={6} sx={{
+                                                                    <Grid size={6} sx={{
                                                                         '@media print': {
                                                                             width: '48% !important',
                                                                             maxWidth: '48% !important',
@@ -1529,7 +1529,7 @@ const Show = ({ order: { consents, ...restOrder }, patients = [] }) => {
                                 }
                             }}>
                                 {restOrder?.orderForms?.map(orderForm => (
-                                    <Grid item xs={12} md={6} key={orderForm.id} sx={{
+                                    <Grid size={{ xs: 12, md: 6 }} key={orderForm.id} sx={{
                                         '@media print': {
                                             width: '48% !important',
                                             maxWidth: '48% !important',
@@ -1682,7 +1682,7 @@ const Show = ({ order: { consents, ...restOrder }, patients = [] }) => {
                                 }
                             }}>
                                 {restOrder.files.map((file, index) => (
-                                    <Grid item xs={12} sm={6} md={4} key={index} sx={{
+                                    <Grid size={{ xs: 12, sm: 6, md: 4 }} key={index} sx={{
                                         '@media print': {
                                             width: '100% !important',
                                             maxWidth: '100% !important',
@@ -1858,7 +1858,7 @@ const Show = ({ order: { consents, ...restOrder }, patients = [] }) => {
                                 margin: '0 !important'
                             }
                         }}>
-                            <Grid item xs={12}>
+                            <Grid size={12}>
                                 <List sx={{
                                     p: 0,
                                     '@media print': {

@@ -23,7 +23,7 @@ const ChangePassword = ({open, onClose, data,setData,onSubmit,errors,setError, c
                     <Grid container
                           spacing={2}
                           sx={{pt: "1em"}}>
-                        {currentNeeded ? <Grid item xs={12}>
+                        {currentNeeded ? <Grid size={12}>
                             <TextField error={Object.keys(errors).includes('current')}
                                        helperText={errors?.current ?? ""}
                                        label={"Current Password"}
@@ -32,7 +32,7 @@ const ChangePassword = ({open, onClose, data,setData,onSubmit,errors,setError, c
                                        onChange={handleChange}
                                        sx={{width: "100%"}}/>
                         </Grid> : null}
-                        <Grid item xs={12}>
+                        <Grid size={12}>
                             <TextField error={Object.keys(errors).includes('password')}
                                        helperText={errors?.password ?? ""}
                                        label="New Password"
@@ -41,7 +41,7 @@ const ChangePassword = ({open, onClose, data,setData,onSubmit,errors,setError, c
                                        onChange={handleChange}
                                        sx={{width: "100%"}}/>
                         </Grid>
-                        <Grid item xs={12}>
+                        <Grid size={12}>
                             <TextField error={Object.keys(errors).includes('password_confirmation')}
                                        helperText={errors?.password_confirmation ?? ""}
                                        label="Confirm Password"

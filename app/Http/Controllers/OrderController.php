@@ -210,6 +210,15 @@ class OrderController extends Controller
     {
         $this->orderRepository->update($order, $request->except("_method"), $step);
         $nextStep = $step->next();
+
+        // Auto-skip Patient-Test Assignment when there is only one patient
+        if ($step === OrderStep::PATIENT_DETAILS) {
+            $patientCount = count($order->patient_ids ?? []);
+            if ($patientCount <= 1) {
+                $nextStep = OrderStep::CLINICAL_DETAILS->value;
+            }
+        }
+
         return redirect()->route($step !== OrderStep::FINALIZE ? "orders.edit" : "orders.show", ["order" => $order, "step" => $nextStep]);
     }
 

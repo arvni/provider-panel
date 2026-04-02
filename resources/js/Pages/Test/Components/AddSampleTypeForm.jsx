@@ -169,7 +169,7 @@ const AddSampleTypeForm = ({
             onClose={disabled ? undefined : handleClose}
             fullWidth
             maxWidth="md"
-            TransitionComponent={SlideTransition}
+            slots={{ transition: SlideTransition }}
             PaperProps={{
                 elevation: 5,
                 sx: { borderRadius: 2 }
@@ -212,7 +212,7 @@ const AddSampleTypeForm = ({
 
                 <Grid container spacing={3}>
                     {/* Sample Type Select */}
-                    <Grid item xs={12} md={6}>
+                    <Grid size={{ xs: 12, md: 6 }}>
                         <SelectSearch
                             name="sample_type"
                             value={data.sample_type}
@@ -228,7 +228,7 @@ const AddSampleTypeForm = ({
                     </Grid>
 
                     {/* Default Switch */}
-                    <Grid item xs={12} md={6}>
+                    <Grid size={{ xs: 12, md: 6 }}>
                         <Paper
                             variant="outlined"
                             sx={{
@@ -267,7 +267,7 @@ const AddSampleTypeForm = ({
                     </Grid>
 
                     {/* Description TextField */}
-                    <Grid item xs={12}>
+                    <Grid size={12}>
                         <TextField
                             fullWidth
                             multiline

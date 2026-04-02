@@ -46,6 +46,19 @@ import {motion, AnimatePresence} from "framer-motion";
 const PatientDetailsForm = (props) => {
     const theme = useTheme();
     const [showHelp, setShowHelp] = useState(false);
+    const [touched, setTouched] = useState({});
+
+    // Mark field as touched on blur (for inline validation)
+    const handleBlur = (e) => {
+        setTouched(prev => ({ ...prev, [e.target.name]: true }));
+    };
+
+    // Inline validation error for required fields (shown only after blur)
+    const getBlurError = (field, value) => {
+        if (!touched[field]) return props.errors[field] || '';
+        if (!value && value !== 0) return `${field === 'fullName' ? 'Patient name' : field === 'dateOfBirth' ? 'Date of birth' : field === 'gender' ? 'Gender' : field} is required`;
+        return props.errors[field] || '';
+    };
 
     // Handle patient field changes
     const handleChange = (e) => {
@@ -176,7 +189,7 @@ const PatientDetailsForm = (props) => {
                 variants={itemVariants}
             >
                 {/* Left column - Patient information */}
-                <Grid item xs={12} md={8}>
+                <Grid size={{ xs: 12, md: 8 }}>
                     <Card
                         elevation={0}
                         sx={{
@@ -221,7 +234,7 @@ const PatientDetailsForm = (props) => {
                         <CardContent sx={{p: 3}}>
                             {/* Required Patient Fields */}
                             <Grid container spacing={2} mb={3}>
-                                <Grid item xs={12} sm={6}>
+                                <Grid size={{ xs: 12, sm: 6 }}>
                                     <TextField
                                         fullWidth
                                         label="ID Number"
@@ -239,7 +252,7 @@ const PatientDetailsForm = (props) => {
                                         }}
                                     />
                                 </Grid>
-                                <Grid item xs={12} sm={6}>
+                                <Grid size={{ xs: 12, sm: 6 }}>
                                     <TextField
                                         fullWidth
                                         label="Reference ID"
@@ -260,7 +273,7 @@ const PatientDetailsForm = (props) => {
 
                                 {/* Relationship Selector - Only for additional patients */}
                                 {props.isAdditional && (
-                                    <Grid item xs={12} sm={6}>
+                                    <Grid size={{ xs: 12, sm: 6 }}>
                                         <FormControl
                                             fullWidth
                                             error={!!props.errors["relation_type"]}
@@ -297,16 +310,17 @@ const PatientDetailsForm = (props) => {
                                         </FormControl>
                                     </Grid>
                                 )}
-                                <Grid item xs={12} sm={6}>
+                                <Grid size={{ xs: 12, sm: 6 }}>
                                     <TextField
                                         fullWidth
                                         required
-                                        error={!!props.errors["fullName"]}
-                                        helperText={props.errors["fullName"]}
+                                        error={!!getBlurError("fullName", props.patient?.fullName)}
+                                        helperText={getBlurError("fullName", props.patient?.fullName)}
                                         label="Patient Full Name"
                                         value={props.patient?.fullName ?? ""}
                                         name="fullName"
                                         onChange={handleChange}
+                                        onBlur={handleBlur}
                                         InputProps={{
                                             startAdornment: (
                                                 <InputAdornment position="start">
@@ -317,7 +331,7 @@ const PatientDetailsForm = (props) => {
                                     />
                                 </Grid>
 
-                                <Grid item xs={12} sm={6}>
+                                <Grid size={{ xs: 12, sm: 6 }}>
                                     <FormControl fullWidth required>
                                         <InputLabel
                                             error={!!props.errors["gender"]}
@@ -347,17 +361,18 @@ const PatientDetailsForm = (props) => {
                                     </FormControl>
                                 </Grid>
 
-                                <Grid item xs={12} sm={6}>
+                                <Grid size={{ xs: 12, sm: 6 }}>
                                     <TextField
                                         fullWidth
                                         required
                                         label="Date Of Birth"
-                                        error={!!props.errors["dateOfBirth"]}
-                                        helperText={props.errors["dateOfBirth"]}
+                                        error={!!getBlurError("dateOfBirth", props.patient?.dateOfBirth)}
+                                        helperText={getBlurError("dateOfBirth", props.patient?.dateOfBirth)}
                                         value={props.patient?.dateOfBirth ?? ""}
                                         name="dateOfBirth"
                                         type="date"
                                         onChange={handleChange}
+                                        onBlur={handleBlur}
                                         InputProps={{
                                             startAdornment: (
                                                 <InputAdornment position="start">
@@ -369,7 +384,7 @@ const PatientDetailsForm = (props) => {
                                     />
                                 </Grid>
 
-                                <Grid item xs={12} sm={6}>
+                                <Grid size={{ xs: 12, sm: 6 }}>
                                     <FormControl fullWidth required>
                                         <InputLabel
                                             id="consanguineousParents-label"
@@ -404,7 +419,7 @@ const PatientDetailsForm = (props) => {
                                     </FormControl>
                                 </Grid>
 
-                                <Grid item xs={12} sm={6}>
+                                <Grid size={{ xs: 12, sm: 6 }}>
                                     <Autocomplete
                                         id="nationality-select"
                                         options={countries}
@@ -468,7 +483,7 @@ const PatientDetailsForm = (props) => {
                                 </Box>
 
                                 <Grid container spacing={2}>
-                                    <Grid item xs={12} sm={6}>
+                                    <Grid size={{ xs: 12, sm: 6 }}>
                                         <Autocomplete
                                             id="country-select"
                                             options={countries}
@@ -511,7 +526,7 @@ const PatientDetailsForm = (props) => {
                                         />
                                     </Grid>
 
-                                    <Grid item xs={12} sm={6}>
+                                    <Grid size={{ xs: 12, sm: 6 }}>
                                         <TextField
                                             fullWidth
                                             label="Phone"
@@ -534,7 +549,7 @@ const PatientDetailsForm = (props) => {
                                         />
                                     </Grid>
 
-                                    <Grid item xs={12} sm={6}>
+                                    <Grid size={{ xs: 12, sm: 6 }}>
                                         <TextField
                                             fullWidth
                                             label="Email"
@@ -553,7 +568,7 @@ const PatientDetailsForm = (props) => {
                                         />
                                     </Grid>
 
-                                    <Grid item xs={12} sm={6}>
+                                    <Grid size={{ xs: 12, sm: 6 }}>
                                         <TextField
                                             fullWidth
                                             label="City"
@@ -570,7 +585,7 @@ const PatientDetailsForm = (props) => {
                                         />
                                     </Grid>
 
-                                    <Grid item xs={12} sm={6}>
+                                    <Grid size={{ xs: 12, sm: 6 }}>
                                         <TextField
                                             fullWidth
                                             label="State/Province"
@@ -587,7 +602,7 @@ const PatientDetailsForm = (props) => {
                                         />
                                     </Grid>
 
-                                    <Grid item xs={12} sm={6}>
+                                    <Grid size={{ xs: 12, sm: 6 }}>
                                         <TextField
                                             fullWidth
                                             label="Address"
@@ -610,7 +625,7 @@ const PatientDetailsForm = (props) => {
                 </Grid>
 
                 {/* Right column - Patient selection and action buttons */}
-                <Grid item xs={12} md={4}>
+                <Grid size={{ xs: 12, md: 4 }}>
                     <Stack spacing={3} height="100%">
                         {/* Patient selection card */}
                         <Card

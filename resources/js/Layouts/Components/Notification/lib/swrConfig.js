@@ -28,20 +28,8 @@ export const swrConfig = {
     errorRetryCount: 3,
     errorRetryInterval: 5000,
     onError: (error, key) => {
-        console.error('SWR Error for', key, ':', error);
-
-        // Optional: Show error notification using notistack
-        if (window.enqueueSnackbar) {
-            window.enqueueSnackbar('Failed to load notifications', {
-                variant: 'error',
-                autoHideDuration: 3000
-            });
-        }
-    },
-    onSuccess: (data, key) => {
-        // Optional: Log successful requests in development
-        if (process.env.NODE_ENV === 'development') {
-            console.log('SWR Success for', key, ':', data);
+        if (import.meta.env.DEV) {
+            console.error('SWR Error for', key, ':', error);
         }
     }
 };

@@ -18,7 +18,7 @@ const GenerateForm = ({values, setValues, submit, open, setOpen, title, loading,
         <DialogContent sx={{p: "1em"}}>
             <Container>
                 <Grid container sx={{marginTop: "1em"}} spacing={2}>
-                    <Grid item xs={12}>
+                    <Grid size={12}>
                         <TextField label="Expire Date"
                                    type="date"
                                    fullWidth

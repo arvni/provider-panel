@@ -1,9 +1,15 @@
 import React, { useState } from "react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import {
+    Alert,
     Box,
     Button,
     Chip,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
     Divider,
     Grid,
     IconButton,
@@ -44,9 +50,14 @@ import {
     LocalShipping,
     Event,
     AssignmentReturn,
-    ListAlt
+    ListAlt,
+    CloudDone,
+    CloudOff,
+    CloudSync,
+    Send,
+    Tag,
 } from "@mui/icons-material";
-import { useForm } from "@inertiajs/react";
+import { useForm, router } from "@inertiajs/react";
 import Form from "./Components/Form";
 import DeleteButton from "@/Components/DeleteButton.jsx";
 import TabContext from '@mui/lab/TabContext';
@@ -70,9 +81,15 @@ const Show = ({ collectRequest }) => {
         _method: "put"
     });
 
-    // State for edit dialog and tab panel
+    // State for edit dialog, send dialog, and tab panel
     const [openEdit, setOpenEdit] = useState(false);
+    const [openSend, setOpenSend] = useState(false);
     const [activeTab, setActiveTab] = useState('1');
+
+    const handleSendToServer = () => {
+        setOpenSend(false);
+        router.post(route("admin.collectRequests.send", collectRequest.id), {}, { preserveScroll: true });
+    };
 
 
     /**
@@ -151,39 +168,89 @@ const Show = ({ collectRequest }) => {
 
     return (
         <Box sx={{ maxWidth: 1200, mx: 'auto' }}>
-            {/* Status and main actions */}
-            <Box sx={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                mb: 3
-            }}>
-                <Stack direction="row" spacing={2} alignItems="center">
+            {/* Header: title, status, actions */}
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 2 }}>
+                <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap">
                     <Typography variant="h5" component="h1">
                         Collection Request #{collectRequest.id}
                     </Typography>
-
                     <Chip
                         label={collectRequest.status}
                         color={getStatusColor(collectRequest.status)}
-                        sx={{
-                            fontWeight: 'medium',
-                            textTransform: 'capitalize'
-                        }}
+                        sx={{ fontWeight: 'medium', textTransform: 'capitalize' }}
                     />
+                    {/* Server sync badge */}
+                    {collectRequest.server_id ? (
+                        <Tooltip title={`Server ID: ${collectRequest.server_id}`}>
+                            <Chip
+                                icon={<CloudDone fontSize="small" />}
+                                label={`Synced · #${collectRequest.server_id}`}
+                                size="small"
+                                color="success"
+                                variant="outlined"
+                                sx={{ fontWeight: 600 }}
+                            />
+                        </Tooltip>
+                    ) : (
+                        <Chip
+                            icon={<CloudOff fontSize="small" />}
+                            label="Not sent to server"
+                            size="small"
+                            color="warning"
+                            variant="outlined"
+                        />
+                    )}
                 </Stack>
 
-                {collectRequest.status !== "received" && (
-                    <Button
-                        variant="contained"
-                        startIcon={<EditNote />}
-                        onClick={openEditForm}
-                        color="primary"
-                    >
-                        Edit Collection Details
-                    </Button>
-                )}
+                <Stack direction="row" spacing={1}>
+                    {!collectRequest.server_id && (
+                        <Button
+                            variant="outlined"
+                            color="success"
+                            startIcon={<CloudSync />}
+                            onClick={() => setOpenSend(true)}
+                            size="small"
+                        >
+                            Send to Server
+                        </Button>
+                    )}
+                    {collectRequest.status !== "received" && (
+                        <Button
+                            variant="contained"
+                            startIcon={<EditNote />}
+                            onClick={openEditForm}
+                            color="primary"
+                            size="small"
+                        >
+                            Edit Details
+                        </Button>
+                    )}
+                </Stack>
             </Box>
+
+            {/* Server sync info banner */}
+            {collectRequest.server_id ? (
+                <Alert
+                    icon={<CloudDone />}
+                    severity="success"
+                    sx={{ mb: 3, borderRadius: 2 }}
+                >
+                    This collection request has been synced to the main server with ID <strong>#{collectRequest.server_id}</strong>. Status updates will be received automatically via webhook.
+                </Alert>
+            ) : (
+                <Alert
+                    icon={<CloudOff />}
+                    severity="warning"
+                    sx={{ mb: 3, borderRadius: 2 }}
+                    action={
+                        <Button color="warning" size="small" startIcon={<Send />} onClick={() => setOpenSend(true)}>
+                            Send Now
+                        </Button>
+                    }
+                >
+                    This collection request has not been sent to the main server yet. The lab will not receive it until it is synced.
+                </Alert>
+            )}
 
             {/* Main content tabs */}
             <TabContext value={activeTab}>
@@ -231,8 +298,57 @@ const Show = ({ collectRequest }) => {
                             </Typography>
 
                             <Grid container spacing={3}>
+                                {/* Server sync card */}
+                                <Grid size={12}>
+                                    <Card variant="outlined" sx={{ borderColor: collectRequest.server_id ? 'success.light' : 'warning.light' }}>
+                                        <CardHeader
+                                            title="Server Synchronization"
+                                            subheader={collectRequest.server_id
+                                                ? "This request has been successfully sent to the main server."
+                                                : "This request has not been sent to the main server yet."}
+                                            avatar={
+                                                <Avatar sx={{ bgcolor: collectRequest.server_id ? 'success.main' : 'warning.main' }}>
+                                                    {collectRequest.server_id ? <CloudDone /> : <CloudOff />}
+                                                </Avatar>
+                                            }
+                                            action={
+                                                !collectRequest.server_id && (
+                                                    <Button
+                                                        variant="contained"
+                                                        color="success"
+                                                        size="small"
+                                                        startIcon={<CloudSync />}
+                                                        onClick={() => setOpenSend(true)}
+                                                        sx={{ mt: 1, mr: 1 }}
+                                                    >
+                                                        Send to Server
+                                                    </Button>
+                                                )
+                                            }
+                                        />
+                                        {collectRequest.server_id && (
+                                            <>
+                                                <Divider />
+                                                <CardContent>
+                                                    <List disablePadding>
+                                                        <ListItem>
+                                                            <ListItemAvatar>
+                                                                <Avatar sx={{ bgcolor: 'success.light' }}><Tag /></Avatar>
+                                                            </ListItemAvatar>
+                                                            <ListItemText
+                                                                primary="Server ID"
+                                                                secondary={`#${collectRequest.server_id}`}
+                                                                slotProps={{ secondary: { sx: { fontWeight: 600, color: 'success.dark', fontSize: '1rem' } } }}
+                                                            />
+                                                        </ListItem>
+                                                    </List>
+                                                </CardContent>
+                                            </>
+                                        )}
+                                    </Card>
+                                </Grid>
                                 {/* Scheduling Information */}
-                                <Grid item xs={12} md={6}>
+                                <Grid size={{ xs: 12, md: 6 }}>
                                     <Card variant="outlined">
                                         <CardHeader
                                             title="Scheduled Collection"
@@ -272,7 +388,7 @@ const Show = ({ collectRequest }) => {
                                 </Grid>
 
                                 {/* Pickup Information */}
-                                <Grid item xs={12} md={6}>
+                                <Grid size={{ xs: 12, md: 6 }}>
                                     <Card variant="outlined">
                                         <CardHeader
                                             title="Pickup Details"
@@ -319,7 +435,7 @@ const Show = ({ collectRequest }) => {
                         <Box sx={{ p: 3 }}>
                             <Grid container spacing={3}>
                                 {/* Billing Information */}
-                                <Grid item xs={12} md={6}>
+                                <Grid size={{ xs: 12, md: 6 }}>
                                     <Card variant="outlined">
                                         <CardHeader
                                             title="Billing Information"
@@ -432,7 +548,7 @@ const Show = ({ collectRequest }) => {
                                 </Grid>
 
                                 {/* Contact Information */}
-                                <Grid item xs={12} md={6}>
+                                <Grid size={{ xs: 12, md: 6 }}>
                                     <Card variant="outlined">
                                         <CardHeader
                                             title="Contact Information"
@@ -632,6 +748,27 @@ const Show = ({ collectRequest }) => {
                 defaultValue={collectRequest}
                 processing={processing}
             />
+
+            {/* Send to server confirmation dialog */}
+            <Dialog open={openSend} onClose={() => setOpenSend(false)} maxWidth="xs" fullWidth>
+                <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <CloudSync color="success" />
+                    Send to Main Server
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        This will queue <strong>Collection Request #{collectRequest.id}</strong> to be sent to the main server. Once sent, the lab will be notified and the request will receive a server tracking ID. This action cannot be undone.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
+                    <Button onClick={() => setOpenSend(false)} variant="outlined" size="small">
+                        Cancel
+                    </Button>
+                    <Button onClick={handleSendToServer} variant="contained" color="success" size="small" startIcon={<Send />} autoFocus>
+                        Send to Server
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 };

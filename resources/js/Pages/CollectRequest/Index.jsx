@@ -1,9 +1,14 @@
-import React, {useState, useMemo} from "react";
+import React, { useState, useMemo } from "react";
 import {
     Box,
     Button,
     Chip,
     Collapse,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
     IconButton,
     InputAdornment,
     Paper,
@@ -24,41 +29,25 @@ import {
     Receipt,
     Event,
     Person,
-    Send
+    Send,
+    CloudDone,
+    CloudOff,
+    CloudSync,
 } from "@mui/icons-material";
 import PageHeader from "@/Components/PageHeader";
 import TableLayout from "@/Layouts/TableLayout";
-import {usePageReload} from "@/Services/api";
+import { usePageReload } from "@/Services/api";
 import AdminLayout from "@/Layouts/AuthenticatedLayout";
-import {router} from "@inertiajs/react";
+import { router } from "@inertiajs/react";
 import DeleteButton from "@/Components/DeleteButton.jsx";
-import {format, isValid} from 'date-fns';
-import {formatInTimeZone} from 'date-fns-tz';
+import { isValid } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 
-
-/**
- * Breadcrumbs for the layout
- */
 const breadcrumbs = [
-    {
-        title: "Collection Requests",
-        link: "",
-        icon: <LocalShipping fontSize="small"/>
-    },
+    { title: "Collection Requests", link: "", icon: <LocalShipping fontSize="small" /> },
 ];
 
-/**
- * CollectRequests Index component
- * Lists all collection requests with filtering and pagination
- *
- * @param {Object} props Component props
- * @param {Object} props.collectRequests Collection requests data with pagination
- * @param {Object} props.request Request parameters
- * @returns {JSX.Element} Rendered component
- */
-function Index({collectRequests: {data: collectRequestsData, ...pagination}, request}) {
-
-    // Page reload state
+function Index({ collectRequests: { data: collectRequestsData, ...pagination }, request }) {
     const {
         data,
         processing,
@@ -69,184 +58,84 @@ function Index({collectRequests: {data: collectRequestsData, ...pagination}, req
         onPageChange
     } = usePageReload(request, ["collectRequests", "status", "success", "request"]);
 
-    // State for search and filters
     const [searchTerm, setSearchTerm] = useState("");
     const [showFilters, setShowFilters] = useState(false);
+    const [sendDialog, setSendDialog] = useState({ open: false, id: null });
 
-    /**
-     * Format date string
-     *
-     * @param {string} dateString Date string to format
-     * @returns {string} Formatted date or original string
-     */
     const formatDate = (dateString) => {
         if (!dateString) return "—";
-
         try {
             const date = new Date(dateString);
-            if (isValid(date)) {
-                return formatInTimeZone(date, 'Asia/Muscat', 'MMM d, yyyy h:mm a',);
-            }
-        } catch (e) {
-            // Fall back to original string if parsing fails
-        }
-
+            if (isValid(date)) return formatInTimeZone(date, 'Asia/Muscat', 'MMM d, yyyy h:mm a');
+        } catch (e) { /* fall through */ }
         return dateString;
     };
 
-    /**
-     * Get status chip color based on status
-     *
-     * @param {string} status Status value
-     * @returns {string} Color name
-     */
     const getStatusColor = (status) => {
         switch (status?.toLowerCase()) {
-            case 'requested':
-                return 'warning';
-            case 'scheduled':
-                return 'info';
-            case 'picked up':
-                return 'secondary';
-            case 'received':
-                return 'success';
-            default:
-                return 'default';
+            case 'requested': return 'warning';
+            case 'scheduled': return 'info';
+            case 'picked up': return 'secondary';
+            case 'received': return 'success';
+            default: return 'default';
         }
     };
 
-    /**
-     * Get status icon based on status
-     *
-     * @param {string} status Status value
-     * @returns {JSX.Element} Icon element
-     */
     const getStatusIcon = (status) => {
         switch (status?.toLowerCase()) {
-            case 'requested':
-                return <Receipt fontSize="small"/>;
-            case 'scheduled':
-                return <Schedule fontSize="small"/>;
-            case 'picked up':
-                return <LocalShipping fontSize="small"/>;
-            case 'received':
-                return <CheckCircle fontSize="small"/>;
-            default:
-                return <Receipt fontSize="small"/>;
+            case 'requested': return <Receipt fontSize="small" />;
+            case 'scheduled': return <Schedule fontSize="small" />;
+            case 'picked up': return <LocalShipping fontSize="small" />;
+            case 'received': return <CheckCircle fontSize="small" />;
+            default: return <Receipt fontSize="small" />;
         }
     };
 
-    /**
-     * Navigate to collection request details
-     *
-     * @param {number} id Collection request ID
-     * @returns {Function} Click handler
-     */
     const handleShow = (id) => (e) => {
         e.preventDefault();
         router.visit(route("admin.collectRequests.show", id));
     };
 
-    /**
-     * Handle send to server action
-     *
-     * @param {number} id Collection request ID
-     * @returns {Function} Click handler
-     */
-    const handleSendToServer = (id) => (e) => {
-        e.preventDefault();
-        if (confirm('Are you sure you want to send this collection request to the server?')) {
-            router.post(route("admin.collectRequests.send", id), {}, {
-                preserveScroll: true,
-                onSuccess: () => {
-                    reload();
-                }
-            });
-        }
+    const handleSendConfirm = () => {
+        const id = sendDialog.id;
+        setSendDialog({ open: false, id: null });
+        router.post(route("admin.collectRequests.send", id), {}, {
+            preserveScroll: true,
+            onSuccess: () => reload()
+        });
     };
 
-    /**
-     * Handle page change
-     *
-     * @param {Event} e Event object
-     */
-    const handlePage = (e) => {
-        e.preventDefault();
+    const applySearch = () => {
+        onFilterChange({ ...data.filters, search: searchTerm });
         reload();
     };
 
-    /**
-     * Handle search input change
-     *
-     * @param {Event} e Change event
-     */
-    const handleSearchChange = (e) => {
-        setSearchTerm(e.target.value);
-    };
-
-    /**
-     * Apply search filter
-     */
-    const applySearch = () => {
-        const filters = {...data.filters, search: searchTerm};
-        onFilterChange(filters);
-        handlePage({
-            preventDefault: () => {
-            }
-        });
-    };
-
-    /**
-     * Clear all filters
-     */
     const clearFilters = () => {
         setSearchTerm("");
         onFilterChange({});
-        handlePage({
-            preventDefault: () => {
-            }
-        });
+        reload();
     };
 
-    /**
-     * Handle search on Enter key
-     *
-     * @param {Event} e Keydown event
-     */
     const handleSearchKeyDown = (e) => {
-        if (e.key === 'Enter') {
-            applySearch();
-        }
+        if (e.key === 'Enter') applySearch();
     };
 
-    /**
-     * Table columns definition
-     */
     const columns = useMemo(() => [
         {
             field: "user_name",
             title: "Customer",
-            type: "text",
-            filter: {
-                name: "user_name",
-                label: "Customer Name",
-                type: "text",
-                value: data?.filters?.user_name
-            },
             sortable: true,
+            filter: { name: "user_name", label: "Customer Name", type: "text", value: data?.filters?.user_name },
             render: (row) => (
                 <Stack direction="row" spacing={1} alignItems="center">
-                    <Person color="primary"/>
-                    <Typography variant="body2">
-                        {row.user_name || "—"}
-                    </Typography>
+                    <Person color="primary" />
+                    <Typography variant="body2">{row.user_name || "—"}</Typography>
                 </Stack>
             )
         },
         {
             field: "status",
             title: "Status",
-            type: "text",
             sortable: true,
             render: (row) => (
                 <Chip
@@ -254,17 +143,38 @@ function Index({collectRequests: {data: collectRequestsData, ...pagination}, req
                     label={row.status}
                     size="small"
                     color={getStatusColor(row.status)}
-                    sx={{
-                        fontWeight: 'medium',
-                        textTransform: 'capitalize'
-                    }}
+                    sx={{ fontWeight: 'medium', textTransform: 'capitalize' }}
+                />
+            )
+        },
+        {
+            field: "server_id",
+            title: "Server Sync",
+            render: (row) => row.server_id ? (
+                <Tooltip title={`Server ID: ${row.server_id}`}>
+                    <Chip
+                        icon={<CloudDone fontSize="small" />}
+                        label="Synced"
+                        size="small"
+                        color="success"
+                        variant="outlined"
+                        sx={{ fontWeight: 600 }}
+                    />
+                </Tooltip>
+            ) : (
+                <Chip
+                    icon={<CloudOff fontSize="small" />}
+                    label="Not Sent"
+                    size="small"
+                    color="default"
+                    variant="outlined"
+                    sx={{ color: 'text.secondary' }}
                 />
             )
         },
         {
             field: "orders_count",
             title: "Orders",
-            type: "number",
             sortable: true,
             render: (row) => (
                 <Chip
@@ -278,35 +188,30 @@ function Index({collectRequests: {data: collectRequestsData, ...pagination}, req
         {
             field: "preferred_date",
             title: "Preferred Pickup",
-            type: "text",
             sortable: true,
-            render: (row) => (
-                row.preferred_date ? <Stack direction="row" spacing={1} alignItems="center">
-                    <Event color="info" fontSize="small"/>
+            render: (row) => row.preferred_date ? (
+                <Stack direction="row" spacing={1} alignItems="center">
+                    <Event color="info" fontSize="small" />
                     <Typography variant="body2" color="text.secondary">
                         {new Date(row.preferred_date).toDateString()}
                     </Typography>
-                </Stack> : null
-            )
+                </Stack>
+            ) : <Typography variant="body2" color="text.disabled">—</Typography>
         },
         {
             field: "created_at",
             title: "Requested At",
-            type: "text",
             sortable: true,
             render: (row) => (
-                <Typography variant="body2" color="text.secondary">
-                    {formatDate(row.created_at)}
-                </Typography>
+                <Typography variant="body2" color="text.secondary">{formatDate(row.created_at)}</Typography>
             )
         },
         {
             field: "actions",
             title: "Actions",
-            type: "actions",
-            width: "150px",
+            width: "160px",
             render: (row) => (
-                <Stack direction="row" spacing={1}>
+                <Stack direction="row" spacing={0.5}>
                     <Tooltip title="View Details">
                         <IconButton
                             onClick={handleShow(row.id)}
@@ -314,24 +219,27 @@ function Index({collectRequests: {data: collectRequestsData, ...pagination}, req
                             size="small"
                             color="primary"
                         >
-                            <RemoveRedEye fontSize="small"/>
+                            <RemoveRedEye fontSize="small" />
                         </IconButton>
                     </Tooltip>
 
-                    {!row.server_id && (
+                    {!row.server_id ? (
                         <Tooltip title="Send to Server">
                             <IconButton
-                                onClick={handleSendToServer(row.id)}
+                                onClick={() => setSendDialog({ open: true, id: row.id })}
                                 size="small"
                                 color="success"
-                                sx={{
-                                    '&:hover': {
-                                        bgcolor: 'success.lighter'
-                                    }
-                                }}
                             >
-                                <Send fontSize="small"/>
+                                <CloudSync fontSize="small" />
                             </IconButton>
+                        </Tooltip>
+                    ) : (
+                        <Tooltip title={`Synced — Server ID: ${row.server_id}`}>
+                            <span>
+                                <IconButton size="small" color="success" disabled>
+                                    <CloudDone fontSize="small" />
+                                </IconButton>
+                            </span>
                         </Tooltip>
                     )}
 
@@ -339,7 +247,7 @@ function Index({collectRequests: {data: collectRequestsData, ...pagination}, req
                         <DeleteButton
                             url={route("admin.collectRequests.destroy", row.id)}
                             size="small"
-                            IconProps={{fontSize: 'small'}}
+                            IconProps={{ fontSize: 'small' }}
                         />
                     )}
                 </Stack>
@@ -347,148 +255,92 @@ function Index({collectRequests: {data: collectRequestsData, ...pagination}, req
         }
     ], [data?.filters]);
 
+    const activeFilterCount = Object.keys(data.filters || {}).length;
+
     return (
         <>
             <PageHeader
                 title="Collection Requests"
                 subtitle="Manage pickup and delivery requests"
-                icon={<LocalShipping fontSize="large"/>}
             />
 
-            <Paper
-                elevation={0}
-                variant="outlined"
-                sx={{
-                    mt: 2,
-                    borderRadius: 2,
-                    overflow: 'hidden'
-                }}
-            >
-                {/* Table filters and controls */}
-                <Box
-                    sx={{
-                        p: 2,
-                        borderBottom: '1px solid',
-                        borderColor: 'divider',
-                        bgcolor: 'background.subtle'
-                    }}
-                >
+            <Paper elevation={0} variant="outlined" sx={{ mt: 2, borderRadius: 2, overflow: 'hidden' }}>
+                {/* Controls bar */}
+                <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
                     <Stack
-                        direction={{xs: 'column', sm: 'row'}}
+                        direction={{ xs: 'column', sm: 'row' }}
                         spacing={2}
-                        alignItems={{xs: 'stretch', sm: 'center'}}
+                        alignItems={{ xs: 'stretch', sm: 'center' }}
                         justifyContent="space-between"
                     >
-                        <Box sx={{display: 'flex', alignItems: 'center', gap: 2}}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
                             <TextField
                                 placeholder="Search requests..."
                                 variant="outlined"
                                 size="small"
                                 value={searchTerm}
-                                onChange={handleSearchChange}
+                                onChange={(e) => setSearchTerm(e.target.value)}
                                 onKeyDown={handleSearchKeyDown}
-                                InputProps={{
-                                    startAdornment: (
-                                        <InputAdornment position="start">
-                                            <Search fontSize="small" color="action"/>
-                                        </InputAdornment>
-                                    ),
-                                    endAdornment: searchTerm && (
-                                        <InputAdornment position="end">
-                                            <IconButton
-                                                edge="end"
-                                                size="small"
-                                                onClick={() => {
+                                slotProps={{
+                                    input: {
+                                        startAdornment: (
+                                            <InputAdornment position="start">
+                                                <Search fontSize="small" color="action" />
+                                            </InputAdornment>
+                                        ),
+                                        endAdornment: searchTerm && (
+                                            <InputAdornment position="end">
+                                                <IconButton edge="end" size="small" onClick={() => {
                                                     setSearchTerm("");
-                                                    if (data.filters?.search) {
-                                                        clearFilters();
-                                                    }
-                                                }}
-                                            >
-                                                <ClearIcon fontSize="small"/>
-                                            </IconButton>
-                                        </InputAdornment>
-                                    )
+                                                    if (data.filters?.search) clearFilters();
+                                                }}>
+                                                    <ClearIcon fontSize="small" />
+                                                </IconButton>
+                                            </InputAdornment>
+                                        )
+                                    }
                                 }}
-                                sx={{minWidth: 250}}
+                                sx={{ minWidth: 240 }}
                             />
 
                             <Button
                                 variant="outlined"
-                                startIcon={<FilterAlt/>}
+                                startIcon={<FilterAlt />}
                                 size="medium"
                                 onClick={() => setShowFilters(!showFilters)}
-                                color={Object.keys(data.filters || {}).length > 0 ? "primary" : "inherit"}
+                                color={activeFilterCount > 0 ? "primary" : "inherit"}
                             >
                                 Filters
-                                {Object.keys(data.filters || {}).length > 0 && (
-                                    <Chip
-                                        label={Object.keys(data.filters || {}).length}
-                                        size="small"
-                                        color="primary"
-                                        sx={{ml: 1}}
-                                    />
+                                {activeFilterCount > 0 && (
+                                    <Chip label={activeFilterCount} size="small" color="primary" sx={{ ml: 1 }} />
                                 )}
                             </Button>
 
-                            {Object.keys(data.filters || {}).length > 0 && (
-                                <Button
-                                    variant="text"
-                                    startIcon={<ClearIcon/>}
-                                    size="medium"
-                                    onClick={clearFilters}
-                                >
-                                    Clear All
+                            {activeFilterCount > 0 && (
+                                <Button variant="text" startIcon={<ClearIcon />} size="medium" onClick={clearFilters}>
+                                    Clear
                                 </Button>
                             )}
                         </Box>
 
-                        <Box>
-                            <Tooltip title="Refresh data">
-                                <IconButton
-                                    onClick={() => reload()}
-                                    disabled={processing}
-                                    color="inherit"
-                                >
-                                    <RefreshIcon/>
-                                </IconButton>
-                            </Tooltip>
-                        </Box>
+                        <Tooltip title="Refresh data">
+                            <IconButton onClick={() => reload()} disabled={processing} color="inherit">
+                                <RefreshIcon />
+                            </IconButton>
+                        </Tooltip>
                     </Stack>
 
-                    {/* Filter panel - expandable */}
+                    {/* Advanced filters panel */}
                     <Collapse in={showFilters}>
-                        <Box
-                            sx={{
-                                mt: 2,
-                                p: 2,
-                                border: '1px solid',
-                                borderColor: 'divider',
-                                borderRadius: 1,
-                                bgcolor: 'background.paper'
-                            }}
-                        >
-                            <Typography variant="subtitle2" gutterBottom>
-                                Advanced Filters
-                            </Typography>
-
-                            <Stack
-                                direction={{xs: 'column', md: 'row'}}
-                                spacing={2}
-                                sx={{mt: 1}}
-                            >
+                        <Box sx={{ mt: 2, p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 1, bgcolor: 'background.paper' }}>
+                            <Typography variant="subtitle2" gutterBottom>Advanced Filters</Typography>
+                            <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mt: 1 }}>
                                 <TextField
                                     label="Customer Name"
                                     size="small"
                                     fullWidth
                                     value={data.filters?.user_name || ''}
-                                    onChange={(e) => {
-                                        const filters = {
-                                            ...data.filters,
-                                            user_name: e.target.value
-                                        };
-                                        onFilterChange(filters);
-                                    }}
+                                    onChange={(e) => onFilterChange({ ...data.filters, user_name: e.target.value })}
                                 />
 
                                 <TextField
@@ -496,17 +348,9 @@ function Index({collectRequests: {data: collectRequestsData, ...pagination}, req
                                     label="Status"
                                     size="small"
                                     fullWidth
-                                    SelectProps={{
-                                        native: true,
-                                    }}
+                                    slotProps={{ select: { native: true } }}
                                     value={data.filters?.status || ''}
-                                    onChange={(e) => {
-                                        const filters = {
-                                            ...data.filters,
-                                            status: e.target.value
-                                        };
-                                        onFilterChange(filters);
-                                    }}
+                                    onChange={(e) => onFilterChange({ ...data.filters, status: e.target.value })}
                                 >
                                     <option value="">All Statuses</option>
                                     <option value="requested">Requested</option>
@@ -515,23 +359,25 @@ function Index({collectRequests: {data: collectRequestsData, ...pagination}, req
                                     <option value="received">Received</option>
                                 </TextField>
 
-                                <Box sx={{display: 'flex', gap: 1, alignItems: 'flex-end'}}>
-                                    <Button
-                                        variant="contained"
-                                        onClick={() => handlePage({
-                                            preventDefault: () => {
-                                            }
-                                        })}
-                                        disabled={processing}
-                                    >
-                                        Apply Filters
-                                    </Button>
+                                <TextField
+                                    select
+                                    label="Server Sync"
+                                    size="small"
+                                    fullWidth
+                                    slotProps={{ select: { native: true } }}
+                                    value={data.filters?.synced ?? ''}
+                                    onChange={(e) => onFilterChange({ ...data.filters, synced: e.target.value })}
+                                >
+                                    <option value="">All</option>
+                                    <option value="1">Synced to Server</option>
+                                    <option value="0">Not Sent</option>
+                                </TextField>
 
-                                    <Button
-                                        variant="outlined"
-                                        onClick={clearFilters}
-                                        disabled={processing}
-                                    >
+                                <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-end' }}>
+                                    <Button variant="contained" onClick={() => reload()} disabled={processing}>
+                                        Apply
+                                    </Button>
+                                    <Button variant="outlined" onClick={clearFilters} disabled={processing}>
                                         Clear
                                     </Button>
                                 </Box>
@@ -540,66 +386,53 @@ function Index({collectRequests: {data: collectRequestsData, ...pagination}, req
                     </Collapse>
                 </Box>
 
-                {/* Table container */}
-                <Box sx={{overflowX: "auto"}}>
+                {/* Table */}
+                <Box sx={{ overflowX: "auto" }}>
                     <TableLayout
                         columns={columns}
                         data={collectRequestsData}
                         onPageChange={onPageChange}
                         pagination={pagination}
                         onFilterChange={onFilterChange}
-                        onFilter={handlePage}
-                        filter={false} // We've built custom filter UI above
+                        filter={false}
                         onOrderByChange={onOrderByChange}
                         loading={processing}
                         tableModel={{
-                            orderBy: data.sort ?? {
-                                field: "id",
-                                type: "desc"
-                            },
+                            orderBy: data.sort ?? { field: "id", type: "desc" },
                             page: data.page,
                             filter: data.filters
                         }}
-                        pageSize={{
-                            defaultValue: data.pageSize ?? 10,
-                            onChange: onPageSizeChange
-                        }}
-                        emptyStateMessage={
-                            <Box
-                                sx={{
-                                    py: 8,
-                                    textAlign: 'center',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                    gap: 2
-                                }}
-                            >
-                                <LocalShipping fontSize="large" color="disabled" sx={{fontSize: 64}}/>
-                                <Typography variant="h6" color="text.secondary">
-                                    No Collection Requests Found
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary" sx={{maxWidth: 400, mx: 'auto'}}>
-                                    {data.filters && Object.keys(data.filters).length > 0
-                                        ? "Try adjusting your filters or search terms to find what you're looking for."
-                                        : "There are no collection requests in the system yet."}
-                                </Typography>
-                            </Box>
-                        }
+                        pageSize={{ defaultValue: data.pageSize ?? 10, onChange: onPageSizeChange }}
                     />
                 </Box>
             </Paper>
+
+            {/* Send to server confirmation dialog */}
+            <Dialog open={sendDialog.open} onClose={() => setSendDialog({ open: false, id: null })} maxWidth="xs" fullWidth>
+                <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <CloudSync color="success" />
+                    Send to Server
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        This will queue the collection request to be sent to the main server. Once sent, it will be tracked by a server ID. Do you want to proceed?
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
+                    <Button onClick={() => setSendDialog({ open: false, id: null })} variant="outlined" size="small">
+                        Cancel
+                    </Button>
+                    <Button onClick={handleSendConfirm} variant="contained" color="success" size="small" startIcon={<Send />} autoFocus>
+                        Send
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </>
     );
 }
 
-// Set layout wrapper
 Index.layout = (page) => (
-    <AdminLayout
-        auth={page.props.auth}
-        breadcrumbs={breadcrumbs}
-        children={page}
-    />
+    <AdminLayout auth={page.props.auth} breadcrumbs={breadcrumbs} children={page} />
 );
 
 export default Index;

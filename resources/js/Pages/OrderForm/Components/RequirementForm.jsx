@@ -26,7 +26,7 @@ import {
     Numbers,
     Warning
 } from "@mui/icons-material";
-import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
+import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import DeleteButton from "@/Components/DeleteButton";
 import AddRequirementForm from "./AddRequirementForm";
 import { makeId } from "@/Services/makeUUID";

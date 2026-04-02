@@ -248,7 +248,7 @@ const UserShow = ({ collectRequest }) => {
                             <Box sx={{ p: 3 }}>
                                 <Grid container spacing={3}>
                                     {/* Key Information Summary Card */}
-                                    <Grid item xs={12}>
+                                    <Grid size={12}>
                                         <Card
                                             variant="outlined"
                                             sx={{
@@ -259,7 +259,7 @@ const UserShow = ({ collectRequest }) => {
                                         >
                                             <CardContent>
                                                 <Grid container spacing={3}>
-                                                    <Grid item xs={12} sm={6} md={3}>
+                                                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                                                         <Stack spacing={0.5}>
                                                             <Stack direction="row" spacing={1} alignItems="center">
                                                                 <Event color="primary" fontSize="small" />
@@ -274,7 +274,7 @@ const UserShow = ({ collectRequest }) => {
                                                     </Grid>
 
                                                     {details.started_at && (
-                                                        <Grid item xs={12} sm={6} md={3}>
+                                                        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                                                             <Stack spacing={0.5}>
                                                                 <Stack direction="row" spacing={1} alignItems="center">
                                                                     <LocalShipping color="success" fontSize="small" />
@@ -290,7 +290,7 @@ const UserShow = ({ collectRequest }) => {
                                                     )}
 
                                                     {(details.collection_date || details.collection_time) && (
-                                                        <Grid item xs={12} sm={6} md={3}>
+                                                        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                                                             <Stack spacing={0.5}>
                                                                 <Stack direction="row" spacing={1} alignItems="center">
                                                                     <Schedule color="primary" fontSize="small" />
@@ -306,7 +306,7 @@ const UserShow = ({ collectRequest }) => {
                                                         </Grid>
                                                     )}
 
-                                                    <Grid item xs={12} sm={6} md={3}>
+                                                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                                                         <Stack spacing={0.5}>
                                                             <Stack direction="row" spacing={1} alignItems="center">
                                                                 <Receipt color="primary" fontSize="small" />
@@ -326,13 +326,13 @@ const UserShow = ({ collectRequest }) => {
 
                                     {/* Contact Information Section */}
                                     {(details.address || details.phone) && (
-                                        <Grid item xs={12}>
+                                        <Grid size={12}>
                                             <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mt: 2 }}>
                                                 Contact Information
                                             </Typography>
                                             <Grid container spacing={2}>
                                                 {details.address && (
-                                                    <Grid item xs={12} md={details.phone ? 8 : 12}>
+                                                    <Grid size={{ xs: 12, md: details.phone ? 8 : 12 }}>
                                                         <Paper variant="outlined" sx={{ p: 2.5 }}>
                                                             <Stack direction="row" spacing={2} alignItems="flex-start">
                                                                 <Avatar sx={{ bgcolor: 'secondary.main' }}>
@@ -352,7 +352,7 @@ const UserShow = ({ collectRequest }) => {
                                                 )}
 
                                                 {details.phone && (
-                                                    <Grid item xs={12} md={details.address ? 4 : 12}>
+                                                    <Grid size={{ xs: 12, md: details.address ? 4 : 12 }}>
                                                         <Paper variant="outlined" sx={{ p: 2.5 }}>
                                                             <Stack direction="row" spacing={2} alignItems="flex-start">
                                                                 <Avatar sx={{ bgcolor: 'success.main' }}>
@@ -376,7 +376,7 @@ const UserShow = ({ collectRequest }) => {
 
                                     {/* Notes Section */}
                                     {collectRequest.notes && (
-                                        <Grid item xs={12}>
+                                        <Grid size={12}>
                                             <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mt: 2 }}>
                                                 Additional Notes
                                             </Typography>
@@ -429,7 +429,7 @@ const UserShow = ({ collectRequest }) => {
                                 <Grid container spacing={3}>
                                     {/* Barcodes */}
                                     {details.barcodes && details.barcodes.length > 0 && (
-                                        <Grid item xs={12}>
+                                        <Grid size={12}>
                                             <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
                                                 Sample Barcodes ({details.barcodes.length})
                                             </Typography>
@@ -458,7 +458,7 @@ const UserShow = ({ collectRequest }) => {
 
                                     {/* Location Tracking */}
                                     {(details.starting_location || details.ending_location) && (
-                                        <Grid item xs={12}>
+                                        <Grid size={12}>
                                             <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mt: 2 }}>
                                                 Route Map
                                             </Typography>
@@ -575,7 +575,7 @@ const UserShow = ({ collectRequest }) => {
 
                                     {/* Temperature Logs */}
                                     {details.temperature_logs && details.temperature_logs.length > 0 && (
-                                        <Grid item xs={12}>
+                                        <Grid size={12}>
                                             <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mt: 2 }}>
                                                 Temperature Monitoring
                                             </Typography>
@@ -711,7 +711,7 @@ const UserShow = ({ collectRequest }) => {
                                     {/* No tracking data message */}
                                     {!details.barcodes && !details.starting_location && !details.ending_location &&
                                      !details.temperature_logs && (
-                                        <Grid item xs={12}>
+                                        <Grid size={12}>
                                             <Paper variant="outlined" sx={{ p: 3, textAlign: 'center' }}>
                                                 <Typography color="text.secondary">
                                                     No tracking information available yet
@@ -749,12 +749,12 @@ const UserShow = ({ collectRequest }) => {
                                 {collectRequest.orders && collectRequest.orders.length > 0 ? (
                                     <Grid container spacing={2}>
                                         {collectRequest.orders.map((order) => (
-                                            <Grid item xs={12} key={order.id}>
+                                            <Grid size={12} key={order.id}>
                                                 <Card variant="outlined" sx={{ '&:hover': { boxShadow: 2 }, transition: 'box-shadow 0.3s' }}>
                                                     <CardContent>
                                                         <Grid container spacing={2} alignItems="center">
                                                             {/* Order ID */}
-                                                            <Grid item xs={12} sm={6} md={2}>
+                                                            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
                                                                 <Typography variant="caption" color="text.secondary" fontWeight={600}>
                                                                     ORDER ID
                                                                 </Typography>
@@ -764,7 +764,7 @@ const UserShow = ({ collectRequest }) => {
                                                             </Grid>
 
                                                             {/* Patient */}
-                                                            <Grid item xs={12} sm={6} md={3}>
+                                                            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                                                                 <Typography variant="caption" color="text.secondary" fontWeight={600}>
                                                                     PATIENT
                                                                 </Typography>
@@ -779,7 +779,7 @@ const UserShow = ({ collectRequest }) => {
                                                             </Grid>
 
                                                             {/* Samples Count */}
-                                                            <Grid item xs={6} sm={4} md={2}>
+                                                            <Grid size={{ xs: 6, sm: 4, md: 2 }}>
                                                                 <Typography variant="caption" color="text.secondary" fontWeight={600}>
                                                                     SAMPLES
                                                                 </Typography>
@@ -792,7 +792,7 @@ const UserShow = ({ collectRequest }) => {
                                                             </Grid>
 
                                                             {/* Tests */}
-                                                            <Grid item xs={12} md={3}>
+                                                            <Grid size={{ xs: 12, md: 3 }}>
                                                                 <Typography variant="caption" color="text.secondary" fontWeight={600}>
                                                                     TESTS ({order.tests?.length || 0})
                                                                 </Typography>
@@ -818,7 +818,7 @@ const UserShow = ({ collectRequest }) => {
                                                             </Grid>
 
                                                             {/* Status */}
-                                                            <Grid item xs={6} sm={4} md={2}>
+                                                            <Grid size={{ xs: 6, sm: 4, md: 2 }}>
                                                                 <Typography variant="caption" color="text.secondary" fontWeight={600}>
                                                                     STATUS
                                                                 </Typography>
