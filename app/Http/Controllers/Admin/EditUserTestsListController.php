@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Test;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class EditUserTestsListController extends Controller
@@ -15,6 +15,14 @@ class EditUserTestsListController extends Controller
     public function __invoke(User $user)
     {
         $user->load("Tests");
-        return Inertia::render("User/Test",["user"=>$user]);
+
+        $tests = Test::query()
+            ->select(["id", "name", "code", "shortName", "is_active"])
+            ->where("is_active", true)
+            ->orWhereIn("id", $user->Tests->pluck("id"))
+            ->orderBy("name")
+            ->get();
+
+        return Inertia::render("User/Test", ["user" => $user, "tests" => $tests]);
     }
 }

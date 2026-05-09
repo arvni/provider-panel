@@ -11,12 +11,14 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('samples', function (Blueprint $table) {
-            $table->dropConstrainedForeignIdFor(Order::class);
-        });
+        if (Schema::hasColumn('samples', 'order_id')) {
+            // The "email" column exists in the "users" table
+            Schema::table('samples', function (Blueprint $table) {
+                $table->dropConstrainedForeignIdFor(Order::class);
+            });
 
-        Artisan::call('db:seed --class=SamplesTableSeeder', );
-
+            Artisan::call('db:seed --class=SamplesTableSeeder',);
+        }
     }
 
     /**
