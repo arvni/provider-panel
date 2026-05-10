@@ -346,7 +346,7 @@ class OrderImportController extends Controller
         $samplesCount = 0;
         foreach ($orderItemData['samples'] as $sampleData) {
             $sample = $this->createSample($sampleData, $userId);
-            $orderItem->Samples()->attach($sample->id);
+            $orderItem->Samples()->syncWithoutDetaching([$sample->id]);
             $samplesCount++;
         }
 

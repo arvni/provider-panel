@@ -12,6 +12,7 @@ use App\Http\Controllers\Webhook\ConsentUpdateWebhookController;
 use App\Http\Controllers\Webhook\InstructionUpdateWebhookController;
 use App\Http\Controllers\Webhook\OrderFormUpdateWebhookController;
 use App\Http\Controllers\Webhook\OrderImportController;
+use App\Http\Controllers\Webhook\OrderMaterialImportWebhookController;
 use App\Http\Controllers\Webhook\OrderMaterialUpdateWebhookController;
 use App\Http\Controllers\Webhook\SampleTypeUpdateWebhookController;
 use Illuminate\Support\Facades\Route;
@@ -34,6 +35,7 @@ Route::get("order-forms", ListOrderFormsController::class)->name("api.orderForms
 Route::get("/tests", LisTestController::class)->name("api.tests.list");
 Route::get("/check-materials", CheckMaterialController::class)->name("api.check_materials");
 
+Route::post("/order-materials/", OrderMaterialImportWebhookController::class)->name("api.orderMaterials.import");
 Route::post("/order-materials/{orderMaterial}", OrderMaterialUpdateWebhookController::class)->name("api.orderMaterials.updateStatus");
 Route::post("/request-forms/{orderFormID}", OrderFormUpdateWebhookController::class)->name("api.orderForms.update-by-webhook");
 Route::post("/consent-forms/{consentFormId}", ConsentUpdateWebhookController::class)->name("api.consents.update-by-webhook");
