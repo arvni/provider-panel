@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Webhook;
 
 use App\Enums\OrderStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Webhook\Concerns\HandlesCollectRequests;
+use App\Models\CollectRequest;
 use App\Models\Material;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -27,6 +29,8 @@ use Throwable;
  */
 class OrderImportController extends Controller
 {
+    use HandlesCollectRequests;
+
     /**
      * Handle incoming order import webhook
      *
@@ -125,6 +129,7 @@ class OrderImportController extends Controller
         return Validator::make($request->all(), [
             'order' => 'required|array',
             'order.id' => 'required|integer',
+            'order.referrer_order_id' => 'nullable|integer',
             'order.status' => 'required|string',
             'order.orderForms' => 'nullable|array',
             'order.consents' => 'nullable|array',
@@ -168,6 +173,8 @@ class OrderImportController extends Controller
             'order.orderItems.*.samples.*.sampleType.name' => 'required|string',
             'order.orderItems.*.samples.*.patientId' => 'required',
             'order.orderItems.*.samples.*.collectionDate' => 'required|date',
+            // Server id of the collect request this sample belongs to (optional).
+            'order.orderItems.*.samples.*.collect_request_id' => 'nullable|integer',
 
             // Patients per order item
             'order.orderItems.*.patients' => 'required|array|min:1',
@@ -179,6 +186,16 @@ class OrderImportController extends Controller
             'order.orderItems.*.patients.*.is_main' => 'required|boolean',
             'order.created_at' => 'nullable',
             'order.updated_at' => 'nullable',
+
+            // Optional collect request block (id is the collect request's server id)
+            'collect_request' => 'nullable|array',
+            'collect_request.id' => 'required_with:collect_request|integer',
+            'collect_request.status' => 'required_with:collect_request|string',
+            'collect_request.barcode' => 'nullable|string',
+            'collect_request.preferred_date' => 'nullable|date',
+            'collect_request.logistic_information' => 'nullable|array',
+            'collect_request.sample_collector' => 'nullable|array',
+
             // User/referrer info
             'referrer_id' => 'required|integer|exists:users,referrer_id',
         ]);
@@ -196,8 +213,23 @@ class OrderImportController extends Controller
         $userId = User::where("referrer_id", $data['referrer_id'])->first()->id;
         if (!$userId)
             abort(422, "data missing referrer not found");
-        // Check if order already exists by server_id
+
+        // Upsert the collect request up front (existence check by server_id,
+        // create if missing) so each sample can resolve its own collect request.
+        $collectRequest = !empty($data['collect_request'])
+            ? $this->upsertCollectRequest($data['collect_request'], $userId)
+            : null;
+
+        // Match by server_id, falling back to the provider's own order id carried
+        // back as referrer_order_id (a provider-originated order may not have its
+        // server_id stamped yet) so we never create a duplicate.
         $existingOrder = Order::where('server_id', $orderData['id'])->first();
+
+        if (!$existingOrder && !empty($orderData['referrer_order_id'])) {
+            $existingOrder = Order::where('id', $orderData['referrer_order_id'])
+                ->where('user_id', $userId)
+                ->first();
+        }
 
         if ($existingOrder) {
             Log::info('Order already exists, updating', [
@@ -205,7 +237,15 @@ class OrderImportController extends Controller
                 'server_id' => $orderData['id']
             ]);
 
-            return $this->updateExistingOrder($existingOrder, $orderData, $userId);
+            $result = $this->updateExistingOrder($existingOrder, $orderData, $userId);
+
+            if ($collectRequest) {
+                // Update path does not re-create samples, so tag the order's
+                // existing samples (those not already on another request).
+                $this->linkCollectRequest($existingOrder, $collectRequest, tagSamples: true);
+            }
+
+            return $result;
         }
 
         // Create or find main patient
@@ -246,9 +286,14 @@ class OrderImportController extends Controller
         $samplesCount = 0;
 
         foreach ($orderData['orderItems'] as $orderItemData) {
-            $result = $this->createOrderItem($order, $orderItemData, $userId);
+            $result = $this->createOrderItem($order, $orderItemData, $userId, $collectRequest);
             $orderItemsCount++;
             $samplesCount += $result['samples_count'];
+        }
+
+        // Samples were tagged per-sample during creation; just link the order.
+        if ($collectRequest) {
+            $this->linkCollectRequest($order, $collectRequest, tagSamples: false);
         }
 
         return [
@@ -310,7 +355,7 @@ class OrderImportController extends Controller
      * @param int $userId
      * @return array
      */
-    private function createOrderItem(Order $order, array $orderItemData, int $userId): array
+    private function createOrderItem(Order $order, array $orderItemData, int $userId, ?CollectRequest $collectRequest = null): array
     {
         $testData = $orderItemData['test'];
 
@@ -345,7 +390,10 @@ class OrderImportController extends Controller
         // Attach samples to order item
         $samplesCount = 0;
         foreach ($orderItemData['samples'] as $sampleData) {
-            $sample = $this->createSample($sampleData, $userId);
+            // The sample's own collect_request_id (server id) wins; fall back to
+            // the order's collect request when the sample omits it.
+            $sampleCollectRequestId = $this->resolveSampleCollectRequestId($sampleData, $collectRequest);
+            $sample = $this->createSample($sampleData, $userId, $sampleCollectRequestId);
             $orderItem->Samples()->syncWithoutDetaching([$sample->id]);
             $samplesCount++;
         }
@@ -371,7 +419,7 @@ class OrderImportController extends Controller
      * @param int $userId
      * @return Sample
      */
-    private function createSample(array $sampleData, int $userId): Sample
+    private function createSample(array $sampleData, int $userId, ?int $collectRequestId = null): Sample
     {
         $sampleTypeData = $sampleData['sampleType'];
 
@@ -419,7 +467,11 @@ class OrderImportController extends Controller
                 'material_id' => $materialId,
                 'patient_id' => $patient?->id ?? null,
                 'collectionDate' => $sampleData['collectionDate'] ?? null,
+                'collect_request_id' => $collectRequestId,
             ]);
+        elseif (!is_null($collectRequestId) && $sample->collect_request_id !== $collectRequestId)
+            // Keep an existing sample's collect request in sync.
+            $sample->update(['collect_request_id' => $collectRequestId]);
 
         Log::info('Sample created', ['sample_id' => $sample->id]);
 
@@ -436,7 +488,12 @@ class OrderImportController extends Controller
      */
     private function updateExistingOrder(Order $order, array $orderData, int $userId): array
     {
-        $updateFields = ['status' => $orderData['status']];
+        // Stamp the server_id so a provider-originated order matched via
+        // referrer_order_id is matchable by server_id from now on.
+        $updateFields = [
+            'status' => $orderData['status'],
+            'server_id' => $orderData['id'],
+        ];
 
         if ($orderData['status'] === OrderStatus::SENT->value && is_null($order->sent_at)) {
             $updateFields['sent_at'] = now();

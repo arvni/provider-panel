@@ -39,9 +39,9 @@ class MaterialExport implements FromCollection
                 "collectionDate" => $material->Sample?->collectionDate,
                 "patientName" => $material->Sample?->Order?->Patient?->fullName,
                 "status" => $material->Sample?->Order?->status?->value,
-                "received_at" => $material->Sample?->Order?->received_at,
-                "reported_at" => $material->Sample?->Order?->reported_at,
-                "sent_at" => $material->Sample?->Order?->sent_at,
+                "received_at" => $material->Sample?->Order?->received_at?->format("Y-m-d H:i"),
+                "reported_at" => $material->Sample?->Order?->reported_at?->format("Y-m-d H:i"),
+                "sent_at" => $material->Sample?->Order?->sent_at?->format("Y-m-d H:i"),
             ];
         }
         return collect($output);

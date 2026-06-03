@@ -35,6 +35,11 @@ const routes = [
         icon: <PeopleIcon/>,
     },
     {
+        title: "Samples",
+        route: route("samples.index"),
+        icon: <VaccinesSharpIcon/>,
+    },
+    {
         title: "Collection Requests",
         route: route("collectRequests.index"),
         icon: <LocalShippingIcon/>,

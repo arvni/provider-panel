@@ -37,15 +37,28 @@ class RequestLogistic
     {
         try {
             // Load all necessary relationships in a single query
-            $collectRequest->load([
-                'Orders.OrderItems.Samples.SampleType',
-                'Orders.OrderItems.Samples.Material',
-                'Orders.OrderItems.Test',
-                'Orders.OrderItems.Patients',
-                'Orders.Patient',
-                'Orders.Tests',
-                'User'
-            ]);
+            // Derive the orders to send from the samples tagged to THIS request,
+            // not from orders.collect_request_id. An order holds a single
+            // collect_request_id, but per-sample selection can split one order's
+            // samples across several requests; resolving via samples keeps each
+            // request sending exactly its own samples.
+            $orders = Order::whereHas('OrderItems.Samples', function ($query) use ($collectRequest) {
+                    $query->where('samples.collect_request_id', $collectRequest->id);
+                })
+                ->with([
+                    'OrderItems.Test',
+                    'OrderItems.Patients',
+                    'OrderItems.Samples' => function ($query) use ($collectRequest) {
+                        $query->where('samples.collect_request_id', $collectRequest->id)
+                            ->with(['SampleType', 'Material']);
+                    },
+                    'Patient',
+                    'Tests',
+                ])
+                ->get();
+
+            $collectRequest->setRelation('Orders', $orders);
+            $collectRequest->load('User');
 
             // Validate the collect request
             self::validateCollectRequest($collectRequest);
@@ -222,8 +235,12 @@ class RequestLogistic
      */
     private static function prepareOrderData(Order $order): array
     {
-        // Prepare order items with samples and patients
-        $orderItems = $order->OrderItems->map(function ($orderItem) {
+        // Prepare order items with samples and patients. Items whose samples are
+        // not part of this collect request were filtered out at load time, so we
+        // skip any that have no samples left to send.
+        $orderItems = $order->OrderItems
+            ->filter(fn ($orderItem) => $orderItem->Samples->isNotEmpty())
+            ->map(function ($orderItem) {
             // Get samples for this order item
             $samples = $orderItem->Samples->map(function ($sample) {
                 return [
@@ -277,7 +294,7 @@ class RequestLogistic
                 'samples' => $samples,
                 'patients' => $patients,
             ];
-        })->toArray();
+        })->values()->toArray();
 
         // Process order forms
         $orderForms = collect($order->orderForms ?? [])

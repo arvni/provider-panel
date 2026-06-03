@@ -44,7 +44,10 @@ class Order extends Model
         "orderForms" => "json",
         "files" => "json",
         "consents" => "json",
-        "patient_ids" => "json"
+        "patient_ids" => "json",
+        "sent_at" => "datetime",
+        "received_at" => "datetime",
+        "reported_at" => "datetime",
     ];
 
     protected $appends = [

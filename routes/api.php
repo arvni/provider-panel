@@ -14,6 +14,7 @@ use App\Http\Controllers\Webhook\OrderFormUpdateWebhookController;
 use App\Http\Controllers\Webhook\OrderImportController;
 use App\Http\Controllers\Webhook\OrderMaterialImportWebhookController;
 use App\Http\Controllers\Webhook\OrderMaterialUpdateWebhookController;
+use App\Http\Controllers\Webhook\OrderUpdateWebhookController;
 use App\Http\Controllers\Webhook\SampleTypeUpdateWebhookController;
 use Illuminate\Support\Facades\Route;
 
@@ -45,3 +46,6 @@ Route::post("/collect-requests/", CollectRequestUpdateWebhookController::class)-
 
 // Order import webhook
 Route::post("/webhooks/orders/import", [OrderImportController::class, 'import'])->name("api.webhooks.orders.import");
+
+// Order update webhook (upserts the order, its items/samples and the collect request)
+Route::post("/orders/webhook/update", [OrderUpdateWebhookController::class, 'update'])->name("api.orders.update-by-webhook");

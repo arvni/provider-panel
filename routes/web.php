@@ -31,7 +31,9 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrderMaterialController;
 use App\Http\Controllers\Admin\OrderMaterialController as OrderMaterialAdminController;
 use App\Http\Controllers\PatientController;
+use App\Http\Controllers\SampleController;
 use App\Http\Controllers\StoreCollectRequestController;
+use App\Http\Controllers\StoreSampleCollectRequestController;
 use App\Models\CollectRequest;
 use App\Models\Sample;
 use App\Services\MaterialOrder;
@@ -94,6 +96,8 @@ Route::middleware('auth')->group(function () {
         'show' => 'collectRequests.show',
     ]);
     Route::get("/files/{type}/{id}/{filename?}", GetFileController::class)->name("file");
+    Route::get("samples", [SampleController::class, "index"])->name("samples.index");
+    Route::post("samples/collect-request", StoreSampleCollectRequestController::class)->name("samples.collect-request");
     Route::post("orders/logistic", StoreCollectRequestController::class)->name("orders.logistic");
     Route::post("orders/create-by-barcode", AddOrderByBarcodeController::class)->name("orders.create-by-barcode");
     Route::resource("orders", OrderController::class)->except(["edit", "update"]);

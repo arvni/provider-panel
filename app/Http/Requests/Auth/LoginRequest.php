@@ -39,16 +39,20 @@ class LoginRequest extends FormRequest
     }
 
     /**
-     * Attempt to authenticate the request's credentials.
+     * Validate the request's credentials WITHOUT establishing a session.
+     *
+     * The session is only created later, once the email two-factor code has
+     * been confirmed (see TwoFactorChallengeController). This keeps an attacker
+     * who only has the password from ever holding an authenticated session.
      *
      * @throws ValidationException
      */
-    public function authenticate(): void
+    public function validateCredentials(): User
     {
         $this->ensureIsNotRateLimited();
         $this->ensureIsActive();
 
-        if (!Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+        if (!Auth::validate($this->only('email', 'password'))) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
@@ -57,6 +61,9 @@ class LoginRequest extends FormRequest
         }
 
         RateLimiter::clear($this->throttleKey());
+
+        // ensureIsActive() guarantees exactly one active user for this email.
+        return User::where('email', $this->input('email'))->firstOrFail();
     }
 
     /**

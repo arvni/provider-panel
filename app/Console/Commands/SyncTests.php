@@ -38,6 +38,10 @@ class SyncTests extends Command
         $tests = ApiService::get($url);
         $testsId = [];
         foreach ($tests->json() as $test) {
+            // Active state is owned by the central server: status 1 = active,
+            // 0 = inactive. Cast it so the boolean column stores it correctly.
+            $isActive = (bool) ($test["status"] ?? false);
+
             $t = Test::where("server_id", $test["id"])->first();
             if (!$t)
                 $t = Test::factory()->create(
@@ -48,7 +52,7 @@ class SyncTests extends Command
                         "shortName" => $test["name"],
                         "description" => $test["description"],
                         "turnaroundTime" => $test["methods_max_turnaround_time"] / 24 ?? 0,
-                        "is_active" => false,
+                        "is_active" => $isActive,
                     ]
                 );
             else
@@ -58,7 +62,7 @@ class SyncTests extends Command
                     "shortName" => $test["name"],
                     "description" => $test["description"],
                     "turnaroundTime" => $test["methods_max_turnaround_time"] ?? 1,
-                    "is_active" => $test["status"],
+                    "is_active" => $isActive,
                 ]);
             if ($t->isDirty())
                 $t->save();

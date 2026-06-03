@@ -69,7 +69,7 @@ class OrderFormRepository extends BaseRepository implements OrderFormRepositoryI
     public function applyFilter($filters = []): void
     {
         if (isset($filters["search"])) {
-            $this->query->search();
+            $this->query->search($filters["search"]);
         }
         if (isset($filters["name"])) {
             $this->query->search($filters["name"], ["name"]);

@@ -62,7 +62,7 @@ class SampleTypeRepository extends BaseRepository implements SampleTypeRepositor
             $this->query->search($filters["id"], "id");
         }
         if (isset($filters['search'])) {
-            $this->query->search();
+            $this->query->search($filters["search"]);
         }
         if (isset($filters['name'])) {
             $this->query->search($filters["name"]);

@@ -20,7 +20,7 @@ const SelectSearch = ({
     const [loading, setLoading] = useState(false);
     const handleSearch = (e) => {
         setLoading(true);
-        axios.get(url, {data: {search: e.target.value}}).then((result) => {
+        axios.get(url, {params: {filters: {search: e.target.value}}}).then((result) => {
             setData(result.data.data);
             setLoading(false);
         });

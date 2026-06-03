@@ -53,7 +53,8 @@ class TestUpdateWebhookController extends Controller
                         "shortName" => $test["name"],
                         "description" => $test["description"],
                         "turnaroundTime" => $test["methods_max_turnaround_time"] ?? 1,
-                        "is_active" => $test["status"],
+                        // Active state is owned by the server: status truthy = active.
+                        "is_active" => (bool) ($testData["status"] ?? false),
                         "consent_id" => $consent?->id,
                         "order_form_id" => $orderForm?->id,
                         "instruction_id" => $instruction?->id,
@@ -69,7 +70,8 @@ class TestUpdateWebhookController extends Controller
                         "shortName" => $test["name"],
                         "description" => $test["description"],
                         "turnaroundTime" => $test["methods_max_turnaround_time"] ?? 1,
-                        "is_active" => $test["status"],
+                        // Active state is owned by the server: status truthy = active.
+                        "is_active" => (bool) ($testData["status"] ?? false),
                         "consent_id" => $consent?->id,
                         "order_form_id" => $orderForm?->id,
                         "instruction_id" => $instruction?->id,

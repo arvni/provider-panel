@@ -16,6 +16,7 @@ class Sample extends Model
         'user_id',
         'sample_type_id',
         'material_id',
+        'collect_request_id',
         'pooling'
     ];
 
@@ -45,6 +46,11 @@ class Sample extends Model
     public function OrderItems()
     {
         return $this->belongsToMany(OrderItem::class, 'order_item_sample');
+    }
+
+    public function CollectRequest()
+    {
+        return $this->belongsTo(CollectRequest::class);
     }
 
 }

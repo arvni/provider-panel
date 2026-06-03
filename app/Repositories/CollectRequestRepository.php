@@ -8,6 +8,7 @@ use App\Enums\OrderStatus;
 use App\Interfaces\CollectRequestRepositoryInterface;
 use App\Models\CollectRequest;
 use App\Models\Order;
+use App\Models\Sample;
 use App\Services\UploadFileService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
@@ -73,6 +74,9 @@ class CollectRequestRepository extends BaseRepository implements CollectRequestR
         $collectRequest->save();
         $collectRequest->refresh();
         Order::whereIn("id", $collectRequestDetails["selectedOrders"])->update(["collect_request_id" => $collectRequest->id, "status" => OrderStatus::LOGISTIC_REQUESTED]);
+        Sample::whereHas("OrderItems", function ($query) use ($collectRequestDetails) {
+            $query->whereIn("order_id", $collectRequestDetails["selectedOrders"]);
+        })->update(["collect_request_id" => $collectRequest->id]);
         return $collectRequest;
     }
 
@@ -80,9 +84,12 @@ class CollectRequestRepository extends BaseRepository implements CollectRequestR
     {
         $collectRequest->load([
             "Orders.Patient",
-            "Orders.OrderItems.Samples.SampleType",
-            "Orders.OrderItems.Samples.Material",
-            "Orders.OrderItems.Samples.Patient",
+            // Only the samples that belong to this collect request, so the detail
+            // view reflects exactly what was collected (per-sample selection).
+            "Orders.OrderItems.Samples" => function ($query) use ($collectRequest) {
+                $query->where("samples.collect_request_id", $collectRequest->id)
+                    ->with(["SampleType", "Material", "Patient"]);
+            },
             "Orders.Tests",
             "User"
         ]);

@@ -58,6 +58,11 @@ class CollectRequest extends Model
         return $this->hasMany(Order::class);
     }
 
+    public function samples(): HasMany
+    {
+        return $this->hasMany(Sample::class);
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
