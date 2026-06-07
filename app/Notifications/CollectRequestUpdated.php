@@ -32,7 +32,11 @@ class CollectRequestUpdated extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        // Only the initial "created" notification is sent by email; updates are
+        // silent (in-app only).
+        return $this->action === 'created'
+            ? ['mail', 'database']
+            : ['database'];
     }
 
     /**

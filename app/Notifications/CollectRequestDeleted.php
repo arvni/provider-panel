@@ -28,7 +28,7 @@ class CollectRequestDeleted extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['database'];
     }
 
     /**
@@ -48,7 +48,9 @@ class CollectRequestDeleted extends Notification implements ShouldQueue
     public function toArray(object $notifiable): array
     {
         return [
-            //
+            'collect_request_id' => $this->collectRequestId,
+            'action' => 'deleted',
+            'message' => "Collect request #{$this->collectRequestId} has been deleted",
         ];
     }
 }
