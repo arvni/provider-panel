@@ -172,7 +172,7 @@ class OrderImportController extends Controller
             'order.orderItems.*.samples.*.sampleType.id' => 'required|integer',
             'order.orderItems.*.samples.*.sampleType.name' => 'required|string',
             'order.orderItems.*.samples.*.patientId' => 'required',
-            'order.orderItems.*.samples.*.collectionDate' => 'required|date',
+            'order.orderItems.*.samples.*.collectionDate' => 'nullable|date',
             // Server id of the collect request this sample belongs to (optional).
             'order.orderItems.*.samples.*.collect_request_id' => 'nullable|integer',
 
@@ -429,22 +429,23 @@ class OrderImportController extends Controller
 
         if (!$sampleType) {
             Log::warning('Sample type not found by server_id', [
-                'server_id' => $sampleTypeData['server_id'],
+                'server_id' => $sampleTypeData['id'],
                 'sample_type_name' => $sampleTypeData['name']
             ]);
 
             // Create placeholder sample type
             $sampleType = SampleType::create([
-                'server_id' => $sampleTypeData['server_id'],
+                'server_id' => $sampleTypeData['id'],
                 'name' => $sampleTypeData['name'],
                 'sample_id_required' => $sampleTypeData['sample_id_required'] ?? false,
             ]);
         }
 
-        // Find material by barcode if provided
+        // Find material by barcode if provided. LIS carries the sample barcode
+        // in the `sampleId` field, so match the material against that.
         $materialId = null;
-        if (!empty($sampleData['barcode'])) {
-            $material = Material::where('barcode', $sampleData['barcode'])->first();
+        if (!empty($sampleData['sampleId'])) {
+            $material = Material::where('barcode', $sampleData['sampleId'])->first();
             if ($material) {
                 $materialId = $material->id;
             }
