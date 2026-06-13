@@ -150,6 +150,7 @@ export const Greeting = () => {
 export default function Dashboard({ auth, recentlyOrders = [], notDownloadedReports = 0 }) {
     const theme = useTheme();
     const [isRefreshing, setIsRefreshing] = useState(false);
+    const canCreateOrder = auth?.permissions?.includes("Order.Create");
 
     const handleRefresh = () => {
         setIsRefreshing(true);
@@ -450,22 +451,24 @@ export default function Dashboard({ auth, recentlyOrders = [], notDownloadedRepo
                                 </Paper>
                             </Grid>
                             {/* Barcode scanner section */}
-                            <Grid size={12} component={motion.div} variants={itemVariants}>
-                                <Paper
-                                    elevation={0}
-                                    sx={{
-                                        p: 3,
-                                        borderRadius: 2,
-                                        border: '1px solid',
-                                        borderColor: theme.palette.divider,
-                                    }}
-                                >
-                                    <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-                                        Quick Order Access
-                                    </Typography>
-                                    <AddOrderByBarcode />
-                                </Paper>
-                            </Grid>
+                            {canCreateOrder && (
+                                <Grid size={12} component={motion.div} variants={itemVariants}>
+                                    <Paper
+                                        elevation={0}
+                                        sx={{
+                                            p: 3,
+                                            borderRadius: 2,
+                                            border: '1px solid',
+                                            borderColor: theme.palette.divider,
+                                        }}
+                                    >
+                                        <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+                                            Quick Order Access
+                                        </Typography>
+                                        <AddOrderByBarcode />
+                                    </Paper>
+                                </Grid>
+                            )}
                         </Grid>
                     </Grid>
 
