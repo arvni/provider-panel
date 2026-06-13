@@ -90,18 +90,23 @@ Route::middleware('auth')->group(function () {
         Route::get("/materials", ExportExcelMaterialsController::class)->name("materials");
     });
     Route::get("patient-list", PatientListController::class)->name("api.patients.list");
-    Route::resource("patients", PatientController::class)->only(["index", "show", "edit", "update", "destroy"]);
-    Route::resource("collectRequests", CollectRequestController::class)->only(["index", "show"])->names([
-        'index' => 'collectRequests.index',
+    Route::get("patients", [PatientController::class, "index"])->name("patients.index")->middleware("providerAccess:Patient.Index");
+    Route::resource("patients", PatientController::class)->only(["show", "edit", "update", "destroy"])->middleware("providerAccess:Patient.Index");
+    Route::get("collectRequests", [CollectRequestController::class, "index"])->name("collectRequests.index")->middleware("providerAccess:CollectRequest.Index");
+    Route::resource("collectRequests", CollectRequestController::class)->only(["show"])->names([
         'show' => 'collectRequests.show',
     ]);
     Route::get("/files/{type}/{id}/{filename?}", GetFileController::class)->name("file");
-    Route::get("samples", [SampleController::class, "index"])->name("samples.index");
+    Route::get("samples", [SampleController::class, "index"])->name("samples.index")->middleware("providerAccess:Sample.Index");
     Route::post("samples/collect-request", StoreSampleCollectRequestController::class)->name("samples.collect-request");
-    Route::post("orders/logistic", StoreCollectRequestController::class)->name("orders.logistic");
-    Route::post("orders/create-by-barcode", AddOrderByBarcodeController::class)->name("orders.create-by-barcode");
-    Route::resource("orders", OrderController::class)->except(["edit", "update"]);
-    Route::resource("orderMaterials", OrderMaterialController::class)->except(["edit", "update", "destroy", "create"]);
+    Route::post("orders/logistic", StoreCollectRequestController::class)->name("orders.logistic")->middleware("providerAccess:Order.Create");
+    Route::post("orders/create-by-barcode", AddOrderByBarcodeController::class)->name("orders.create-by-barcode")->middleware("providerAccess:Order.Create");
+    Route::get("orders", [OrderController::class, "index"])->name("orders.index")->middleware("providerAccess:Order.Index");
+    Route::resource("orders", OrderController::class)->only(["create", "store"])->middleware("providerAccess:Order.Create");
+    Route::resource("orders", OrderController::class)->only(["show", "destroy"]);
+    Route::get("orderMaterials", [OrderMaterialController::class, "index"])->name("orderMaterials.index")->middleware("providerAccess:OrderMaterial.Index");
+    Route::resource("orderMaterials", OrderMaterialController::class)->only(["store"])->middleware("providerAccess:OrderMaterial.Create");
+    Route::resource("orderMaterials", OrderMaterialController::class)->only(["show"]);
     Route::get("orders/{order}/report", DownloadReportController::class)->name("orders.report");
     Route::get("orders/{order}/edit/{step}", [OrderController::class, "edit"])->name("orders.edit");
     Route::put("orders/{order}/edit/{step}", [OrderController::class, "update"])->name("orders.update");

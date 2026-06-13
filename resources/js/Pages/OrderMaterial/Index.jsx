@@ -38,8 +38,12 @@ const Index = () => {
     const {
         orderMaterials: {data: orderMaterialsData, ...pagination},
         request,
-        sampleTypes
+        sampleTypes,
+        auth
     } = usePage().props;
+
+    // Whether the user may order new materials
+    const canCreate = auth.permissions?.includes("OrderMaterial.Create");
 
     // State for search term
     const [searchTerm, setSearchTerm] = useState("");
@@ -216,7 +220,7 @@ const Index = () => {
                 title="Order Materials"
                 subtitle="Request sample materials for diagnostic tests"
                 actions={[
-                    <Button
+                    canCreate && <Button
                         variant="contained"
                         onClick={addNew}
                         color="primary"
@@ -474,14 +478,14 @@ const Index = () => {
                                         ? "Try adjusting your filters or search terms to find what you're looking for."
                                         : "Get started by ordering new materials for your diagnostic tests."}
                                 </Typography>
-                                <Button
+                                {canCreate && <Button
                                     variant="contained"
                                     startIcon={<AddIcon/>}
                                     onClick={addNew}
                                     sx={{mt: 2}}
                                 >
                                     Order New Material
-                                </Button>
+                                </Button>}
                             </Box>
                         }
                     />

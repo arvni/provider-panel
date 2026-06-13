@@ -26,6 +26,7 @@ import {
 } from "@mui/icons-material";
 import ClientLayout from "@/Layouts/AuthenticatedLayout";
 import PageHeader from "@/Components/PageHeader";
+import {usePage} from "@inertiajs/react";
 import {usePageReload} from "@/Services/api";
 import TableLayout from "@/Layouts/TableLayout";
 import DeleteButton from "@/Components/DeleteButton.jsx";
@@ -447,6 +448,7 @@ const Index = ({orders: {data: ordersData, ...pagination}, request}) => {
     ];
 
     const showSelectOrder = ordersData.some(order => order.status === "requested")
+    const canCreate = usePage().props.auth.permissions?.includes("Order.Create")
 
     return (
         <>
@@ -467,7 +469,7 @@ const Index = ({orders: {data: ordersData, ...pagination}, request}) => {
                     >
                         {isSelectMode ? 'Exit Selection' : 'Select Orders'}
                     </Button>,
-                    <Button
+                    canCreate && <Button
                         variant="contained"
                         href={route("orders.create")}
                         onClick={handleAdd}

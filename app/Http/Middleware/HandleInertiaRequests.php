@@ -33,7 +33,7 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'auth' => [
                 'user' => $request->user(),
-                'permissions' => auth()->user() ? auth()->user()->getAllPermissions()->pluck("name") : null
+                'permissions' => auth()->user() ? auth()->user()->effectivePermissions() : null
             ],
         ];
         if ($request->session()->has("success"))

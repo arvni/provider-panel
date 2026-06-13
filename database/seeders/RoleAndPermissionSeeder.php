@@ -102,7 +102,28 @@ class RoleAndPermissionSeeder extends Seeder
                     "Delete",
                     "Sync"
                 ],
-            ]
+            ],
+            // Provider-facing permissions for the (non-admin) left menu items and their actions.
+            "Order" => [
+                "Index",
+                "Create",
+            ],
+            "Patient" => [
+                "Index",
+            ],
+            "Sample" => [
+                "Index",
+            ],
+            "CollectRequest" => [
+                "Index",
+            ],
+            "OrderMaterial" => [
+                "Index",
+                "Create",
+            ],
+            "Test" => [
+                "Index",
+            ],
         ];
         $q = [];
         foreach ($permissions as $key => $value) {

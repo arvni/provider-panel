@@ -27,6 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
             'signed' => \App\Http\Middleware\ValidateSignature::class,
             'indexProvider' => \App\Http\Middleware\IndexProvider::class,
+            'providerAccess' => \App\Http\Middleware\ProviderAccess::class,
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,

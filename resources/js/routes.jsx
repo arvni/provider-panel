@@ -27,31 +27,37 @@ const routes = [
     {
         title: "Orders",
         route: route("orders.index"),
+        permission: 'Order.Index',
         icon: <AssignmentIcon/>,
     },
     {
         title: "Patients",
         route: route("patients.index"),
+        permission: 'Patient.Index',
         icon: <PeopleIcon/>,
     },
     {
         title: "Samples",
         route: route("samples.index"),
+        permission: 'Sample.Index',
         icon: <VaccinesSharpIcon/>,
     },
     {
         title: "Collection Requests",
         route: route("collectRequests.index"),
+        permission: 'CollectRequest.Index',
         icon: <LocalShippingIcon/>,
     },
     {
         title: "Order Materials",
         route: route("orderMaterials.index"),
+        permission: 'OrderMaterial.Index',
         icon: <VaccinesIcon/>,
     },
     {
         title: "Tests List",
         route: route("tests.index"),
+        permission: 'Test.Index',
         icon: <BiotechIcon/>,
     },
     {
