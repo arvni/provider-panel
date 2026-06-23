@@ -17,16 +17,16 @@ class PasswordUpdateTest extends TestCase
 
         $response = $this
             ->actingAs($user)
-            ->from('/profile')
             ->put('/password', [
                 'current_password' => 'password',
                 'password' => 'new-password',
                 'password_confirmation' => 'new-password',
             ]);
 
+        // A successful change signs the user out (PasswordController::update).
         $response
             ->assertSessionHasNoErrors()
-            ->assertRedirect('/profile');
+            ->assertRedirect(route('logout'));
 
         $this->assertTrue(Hash::check('new-password', $user->refresh()->password));
     }
