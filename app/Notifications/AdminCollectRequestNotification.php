@@ -73,7 +73,12 @@ class AdminCollectRequestNotification extends Notification implements ShouldQueu
             $message->line("**Additional Details:**");
             if (is_array($this->collectRequest->details)) {
                 foreach ($this->collectRequest->details as $key => $value) {
-                    $message->line("• " . ucfirst($key) . ": " . $value);
+                    if (is_array($value)) {
+                        $value = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                    } elseif (is_bool($value)) {
+                        $value = $value ? 'Yes' : 'No';
+                    }
+                    $message->line("• " . ucfirst((string) $key) . ": " . $value);
                 }
             } else {
                 $message->line($this->collectRequest->details);
