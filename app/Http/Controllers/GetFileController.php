@@ -6,10 +6,10 @@ use App\Interfaces\ConsentRepositoryInterface;
 use App\Interfaces\InstructionRepositoryInterface;
 use App\Interfaces\OrderFormRepositoryInterface;
 use App\Interfaces\OrderRepositoryInterface;
+use App\Models\Order;
 use App\Repositories\OrderRepository;
 use Illuminate\Support\Facades\Response;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use function PHPUnit\Framework\directoryExists;
 
 class GetFileController extends Controller
 {
@@ -33,13 +33,15 @@ class GetFileController extends Controller
 
     /**
      * Handle the incoming request.
+     *
+     * Authenticated providers may read the shared catalog content (consent,
+     * instruction and order-form templates). Order files are private, so they
+     * are gated by the OrderPolicy so a provider can only read their own.
+     *
      * @param string $type
      * @param int $id
      * @param string $filename
      * @return BinaryFileResponse
-     *
-     *  @todo check files owner
-     *
      */
     public function __invoke(string $type, int $id, string $filename = ""): BinaryFileResponse
     {
@@ -49,8 +51,15 @@ class GetFileController extends Controller
             $model = $this->$repository->getById($id);
         }
         abort_if(!$model, 404);
+
+        // Order files belong to a single provider; everything else served here
+        // is shared catalog content available to any authenticated provider.
+        if ($model instanceof Order) {
+            $this->authorize("view", $model);
+        }
+
         if ($filename) {
-            $file = "{$type}/$id/$filename";
+            $file = "{$type}/$id/" . basename($filename);
         } else
             $file = $model->file;
         abort_if((!file_exists(storage_path("app/" . $file))) xor is_dir(storage_path("app/" . $file)), 404);
