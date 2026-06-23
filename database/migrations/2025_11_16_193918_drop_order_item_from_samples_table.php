@@ -12,12 +12,13 @@ return new class extends Migration {
     public function up(): void
     {
         if (Schema::hasColumn('samples', 'order_id')) {
-            // The "email" column exists in the "users" table
+            // Backfill patient/order-item links from the order BEFORE dropping
+            // the order_id column the seeder reads from.
+            Artisan::call('db:seed --class=SamplesTableSeeder');
+
             Schema::table('samples', function (Blueprint $table) {
                 $table->dropConstrainedForeignIdFor(Order::class);
             });
-
-            Artisan::call('db:seed --class=SamplesTableSeeder',);
         }
     }
 

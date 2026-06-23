@@ -10,9 +10,12 @@ use App\Providers\RouteServiceProvider;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
+use Throwable;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -49,7 +52,22 @@ class AuthenticatedSessionController extends Controller
         // Password is correct, but no session is created yet: e-mail a one-time
         // code and hold the user in a pending state until they confirm it.
         $code = TwoFactorCode::generateFor($user);
-        $user->notify(new TwoFactorCodeNotification($code));
+
+        try {
+            $user->notify(new TwoFactorCodeNotification($code, $user->id));
+        } catch (Throwable $e) {
+            // Don't leave a dangling code the user can never receive.
+            TwoFactorCode::where('user_id', $user->id)->delete();
+
+            Log::error('Failed to send two-factor login code.', [
+                'user_id' => $user->id,
+                'exception' => $e,
+            ]);
+
+            throw ValidationException::withMessages([
+                'email' => __('We could not send your login code. Please try again.'),
+            ]);
+        }
 
         $request->session()->put('auth.2fa', [
             'user_id' => $user->id,

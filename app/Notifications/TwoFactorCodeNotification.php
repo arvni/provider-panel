@@ -3,20 +3,25 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 /**
  * Delivers the login one-time code by email.
  *
- * Intentionally NOT queued: the code must reach the user before they can
- * complete login, so we send it synchronously regardless of queue workers.
+ * Queued so a slow mail transport never blocks the login request. With a
+ * dedicated queue worker the send happens asynchronously; under the `sync`
+ * queue connection it still runs inline, so any send failure surfaces to the
+ * caller (see the try/catch in the auth controllers).
  */
-class TwoFactorCodeNotification extends Notification
+class TwoFactorCodeNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    public function __construct(protected string $code)
+    public function __construct(protected string $code, protected int $userId)
     {
     }
 
@@ -40,5 +45,20 @@ class TwoFactorCodeNotification extends Notification
             ->line("This code expires in {$minutes} minutes and can only be used once.")
             ->line('If you did not try to sign in, you can safely ignore this email and your password should be changed.')
             ->salutation('Best regards,<br>' . config('app.name'));
+    }
+
+    /**
+     * Called once the queued send has exhausted its retries.
+     *
+     * Under an async queue the controller's try/catch only sees dispatch
+     * errors, not the eventual transport failure — this is where that failure
+     * gets recorded. The undelivered code simply lapses on its own expiry.
+     */
+    public function failed(Throwable $exception): void
+    {
+        Log::error('Two-factor login code delivery failed after retries.', [
+            'user_id' => $this->userId,
+            'exception' => $exception,
+        ]);
     }
 }

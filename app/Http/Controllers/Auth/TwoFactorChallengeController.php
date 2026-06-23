@@ -11,11 +11,13 @@ use Illuminate\Auth\Events\Lockout;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
+use Throwable;
 
 class TwoFactorChallengeController extends Controller
 {
@@ -149,7 +151,22 @@ class TwoFactorChallengeController extends Controller
         RateLimiter::hit($resendKey, $throttle);
 
         $code = TwoFactorCode::generateFor($user);
-        $user->notify(new TwoFactorCodeNotification($code));
+
+        try {
+            $user->notify(new TwoFactorCodeNotification($code, $user->id));
+        } catch (Throwable $e) {
+            // Let the user retry immediately rather than wait out the throttle.
+            RateLimiter::clear($resendKey);
+
+            Log::error('Failed to resend two-factor login code.', [
+                'user_id' => $user->id,
+                'exception' => $e,
+            ]);
+
+            throw ValidationException::withMessages([
+                'code' => __('We could not send your login code. Please try again.'),
+            ]);
+        }
 
         return back()->with('status', __('A new code has been sent to your email.'));
     }
