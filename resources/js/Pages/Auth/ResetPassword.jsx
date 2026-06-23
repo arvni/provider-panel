@@ -1,11 +1,11 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useRef} from 'react';
 import {Head} from '@inertiajs/react';
-import {Box, FormHelperText, Grid, TextField} from "@mui/material";
+import {Box, Grid, TextField} from "@mui/material";
 import GuestLayout from "@/Layouts/GuestLayout";
 import {useSubmitForm} from "@/Services/api";
 import {resetPasswordValidator} from "@/Services/validate";
 import PasswordField from "@/Components/PasswordField";
-import ReCAPTCHA from "react-google-recaptcha";
+import TurnstileWidget from "@/Components/TurnstileWidget.jsx";
 import LoadingButton from "@/Components/LoadingButton.jsx";
 
 export default function ResetPassword({token, email,siteKey}) {
@@ -24,30 +24,31 @@ export default function ResetPassword({token, email,siteKey}) {
         email: email,
         password: '',
         password_confirmation: '',
-        captcha: "",
+        "cf-turnstile-response": "",
         __method: "put"
     }, route("password.store"));
 
     useEffect(() => {
         return () => {
-            reset('password', 'password_confirmation', 'captcha');
+            reset('password', 'password_confirmation', 'cf-turnstile-response');
         };
     }, []);
-    const recaptchaRef = React.createRef();
+    const resetTurnstileRef = useRef(null);
     const handleSubmit = (e) => {
         e.preventDefault();
         clearErrors();
-        recaptchaRef.current?.reset();
         if (resetPasswordValidator(data, setError)) {
-            submit();
+            submit({
+                onError: () => resetTurnstileRef.current?.()
+            });
+        } else {
+            resetTurnstileRef.current?.();
         }
     }
     const formChange = (key, value) => setData(previousData => ({
         ...previousData,
         [key]: value
     }));
-    const handleCaptchaChanged = (token) => formChange("captcha", token ?? "");
-    const resetCaptcha = () => formChange("captcha", "");
 
     return (
         <GuestLayout>
@@ -99,14 +100,14 @@ export default function ResetPassword({token, email,siteKey}) {
                         />
                     </Grid>
 
-                    <Grid size={12} sx={{width: "100%"}}>
-                        <ReCAPTCHA
-                            ref={recaptchaRef}
-                            sitekey={siteKey}
-                            onChange={handleCaptchaChanged}
-                            onExpired={resetCaptcha}/>
-                        {errors.captcha && <FormHelperText error={!!errors.captcha}>{errors.captcha}</FormHelperText>}
-                    </Grid>
+                    {siteKey && <Grid size={12} sx={{width: "100%"}}>
+                        <TurnstileWidget
+                            siteKey={siteKey}
+                            error={errors["cf-turnstile-response"]}
+                            onToken={(token) => formChange("cf-turnstile-response", token)}
+                            widgetRef={resetTurnstileRef}
+                        />
+                    </Grid>}
                     <Grid display={"flex"} flexDirection="row" justifyContent="center"
                           alignItems={"center"} sx={{width: "100%"}}>
                         <LoadingButton loading={processing} type="submit" variant="contained">Update</LoadingButton>

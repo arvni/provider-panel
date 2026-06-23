@@ -41,10 +41,7 @@ export const forgetPasswordValidator = (data, onerror) => {
         output = false;
         onerror("email", "Please Enter Valid Email");
     }
-    if (validator.isEmpty(data.captcha)) {
-        output = false;
-        onerror("captcha", "Please check the google captcha");
-    }
+    // The Cloudflare Turnstile token is enforced server-side, mirroring login.
     return output;
 }
 export const resetPasswordValidator = (data, onerror) => {

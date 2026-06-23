@@ -13,6 +13,7 @@ use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
+use RyanChandler\LaravelCloudflareTurnstile\Rules\Turnstile;
 
 class NewPasswordController extends Controller
 {
@@ -26,7 +27,7 @@ class NewPasswordController extends Controller
         return Inertia::render('Auth/ResetPassword', [
             'email' => $request->email,
             'token' => $request->route('token'),
-            'siteKey'=>config("captcha.sitekey")
+            'siteKey' => config('services.turnstile.site_key'),
         ]);
     }
 
@@ -43,7 +44,9 @@ class NewPasswordController extends Controller
             'token' => 'required',
             'email' => 'required|email',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            "captcha"=>"required|captcha"
+            'cf-turnstile-response' => config('services.turnstile.site_key')
+                ? ['required', app(Turnstile::class)]
+                : [],
         ]);
 
         // Here we will attempt to reset the user's password. If it is successful we

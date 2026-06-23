@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
+use RyanChandler\LaravelCloudflareTurnstile\Rules\Turnstile;
 
 class PasswordResetLinkController extends Controller
 {
@@ -21,7 +22,7 @@ class PasswordResetLinkController extends Controller
     {
         return Inertia::render('Auth/ForgotPassword', [
             'status' => session('status'),
-            'siteKey'=>config("captcha.sitekey")
+            'siteKey' => config('services.turnstile.site_key'),
         ]);
     }
 
@@ -36,10 +37,9 @@ class PasswordResetLinkController extends Controller
     {
         $request->validate([
             'email' => 'required|email',
-            "captcha"=>[
-                "required",
-                "captcha"
-            ],
+            'cf-turnstile-response' => config('services.turnstile.site_key')
+                ? ['required', app(Turnstile::class)]
+                : [],
         ]);
 
 

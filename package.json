@@ -33,7 +33,6 @@
         "framer-motion": "^12.13.2",
         "leaflet": "^1.9.4",
         "notistack": "^3.0.2",
-        "react-google-recaptcha": "^3.1.0",
         "react-leaflet": "^5.0.0",
         "react-top-loading-bar": "^3.0.2",
         "recharts": "^3.4.1",

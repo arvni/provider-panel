@@ -1,9 +1,9 @@
-import React, {useEffect} from "react";
-import {Box, FormHelperText, Grid, TextField} from "@mui/material";
+import React, {useEffect, useRef} from "react";
+import {Box, Grid, TextField} from "@mui/material";
 
 import {useSubmitForm} from "@/Services/api";
 import {forgetPasswordValidator} from "@/Services/validate";
-import ReCAPTCHA from "react-google-recaptcha";
+import TurnstileWidget from "@/Components/TurnstileWidget.jsx";
 import LoadingButton from "@/Components/LoadingButton.jsx";
 
 const ForgetPasswordForm = ({siteKey}) => {
@@ -20,9 +20,9 @@ const ForgetPasswordForm = ({siteKey}) => {
         submit
     } = useSubmitForm({
         email: '',
-        captcha:""
+        "cf-turnstile-response": ""
     }, route("password.email"));
-    const recaptchaRef = React.createRef();
+    const resetTurnstileRef = useRef(null);
 
     useEffect(() => {
         if (wasSuccessful)
@@ -39,17 +39,15 @@ const ForgetPasswordForm = ({siteKey}) => {
     const handleSubmit = (e) => {
         e.preventDefault();
         clearErrors();
-        recaptchaRef.current?.reset();
         if (forgetPasswordValidator(data, setError))
-            submit();
+            submit({
+                onError: () => resetTurnstileRef.current?.()
+            });
+        else
+            resetTurnstileRef.current?.();
     }
 
-
-    const handleCaptchaChanged = (token) => formChange("captcha", token ?? "");
-
-    const resetCaptcha = () => formChange("captcha", "");
-
-    return<Box component="form" onSubmit={handleSubmit} method="post" action={route("login")}>
+    return<Box component="form" onSubmit={handleSubmit} method="post" action={route("password.email")}>
         <Grid container direction="column" spacing={2} alignItems="center" justifyContent="center">
             <Grid size={12} sx={{width: "100%"}}>
                 <TextField
@@ -67,12 +65,12 @@ const ForgetPasswordForm = ({siteKey}) => {
                 />
             </Grid>
             {siteKey&&<Grid size={12} sx={{width: "100%"}}>
-                <ReCAPTCHA
-                    ref={recaptchaRef}
-                    sitekey={siteKey}
-                    onChange={handleCaptchaChanged}
-                    onExpired={resetCaptcha}/>
-                {errors.captcha && <FormHelperText error={!!errors.captcha}>{errors.captcha}</FormHelperText>}
+                <TurnstileWidget
+                    siteKey={siteKey}
+                    error={errors["cf-turnstile-response"]}
+                    onToken={(token) => formChange("cf-turnstile-response", token)}
+                    widgetRef={resetTurnstileRef}
+                />
             </Grid>}
         <Grid>
             <LoadingButton type="submit" loading={processing} variant="contained">Email Password Reset
