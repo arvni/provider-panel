@@ -72,6 +72,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
     Route::prefix("admin")->as("admin.")->group(function () {
         Route::post("/users/sync", SyncReferrersController::class)->name("users.sync");
+        Route::post("/users/{user}/send-reset-password", [UserController::class, "sendResetPassword"])->name("users.sendResetPassword");
         Route::get("/users/{user}/tests", EditUserTestsListController::class)->name("users.tests.edit");
         Route::put("/users/{user}/tests", UpdateUserTestsListController::class)->name("users.tests.update");
         Route::resource("/users", UserController::class);

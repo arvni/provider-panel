@@ -11,6 +11,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -111,6 +112,30 @@ class UserController extends Controller
         return redirect()
             ->route('admin.users.index')
             ->with(["success" => true, "status" => "$title Successfully Deleted"]);
+    }
+
+    /**
+     * Send a password reset link to the specified user.
+     *
+     * @param User $user
+     * @return RedirectResponse
+     * @throws AuthorizationException
+     */
+    public function sendResetPassword(User $user): RedirectResponse
+    {
+        $this->authorize("update", $user);
+
+        $status = Password::sendResetLink(["email" => $user->email]);
+
+        if ($status === Password::RESET_LINK_SENT) {
+            return redirect()
+                ->route('admin.users.index')
+                ->with(["success" => true, "status" => "Password reset email sent to $user->name"]);
+        }
+
+        return redirect()
+            ->route('admin.users.index')
+            ->with(["success" => false, "status" => trans($status)]);
     }
 
 

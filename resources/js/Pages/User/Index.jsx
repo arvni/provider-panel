@@ -1,11 +1,24 @@
 import React, {useState} from "react";
-import {Alert, Button, IconButton, Paper, Stack} from "@mui/material";
+import {
+    Alert,
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    IconButton,
+    Paper,
+    Stack,
+    Tooltip
+} from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
-import {Edit, EditCalendar, PasswordOutlined, Sync} from "@mui/icons-material";
+import {Edit, EditCalendar, LockReset, PasswordOutlined, Sync} from "@mui/icons-material";
 import PageHeader from "@/Components/PageHeader";
 import TableLayout from "@/Layouts/TableLayout";
 import {usePageReload} from "@/Services/api";
 import ChangePasswordForm from "@/Components/ChangePasswordForm";
+import LoadingButton from "@/Components/LoadingButton.jsx";
 import AdminLayout from "@/Layouts/AuthenticatedLayout";
 import {router} from "@inertiajs/react";
 
@@ -29,6 +42,8 @@ function Index({users: {data: usersData, ...pagination}, request}) {
     } = usePageReload(request, ["users"]);
     const [user, setUser] = useState();
     const [openChangePasswordForm, setOpenChangePasswordForm] = useState(false);
+    const [resetPasswordUser, setResetPasswordUser] = useState(null);
+    const [sendingReset, setSendingReset] = useState(false);
 
     const handleAdd = e => e.preventDefault() || router.visit(route("admin.users.create"));
     const handleOpenChangePasswordForm = (user) => () => setUser(user) || setOpenChangePasswordForm(true);
@@ -95,12 +110,30 @@ function Index({users: {data: usersData, ...pagination}, request}) {
                 <IconButton onClick={handleEdit(row.id)} href={route("admin.users.edit", row.id)}><Edit/></IconButton>
                 <IconButton onClick={()=>router.get(route("admin.users.tests.edit", row.id))}
                             href={route("admin.users.tests.edit", row.id)}><EditCalendar/></IconButton>
-                <IconButton onClick={handleOpenChangePasswordForm(row)}><PasswordOutlined/></IconButton>
+                <Tooltip title="Change Password">
+                    <IconButton onClick={handleOpenChangePasswordForm(row)}><PasswordOutlined/></IconButton>
+                </Tooltip>
+                <Tooltip title="Send Reset Password Email">
+                    <IconButton onClick={handleOpenResetPassword(row)}><LockReset/></IconButton>
+                </Tooltip>
             </Stack>
         }
     ];
 
     const handleEdit = (id) => e => e.preventDefault() || router.visit(route("admin.users.edit", id))
+
+    const handleOpenResetPassword = (user) => () => setResetPasswordUser(user);
+    const handleCloseResetPassword = () => setResetPasswordUser(null);
+
+    const handleConfirmResetPassword = () => {
+        if (!resetPasswordUser) return;
+        router.post(route("admin.users.sendResetPassword", resetPasswordUser.id), {}, {
+            preserveScroll: true,
+            onStart: () => setSendingReset(true),
+            onFinish: () => setSendingReset(false),
+            onSuccess: handleCloseResetPassword,
+        });
+    }
 
 
     const handlePage = (e) => e.preventDefault() || reload();
@@ -152,6 +185,25 @@ function Index({users: {data: usersData, ...pagination}, request}) {
                 />
             </Paper>
             <ChangePasswordForm open={openChangePasswordForm} onClose={handleCloseChangePasswordForm} user={user}/>
+            <Dialog open={Boolean(resetPasswordUser)} onClose={handleCloseResetPassword}>
+                <DialogTitle>Send Reset Password Email</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Send a password reset email to <strong>{resetPasswordUser?.name}</strong>
+                        {resetPasswordUser?.email ? ` (${resetPasswordUser.email})` : ""}?
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button color="secondary" onClick={handleCloseResetPassword}>Cancel</Button>
+                    <LoadingButton
+                        loading={sendingReset}
+                        variant="contained"
+                        color="success"
+                        onClick={handleConfirmResetPassword}
+                        autoFocus
+                    >Send</LoadingButton>
+                </DialogActions>
+            </Dialog>
         </>
     );
 }
