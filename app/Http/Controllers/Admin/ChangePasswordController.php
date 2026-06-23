@@ -23,7 +23,7 @@ class ChangePasswordController extends Controller
      */
     public function __invoke(User $user, Request $request)
     {
-//        $this->authorize("changePassword",$user);
+        $this->authorize("changePassword", $user);
         $validated = $request->validate([
             'password' => ['required', Password::defaults(), 'confirmed'],
         ]);
