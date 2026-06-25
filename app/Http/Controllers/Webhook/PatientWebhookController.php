@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Webhook;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Webhook\Concerns\HandlesCollectRequests;
 use App\Models\Order;
 use App\Models\Patient;
 use App\Models\User;
-use Carbon\Carbon;
 use Illuminate\Contracts\Validation\Validator as ValidatorContract;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -26,6 +26,8 @@ use Throwable;
  */
 class PatientWebhookController extends Controller
 {
+    use HandlesCollectRequests;
+
     /**
      * Handle the incoming patient webhook.
      *
@@ -33,14 +35,7 @@ class PatientWebhookController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        // Verify webhook signature against the raw body, matching the order webhooks.
-        $signature = $request->header('X-Webhook-Signature');
-        $expectedSignature = hash_hmac('sha256', $request->getContent(), config('webhook.secret'));
-        if (!hash_equals((string) $signature, $expectedSignature)) {
-            Log::warning('Patient webhook signature mismatch');
-            return response()->json(['error' => 'Invalid signature'], 401);
-        }
-
+        // Signature is verified upstream by the verify.webhook middleware.
         $validator = $this->validatePayload($request);
         if ($validator->fails()) {
             Log::warning('Patient webhook validation failed', [
@@ -58,8 +53,9 @@ class PatientWebhookController extends Controller
         $data = $validator->validated();
 
         $user = User::where('referrer_id', $data['referrer_id'])->first();
-        if (!$user) {
+        if (! $user) {
             Log::warning('Patient webhook referrer not found', ['referrer_id' => $data['referrer_id']]);
+
             return response()->json(['success' => false, 'message' => 'Referrer not found'], 422);
         }
 
@@ -114,51 +110,6 @@ class PatientWebhookController extends Controller
     }
 
     /**
-     * Create or update a patient, keyed by server_id then id_no.
-     *
-     * Mirrors OrderUpdateWebhookController::createOrUpdatePatient so a patient
-     * synced through either path resolves to the same local record.
-     */
-    private function createOrUpdatePatient(array $patientData, int $userId): Patient
-    {
-        $query = Patient::where('user_id', $userId);
-
-        if (!empty($patientData['id'])) {
-            $query->where('server_id', $patientData['id']);
-        } elseif (!empty($patientData['id_no']) || !empty($patientData['idNo'])) {
-            $query->where('id_no', $patientData['id_no'] ?? $patientData['idNo']);
-        } else {
-            $query = null;
-        }
-
-        $patient = $query ? $query->first() : null;
-
-        $attributes = [
-            'user_id' => $userId,
-            'server_id' => $patientData['id'] ?? null,
-            'fullName' => $patientData['fullName'],
-            'nationality' => $patientData['nationality'],
-            'dateOfBirth' => !empty($patientData['dateOfBirth'])
-                ? Carbon::parse($patientData['dateOfBirth'])->format('Y-m-d')
-                : null,
-            'gender' => $patientData['gender'],
-            'reference_id' => $patientData['reference_id'] ?? null,
-            'id_no' => $patientData['id_no'] ?? $patientData['idNo'] ?? null,
-        ];
-
-        if ($patient) {
-            $patient->fill($attributes);
-            if ($patient->isDirty()) {
-                $patient->save();
-            }
-
-            return $patient;
-        }
-
-        return Patient::create($attributes);
-    }
-
-    /**
      * Link the patient to the referrer's local order when it has already synced.
      *
      * The order may not exist yet (the patient can be created before the order
@@ -167,17 +118,17 @@ class PatientWebhookController extends Controller
      */
     private function linkToOrder(?int $orderId, int $userId, Patient $patient, bool $isMain): ?Order
     {
-        if (!$orderId) {
+        if (! $orderId) {
             return null;
         }
 
         $order = Order::where('id', $orderId)->where('user_id', $userId)->first();
-        if (!$order) {
+        if (! $order) {
             return null;
         }
 
         $patientIds = $order->patient_ids ?? [];
-        if (!in_array($patient->id, $patientIds, true)) {
+        if (! in_array($patient->id, $patientIds, true)) {
             $patientIds[] = $patient->id;
         }
 

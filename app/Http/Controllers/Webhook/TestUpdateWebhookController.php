@@ -13,13 +13,11 @@ use Illuminate\Support\Facades\Log;
 class TestUpdateWebhookController extends Controller
 {
     public function __construct(
-        protected TestRepositoryInterface        $testRepository,
-        protected ConsentRepositoryInterface     $consentRepository,
+        protected TestRepositoryInterface $testRepository,
+        protected ConsentRepositoryInterface $consentRepository,
         protected InstructionRepositoryInterface $instructionRepository,
-        protected OrderFormRepositoryInterface   $orderFormRepository
-    )
-    {
-    }
+        protected OrderFormRepositoryInterface $orderFormRepository
+    ) {}
 
     /**
      * Handle the incoming request.
@@ -29,60 +27,62 @@ class TestUpdateWebhookController extends Controller
 
         // Verify signature
         $signature = $request->header('X-Webhook-Signature');
-        if ($request->hasFile("data")) {
+        if ($request->hasFile('data')) {
             $jsonFile = request()->file('data');
             // Read the content of the JSON file
             $jsonContents = file_get_contents($jsonFile->path());
             $jsonData = json_decode($jsonContents, true);
             $expectedSignature = hash_hmac('sha256', json_encode($jsonData), config('webhook.secret'));
-            if (!hash_equals((string) $signature, $expectedSignature)) {
+            if (! hash_equals((string) $signature, $expectedSignature)) {
                 Log::warning('Webhook signature mismatch', ['route' => 'tests.update-by-webhook']);
+
                 return response()->json(['error' => 'Invalid signature'], 401);
             }
-            $t = $this->testRepository->getByServerId($jsonData["test_id"]);
-            $testData = $jsonData["test"];
-            $consent = $this->getConsentForm($testData["consent_form_id"]);
-            $orderForm = $this->getOrderForm($testData["request_form_id"]);
-            $instruction = $this->getInstruction($t["instruction_id"]);
+            $t = $this->testRepository->getByServerId($jsonData['test_id']);
+            $testData = $jsonData['test'];
+            $consent = $this->getConsentForm($testData['consent_form_id']);
+            $orderForm = $this->getOrderForm($testData['request_form_id']);
+            $instruction = $this->getInstruction($t['instruction_id']);
             if ($t) {
                 $this->testRepository->edit($t,
                     [
-                        "server_id" => $test,
-                        "name" => $testData["fullName"],
-                        "code" => $testData["code"],
-                        "shortName" => $test["name"],
-                        "description" => $test["description"],
-                        "turnaroundTime" => $test["methods_max_turnaround_time"] ?? 1,
+                        'server_id' => $test,
+                        'name' => $testData['fullName'],
+                        'code' => $testData['code'],
+                        'shortName' => $test['name'],
+                        'description' => $test['description'],
+                        'turnaroundTime' => $test['methods_max_turnaround_time'] ?? 1,
                         // Active state is owned by the server: status truthy = active.
-                        "is_active" => (bool) ($testData["status"] ?? false),
-                        "consent_id" => $consent?->id,
-                        "order_form_id" => $orderForm?->id,
-                        "instruction_id" => $instruction?->id,
+                        'is_active' => (bool) ($testData['status'] ?? false),
+                        'consent_id' => $consent?->id,
+                        'order_form_id' => $orderForm?->id,
+                        'instruction_id' => $instruction?->id,
                     ]
                 );
             } else {
 
                 $this->testRepository->create(
                     [
-                        "server_id" => $test,
-                        "name" => $testData["fullName"],
-                        "code" => $testData["code"],
-                        "shortName" => $test["name"],
-                        "description" => $test["description"],
-                        "turnaroundTime" => $test["methods_max_turnaround_time"] ?? 1,
+                        'server_id' => $test,
+                        'name' => $testData['fullName'],
+                        'code' => $testData['code'],
+                        'shortName' => $test['name'],
+                        'description' => $test['description'],
+                        'turnaroundTime' => $test['methods_max_turnaround_time'] ?? 1,
                         // Active state is owned by the server: status truthy = active.
-                        "is_active" => (bool) ($testData["status"] ?? false),
-                        "consent_id" => $consent?->id,
-                        "order_form_id" => $orderForm?->id,
-                        "instruction_id" => $instruction?->id,
+                        'is_active' => (bool) ($testData['status'] ?? false),
+                        'consent_id' => $consent?->id,
+                        'order_form_id' => $orderForm?->id,
+                        'instruction_id' => $instruction?->id,
                     ]);
             }
 
-
             return response()->json(['success' => true]);
-        } else return response()->json([
-            'error' => 'Invalid signature',
-        ], 401);
+        } else {
+            return response()->json([
+                'error' => 'Invalid signature',
+            ], 401);
+        }
     }
 
     private function getConsentForm($id)
