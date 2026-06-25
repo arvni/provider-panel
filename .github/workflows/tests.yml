@@ -46,6 +46,19 @@ jobs:
       - name: Install dependencies
         run: composer install --prefer-dist --no-interaction --no-progress
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Build frontend assets
+        # Several feature tests render Inertia pages, which need the Vite
+        # manifest at public/build/manifest.json.
+        run: |
+          npm ci
+          npm run build
+
       - name: Prepare application
         # php artisan test loads .env.testing (which already has APP_KEY); copy it
         # to .env so framework bootstrap has a base env file too.
