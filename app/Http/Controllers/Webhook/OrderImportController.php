@@ -11,8 +11,6 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Patient;
 use App\Models\Sample;
-use App\Models\SampleType;
-use App\Models\Test;
 use App\Models\User;
 use Carbon\Carbon;
 use Exception;
@@ -34,20 +32,11 @@ class OrderImportController extends Controller
     /**
      * Handle incoming order import webhook
      *
-     * @param Request $request
-     * @return JsonResponse
      * @throws Throwable
      */
     public function import(Request $request): JsonResponse
     {
-        // Verify webhook signature before processing
-        $signature = $request->header('X-Webhook-Signature');
-        $expectedSignature = hash_hmac('sha256', $request->getContent(), config('webhook.secret'));
-        if (!hash_equals((string) $signature, $expectedSignature)) {
-            Log::warning('Order import webhook signature mismatch');
-            return response()->json(['error' => 'Invalid signature'], 401);
-        }
-
+        // Signature is verified upstream by the verify.webhook middleware.
         try {
             // Validate the incoming webhook payload
             $validator = $this->validateWebhookPayload($request);
@@ -61,7 +50,7 @@ class OrderImportController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'Validation failed',
-                    'errors' => $validator->errors()
+                    'errors' => $validator->errors(),
                 ], 422);
             }
 
@@ -69,7 +58,7 @@ class OrderImportController extends Controller
 
             Log::info('Order import webhook received', [
                 'order_id' => $data['order']['id'] ?? null,
-                'server_id' => $data['order']['server_id'] ?? null
+                'server_id' => $data['order']['server_id'] ?? null,
             ]);
 
             // Process the order import in a database transaction
@@ -79,7 +68,7 @@ class OrderImportController extends Controller
 
             Log::info('Order import successful', [
                 'local_order_id' => $result['order_id'],
-                'server_id' => $data['order']['server_id'] ?? null
+                'server_id' => $data['order']['server_id'] ?? null,
             ]);
 
             return response()->json([
@@ -88,20 +77,20 @@ class OrderImportController extends Controller
                 'data' => [
                     'order_id' => $result['order_id'],
                     'order_items_count' => $result['order_items_count'],
-                    'samples_count' => $result['samples_count']
-                ]
+                    'samples_count' => $result['samples_count'],
+                ],
             ], 200);
 
         } catch (ValidationException $e) {
             Log::error('Order import validation exception', [
                 'errors' => $e->errors(),
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ]);
 
             return response()->json([
                 'success' => false,
                 'message' => 'Validation error',
-                'errors' => $e->errors()
+                'errors' => $e->errors(),
             ], 422);
 
         } catch (Exception $e) {
@@ -120,9 +109,6 @@ class OrderImportController extends Controller
 
     /**
      * Validate the webhook payload
-     *
-     * @param Request $request
-     * @return \Illuminate\Contracts\Validation\Validator
      */
     private function validateWebhookPayload(Request $request): \Illuminate\Contracts\Validation\Validator
     {
@@ -203,20 +189,18 @@ class OrderImportController extends Controller
 
     /**
      * Process the order import
-     *
-     * @param array $data
-     * @return array
      */
     private function processOrderImport(array $data): array
     {
         $orderData = $data['order'];
-        $userId = User::where("referrer_id", $data['referrer_id'])->first()->id;
-        if (!$userId)
-            abort(422, "data missing referrer not found");
+        $userId = User::where('referrer_id', $data['referrer_id'])->first()->id;
+        if (! $userId) {
+            abort(422, 'data missing referrer not found');
+        }
 
         // Upsert the collect request up front (existence check by server_id,
         // create if missing) so each sample can resolve its own collect request.
-        $collectRequest = !empty($data['collect_request'])
+        $collectRequest = ! empty($data['collect_request'])
             ? $this->upsertCollectRequest($data['collect_request'], $userId)
             : null;
 
@@ -225,7 +209,7 @@ class OrderImportController extends Controller
         // server_id stamped yet) so we never create a duplicate.
         $existingOrder = Order::where('server_id', $orderData['id'])->first();
 
-        if (!$existingOrder && !empty($orderData['referrer_order_id'])) {
+        if (! $existingOrder && ! empty($orderData['referrer_order_id'])) {
             $existingOrder = Order::where('id', $orderData['referrer_order_id'])
                 ->where('user_id', $userId)
                 ->first();
@@ -234,7 +218,7 @@ class OrderImportController extends Controller
         if ($existingOrder) {
             Log::info('Order already exists, updating', [
                 'local_order_id' => $existingOrder->id,
-                'server_id' => $orderData['id']
+                'server_id' => $orderData['id'],
             ]);
 
             $result = $this->updateExistingOrder($existingOrder, $orderData, $userId);
@@ -253,10 +237,10 @@ class OrderImportController extends Controller
 
         // Create or find all patients
         $patientIds = [$mainPatient->id];
-        if (!empty($orderData['patients'])) {
+        if (! empty($orderData['patients'])) {
             foreach ($orderData['patients'] as $patientData) {
                 $patient = $this->createOrUpdatePatient($patientData, $userId);
-                if (!in_array($patient->id, $patientIds)) {
+                if (! in_array($patient->id, $patientIds)) {
                     $patientIds[] = $patient->id;
                 }
             }
@@ -273,8 +257,8 @@ class OrderImportController extends Controller
             'files' => [],
             'main_patient_id' => $mainPatient->id,
             'patient_ids' => $patientIds,
-            'created_at' => Carbon::parse($orderData["created_at"] ?? now()),
-            'updated_at' => Carbon::parse($orderData["updated_at"] ?? now()),
+            'created_at' => Carbon::parse($orderData['created_at'] ?? now()),
+            'updated_at' => Carbon::parse($orderData['updated_at'] ?? now()),
             'sent_at' => $orderData['status'] === OrderStatus::SENT->value ? now() : null,
             'reported_at' => $orderData['status'] === OrderStatus::REPORTED->value ? now() : null,
         ]);
@@ -299,84 +283,16 @@ class OrderImportController extends Controller
         return [
             'order_id' => $order->id,
             'order_items_count' => $orderItemsCount,
-            'samples_count' => $samplesCount
+            'samples_count' => $samplesCount,
         ];
-    }
-
-    /**
-     * Create or update a patient
-     *
-     * @param array $patientData
-     * @param int $userId
-     * @return Patient
-     */
-    private function createOrUpdatePatient(array $patientData, int $userId): Patient
-    {
-        // Try to find existing patient by reference_id or id_no
-        $query = Patient::where('user_id', $userId);
-
-        if (!empty($patientData['id'])) {
-            $query->where('server_id', $patientData['id']);
-        } elseif (!empty($patientData['id_no']) || !empty($patientData['idNo'])) {
-            $query->where('id_no', $patientData['id_no']??$patientData['idNo']);
-        } else {
-            // If no unique identifier, create new patient
-            $query = null;
-        }
-
-        $patient = $query ? $query->first() : null;
-
-        $patientAttributes = [
-            'user_id' => $userId,
-            'server_id' => $patientData['id'],
-            'fullName' => $patientData['fullName'],
-            'nationality' => $patientData['nationality'],
-            'dateOfBirth' => Carbon::parse($patientData['dateOfBirth'])->format('Y-m-d'),
-            'gender' => $patientData['gender'],
-            'reference_id' => $patientData['reference_id'] ?? null,
-            'id_no' => $patientData['id_no'] ?? null,
-        ];
-
-        if ($patient) {
-            return $patient;
-        } else {
-            $patient = Patient::create($patientAttributes);
-            Log::info('Patient created', ['patient_id' => $patient->id]);
-        }
-
-        return $patient;
     }
 
     /**
      * Create an order item with samples and patients
-     *
-     * @param Order $order
-     * @param array $orderItemData
-     * @param int $userId
-     * @return array
      */
     private function createOrderItem(Order $order, array $orderItemData, int $userId, ?CollectRequest $collectRequest = null): array
     {
-        $testData = $orderItemData['test'];
-
-        // Find or create test by server_id
-        $test = Test::where('server_id', $testData['id'])->first();
-
-        if (!$test) {
-            Log::warning('Test not found by server_id, creating placeholder', [
-                'server_id' => $testData['server_id'],
-                'test_name' => $testData['name']
-            ]);
-
-            // Create a placeholder test (should ideally be synced from server first)
-            $test = Test::create([
-                'server_id' => $testData['id'],
-                'name' => $testData['name'],
-                'code' => $testData['code'],
-                'shortName' => $testData['shortName'] ?? $testData['code'],
-                'gender' => $testData['gender'] ?? [],
-            ]);
-        }
+        $test = $this->findOrCreateTest($orderItemData['test']);
 
         // Create order item
         $orderItem = OrderItem::create([
@@ -402,65 +318,46 @@ class OrderImportController extends Controller
         foreach ($orderItemData['patients'] as $patientData) {
             $patient = $this->createOrUpdatePatient($patientData, $userId);
             $orderItem->Patients()->attach($patient->id, [
-                'is_main' => $patientData['is_main'] ?? false
+                'is_main' => $patientData['is_main'] ?? false,
             ]);
         }
 
         return [
             'order_item_id' => $orderItem->id,
-            'samples_count' => $samplesCount
+            'samples_count' => $samplesCount,
         ];
     }
 
     /**
      * Create a sample
-     *
-     * @param array $sampleData
-     * @param int $userId
-     * @return Sample
      */
     private function createSample(array $sampleData, int $userId, ?int $collectRequestId = null): Sample
     {
-        $sampleTypeData = $sampleData['sampleType'];
-
-        // Find sample type by server_id
-        $sampleType = SampleType::where('server_id', $sampleTypeData['id'])->first();
+        $sampleType = $this->findOrCreateSampleType($sampleData['sampleType']);
         $patient = Patient::where('server_id', $sampleData['patientId'])->first();
-
-        if (!$sampleType) {
-            Log::warning('Sample type not found by server_id', [
-                'server_id' => $sampleTypeData['id'],
-                'sample_type_name' => $sampleTypeData['name']
-            ]);
-
-            // Create placeholder sample type
-            $sampleType = SampleType::create([
-                'server_id' => $sampleTypeData['id'],
-                'name' => $sampleTypeData['name'],
-                'sample_id_required' => $sampleTypeData['sample_id_required'] ?? false,
-            ]);
-        }
 
         // Find material by barcode if provided. LIS carries the sample barcode
         // in the `sampleId` field, so match the material against that.
         $materialId = null;
-        if (!empty($sampleData['sampleId'])) {
+        if (! empty($sampleData['sampleId'])) {
             $material = Material::where('barcode', $sampleData['sampleId'])->first();
             if ($material) {
                 $materialId = $material->id;
             }
         }
 
-        $query = Sample::where("sample_type_id", $sampleType->id);
+        $query = Sample::where('sample_type_id', $sampleType->id);
 
         if (isset($sampleData['sampleId'])) {
             $query->where('sampleId', $sampleData['sampleId']);
-        } else
+        } else {
             $query = null;
+        }
         $sample = null;
-        if ($query)
+        if ($query) {
             $sample = $query->first();
-        if (!$sample)
+        }
+        if (! $sample) {
             // Create sample
             $sample = Sample::create([
                 'sampleId' => $sampleData['sampleId'] ?? null,
@@ -470,9 +367,10 @@ class OrderImportController extends Controller
                 'collectionDate' => $sampleData['collectionDate'] ?? null,
                 'collect_request_id' => $collectRequestId,
             ]);
-        elseif (!is_null($collectRequestId) && $sample->collect_request_id !== $collectRequestId)
+        } elseif (! is_null($collectRequestId) && $sample->collect_request_id !== $collectRequestId) {
             // Keep an existing sample's collect request in sync.
             $sample->update(['collect_request_id' => $collectRequestId]);
+        }
 
         Log::info('Sample created', ['sample_id' => $sample->id]);
 
@@ -481,11 +379,6 @@ class OrderImportController extends Controller
 
     /**
      * Update existing order
-     *
-     * @param Order $order
-     * @param array $orderData
-     * @param int $userId
-     * @return array
      */
     private function updateExistingOrder(Order $order, array $orderData, int $userId): array
     {
@@ -518,7 +411,7 @@ class OrderImportController extends Controller
         return [
             'order_id' => $order->id,
             'order_items_count' => $orderItemsCount,
-            'samples_count' => $samplesCount
+            'samples_count' => $samplesCount,
         ];
     }
 }

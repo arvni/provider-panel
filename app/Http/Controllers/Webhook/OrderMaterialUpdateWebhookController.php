@@ -10,53 +10,43 @@ use App\Interfaces\SampleTypeRepositoryInterface;
 use App\Models\OrderMaterial;
 use App\Notifications\OrderMaterialUpdated;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 
 class OrderMaterialUpdateWebhookController extends Controller
 {
     public function __construct(
         private readonly OrderMaterialRepositoryInterface $orderMaterialRepository,
-        private readonly MaterialRepositoryInterface      $materialRepository,
-        private readonly SampleTypeRepositoryInterface    $sampleTypeRepository,
-    )
-    {
-    }
+        private readonly MaterialRepositoryInterface $materialRepository,
+        private readonly SampleTypeRepositoryInterface $sampleTypeRepository,
+    ) {}
 
     /**
      * Handle the incoming request.
      */
     public function __invoke(OrderMaterial $orderMaterial, Request $request)
     {
-        // Verify signature
-        $signature = $request->header('X-Webhook-Signature');
-        $expectedSignature = hash_hmac('sha256', json_encode($request->all()), config('webhook.secret'));
-        if (!hash_equals((string) $signature, $expectedSignature)) {
-            Log::warning('Webhook signature mismatch', ['route' => 'orderMaterials.updateStatus']);
-            return response()->json(['error' => 'Invalid signature'], 401);
-        }
-
+        // Signature is verified upstream by the verify.webhook middleware.
         // Process the order update
         if ($orderMaterial->status !== OrderMaterialStatus::GENERATED) {
-            $materialsData = $request->get("materials");
-            $sampleType = $this->sampleTypeRepository->getByServerId($materialsData[0]["sample_type"]["id"]);
+            $materialsData = $request->get('materials');
+            $sampleType = $this->sampleTypeRepository->getByServerId($materialsData[0]['sample_type']['id']);
             foreach ($materialsData as $materialData) {
-                $material = $this->materialRepository->getByBarcode($materialData["barcode"]);
-                if (!$material && $sampleType) {
+                $material = $this->materialRepository->getByBarcode($materialData['barcode']);
+                if (! $material && $sampleType) {
                     $this->materialRepository->createMaterial([
-                        "barcode" => $materialData["barcode"],
-                        "order_material_id" => $orderMaterial->id,
-                        "sample_type_id" => $sampleType->id,
-                        "expire_date" => $materialData["expire_date"] ?? null,
-                        "user_id" => $orderMaterial->user_id ?? null,
+                        'barcode' => $materialData['barcode'],
+                        'order_material_id' => $orderMaterial->id,
+                        'sample_type_id' => $sampleType->id,
+                        'expire_date' => $materialData['expire_date'] ?? null,
+                        'user_id' => $orderMaterial->user_id ?? null,
                     ]);
-                } elseif ($material && !$material->order_matrial_id && $sampleType) {
+                } elseif ($material && ! $material->order_matrial_id && $sampleType) {
                     $this->materialRepository->updateMaterial($material, [
-                        "order_material_id" => $orderMaterial->id,
+                        'order_material_id' => $orderMaterial->id,
                     ]);
                 }
             }
-            $orderMaterial->loadMissing("User");
+            $orderMaterial->loadMissing('User');
             $users = [$orderMaterial->User];
             Notification::send($users, new OrderMaterialUpdated($orderMaterial));
             $this->orderMaterialRepository->update($orderMaterial, ['status' => OrderMaterialStatus::GENERATED]);

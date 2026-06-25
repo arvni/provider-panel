@@ -10,8 +10,6 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Patient;
 use App\Models\Sample;
-use App\Models\SampleType;
-use App\Models\Test;
 use App\Models\User;
 use Carbon\Carbon;
 use Exception;
@@ -44,14 +42,7 @@ class OrderUpdateWebhookController extends Controller
      */
     public function update(Request $request): JsonResponse
     {
-        // Verify webhook signature against the raw body, matching the import webhook.
-        $signature = $request->header('X-Webhook-Signature');
-        $expectedSignature = hash_hmac('sha256', $request->getContent(), config('webhook.secret'));
-        if (!hash_equals((string) $signature, $expectedSignature)) {
-            Log::warning('Order update webhook signature mismatch');
-            return response()->json(['error' => 'Invalid signature'], 401);
-        }
-
+        // Signature is verified upstream by the verify.webhook middleware.
         $validator = $this->validatePayload($request);
         if ($validator->fails()) {
             Log::warning('Order update webhook validation failed', [
@@ -180,13 +171,13 @@ class OrderUpdateWebhookController extends Controller
         $orderData = $data['order'];
 
         $user = User::where('referrer_id', $data['referrer_id'])->first();
-        if (!$user) {
+        if (! $user) {
             abort(422, 'Referrer not found');
         }
 
         $created = false;
         $order = $this->findOrder($orderData, $user->id);
-        if (!$order) {
+        if (! $order) {
             $created = true;
         }
 
@@ -195,7 +186,7 @@ class OrderUpdateWebhookController extends Controller
         // Upsert the collect request first so each sample can resolve its own
         // collect_request_id (a server id) against a local record.
         $collectRequest = null;
-        if (!empty($data['collect_request'])) {
+        if (! empty($data['collect_request'])) {
             $collectRequest = $this->upsertCollectRequest($data['collect_request'], $user->id);
         }
 
@@ -225,7 +216,7 @@ class OrderUpdateWebhookController extends Controller
     {
         $order = Order::where('server_id', $orderData['id'])->first();
 
-        if (!$order && !empty($orderData['referrer_order_id'])) {
+        if (! $order && ! empty($orderData['referrer_order_id'])) {
             $order = Order::where('id', $orderData['referrer_order_id'])
                 ->where('user_id', $userId)
                 ->first();
@@ -244,7 +235,7 @@ class OrderUpdateWebhookController extends Controller
         $patientIds = [$mainPatient->id];
         foreach ($orderData['patients'] ?? [] as $patientData) {
             $patient = $this->createOrUpdatePatient($patientData, $userId);
-            if (!in_array($patient->id, $patientIds)) {
+            if (! in_array($patient->id, $patientIds)) {
                 $patientIds[] = $patient->id;
             }
         }
@@ -285,46 +276,6 @@ class OrderUpdateWebhookController extends Controller
             'files' => [],
             'created_at' => Carbon::parse($orderData['created_at'] ?? now()),
         ]);
-    }
-
-    /**
-     * Create or update a patient, keyed by server_id then id_no.
-     */
-    private function createOrUpdatePatient(array $patientData, int $userId): Patient
-    {
-        $query = Patient::where('user_id', $userId);
-
-        if (!empty($patientData['id'])) {
-            $query->where('server_id', $patientData['id']);
-        } elseif (!empty($patientData['id_no']) || !empty($patientData['idNo'])) {
-            $query->where('id_no', $patientData['id_no'] ?? $patientData['idNo']);
-        } else {
-            $query = null;
-        }
-
-        $patient = $query ? $query->first() : null;
-
-        $attributes = [
-            'user_id' => $userId,
-            'server_id' => $patientData['id'] ?? null,
-            'fullName' => $patientData['fullName'],
-            'nationality' => $patientData['nationality'],
-            'dateOfBirth' => Carbon::parse($patientData['dateOfBirth'])->format('Y-m-d'),
-            'gender' => $patientData['gender'],
-            'reference_id' => $patientData['reference_id'] ?? null,
-            'id_no' => $patientData['id_no'] ?? $patientData['idNo'] ?? null,
-        ];
-
-        if ($patient) {
-            $patient->fill($attributes);
-            if ($patient->isDirty()) {
-                $patient->save();
-            }
-
-            return $patient;
-        }
-
-        return Patient::create($attributes);
     }
 
     /**
@@ -384,55 +335,16 @@ class OrderUpdateWebhookController extends Controller
     }
 
     /**
-     * Find a test by server_id, creating a placeholder if it is not synced yet.
-     */
-    private function findOrCreateTest(array $testData): Test
-    {
-        $test = Test::where('server_id', $testData['id'])->first();
-
-        if (!$test) {
-            Log::warning('Test not found by server_id, creating placeholder', [
-                'server_id' => $testData['id'],
-                'test_name' => $testData['name'],
-            ]);
-
-            $test = Test::create([
-                'server_id' => $testData['id'],
-                'name' => $testData['name'],
-                'code' => $testData['code'],
-                'shortName' => $testData['shortName'] ?? $testData['code'],
-                'gender' => $testData['gender'] ?? [],
-            ]);
-        }
-
-        return $test;
-    }
-
-    /**
      * Create or update a sample, keyed by sampleId + local sample type.
      */
     private function createOrUpdateSample(array $sampleData, int $userId, ?int $collectRequestId): Sample
     {
-        $sampleTypeData = $sampleData['sampleType'];
-
-        $sampleType = SampleType::where('server_id', $sampleTypeData['id'])->first();
-        if (!$sampleType) {
-            Log::warning('Sample type not found by server_id, creating placeholder', [
-                'server_id' => $sampleTypeData['id'],
-                'sample_type_name' => $sampleTypeData['name'],
-            ]);
-
-            $sampleType = SampleType::create([
-                'server_id' => $sampleTypeData['id'],
-                'name' => $sampleTypeData['name'],
-                'sample_id_required' => $sampleTypeData['sample_id_required'] ?? false,
-            ]);
-        }
+        $sampleType = $this->findOrCreateSampleType($sampleData['sampleType']);
 
         $patient = Patient::where('server_id', $sampleData['patientId'])->first();
 
         $sample = null;
-        if (!empty($sampleData['sampleId'])) {
+        if (! empty($sampleData['sampleId'])) {
             $sample = Sample::where('sample_type_id', $sampleType->id)
                 ->where('sampleId', $sampleData['sampleId'])
                 ->first();
@@ -447,7 +359,7 @@ class OrderUpdateWebhookController extends Controller
 
         // Only (re)assign the collect request when we resolved one, so a webhook
         // that omits it never clears an existing link.
-        if (!is_null($collectRequestId)) {
+        if (! is_null($collectRequestId)) {
             $attributes['collect_request_id'] = $collectRequestId;
         }
 
@@ -462,5 +374,4 @@ class OrderUpdateWebhookController extends Controller
 
         return Sample::create($attributes);
     }
-
 }
