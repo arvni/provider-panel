@@ -1,5 +1,5 @@
 <?php
 
 return [
-    "secret"=>env("WEBHOOK_SECRET")
+    'secret' => env('WEBHOOK_SECRET'),
 ];

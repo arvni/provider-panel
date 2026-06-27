@@ -25,29 +25,31 @@ class SyncSampleType extends Command
 
     /**
      * Execute the console command.
+     *
      * @throws ApiServiceException
      */
     public function handle(): void
     {
-        $url=config("api.server_url") .config("api.sample_types_path");
+        $url = config('api.server_url').config('api.sample_types_path');
         $sampleTypes = ApiService::get($url);
         foreach ($sampleTypes->json() as $sampleType) {
-            $t = SampleType::where("name", $sampleType["name"])->orWhere("server_id",$sampleType["id"])->first();
+            $t = SampleType::where('name', $sampleType['name'])->orWhere('server_id', $sampleType['id'])->first();
             if ($t) {
                 $t->fill([
-                    "server_id" => $sampleType["id"],
-                    "name" => $sampleType["name"],
-                    "orderable" => $sampleType["orderable"],
-                    "sample_id_required"=>$sampleType["required_barcode"]
+                    'server_id' => $sampleType['id'],
+                    'name' => $sampleType['name'],
+                    'orderable' => $sampleType['orderable'],
+                    'sample_id_required' => $sampleType['required_barcode'],
                 ]);
-                if ($t->isDirty())
+                if ($t->isDirty()) {
                     $t->save();
-            }else{
+                }
+            } else {
                 SampleType::create([
-                    "name" => $sampleType["name"],
-                    "server_id" => $sampleType["id"],
-                    "orderable" => $sampleType["orderable"],
-                    "sample_id_required"=>$sampleType["required_barcode"]
+                    'name' => $sampleType['name'],
+                    'server_id' => $sampleType['id'],
+                    'orderable' => $sampleType['orderable'],
+                    'sample_id_required' => $sampleType['required_barcode'],
                 ]);
             }
         }

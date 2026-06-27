@@ -18,7 +18,7 @@ enum RelationType: string
      */
     public static function toArray(): array
     {
-        return array_map(fn($case) => $case->value, self::cases());
+        return array_map(fn ($case) => $case->value, self::cases());
     }
 
     /**
@@ -26,9 +26,9 @@ enum RelationType: string
      */
     public static function options(): array
     {
-        return array_map(fn($case) => [
+        return array_map(fn ($case) => [
             'value' => $case->value,
-            'label' => $case->value
+            'label' => $case->value,
         ], self::cases());
     }
 }

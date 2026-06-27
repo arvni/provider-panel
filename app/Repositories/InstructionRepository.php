@@ -1,8 +1,6 @@
 <?php
 
-
 namespace App\Repositories;
-
 
 use App\Interfaces\InstructionRepositoryInterface;
 use App\Models\Instruction;
@@ -21,22 +19,27 @@ class InstructionRepository extends BaseRepository implements InstructionReposit
         $this->query = $instruction->newQuery();
     }
 
-
     public function list(array $queryData): LengthAwarePaginator
     {
-        if (isset($queryData["filters"]))
-            $this->applyFilter($queryData["filters"]);
-        if (isset($queryData["sort"]))
-            $this->applyOrderBy($queryData["sort"]);
-        return $this->applyPagination($queryData["pageSize"] ?? $this->pageSize);
+        if (isset($queryData['filters'])) {
+            $this->applyFilter($queryData['filters']);
+        }
+        if (isset($queryData['sort'])) {
+            $this->applyOrderBy($queryData['sort']);
+        }
+
+        return $this->applyPagination($queryData['pageSize'] ?? $this->pageSize);
     }
 
     public function getAll(array $queryData): Collection|array
     {
-        if (isset($queryData["filters"]))
-            $this->applyFilter($queryData["filters"]);
-        if (isset($queryData["sort"]))
-            $this->applyOrderBy($queryData["sort"]);
+        if (isset($queryData['filters'])) {
+            $this->applyFilter($queryData['filters']);
+        }
+        if (isset($queryData['sort'])) {
+            $this->applyOrderBy($queryData['sort']);
+        }
+
         return $this->applyGet();
     }
 
@@ -44,7 +47,7 @@ class InstructionRepository extends BaseRepository implements InstructionReposit
     {
         return $this->query->create([
             ...$instructionDetails,
-            "file" => $instructionDetails["file"] ? $this->uploadFileService->init("instructions")[0] : ""]);
+            'file' => $instructionDetails['file'] ? $this->uploadFileService->init('instructions')[0] : '']);
     }
 
     public function show(Instruction $instruction): Instruction
@@ -56,9 +59,9 @@ class InstructionRepository extends BaseRepository implements InstructionReposit
     {
         $instruction->update([
             ...$newInstructionDetails,
-            "file" => $newInstructionDetails["file"] ?
-                (is_string($newInstructionDetails["file"]) ? $newInstructionDetails["file"] : $this->uploadFileService->init("instructions")[0]) :
-                ""
+            'file' => $newInstructionDetails['file'] ?
+                (is_string($newInstructionDetails['file']) ? $newInstructionDetails['file'] : $this->uploadFileService->init('instructions')[0]) :
+                '',
         ]);
     }
 
@@ -69,22 +72,21 @@ class InstructionRepository extends BaseRepository implements InstructionReposit
 
     public function applyFilter($filters = []): void
     {
-        if (isset($filters["search"])) {
-            $this->query->search($filters["search"]);
+        if (isset($filters['search'])) {
+            $this->query->search($filters['search']);
         }
-        if (isset($filters["name"])) {
-            $this->query->search($filters["name"], ["name"]);
+        if (isset($filters['name'])) {
+            $this->query->search($filters['name'], ['name']);
         }
     }
 
-    public function getById($id): Instruction|null
+    public function getById($id): ?Instruction
     {
-        return $this->query->where("id", $id)->first();
+        return $this->query->where('id', $id)->first();
     }
 
-
-    public function getByServerId(int $id): Instruction|null
+    public function getByServerId(int $id): ?Instruction
     {
-        return $this->query->where("server_id", $id)->first();
+        return $this->query->where('server_id', $id)->first();
     }
 }

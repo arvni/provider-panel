@@ -7,12 +7,13 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Collection;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasApiTokens, HasFactory, Notifiable, HasRoles, Searchable;
+    use HasApiTokens, HasFactory, HasRoles, Notifiable, Searchable;
 
     /**
      * Permissions granted by default to providers that have not been assigned
@@ -22,20 +23,20 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var array<int, string>
      */
     public const PROVIDER_PERMISSIONS = [
-        "Order.Index",
-        "Order.Create",
-        "Patient.Index",
-        "Sample.Index",
-        "CollectRequest.Index",
-        "OrderMaterial.Index",
-        "OrderMaterial.Create",
-        "Test.Index",
+        'Order.Index',
+        'Order.Create',
+        'Patient.Index',
+        'Sample.Index',
+        'CollectRequest.Index',
+        'OrderMaterial.Index',
+        'OrderMaterial.Create',
+        'Test.Index',
     ];
 
     /**
      * @var array|string[]
      */
-    public array $searchable = ["name", "userName", "email", "mobile"];
+    public array $searchable = ['name', 'userName', 'email', 'mobile'];
 
     /**
      * The attributes that are mass assignable.
@@ -50,7 +51,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'meta',
         'mobile',
         'active',
-        'referrer_id'
+        'referrer_id',
     ];
 
     /**
@@ -61,7 +62,7 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $hidden = [
         'password',
         'remember_token',
-        'active' => "boolean"
+        'active' => 'boolean',
     ];
 
     /**
@@ -71,7 +72,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     protected $casts = [
         'mobile_verified_at' => 'datetime',
-        "meta" => "json"
+        'meta' => 'json',
     ];
 
     public function RegisteredPatients()
@@ -81,7 +82,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function isActive($query)
     {
-        return $query->where("active", true);
+        return $query->where('active', true);
     }
 
     public function Patients()
@@ -122,11 +123,11 @@ class User extends Authenticatable implements MustVerifyEmail
      * The effective permission names used to drive menu/UI visibility on the
      * front-end: real permissions plus the provider defaults for role-less users.
      *
-     * @return \Illuminate\Support\Collection<int, string>
+     * @return Collection<int, string>
      */
     public function effectivePermissions()
     {
-        $permissions = $this->getAllPermissions()->pluck("name");
+        $permissions = $this->getAllPermissions()->pluck('name');
 
         if ($this->roles()->count() === 0) {
             $permissions = $permissions->merge(self::PROVIDER_PERMISSIONS)->unique()->values();

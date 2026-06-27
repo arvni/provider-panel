@@ -32,7 +32,7 @@ class PatientRepository extends BaseRepository implements PatientRepositoryInter
             $this->applyOrderBy($queryData['sort']);
         }
 
-        return $this->applyPagination($queryData["pageSize"] ?? $this->pageSize);
+        return $this->applyPagination($queryData['pageSize'] ?? $this->pageSize);
     }
 
     /**
@@ -60,9 +60,10 @@ class PatientRepository extends BaseRepository implements PatientRepositoryInter
     {
         $patient->load([
             'RelatedPatients',
-            'Orders' => fn($q) => $q->with('Tests:id,name')->latest(),
+            'Orders' => fn ($q) => $q->with('Tests:id,name')->latest(),
             'OrderItems.Test:id,name',
         ]);
+
         return $patient;
     }
 
@@ -80,8 +81,8 @@ class PatientRepository extends BaseRepository implements PatientRepositoryInter
             'contact' => $data['contact'] ?? null,
             'extra' => $data['extra'] ?? null,
             'isFetus' => $data['isFetus'] ?? false,
-            'reference_id' => !empty($data['reference_id']) ? $data['reference_id'] : null,
-            'id_no' => !empty($data['id_no']) ? $data['id_no'] : null,
+            'reference_id' => ! empty($data['reference_id']) ? $data['reference_id'] : null,
+            'id_no' => ! empty($data['id_no']) ? $data['id_no'] : null,
         ]);
 
         if ($patient->isDirty()) {
@@ -95,11 +96,11 @@ class PatientRepository extends BaseRepository implements PatientRepositoryInter
                 if (isset($relation['related_patient_id'])) {
                     $relationsToSync[$relation['related_patient_id']] = [
                         'relation_type' => $relation['relation_type'] ?? null,
-                        'notes' => $relation['notes'] ?? null
+                        'notes' => $relation['notes'] ?? null,
                     ];
                 }
             }
-            if (!empty($relationsToSync)) {
+            if (! empty($relationsToSync)) {
                 $patient->RelatedPatients()->sync($relationsToSync);
             } else {
                 $patient->RelatedPatients()->detach();
@@ -146,7 +147,7 @@ class PatientRepository extends BaseRepository implements PatientRepositoryInter
                 ? "Patient is main patient in {$ordersCount} order(s)"
                 : ($orderItemsCount > 0
                     ? "Patient is assigned to {$orderItemsCount} test(s)"
-                    : null)
+                    : null),
         ];
     }
 
@@ -158,8 +159,8 @@ class PatientRepository extends BaseRepository implements PatientRepositoryInter
         if (isset($filters['search'])) {
             $this->query->where(function ($q) use ($filters) {
                 $q->where('fullName', 'like', "%{$filters['search']}%")
-                  ->orWhere('reference_id', 'like', "%{$filters['search']}%")
-                  ->orWhere('id_no', 'like', "%{$filters['search']}%");
+                    ->orWhere('reference_id', 'like', "%{$filters['search']}%")
+                    ->orWhere('id_no', 'like', "%{$filters['search']}%");
             });
         }
 
@@ -172,10 +173,10 @@ class PatientRepository extends BaseRepository implements PatientRepositoryInter
         }
 
         if (isset($filters['dateOfBirth'])) {
-            if (!empty($filters['dateOfBirth']['from'])) {
+            if (! empty($filters['dateOfBirth']['from'])) {
                 $this->query->where('dateOfBirth', '>=', $filters['dateOfBirth']['from']);
             }
-            if (!empty($filters['dateOfBirth']['to'])) {
+            if (! empty($filters['dateOfBirth']['to'])) {
                 $this->query->where('dateOfBirth', '<=', $filters['dateOfBirth']['to']);
             }
         }

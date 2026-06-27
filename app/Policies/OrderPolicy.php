@@ -13,7 +13,7 @@ class OrderPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can("Admin.Order.Index");
+        return $user->can('Admin.Order.Index');
     }
 
     /**
@@ -21,7 +21,7 @@ class OrderPolicy
      */
     public function view(User $user, Order $order): bool
     {
-        return $user->can("Admin.Order.Show") || $user->id == $order->user_id;
+        return $user->can('Admin.Order.Show') || $user->id == $order->user_id;
     }
 
     /**
@@ -29,7 +29,7 @@ class OrderPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can("Admin.Order.Create") || ($user->Roles()->count() == 0);
+        return $user->can('Admin.Order.Create') || ($user->Roles()->count() == 0);
     }
 
     /**
@@ -37,7 +37,7 @@ class OrderPolicy
      */
     public function update(User $user, Order $order): bool
     {
-        return $user->can("Admin.Order.Update") || (($order->status === OrderStatus::PENDING || $order->status === OrderStatus::REQUESTED) && $user->id == $order->user_id);
+        return $user->can('Admin.Order.Update') || (($order->status === OrderStatus::PENDING || $order->status === OrderStatus::REQUESTED) && $user->id == $order->user_id);
     }
 
     /**
@@ -45,12 +45,11 @@ class OrderPolicy
      */
     public function delete(User $user, Order $order): bool
     {
-        return $user->can("Admin.Order.Delete") || (($order->status === OrderStatus::PENDING || $order->status === OrderStatus::REQUESTED) && $user->id == $order->user_id);
+        return $user->can('Admin.Order.Delete') || (($order->status === OrderStatus::PENDING || $order->status === OrderStatus::REQUESTED) && $user->id == $order->user_id);
     }
 
     public function report(User $user, Order $order): bool
     {
-        return ($user->can("Admin.Order.Show") || $user->id == $order->user_id) && ($order->status == OrderStatus::REPORTED || $order->status == OrderStatus::REPORT_DOWNLOADED);
+        return ($user->can('Admin.Order.Show') || $user->id == $order->user_id) && ($order->status == OrderStatus::REPORTED || $order->status == OrderStatus::REPORT_DOWNLOADED);
     }
-
 }

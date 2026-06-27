@@ -24,10 +24,10 @@ class UploadFileRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "file.*" => ["required",'extensions:jpg,png',"file",
+            'file.*' => ['required', 'extensions:jpg,png', 'file',
                 File::image()
                     ->min('10kb')
-                    ->max('10mb')]
+                    ->max('10mb')],
         ];
     }
 }

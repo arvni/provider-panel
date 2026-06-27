@@ -14,8 +14,9 @@ class SyncReferrersController extends Controller
      */
     public function __invoke()
     {
-        $this->authorize("sync", User::class);
-        Artisan::call("sync:referrers");
-        return back()->with(["message" => "sync successfully done", "success" => true]);
+        $this->authorize('sync', User::class);
+        Artisan::call('sync:referrers');
+
+        return back()->with(['message' => 'sync successfully done', 'success' => true]);
     }
 }

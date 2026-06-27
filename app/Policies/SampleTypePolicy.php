@@ -4,7 +4,6 @@ namespace App\Policies;
 
 use App\Models\SampleType;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class SampleTypePolicy
 {
@@ -13,7 +12,7 @@ class SampleTypePolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can("Admin.SampleType.Index");
+        return $user->can('Admin.SampleType.Index');
     }
 
     /**
@@ -21,7 +20,7 @@ class SampleTypePolicy
      */
     public function view(User $user, SampleType $sampleType): bool
     {
-        return $user->can("Admin.SampleType.Show");
+        return $user->can('Admin.SampleType.Show');
     }
 
     /**
@@ -29,7 +28,7 @@ class SampleTypePolicy
      */
     public function create(User $user): bool
     {
-        return $user->can("Admin.SampleType.Create");
+        return $user->can('Admin.SampleType.Create');
     }
 
     /**
@@ -37,7 +36,7 @@ class SampleTypePolicy
      */
     public function update(User $user, SampleType $sampleType): bool
     {
-        return $user->can("Admin.SampleType.Update");
+        return $user->can('Admin.SampleType.Update');
     }
 
     /**
@@ -45,7 +44,7 @@ class SampleTypePolicy
      */
     public function delete(User $user, SampleType $sampleType): bool
     {
-        return $user->can("Admin.SampleType.Delete");
+        return $user->can('Admin.SampleType.Delete');
     }
 
     /**
@@ -53,7 +52,7 @@ class SampleTypePolicy
      */
     public function restore(User $user, SampleType $sampleType): bool
     {
-        //
+        return false;
     }
 
     /**
@@ -61,6 +60,6 @@ class SampleTypePolicy
      */
     public function forceDelete(User $user, SampleType $sampleType): bool
     {
-        //
+        return false;
     }
 }

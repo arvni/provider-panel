@@ -18,7 +18,7 @@ class OrderRemovedByAdmin extends Notification implements ShouldQueue
      */
     public function __construct(string $orderId)
     {
-        $this->orderId=$orderId;
+        $this->orderId = $orderId;
     }
 
     /**
@@ -28,7 +28,7 @@ class OrderRemovedByAdmin extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['mail','database'];
+        return ['mail', 'database'];
     }
 
     /**

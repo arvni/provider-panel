@@ -12,13 +12,11 @@ class ListRolesController extends Controller
 {
     /**
      * Display a listing of the resource.
-     *
-     * @param Request $request
-     * @return AnonymousResourceCollection
      */
     public function __invoke(Request $request): AnonymousResourceCollection
     {
-        $roles = Role::where("name", "like", "%" . $request->get("search", "") . "%")->orderBy("name")->limit(10)->get(["id", "name"]);
+        $roles = Role::where('name', 'like', '%'.$request->get('search', '').'%')->orderBy('name')->limit(10)->get(['id', 'name']);
+
         return RoleResource::collection($roles);
     }
 }

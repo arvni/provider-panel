@@ -4,7 +4,6 @@ namespace App\Policies;
 
 use App\Models\Test;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class TestPolicy
 {
@@ -13,7 +12,7 @@ class TestPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can("Admin.Test.Index");
+        return $user->can('Admin.Test.Index');
     }
 
     /**
@@ -21,7 +20,7 @@ class TestPolicy
      */
     public function view(User $user, Test $test): bool
     {
-        return $user->can("Admin.Test.Show");
+        return $user->can('Admin.Test.Show');
     }
 
     /**
@@ -29,7 +28,7 @@ class TestPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can("Admin.Test.Create");
+        return $user->can('Admin.Test.Create');
     }
 
     /**
@@ -37,7 +36,7 @@ class TestPolicy
      */
     public function update(User $user, Test $test): bool
     {
-        return $user->can("Admin.Test.Update");
+        return $user->can('Admin.Test.Update');
     }
 
     /**
@@ -45,7 +44,7 @@ class TestPolicy
      */
     public function delete(User $user, Test $test): bool
     {
-        return $user->can("Admin.Test.Delete");
+        return $user->can('Admin.Test.Delete');
     }
 
     /**
@@ -53,7 +52,7 @@ class TestPolicy
      */
     public function restore(User $user, Test $test): bool
     {
-        //
+        return false;
     }
 
     /**
@@ -61,6 +60,6 @@ class TestPolicy
      */
     public function forceDelete(User $user, Test $test): bool
     {
-        //
+        return false;
     }
 }

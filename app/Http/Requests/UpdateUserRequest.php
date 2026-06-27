@@ -6,7 +6,6 @@ use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
 
-
 class UpdateUserRequest extends FormRequest
 {
     /**
@@ -16,7 +15,7 @@ class UpdateUserRequest extends FormRequest
      */
     public function authorize()
     {
-        return Gate::allows("update", $this->route("user"));
+        return Gate::allows('update', $this->route('user'));
     }
 
     /**
@@ -27,15 +26,15 @@ class UpdateUserRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => "required",
-            'mobile' => "required",
+            'name' => 'required',
+            'mobile' => 'required',
             'email' => [
-                "required",
-                "email:rfc,dns",
-                "unique:users,email," . $this->route("user")->id
+                'required',
+                'email:rfc,dns',
+                'unique:users,email,'.$this->route('user')->id,
             ],
             'roles.*.id' => 'required|exists:roles,id',
-            'userName' => "required|unique:users,userName," . $this->route("user")->id,
+            'userName' => 'required|unique:users,userName,'.$this->route('user')->id,
         ];
     }
 }

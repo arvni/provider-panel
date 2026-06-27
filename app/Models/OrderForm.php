@@ -11,24 +11,22 @@ class OrderForm extends Model
     use HasFactory, Searchable;
 
     protected $searchable = [
-        "name"
+        'name',
     ];
 
     protected $fillable = [
-        "name",
-        "file",
-        "formData",
-        "server_id"
+        'name',
+        'file',
+        'formData',
+        'server_id',
     ];
 
     protected $casts = [
-        "formData" => "json"
+        'formData' => 'json',
     ];
 
     public function Tests()
     {
         return $this->hasMany(Test::class);
     }
-
-
 }

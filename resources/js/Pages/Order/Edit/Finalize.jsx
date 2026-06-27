@@ -335,27 +335,30 @@ const Finalize = ({auth, order, step, patients = []}) => {
                     ? {color: 'success', label: 'Complete', icon: <CheckCircle fontSize="small"/>}
                     : {color: 'warning', label: 'Incomplete', icon: <WarningIcon fontSize="small"/>};
 
-            case 'patient':
+            case 'patient': {
                 const patientComplete = data.patient && data.patient.fullName &&
                     data.patient.dateOfBirth && data.patient.gender;
                 return patientComplete
                     ? {color: 'success', label: 'Complete', icon: <CheckCircle fontSize="small"/>}
                     : {color: 'warning', label: 'Incomplete', icon: <WarningIcon fontSize="small"/>};
+            }
 
-            case 'samples':
+            case 'samples': {
                 const samplesComplete = data.samples && data.samples.length > 0 &&
                     data.samples.every(sample => sample.sample_type && sample.collectionDate);
                 return samplesComplete
                     ? {color: 'success', label: 'Complete', icon: <CheckCircle fontSize="small"/>}
                     : {color: 'warning', label: 'Incomplete', icon: <WarningIcon fontSize="small"/>};
+            }
 
-            case 'forms':
+            case 'forms': {
                 const formsComplete = data.orderForms && data.orderForms.length > 0;
                 return formsComplete
                     ? {color: 'success', label: 'Complete', icon: <CheckCircle fontSize="small"/>}
                     : {color: 'warning', label: 'Incomplete', icon: <WarningIcon fontSize="small"/>};
+            }
 
-            case 'consent':
+            case 'consent': {
                 // Use processed consent data
                 if (!restConsents || restConsents.length === 0) {
                     return {color: 'warning', label: 'Incomplete', icon: <WarningIcon fontSize="small"/>};
@@ -365,6 +368,7 @@ const Finalize = ({auth, order, step, patients = []}) => {
                 return allAgreed
                     ? {color: 'success', label: 'Complete', icon: <CheckCircle fontSize="small"/>}
                     : {color: 'warning', label: 'Incomplete', icon: <WarningIcon fontSize="small"/>};
+            }
 
             default:
                 return {color: 'info', label: 'Unknown', icon: null};

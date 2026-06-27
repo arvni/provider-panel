@@ -88,7 +88,7 @@ const Index = () => {
             <PageHeader
                 title="Permissions"
                 actions={[
-                    <Button variant="contained"
+                    <Button key="add" variant="contained"
                             onClick={addNew}
                             color="success"
                             startIcon={<AddIcon/>}>

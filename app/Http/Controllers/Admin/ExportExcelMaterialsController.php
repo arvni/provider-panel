@@ -15,6 +15,6 @@ class ExportExcelMaterialsController extends Controller
      */
     public function __invoke(Request $request)
     {
-        return Excel::download(new MaterialExport, Carbon::now()->format("Y-m-d-h:i") . '.xlsx');
+        return Excel::download(new MaterialExport, Carbon::now()->format('Y-m-d-h:i').'.xlsx');
     }
 }

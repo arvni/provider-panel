@@ -12,12 +12,11 @@ class StoreUserRequest extends FormRequest
     /**
      * Determine if the user is authorized to make this request.
      *
-     * @param Request $request
      * @return bool
      */
     public function authorize(Request $request)
     {
-        return Gate::allows("create", User::class);
+        return Gate::allows('create', User::class);
     }
 
     /**
@@ -28,15 +27,15 @@ class StoreUserRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => "required",
-            'userName' => "required|unique:users,userName",
-            'mobile' => "required",
+            'name' => 'required',
+            'userName' => 'required|unique:users,userName',
+            'mobile' => 'required',
             'email' => [
-                "required",
-                "email:rfc,dns",
-                "unique:users,email"
+                'required',
+                'email:rfc,dns',
+                'unique:users,email',
             ],
-            'password' => "required|min:6|confirmed",
+            'password' => 'required|min:6|confirmed',
             'roles.*.id' => 'required|exists:roles,id',
         ];
     }

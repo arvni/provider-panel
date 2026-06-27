@@ -4,7 +4,6 @@ namespace App\Policies;
 
 use App\Models\Consent;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class ConsentPolicy
 {
@@ -13,7 +12,7 @@ class ConsentPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can("Admin.Consent.Index");
+        return $user->can('Admin.Consent.Index');
     }
 
     /**
@@ -21,7 +20,7 @@ class ConsentPolicy
      */
     public function view(User $user, Consent $consent): bool
     {
-        return $user->can("Admin.Consent.Show");
+        return $user->can('Admin.Consent.Show');
     }
 
     /**
@@ -29,7 +28,7 @@ class ConsentPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can("Admin.Consent.Create");
+        return $user->can('Admin.Consent.Create');
     }
 
     /**
@@ -37,7 +36,7 @@ class ConsentPolicy
      */
     public function update(User $user, Consent $consent): bool
     {
-        return $user->can("Admin.Consent.Update");
+        return $user->can('Admin.Consent.Update');
     }
 
     /**
@@ -45,7 +44,7 @@ class ConsentPolicy
      */
     public function delete(User $user, Consent $consent): bool
     {
-        return $user->can("Admin.Consent.Delete");
+        return $user->can('Admin.Consent.Delete');
     }
 
     /**
@@ -53,7 +52,7 @@ class ConsentPolicy
      */
     public function restore(User $user, Consent $consent): bool
     {
-        //
+        return false;
     }
 
     /**
@@ -61,6 +60,6 @@ class ConsentPolicy
      */
     public function forceDelete(User $user, Consent $consent): bool
     {
-        //
+        return false;
     }
 }

@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Permission;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
 
@@ -15,7 +14,7 @@ class UpdatePermissionRequest extends FormRequest
      */
     public function authorize()
     {
-        return Gate::allows("update",$this->route("permission"));
+        return Gate::allows('update', $this->route('permission'));
     }
 
     /**
@@ -26,7 +25,7 @@ class UpdatePermissionRequest extends FormRequest
     public function rules()
     {
         return [
-            "name" => "required|unique:permissions,name," . $this->json()->get('id'),
+            'name' => 'required|unique:permissions,name,'.$this->json()->get('id'),
         ];
     }
 }

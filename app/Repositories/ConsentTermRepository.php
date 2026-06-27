@@ -1,8 +1,6 @@
 <?php
 
-
 namespace App\Repositories;
-
 
 use App\Interfaces\ConsentTermRepositoryInterface;
 use App\Models\ConsentTerm;
@@ -18,21 +16,27 @@ class ConsentTermRepository extends BaseRepository implements ConsentTermReposit
 
     public function list(array $queryData): LengthAwarePaginator
     {
-        if (isset($queryData["filters"]))
-            $this->applyFilter($queryData["filters"]);
-        if (isset($queryData["sort"]))
-            $this->applyOrderBy($queryData["sort"]);
-        return $this->applyPagination($queryData["pageSize"]??$this->pageSize);
+        if (isset($queryData['filters'])) {
+            $this->applyFilter($queryData['filters']);
+        }
+        if (isset($queryData['sort'])) {
+            $this->applyOrderBy($queryData['sort']);
+        }
+
+        return $this->applyPagination($queryData['pageSize'] ?? $this->pageSize);
     }
 
     public function getAll(array $queryData): Collection|array
     {
         $this->query->active();
-        if (isset($queryData["filters"]))
-            $this->applyFilter($queryData["filters"]);
-        if (isset($queryData["sort"]))
-            $this->applyOrderBy($queryData["sort"]);
-        return $this->applyGet(["name","id"]);
+        if (isset($queryData['filters'])) {
+            $this->applyFilter($queryData['filters']);
+        }
+        if (isset($queryData['sort'])) {
+            $this->applyOrderBy($queryData['sort']);
+        }
+
+        return $this->applyGet(['name', 'id']);
     }
 
     public function create($consentTermDetails): void
@@ -57,12 +61,11 @@ class ConsentTermRepository extends BaseRepository implements ConsentTermReposit
 
     public function applyFilter($filters = []): void
     {
-        if (isset($filters["search"])) {
-            $this->query->where("name", "ilike", "%" . $filters["search"] . "%");
+        if (isset($filters['search'])) {
+            $this->query->where('name', 'ilike', '%'.$filters['search'].'%');
         }
-        if (isset($filters["name"])) {
-            $this->query->where("name", "ilike", "%" . $filters["name"] . "%");
+        if (isset($filters['name'])) {
+            $this->query->where('name', 'ilike', '%'.$filters['name'].'%');
         }
     }
-
 }

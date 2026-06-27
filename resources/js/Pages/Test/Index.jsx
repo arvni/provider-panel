@@ -113,7 +113,7 @@ function Index({tests: {data: testsData, ...pagination}, request}) {
             <PageHeader
                 title="Tests"
                 actions={[
-                    <Button variant="contained"
+                    <Button key="add" variant="contained"
                             href={route("admin.tests.create")}
                             onClick={handleAdd}
                             color="success"

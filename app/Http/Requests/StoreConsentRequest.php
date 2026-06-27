@@ -6,7 +6,6 @@ use App\Models\Consent;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Validation\Rules\File;
 
 class StoreConsentRequest extends FormRequest
 {
@@ -15,7 +14,7 @@ class StoreConsentRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return Gate::allows("create", Consent::class);
+        return Gate::allows('create', Consent::class);
     }
 
     /**
@@ -26,7 +25,7 @@ class StoreConsentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "name" => "required|unique:consents,name"
+            'name' => 'required|unique:consents,name',
         ];
     }
 }

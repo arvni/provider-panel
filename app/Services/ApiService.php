@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services;
 
 use App\Exceptions\ApiServiceException;
@@ -13,17 +14,18 @@ use Illuminate\Support\Facades\Log;
 class ApiService
 {
     private const TOKEN_CACHE_KEY = 'api_sanctum_token';
+
     private const TOKEN_EXPIRY_MINUTES = 110; // 10 minutes before actual expiry for safety
+
     private const REQUEST_TIMEOUT = 180;
+
     private const MAX_RETRY_ATTEMPTS = 3;
+
     private const RETRY_DELAY_MS = 1000;
 
     /**
      * Make a GET request to the API
      *
-     * @param string $url
-     * @param array $query
-     * @return Response
      * @throws ApiServiceException
      */
     public static function get(string $url, array $query = []): Response
@@ -34,9 +36,6 @@ class ApiService
     /**
      * Make a POST request to the API
      *
-     * @param string $url
-     * @param array $data
-     * @return Response
      * @throws ApiServiceException
      */
     public static function post(string $url, array $data = []): Response
@@ -47,9 +46,6 @@ class ApiService
     /**
      * Make a PUT request to the API
      *
-     * @param string $url
-     * @param array $data
-     * @return Response
      * @throws ApiServiceException
      */
     public static function put(string $url, array $data = []): Response
@@ -60,8 +56,6 @@ class ApiService
     /**
      * Make a DELETE request to the API
      *
-     * @param string $url
-     * @return Response
      * @throws ApiServiceException
      */
     public static function delete(string $url): Response
@@ -72,10 +66,6 @@ class ApiService
     /**
      * Make an authenticated HTTP request with retry logic
      *
-     * @param string $method
-     * @param string $url
-     * @param array $options
-     * @return Response
      * @throws ApiServiceException
      */
     private static function makeRequest(string $method, string $url, array $options = []): Response
@@ -95,6 +85,7 @@ class ApiService
                 if ($response->status() === 401 && $attempt === 0) {
                     self::clearTokenCache();
                     $attempt++;
+
                     continue;
                 }
 
@@ -108,15 +99,15 @@ class ApiService
                 );
 
             } catch (ConnectionException $e) {
-                Log::warning("API connection failed on attempt " . ($attempt + 1), [
+                Log::warning('API connection failed on attempt '.($attempt + 1), [
                     'url' => $url,
                     'method' => $method,
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ]);
 
                 if ($attempt === self::MAX_RETRY_ATTEMPTS - 1) {
                     throw new ApiServiceException(
-                        "API connection failed after " . self::MAX_RETRY_ATTEMPTS . " attempts: " . $e->getMessage(),
+                        'API connection failed after '.self::MAX_RETRY_ATTEMPTS.' attempts: '.$e->getMessage(),
                         503,
                         $e
                     );
@@ -126,42 +117,41 @@ class ApiService
                 sleep(1); // Wait before retry
 
             } catch (RequestException $e) {
-                Log::error("API request exception", [
+                Log::error('API request exception', [
                     'url' => $url,
                     'method' => $method,
                     'error' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString()
+                    'trace' => $e->getTraceAsString(),
                 ]);
 
                 throw new ApiServiceException(
-                    "API request failed: " . $e->getMessage(),
+                    'API request failed: '.$e->getMessage(),
                     500,
                     $e
                 );
 
             } catch (Exception $e) {
-                Log::error("Unexpected API service error", [
+                Log::error('Unexpected API service error', [
                     'url' => $url,
                     'method' => $method,
                     'error' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString()
+                    'trace' => $e->getTraceAsString(),
                 ]);
 
                 throw new ApiServiceException(
-                    "Unexpected error during API request: " . $e->getMessage(),
+                    'Unexpected error during API request: '.$e->getMessage(),
                     500,
                     $e
                 );
             }
         }
 
-        throw new ApiServiceException("Max retry attempts exceeded", 503);
+        throw new ApiServiceException('Max retry attempts exceeded', 503);
     }
 
     /**
      * Get a valid API token (from cache or by authenticating)
      *
-     * @return string
      * @throws ApiServiceException
      */
     public static function getApiToken(): string
@@ -172,8 +162,8 @@ class ApiService
             try {
                 return decrypt($cachedToken);
             } catch (Exception $e) {
-                Log::warning("Failed to decrypt cached token, fetching new one", [
-                    'error' => $e->getMessage()
+                Log::warning('Failed to decrypt cached token, fetching new one', [
+                    'error' => $e->getMessage(),
                 ]);
                 self::clearTokenCache();
             }
@@ -186,31 +176,30 @@ class ApiService
     /**
      * Authenticate and fetch a new API token
      *
-     * @return string
      * @throws ApiServiceException
      */
     private static function fetchNewToken(): string
     {
         try {
-            $loginUrl = config('api.server_url') . config('api.login_path');
+            $loginUrl = config('api.server_url').config('api.login_path');
             $credentials = [
                 'email' => config('api.email'),
-                'password' => config('api.password')
+                'password' => config('api.password'),
             ];
 
             if (empty($credentials['email']) || empty($credentials['password'])) {
-                throw new ApiServiceException("API credentials not configured", 500);
+                throw new ApiServiceException('API credentials not configured', 500);
             }
 
             $response = Http::timeout(self::REQUEST_TIMEOUT)
                 ->retry(2, self::RETRY_DELAY_MS)
                 ->post($loginUrl, $credentials);
 
-            if (!$response->successful()) {
-                Log::error("API authentication failed", [
+            if (! $response->successful()) {
+                Log::error('API authentication failed', [
                     'status' => $response->status(),
                     'body' => $response->body(),
-                    'url' => $loginUrl
+                    'url' => $loginUrl,
                 ]);
 
                 throw new ApiServiceException(
@@ -221,7 +210,7 @@ class ApiService
 
             $token = $response->json('access_token');
             if (empty($token)) {
-                throw new ApiServiceException("No access token received from API", 500);
+                throw new ApiServiceException('No access token received from API', 500);
             }
 
             // Cache the encrypted token
@@ -231,19 +220,20 @@ class ApiService
                 now()->addMinutes(self::TOKEN_EXPIRY_MINUTES)
             );
 
-            Log::info("Successfully fetched new API token");
+            Log::info('Successfully fetched new API token');
+
             return $token;
 
         } catch (ApiServiceException $e) {
             throw $e;
         } catch (Exception $e) {
-            Log::error("Token fetch failed", [
+            Log::error('Token fetch failed', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
 
             throw new ApiServiceException(
-                "Failed to fetch API token: " . $e->getMessage(),
+                'Failed to fetch API token: '.$e->getMessage(),
                 500,
                 $e
             );
@@ -256,22 +246,22 @@ class ApiService
     private static function clearTokenCache(): void
     {
         Cache::forget(self::TOKEN_CACHE_KEY);
-        Log::info("Cleared cached API token");
+        Log::info('Cleared cached API token');
     }
 
     /**
      * Check if the API service is healthy
-     *
-     * @return bool
      */
     public static function healthCheck(): bool
     {
         try {
-            $healthUrl = config('api.server_url') . '/health';
+            $healthUrl = config('api.server_url').'/health';
             $response = Http::timeout(10)->get($healthUrl);
+
             return $response->successful();
         } catch (Exception $e) {
-            Log::warning("API health check failed", ['error' => $e->getMessage()]);
+            Log::warning('API health check failed', ['error' => $e->getMessage()]);
+
             return false;
         }
     }

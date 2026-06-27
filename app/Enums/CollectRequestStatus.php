@@ -19,7 +19,7 @@ enum CollectRequestStatus: string
      */
     public function getLabel(): string
     {
-        return match($this) {
+        return match ($this) {
             self::REQUESTED => 'Requested',
             self::SCHEDULED => 'Scheduled',
             self::PICKED_UP => 'Picked Up',
@@ -33,7 +33,7 @@ enum CollectRequestStatus: string
      */
     public function getColor(): string
     {
-        return match($this) {
+        return match ($this) {
             self::REQUESTED => 'blue',
             self::SCHEDULED => 'yellow',
             self::PICKED_UP => 'orange',
@@ -47,7 +47,7 @@ enum CollectRequestStatus: string
      */
     public function getNextStatuses(): array
     {
-        return match($this) {
+        return match ($this) {
             self::REQUESTED => [self::SCHEDULED],
             self::SCHEDULED => [self::ON_THE_WAY],
             self::ON_THE_WAY => [self::PICKED_UP],

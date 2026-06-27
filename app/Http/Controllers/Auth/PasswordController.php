@@ -12,8 +12,6 @@ class PasswordController extends Controller
 {
     /**
      * Update the user's password.
-     * @param Request $request
-     * @return RedirectResponse
      */
     public function update(Request $request): RedirectResponse
     {
@@ -25,6 +23,7 @@ class PasswordController extends Controller
         $request->user()->update([
             'password' => Hash::make($validated['password']),
         ]);
-        return redirect()->route("logout")->with(["status" => "Password Successfully Changed"]);
+
+        return redirect()->route('logout')->with(['status' => 'Password Successfully Changed']);
     }
 }

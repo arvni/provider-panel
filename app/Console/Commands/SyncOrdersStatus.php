@@ -36,9 +36,9 @@ class SyncOrdersStatus extends Command
                 default => $old
             };
         };
-        $this->info("check the orders that needed to update their status");
+        $this->info('check the orders that needed to update their status');
         $query = Order::query()
-            ->whereIn("status", [
+            ->whereIn('status', [
                 OrderStatus::PROCESSING->value,
                 OrderStatus::SENT->value,
                 OrderStatus::SEMI_REPORTED->value,
@@ -48,30 +48,31 @@ class SyncOrdersStatus extends Command
 
         if ($query->clone()->count()) {
             $orderIds = $query->clone()
-                ->get(["id", "created_at"])
-                ->map(fn($item) => $item->orderId);
-            $url=config("api.server_url").config("api.orders_path");
-            $ordersStatus = ApiService::post($url, ["orders" => $orderIds]);
+                ->get(['id', 'created_at'])
+                ->map(fn ($item) => $item->orderId);
+            $url = config('api.server_url').config('api.orders_path');
+            $ordersStatus = ApiService::post($url, ['orders' => $orderIds]);
             if ($ordersStatus->ok()) {
-                foreach ($ordersStatus["data"] as $orderStatus) {
-                    $id = last(explode(".", $orderStatus["order_id"]));
+                foreach ($ordersStatus['data'] as $orderStatus) {
+                    $id = last(explode('.', $orderStatus['order_id']));
                     $order = Order::find($id);
                     if ($order) {
-                        if ($orderStatus["status"] === "processing" && $order->status !== OrderStatus::PROCESSING) {
-                            $order->CollectRequest()->update(["status" => CollectRequestStatus::RECEIVED]);
+                        if ($orderStatus['status'] === 'processing' && $order->status !== OrderStatus::PROCESSING) {
+                            $order->CollectRequest()->update(['status' => CollectRequestStatus::RECEIVED]);
                         }
-                        $order->status = $status($orderStatus["status"], $order->status);
-                        $order->server_id = $orderStatus["acceptance_id"];
-                        $order->received_at = $orderStatus["received_at"];
+                        $order->status = $status($orderStatus['status'], $order->status);
+                        $order->server_id = $orderStatus['acceptance_id'];
+                        $order->received_at = $orderStatus['received_at'];
                         if ($order->isDirty()) {
                             $order->save();
                         }
                     }
                 }
-            }
-            else
+            } else {
                 $this->error($ordersStatus->reason());
-        } else
+            }
+        } else {
             $this->info("there isn't any order to update state");
+        }
     }
 }

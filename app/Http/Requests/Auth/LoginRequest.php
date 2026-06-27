@@ -52,7 +52,7 @@ class LoginRequest extends FormRequest
         $this->ensureIsNotRateLimited();
         $this->ensureIsActive();
 
-        if (!Auth::validate($this->only('email', 'password'))) {
+        if (! Auth::validate($this->only('email', 'password'))) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
@@ -73,7 +73,7 @@ class LoginRequest extends FormRequest
      */
     public function ensureIsNotRateLimited(): void
     {
-        if (!RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
             return;
         }
 
@@ -96,7 +96,7 @@ class LoginRequest extends FormRequest
      */
     public function ensureIsActive(): void
     {
-        if (User::where('email', $this->input('email'))->where("active", true)->count() === 1) {
+        if (User::where('email', $this->input('email'))->where('active', true)->count() === 1) {
             return;
         }
 
@@ -112,6 +112,6 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->input('email')) . '|' . $this->ip());
+        return Str::transliterate(Str::lower($this->input('email')).'|'.$this->ip());
     }
 }

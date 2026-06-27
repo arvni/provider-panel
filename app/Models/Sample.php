@@ -10,23 +10,23 @@ class Sample extends Model
     use HasFactory;
 
     protected $fillable = [
-        "sampleId",
-        "collectionDate",
-        "patient_id",
+        'sampleId',
+        'collectionDate',
+        'patient_id',
         'user_id',
         'sample_type_id',
         'material_id',
         'collect_request_id',
-        'pooling'
+        'pooling',
     ];
 
     protected $casts = [
-        'pooling' => 'boolean'
+        'pooling' => 'boolean',
     ];
 
     // Removed eager loading of OrderItems to prevent circular references
     // Use explicit ->with('OrderItems') when needed
-    protected $with = ["SampleType", "Patient"];
+    protected $with = ['SampleType', 'Patient'];
 
     public function SampleType()
     {
@@ -52,5 +52,4 @@ class Sample extends Model
     {
         return $this->belongsTo(CollectRequest::class);
     }
-
 }

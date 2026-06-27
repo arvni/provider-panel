@@ -2,7 +2,6 @@
 
 namespace App\Policies;
 
-use App\Enums\OrderMaterialStatus;
 use App\Models\OrderMaterial;
 use App\Models\User;
 
@@ -13,7 +12,7 @@ class OrderMaterialPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can("Admin.OrderMaterial.Index");
+        return $user->can('Admin.OrderMaterial.Index');
     }
 
     /**
@@ -21,7 +20,7 @@ class OrderMaterialPolicy
      */
     public function view(User $user, OrderMaterial $orderMaterial): bool
     {
-        return $user->can("Admin.OrderMaterial.Show");
+        return $user->can('Admin.OrderMaterial.Show');
     }
 
     /**
@@ -29,7 +28,7 @@ class OrderMaterialPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can("Admin.OrderMaterial.Create") ;
+        return $user->can('Admin.OrderMaterial.Create');
     }
 
     /**
@@ -37,7 +36,7 @@ class OrderMaterialPolicy
      */
     public function update(User $user, OrderMaterial $orderMaterial): bool
     {
-        return $user->can("Admin.OrderMaterial.Update");
+        return $user->can('Admin.OrderMaterial.Update');
     }
 
     /**
@@ -45,7 +44,6 @@ class OrderMaterialPolicy
      */
     public function delete(User $user, OrderMaterial $orderMaterial): bool
     {
-        return $user->can("Admin.OrderMaterial.Delete") && ($orderMaterial->Materials()->used()->count()<1);
+        return $user->can('Admin.OrderMaterial.Delete') && ($orderMaterial->Materials()->used()->count() < 1);
     }
-
 }

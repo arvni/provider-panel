@@ -13,7 +13,7 @@ class ListTestController extends Controller
     public function __construct(TestRepositoryInterface $testRepository)
     {
         $this->testRepository = $testRepository;
-        $this->middleware("indexProvider");
+        $this->middleware('indexProvider');
     }
 
     /**
@@ -21,7 +21,8 @@ class ListTestController extends Controller
      */
     public function __invoke(Request $request)
     {
-        $tests = $this->testRepository->listUserTests([...$request->all(),"active"=>true]);
-        return Inertia::render("Wiki", ["tests" => $tests, "request" => $request->all()]);
+        $tests = $this->testRepository->listUserTests([...$request->all(), 'active' => true]);
+
+        return Inertia::render('Wiki', ['tests' => $tests, 'request' => $request->all()]);
     }
 }

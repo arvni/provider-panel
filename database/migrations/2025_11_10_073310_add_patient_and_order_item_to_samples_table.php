@@ -1,10 +1,10 @@
 <?php
 
+use App\Models\OrderItem;
+use App\Models\Patient;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use App\Models\Patient;
-use App\Models\OrderItem;
 
 return new class extends Migration
 {

@@ -1,8 +1,6 @@
 <?php
 
-
 namespace App\Repositories;
-
 
 use App\Interfaces\ConsentRepositoryInterface;
 use App\Models\Consent;
@@ -21,22 +19,27 @@ class ConsentRepository extends BaseRepository implements ConsentRepositoryInter
         $this->query = $consent->newQuery();
     }
 
-
     public function list(array $queryData): LengthAwarePaginator
     {
-        if (isset($queryData["filters"]))
-            $this->applyFilter($queryData["filters"]);
-        if (isset($queryData["sort"]))
-            $this->applyOrderBy($queryData["sort"]);
-        return $this->applyPagination($queryData["pageSize"] ?? $this->pageSize);
+        if (isset($queryData['filters'])) {
+            $this->applyFilter($queryData['filters']);
+        }
+        if (isset($queryData['sort'])) {
+            $this->applyOrderBy($queryData['sort']);
+        }
+
+        return $this->applyPagination($queryData['pageSize'] ?? $this->pageSize);
     }
 
     public function getAll(array $queryData): Collection|array
     {
-        if (isset($queryData["filters"]))
-            $this->applyFilter($queryData["filters"]);
-        if (isset($queryData["sort"]))
-            $this->applyOrderBy($queryData["sort"]);
+        if (isset($queryData['filters'])) {
+            $this->applyFilter($queryData['filters']);
+        }
+        if (isset($queryData['sort'])) {
+            $this->applyOrderBy($queryData['sort']);
+        }
+
         return $this->applyGet();
     }
 
@@ -44,7 +47,7 @@ class ConsentRepository extends BaseRepository implements ConsentRepositoryInter
     {
         return $this->query->create([
             ...$consentDetails,
-            "file" => $consentDetails["file"] ? $this->uploadFileService->init("consents")[0] : ""]);
+            'file' => $consentDetails['file'] ? $this->uploadFileService->init('consents')[0] : '']);
     }
 
     public function show(Consent $consent): Consent
@@ -56,37 +59,37 @@ class ConsentRepository extends BaseRepository implements ConsentRepositoryInter
     {
         $consent->update([
             ...$newConsentDetails,
-            "file" => $newConsentDetails["file"] ?
-                (is_string($newConsentDetails["file"]) ? $newConsentDetails["file"] : $this->uploadFileService->init("consents")[0]) :
-                ""
+            'file' => $newConsentDetails['file'] ?
+                (is_string($newConsentDetails['file']) ? $newConsentDetails['file'] : $this->uploadFileService->init('consents')[0]) :
+                '',
         ]);
     }
 
     public function delete(Consent $consent): ?bool
     {
-//        if ($consent->tests()->count() < 1)
+        //        if ($consent->tests()->count() < 1)
         return $consent->delete();
+
         return false;
     }
 
     public function applyFilter($filters = []): void
     {
-        if (isset($filters["search"])) {
-            $this->query->search($filters["search"]);
+        if (isset($filters['search'])) {
+            $this->query->search($filters['search']);
         }
-        if (isset($filters["name"])) {
-            $this->query->search($filters["name"], ["name"]);
+        if (isset($filters['name'])) {
+            $this->query->search($filters['name'], ['name']);
         }
     }
 
     public function getById($id): ?Consent
     {
-        return $this->query->where("id", $id)->first();
+        return $this->query->where('id', $id)->first();
     }
-
 
     public function getByServerId(int $id): ?Consent
     {
-        return $this->query->where("server_id", $id)->first();
+        return $this->query->where('server_id', $id)->first();
     }
 }

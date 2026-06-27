@@ -71,7 +71,7 @@ function Index({auth, roles: {data: rolesData, ...pagination}, status, request})
             <PageHeader
                 title="Roles"
                 actions={[
-                    <Button variant="contained"
+                    <Button key="add" variant="contained"
                             href={route("admin.roles.create")}
                             onClick={handleAdd}
                             color="success"

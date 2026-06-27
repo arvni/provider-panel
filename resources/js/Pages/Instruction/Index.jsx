@@ -99,7 +99,7 @@ const Index = () => {
             <PageHeader
                 title="Instructions"
                 actions={[
-                    <Button variant="contained"
+                    <Button key="add" variant="contained"
                             onClick={addNew}
                             color="success"
                             startIcon={<AddIcon/>}>

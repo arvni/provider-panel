@@ -16,15 +16,15 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             RoleAndPermissionSeeder::class,
-            TestSeeder::class
+            TestSeeder::class,
         ]);
 
-        if (User::query()->where("email", "admin@bion.com")->count() < 1)
+        if (User::query()->where('email', 'admin@bion.com')->count() < 1) {
             User::factory()->create([
-                "email" => "admin@bion.com",
-                "password" => Hash::make("586545B!0n"),
+                'email' => 'admin@bion.com',
+                'password' => Hash::make('586545B!0n'),
             ])->assignRole('Admin');
-
+        }
 
     }
 }

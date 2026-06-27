@@ -15,7 +15,7 @@ class UpdateRoleRequest extends FormRequest
      */
     public function authorize()
     {
-        return Gate::allows("update", $this->route("role"));
+        return Gate::allows('update', $this->route('role'));
     }
 
     /**
@@ -26,8 +26,8 @@ class UpdateRoleRequest extends FormRequest
     public function rules()
     {
         return [
-            "name" => "required|unique:roles,name," . $this->route("role")->id,
-            "permissions.*.id" => "required|exists:permissions,id"
+            'name' => 'required|unique:roles,name,'.$this->route('role')->id,
+            'permissions.*.id' => 'required|exists:permissions,id',
         ];
     }
 }

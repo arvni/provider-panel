@@ -2,19 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Interfaces\OrderMaterialRepositoryInterface;
-use App\Mail\MaterialRequested;
-use App\Models\OrderMaterial;
 use App\Http\Requests\StoreOrderMaterialRequest;
 use App\Http\Requests\UpdateOrderMaterialRequest;
+use App\Interfaces\OrderMaterialRepositoryInterface;
+use App\Models\OrderMaterial;
 use App\Models\SampleType;
-use App\Models\User;
-use App\Notifications\AdminOrderMaterialNotification;
 use App\Notifications\OrderMaterialRequested;
 use App\Services\AdminNotificationService;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -26,22 +22,21 @@ class OrderMaterialController extends Controller
     public function __construct(OrderMaterialRepositoryInterface $orderMaterialRepository)
     {
         $this->orderMaterialRepository = $orderMaterialRepository;
-        $this->middleware("indexProvider")->only("index");
+        $this->middleware('indexProvider')->only('index');
     }
 
     /**
      * Display a listing of the resource.
      *
-     * @param Request $request
-     * @return Response
      * @throws AuthorizationException
      */
     public function index(Request $request): Response
     {
         $requestInputs = $request->all();
-        $orderMaterials = fn() => $this->orderMaterialRepository->getUserOrders($requestInputs);
-        $sampleTypes = SampleType::where("orderable", true)->get();
-        $data = ["orderMaterials" => $orderMaterials, "request" => $requestInputs, "sampleTypes" => $sampleTypes];
+        $orderMaterials = fn () => $this->orderMaterialRepository->getUserOrders($requestInputs);
+        $sampleTypes = SampleType::where('orderable', true)->get();
+        $data = ['orderMaterials' => $orderMaterials, 'request' => $requestInputs, 'sampleTypes' => $sampleTypes];
+
         return Inertia::render('OrderMaterial/Index', $data);
     }
 
@@ -53,9 +48,9 @@ class OrderMaterialController extends Controller
         $orderMaterial = $this->orderMaterialRepository->create($request->all());
         $users = [$orderMaterial->User];
         Notification::send($users, new OrderMaterialRequested($orderMaterial->id));
-        AdminNotificationService::sendOrderMaterialNotification($orderMaterial, "Order Material Created By " . auth()->user()->name);
+        AdminNotificationService::sendOrderMaterialNotification($orderMaterial, 'Order Material Created By '.auth()->user()->name);
 
-        return redirect()->back()->with(["status" => " order material successfully Added", "success" => true]);
+        return redirect()->back()->with(['status' => ' order material successfully Added', 'success' => true]);
     }
 
     /**

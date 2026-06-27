@@ -1,0 +1,799 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Expression on left side of \?\? is not nullable\.$#'
+			identifier: nullCoalesce.expr
+			count: 1
+			path: app/Console/Commands/SyncTests.php
+
+		-
+			message: '#^Method App\\Console\\Commands\\SyncTests\:\:getConsent\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: app/Console/Commands/SyncTests.php
+
+		-
+			message: '#^Method App\\Console\\Commands\\SyncTests\:\:getInstruction\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: app/Console/Commands/SyncTests.php
+
+		-
+			message: '#^Method App\\Console\\Commands\\SyncTests\:\:getOrderForm\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: app/Console/Commands/SyncTests.php
+
+		-
+			message: '#^Match expression does not handle remaining value\: mixed$#'
+			identifier: match.unhandled
+			count: 1
+			path: app/Enums/Nationality.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Material\:\:\$Sample\.$#'
+			identifier: property.notFound
+			count: 6
+			path: app/Exports/MaterialExport.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Material\:\:\$SampleType\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Exports/MaterialExport.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Material\:\:\$expired_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Exports/MaterialExport.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Material\:\:\$user_name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Exports/MaterialExport.php
+
+		-
+			message: '#^Parameter \#1 \$value of function collect contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Exports/MaterialExport.php
+
+		-
+			message: '#^Relation ''Sample'' is not found in App\\Models\\Material model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Exports/MaterialExport.php
+
+		-
+			message: '#^Using nullsafe property access on non\-nullable type App\\Models\\Material\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Exports/MaterialExport.php
+
+		-
+			message: '#^Relation ''Sample'' is not found in App\\Models\\Material model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/AddOrderByBarcodeController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\User\:\:\$Tests\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Admin/EditUserTestsListController.php
+
+		-
+			message: '#^Relation ''Sample'' is not found in App\\Models\\Material model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Api/CheckMaterialController.php
+
+		-
+			message: '#^Relation ''Sample'' is not found in App\\Models\\Material model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Api/ListTestsByBarcodeController.php
+
+		-
+			message: '#^Offset ''remember'' on array\{user_id\: int, remember\: bool, expires_at\: int\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Http/Controllers/Auth/TwoFactorChallengeController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$OrderItems\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/DownloadOrderSummaryController.php
+
+		-
+			message: '#^Property App\\Http\\Controllers\\GetFileController\:\:\$orderRepository \(App\\Repositories\\OrderRepository\) does not accept App\\Interfaces\\OrderRepositoryInterface\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: app/Http/Controllers/GetFileController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$OrderItems\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/OrderController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$patient\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/OrderController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$patients\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/OrderController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$tests\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/OrderController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Patient\:\:\$RelatedPatients\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/OrderController.php
+
+		-
+			message: '#^Access to protected property App\\Models\\Patient\:\:\$relations\.$#'
+			identifier: property.protected
+			count: 2
+			path: app/Http/Controllers/OrderController.php
+
+		-
+			message: '#^Call to function compact\(\) contains possibly undefined variable \$consents\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: app/Http/Controllers/OrderController.php
+
+		-
+			message: '#^Call to function compact\(\) contains possibly undefined variable \$genders\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: app/Http/Controllers/OrderController.php
+
+		-
+			message: '#^Call to function compact\(\) contains possibly undefined variable \$orderItems\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: app/Http/Controllers/OrderController.php
+
+		-
+			message: '#^Call to function compact\(\) contains possibly undefined variable \$patients\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: app/Http/Controllers/OrderController.php
+
+		-
+			message: '#^Call to function compact\(\) contains possibly undefined variable \$sampleTypes\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: app/Http/Controllers/OrderController.php
+
+		-
+			message: '#^Relation ''RelatedPatients'' is not found in App\\Models\\Patient model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/OrderController.php
+
+		-
+			message: '#^Relation ''Tests'' is not found in App\\Models\\SampleType model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/OrderController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Patient\:\:\$RelatedPatients\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/PatientController.php
+
+		-
+			message: '#^Access to protected property App\\Models\\Patient\:\:\$relations\.$#'
+			identifier: property.protected
+			count: 2
+			path: app/Http/Controllers/PatientController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Sample\:\:\$OrderItems\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/SampleController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Sample\:\:\$SampleType\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/SampleController.php
+
+		-
+			message: '#^Relation ''OrderItems'' is not found in App\\Models\\Sample model\.$#'
+			identifier: larastan.relationExistence
+			count: 2
+			path: app/Http/Controllers/SampleController.php
+
+		-
+			message: '#^Relation ''OrderItems'' is not found in App\\Models\\Sample model\.$#'
+			identifier: larastan.relationExistence
+			count: 2
+			path: app/Http/Controllers/StoreSampleCollectRequestController.php
+
+		-
+			message: '#^Relation ''OrderItems'' is not found in App\\Models\\Sample model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Webhook/OrderImportController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>details" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/Webhook/OrderImportController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>id" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/Webhook/OrderImportController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\OrderMaterial\:\:\$User\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/Webhook/OrderMaterialUpdateWebhookController.php
+
+		-
+			message: '#^Relation ''OrderItems'' is not found in App\\Models\\Sample model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Webhook/OrderUpdateWebhookController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>details" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/Webhook/OrderUpdateWebhookController.php
+
+		-
+			message: '#^Relation ''OrderItems'' is not found in App\\Models\\Sample model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Http/Controllers/Webhook/PatientWebhookController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>details" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/Webhook/PatientWebhookController.php
+
+		-
+			message: '#^Cannot access property \$id on object\|string\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Http/Requests/UpdateConsentRequest.php
+
+		-
+			message: '#^Cannot access property \$id on object\|string\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Http/Requests/UpdateInstructionRequest.php
+
+		-
+			message: '#^Cannot access property \$id on object\|string\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Http/Requests/UpdateOrderFormRequest.php
+
+		-
+			message: '#^Cannot access property \$id on object\|string\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Http/Requests/UpdateSampleTypeRequest.php
+
+		-
+			message: '#^Cannot access property \$id on object\|string\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Http/Requests/UpdateTestRequest.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\ConsentTermResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/ConsentTermResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\ConsentTermResource\:\:\$is_active\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/ConsentTermResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\ConsentTermResource\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/ConsentTermResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\PermissionResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/PermissionResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\PermissionResource\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/PermissionResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\RoleResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/RoleResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Api\\RoleResource\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Api/RoleResource.php
+
+		-
+			message: '#^Call to function property_exists\(\) with \$this\(App\\Models\\CollectRequest\) and ''searchable'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: app/Models/CollectRequest.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 4
+			path: app/Models/CollectRequest.php
+
+		-
+			message: '#^Call to function property_exists\(\) with \$this\(App\\Models\\Consent\) and ''searchable'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: app/Models/Consent.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 4
+			path: app/Models/Consent.php
+
+		-
+			message: '#^Call to function property_exists\(\) with \$this\(App\\Models\\ConsentTerm\) and ''searchable'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: app/Models/ConsentTerm.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 4
+			path: app/Models/ConsentTerm.php
+
+		-
+			message: '#^Call to function property_exists\(\) with \$this\(App\\Models\\Instruction\) and ''searchable'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: app/Models/Instruction.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 4
+			path: app/Models/Instruction.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$OrderItems\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/Order.php
+
+		-
+			message: '#^Call to function property_exists\(\) with \$this\(App\\Models\\Order\) and ''searchable'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: app/Models/Order.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 4
+			path: app/Models/Order.php
+
+		-
+			message: '#^Call to function property_exists\(\) with \$this\(App\\Models\\OrderForm\) and ''searchable'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: app/Models/OrderForm.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 4
+			path: app/Models/OrderForm.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Patient\:\:\$RelatedByPatients\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/Patient.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Patient\:\:\$RelatedPatients\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/Patient.php
+
+		-
+			message: '#^Call to function property_exists\(\) with \$this\(App\\Models\\SampleType\) and ''searchable'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: app/Models/SampleType.php
+
+		-
+			message: '#^Relation ''Test'' is not found in App\\Models\\SampleTypeTest model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Models/SampleType.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 4
+			path: app/Models/SampleType.php
+
+		-
+			message: '#^Call to function property_exists\(\) with \$this\(App\\Models\\Test\) and ''searchable'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: app/Models/Test.php
+
+		-
+			message: '#^Relation ''SampleType'' is not found in App\\Models\\SampleType model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Models/Test.php
+
+		-
+			message: '#^Relation ''SampleType'' is not found in App\\Models\\SampleTypeTest model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Models/Test.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 4
+			path: app/Models/Test.php
+
+		-
+			message: '#^Call to function property_exists\(\) with \$this\(App\\Models\\User\) and ''searchable'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^PHPDoc type array\<int, string\> of property App\\Models\\User\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^PHPDoc type array\<int, string\> of property App\\Models\\User\:\:\$hidden is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$hidden\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Property App\\Models\\User\:\:\$hidden \(array\<int, string\>\) does not accept default value of type array\<int\|string, string\>\.$#'
+			identifier: property.defaultValue
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 4
+			path: app/Models/User.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/Notifications/AdminCollectRequestNotification.php
+
+		-
+			message: '#^If condition is always true\.$#'
+			identifier: if.alwaysTrue
+			count: 1
+			path: app/Notifications/AdminCollectRequestNotification.php
+
+		-
+			message: '#^Using nullsafe method call on non\-nullable type Carbon\\Carbon\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Notifications/AdminCollectRequestNotification.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\OrderMaterial\:\:\$SampleType\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Notifications/AdminOrderMaterialNotification.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\OrderMaterial\:\:\$delivery_date\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Notifications/AdminOrderMaterialNotification.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\OrderMaterial\:\:\$notes\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Notifications/AdminOrderMaterialNotification.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\OrderMaterial\:\:\$sampleType\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Notifications/AdminOrderMaterialNotification.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\OrderMaterial\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 5
+			path: app/Notifications/AdminOrderMaterialNotification.php
+
+		-
+			message: '#^Using nullsafe method call on non\-nullable type Carbon\\Carbon\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Notifications/CollectRequestUpdated.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\OrderMaterial\:\:\$sample_type_name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Notifications/OrderMaterialRequested.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\OrderMaterial\:\:\$SampleType\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Notifications/OrderMaterialUpdated.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$Patient\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Notifications/OrderStatusUpdated.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$Tests\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Notifications/OrderStatusUpdated.php
+
+		-
+			message: '#^Parameter \#1 \$array \(array\{\}\|array\{Illuminate\\Database\\Eloquent\\Model\}\) to function array_filter does not contain falsy values, the array will always stay the same\.$#'
+			identifier: arrayFilter.same
+			count: 1
+			path: app/Observers/CollectRequestObserver.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$User\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Observers/OrderObserver.php
+
+		-
+			message: '#^Attribute class JetBrains\\PhpStorm\\ArrayShape does not exist\.$#'
+			identifier: attribute.notFound
+			count: 1
+			path: app/Repositories/BaseRepository.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$OrderItems\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Repositories/CollectRequestRepository.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$samples\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Repositories/CollectRequestRepository.php
+
+		-
+			message: '#^Relation ''OrderItems'' is not found in App\\Models\\Sample model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Repositories/CollectRequestRepository.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 1
+			path: app/Repositories/ConsentRepository.php
+
+		-
+			message: '#^Called ''Model\:\:make\(\)'' which performs unnecessary work, use ''new Model\(\)''\.$#'
+			identifier: larastan.noModelMake
+			count: 1
+			path: app/Repositories/MaterialRepository.php
+
+		-
+			message: '#^Constructor of class App\\Repositories\\MaterialRepository has an unused parameter \$material\.$#'
+			identifier: constructor.unusedParameter
+			count: 1
+			path: app/Repositories/MaterialRepository.php
+
+		-
+			message: '#^Relation ''SampleType'' is not found in App\\Models\\Material model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Repositories/MaterialRepository.php
+
+		-
+			message: '#^Relation ''SampleType'' is not found in App\\Models\\OrderMaterial model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Repositories/OrderMaterialRepository.php
+
+		-
+			message: '#^Relation ''User'' is not found in App\\Models\\OrderMaterial model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Repositories/OrderMaterialRepository.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$OrderItems\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Repositories/OrderRepository.php
+
+		-
+			message: '#^Method App\\Repositories\\OrderRepository\:\:getOrderItemsIds\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: app/Repositories/OrderRepository.php
+
+		-
+			message: '#^Property App\\Models\\Order\:\:\$step \(App\\Enums\\OrderStep\) does not accept string\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: app/Repositories/OrderRepository.php
+
+		-
+			message: '#^Relation ''OrderItems'' is not found in App\\Models\\Sample model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Repositories/OrderRepository.php
+
+		-
+			message: '#^Relation ''Sample'' is not found in App\\Models\\Material model\.$#'
+			identifier: larastan.relationExistence
+			count: 1
+			path: app/Rules/CheckSampleMaterial.php
+
+		-
+			message: '#^Unsafe call to private method App\\Services\\AdminNotificationService\:\:getAdminUsers\(\) through static\:\:\.$#'
+			identifier: staticClassAccess.privateMethod
+			count: 3
+			path: app/Services/AdminNotificationService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\OrderMaterial\:\:\$SampleType\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Services/MaterialOrder.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\OrderMaterial\:\:\$User\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/Services/MaterialOrder.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\CollectRequest\:\:\$notes\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/RequestLogistic.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$OrderItems\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Services/RequestLogistic.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$Patient\.$#'
+			identifier: property.notFound
+			count: 10
+			path: app/Services/RequestLogistic.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Order\:\:\$Tests\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/RequestLogistic.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$OrderItems\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Services/RequestLogistic.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$Patient\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/RequestLogistic.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$Tests\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/RequestLogistic.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$email\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/RequestLogistic.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 5
+			path: app/Services/RequestLogistic.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/RequestLogistic.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$referrer_id\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/Services/RequestLogistic.php
+
+		-
+			message: '#^Parameter \#1 \$order of static method App\\Services\\RequestLogistic\:\:generateOrderId\(\) expects App\\Models\\Order, Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Services/RequestLogistic.php
+
+		-
+			message: '#^Parameter \#1 \$order of static method App\\Services\\RequestLogistic\:\:prepareOrderData\(\) expects App\\Models\\Order, Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/RequestLogistic.php
+
+		-
+			message: '#^Relation ''OrderItems'' is not found in App\\Models\\Order model\.$#'
+			identifier: larastan.relationExistence
+			count: 2
+			path: app/Services/RequestLogistic.php
+
+		-
+			message: '#^Trait App\\Traits\\Uuids is used zero times and is not analysed\.$#'
+			identifier: trait.unused
+			count: 1
+			path: app/Traits/Uuids.php

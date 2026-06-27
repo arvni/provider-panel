@@ -24,9 +24,9 @@ class LogisticRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "selectedOrders" => "required|array|min:1",
-            "selectedOrders.*" => ["exists:orders,id", new CheckOrderForLogistic],
-            "preferred_date" => ["required", "date", "after_or_equal:today"],
+            'selectedOrders' => 'required|array|min:1',
+            'selectedOrders.*' => ['exists:orders,id', new CheckOrderForLogistic],
+            'preferred_date' => ['required', 'date', 'after_or_equal:today'],
         ];
     }
 }

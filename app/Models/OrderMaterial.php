@@ -12,23 +12,22 @@ class OrderMaterial extends Model
     use HasFactory;
 
     protected $fillable = [
-        "amount",
-        "server_id",
-        "status",
+        'amount',
+        'server_id',
+        'status',
     ];
 
     protected $casts = [
-        "status" => OrderMaterialStatus::class
+        'status' => OrderMaterialStatus::class,
     ];
 
-    protected $appends=[
-        "deletable"
+    protected $appends = [
+        'deletable',
     ];
-
 
     public function getDeletableAttribute(): bool
     {
-        return Gate::allows("delete",$this);
+        return Gate::allows('delete', $this);
     }
 
     public function User()
@@ -45,5 +44,4 @@ class OrderMaterial extends Model
     {
         return $this->hasMany(Material::class);
     }
-
 }

@@ -12,7 +12,7 @@ class InstructionPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can("Admin.Instruction.Index");
+        return $user->can('Admin.Instruction.Index');
     }
 
     /**
@@ -20,7 +20,7 @@ class InstructionPolicy
      */
     public function view(User $user, Instruction $instruction): bool
     {
-        return $user->can("Admin.Instruction.Show");
+        return $user->can('Admin.Instruction.Show');
     }
 
     /**
@@ -28,7 +28,7 @@ class InstructionPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can("Admin.Instruction.Create");
+        return $user->can('Admin.Instruction.Create');
     }
 
     /**
@@ -36,7 +36,7 @@ class InstructionPolicy
      */
     public function update(User $user, Instruction $instruction): bool
     {
-        return $user->can("Admin.Instruction.Update");
+        return $user->can('Admin.Instruction.Update');
     }
 
     /**
@@ -44,7 +44,6 @@ class InstructionPolicy
      */
     public function delete(User $user, Instruction $instruction): bool
     {
-        return $user->can("Admin.Instruction.Delete");
+        return $user->can('Admin.Instruction.Delete');
     }
-
 }

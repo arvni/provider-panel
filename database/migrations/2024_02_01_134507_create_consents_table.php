@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('consents', function (Blueprint $table) {
             $table->id();
-            $table->string("name")->unique();
-            $table->text("file");
+            $table->string('name')->unique();
+            $table->text('file');
             $table->timestamps();
         });
     }

@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use App\Enums\CollectRequestStatus;
-use App\Models\CollectRequest;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
@@ -16,7 +15,7 @@ class UpdateCollectRequestRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return Gate::allows("update",$this->route()->parameter("collectRequest"));
+        return Gate::allows('update', $this->route()->parameter('collectRequest'));
     }
 
     /**
@@ -27,18 +26,18 @@ class UpdateCollectRequestRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "status"=>["required",Rule::in(CollectRequestStatus::values())],
-            "scheduleDate"=>[
-                "required_if:status,".CollectRequestStatus::SCHEDULED->value,
-                Rule::excludeIf(fn()=>in_array($this->get("status"),collect(CollectRequestStatus::values())->except(CollectRequestStatus::SCHEDULED->value)->toArray())),
-                "date",
-                "after_or_equal:now"
+            'status' => ['required', Rule::in(CollectRequestStatus::values())],
+            'scheduleDate' => [
+                'required_if:status,'.CollectRequestStatus::SCHEDULED->value,
+                Rule::excludeIf(fn () => in_array($this->get('status'), collect(CollectRequestStatus::values())->except(CollectRequestStatus::SCHEDULED->value)->toArray())),
+                'date',
+                'after_or_equal:now',
             ],
-            "pickupDate"=>[
-                "required_if:status,".CollectRequestStatus::PICKED_UP->value,
-                Rule::excludeIf(fn()=>in_array($this->get("status"),collect(CollectRequestStatus::values())->except(CollectRequestStatus::PICKED_UP->value)->toArray())),
-                "date",
-                "after_or_equal:now"
+            'pickupDate' => [
+                'required_if:status,'.CollectRequestStatus::PICKED_UP->value,
+                Rule::excludeIf(fn () => in_array($this->get('status'), collect(CollectRequestStatus::values())->except(CollectRequestStatus::PICKED_UP->value)->toArray())),
+                'date',
+                'after_or_equal:now',
             ],
         ];
     }

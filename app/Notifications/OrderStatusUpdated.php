@@ -8,11 +8,11 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\HtmlString;
-use Symfony\Component\Routing\Route;
 
 class OrderStatusUpdated extends Notification implements ShouldQueue
 {
     use Queueable;
+
     protected Order $order;
 
     /**
@@ -23,7 +23,6 @@ class OrderStatusUpdated extends Notification implements ShouldQueue
         $this->order = $order;
     }
 
-
     /**
      * Get the notification's delivery channels.
      *
@@ -31,7 +30,7 @@ class OrderStatusUpdated extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['mail','database'];
+        return ['mail', 'database'];
     }
 
     /**
@@ -52,7 +51,7 @@ class OrderStatusUpdated extends Notification implements ShouldQueue
             })
             ->action($statusConfig['action'], $this->getActionUrl())
             ->line($statusConfig['footer'])
-            ->salutation('Best regards,<br>' . config('app.name'));
+            ->salutation('Best regards,<br>'.config('app.name'));
     }
 
     /**
@@ -63,9 +62,9 @@ class OrderStatusUpdated extends Notification implements ShouldQueue
     public function toArray(object $notifiable): array
     {
         return [
-            "order_id"=>$this->order->id,
-            "url"=>\route("orders.show",$this->order->id,false),
-            "message"=>$this->getMessage(),
+            'order_id' => $this->order->id,
+            'url' => \route('orders.show', $this->order->id, false),
+            'message' => $this->getMessage(),
         ];
     }
 
@@ -174,11 +173,11 @@ class OrderStatusUpdated extends Notification implements ShouldQueue
         }
 
         $timeline = $this->getTimelineInfo();
-        if (!empty($timeline)) {
+        if (! empty($timeline)) {
             $details[] = "Timeline: {$timeline}";
         }
 
-        return '<ul>' . collect($details)->map(fn($detail) => "<li>{$detail}</li>")->join('') . '</ul>';
+        return '<ul>'.collect($details)->map(fn ($detail) => "<li>{$detail}</li>")->join('').'</ul>';
     }
 
     /**
@@ -189,15 +188,15 @@ class OrderStatusUpdated extends Notification implements ShouldQueue
         $timeline = [];
 
         if ($this->order->sent_at) {
-            $timeline[] = 'Sent: ' . $this->order->sent_at->format('M d, Y');
+            $timeline[] = 'Sent: '.$this->order->sent_at->format('M d, Y');
         }
 
         if ($this->order->received_at) {
-            $timeline[] = 'Received: ' . $this->order->received_at->format('M d, Y');
+            $timeline[] = 'Received: '.$this->order->received_at->format('M d, Y');
         }
 
         if ($this->order->reported_at) {
-            $timeline[] = 'Reported: ' . $this->order->reported_at->format('M d, Y');
+            $timeline[] = 'Reported: '.$this->order->reported_at->format('M d, Y');
         }
 
         return implode(' → ', $timeline);
@@ -236,7 +235,4 @@ class OrderStatusUpdated extends Notification implements ShouldQueue
     {
         return route('orders.show', $this->order);
     }
-
-
-
 }

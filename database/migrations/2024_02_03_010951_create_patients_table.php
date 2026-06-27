@@ -16,15 +16,15 @@ return new class extends Migration
         Schema::create('patients', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(User::class)->constrained();
-            $table->string("fullName");
-            $table->string("nationality");
+            $table->string('fullName');
+            $table->string('nationality');
             $table->date('dateOfBirth');
-            $table->enum("gender", array_map(fn ($item)=>$item->value, Gender::cases()));
-            $table->boolean("consanguineousParents");
-            $table->json("contact")->nullable();
-            $table->json("extra")->nullable();
-            $table->boolean("isFetus")->default(false);
-            $table->string("reference_id")->nullable();
+            $table->enum('gender', array_map(fn ($item) => $item->value, Gender::cases()));
+            $table->boolean('consanguineousParents');
+            $table->json('contact')->nullable();
+            $table->json('extra')->nullable();
+            $table->boolean('isFetus')->default(false);
+            $table->string('reference_id')->nullable();
             $table->timestamps();
         });
     }

@@ -17,8 +17,8 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(Order::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(SampleType::class)->constrained();
-            $table->string("sampleId")->nullable();
-            $table->date("collectionDate")->nullable();
+            $table->string('sampleId')->nullable();
+            $table->date('collectionDate')->nullable();
             $table->timestamps();
         });
     }

@@ -23,7 +23,7 @@ class GenerateMaterialRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "expireDate" => "required|date:Y-m-d"
+            'expireDate' => 'required|date:Y-m-d',
         ];
     }
 }

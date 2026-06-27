@@ -24,11 +24,11 @@ class PatientController extends Controller
     public function index(Request $request): Response
     {
         $requestInputs = $request->all();
-        $patients = fn() => $this->patientRepository->list($requestInputs);
+        $patients = fn () => $this->patientRepository->list($requestInputs);
 
         return Inertia::render('Patient/Index', [
             'patients' => $patients,
-            'request' => $requestInputs
+            'request' => $requestInputs,
         ]);
     }
 
@@ -61,7 +61,7 @@ class PatientController extends Controller
                 return [
                     'related_patient_id' => $relatedPatient->id,
                     'relation_type' => $relatedPatient->pivot->relation_type,
-                    'notes' => $relatedPatient->pivot->notes
+                    'notes' => $relatedPatient->pivot->notes,
                 ];
             })->toArray();
         } else {
@@ -78,7 +78,7 @@ class PatientController extends Controller
             'patient' => $patient,
             'canDelete' => $deleteInfo['can_delete'],
             'deleteReason' => $deleteInfo['reason'],
-            'genders' => $genders
+            'genders' => $genders,
         ]);
     }
 
@@ -100,18 +100,18 @@ class PatientController extends Controller
             'isFetus' => 'boolean',
             'reference_id' => 'nullable|string|max:255',
             'id_no' => 'nullable|string|max:255',
-            'relations' => 'nullable|array'
+            'relations' => 'nullable|array',
         ]);
 
         try {
             $this->patientRepository->update($patient, $validated);
 
             return back()->with([
-                'status' => 'Patient updated successfully.'
+                'status' => 'Patient updated successfully.',
             ]);
         } catch (\Exception $e) {
             return back()->withErrors([
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }
@@ -127,11 +127,11 @@ class PatientController extends Controller
             $this->patientRepository->delete($patient);
 
             return redirect()->route('patients.index')->with([
-                'status' => 'Patient deleted successfully.'
+                'status' => 'Patient deleted successfully.',
             ]);
         } catch (\Exception $e) {
             return back()->withErrors([
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }

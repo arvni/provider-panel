@@ -7,7 +7,6 @@ use App\Http\Requests\StoreTestRequest;
 use App\Http\Requests\UpdateTestRequest;
 use App\Interfaces\TestRepositoryInterface;
 use App\Models\Test;
-use App\Services\PrepareTestSampleTypesList;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -20,31 +19,32 @@ class TestController extends Controller
     public function __construct(TestRepositoryInterface $testRepository)
     {
         $this->testRepository = $testRepository;
-        $this->middleware("indexProvider")->only("index");
+        $this->middleware('indexProvider')->only('index');
     }
 
     /**
      * Display a listing of the resource.
-     * @param Request $request
-     * @return Response
+     *
      * @throws AuthorizationException
      */
     public function index(Request $request): Response
     {
-        $this->authorize("viewAny", Test::class);
+        $this->authorize('viewAny', Test::class);
         $tests = $this->testRepository->list($request->all());
-        return Inertia::render("Test/Index", ["tests" => $tests, "request" => $request->all()]);
+
+        return Inertia::render('Test/Index', ['tests' => $tests, 'request' => $request->all()]);
     }
 
     /**
      * Show the form for creating a new resource.
-     * @return Response
+     *
      * @throws AuthorizationException
      */
     public function create(): Response
     {
-        $this->authorize("create", Test::class);
-        return Inertia::render("Test/Add");
+        $this->authorize('create', Test::class);
+
+        return Inertia::render('Test/Add');
     }
 
     /**
@@ -53,7 +53,8 @@ class TestController extends Controller
     public function store(StoreTestRequest $request)
     {
         $this->testRepository->create($request->all());
-        return redirect()->route("admin.tests.index")->with(["status" => __("messages.successfullyAdded", ["type" => "Test", "title" => $request->get("name")])]);
+
+        return redirect()->route('admin.tests.index')->with(['status' => __('messages.successfullyAdded', ['type' => 'Test', 'title' => $request->get('name')])]);
     }
 
     /**
@@ -70,7 +71,8 @@ class TestController extends Controller
     public function edit(Test $test)
     {
         $test = $this->testRepository->show($test);
-        return Inertia::render("Test/Edit", ["test" => $test]);
+
+        return Inertia::render('Test/Edit', ['test' => $test]);
     }
 
     /**
@@ -79,7 +81,8 @@ class TestController extends Controller
     public function update(UpdateTestRequest $request, Test $test)
     {
         $this->testRepository->edit($test, $request->all());
-        return redirect()->route("admin.tests.index")->with(["status" => __("messages.successfullyUpdated", ["type" => "Test", "title" => $request->get("name")])]);
+
+        return redirect()->route('admin.tests.index')->with(['status' => __('messages.successfullyUpdated', ['type' => 'Test', 'title' => $request->get('name')])]);
     }
 
     /**
@@ -87,9 +90,10 @@ class TestController extends Controller
      */
     public function destroy(Test $test)
     {
-        $this->authorize("delete", $test);
+        $this->authorize('delete', $test);
         $title = $test->name;
         $this->testRepository->destroy($test);
-        return redirect()->route("admin.tests.index")->with(["status" => __("messages.successfullyDeleted", ["type" => "Test", "title" => $title])]);
+
+        return redirect()->route('admin.tests.index')->with(['status' => __('messages.successfullyDeleted', ['type' => 'Test', 'title' => $title])]);
     }
 }

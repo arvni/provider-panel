@@ -23,7 +23,7 @@ class StoreOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "test_method.*.id" => "required|exists:tests,id",
+            'test_method.*.id' => 'required|exists:tests,id',
         ];
     }
 }

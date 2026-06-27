@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('consent_terms', function (Blueprint $table) {
             $table->id();
-            $table->text("name");
-            $table->boolean("is_active")->default(true);
+            $table->text('name');
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }

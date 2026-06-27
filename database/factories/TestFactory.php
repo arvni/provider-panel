@@ -18,11 +18,11 @@ class TestFactory extends Factory
     public function definition(): array
     {
         return [
-            "name" => fake()->domainName(),
-            "code" => fake()->unique()->postcode(),
-            "shortName" => fake()->currencyCode() . fake()->buildingNumber(),
-            "description" => fake()->paragraph(),
-            "turnaroundTime" => fake()->numberBetween(),
+            'name' => fake()->domainName(),
+            'code' => fake()->unique()->postcode(),
+            'shortName' => fake()->currencyCode().fake()->buildingNumber(),
+            'description' => fake()->paragraph(),
+            'turnaroundTime' => fake()->numberBetween(),
         ];
     }
 }

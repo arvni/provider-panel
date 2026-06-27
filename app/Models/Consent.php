@@ -9,10 +9,11 @@ use Illuminate\Database\Eloquent\Model;
 class Consent extends Model
 {
     use HasFactory, Searchable;
-    protected $searchable = ["name"];
-    protected $fillable = [
-        "name",
-        "file"
-    ];
 
+    protected $searchable = ['name'];
+
+    protected $fillable = [
+        'name',
+        'file',
+    ];
 }
