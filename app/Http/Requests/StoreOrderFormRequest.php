@@ -7,7 +7,6 @@ use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\File;
 
 class StoreOrderFormRequest extends FormRequest
 {
@@ -16,7 +15,7 @@ class StoreOrderFormRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return Gate::allows("create",OrderForm::class);
+        return Gate::allows('create', OrderForm::class);
     }
 
     /**
@@ -27,10 +26,10 @@ class StoreOrderFormRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "formData"=>"required|array",
-            "formData.*.label" => "required",
-            "formData.*.type" => ["required",Rule::in(["text", "number", "checkbox", "select", "date","description"])],
-            "name"=>"required|unique:order_forms,name",
+            'formData' => 'required|array',
+            'formData.*.label' => 'required',
+            'formData.*.type' => ['required', Rule::in(['text', 'number', 'checkbox', 'select', 'date', 'description'])],
+            'name' => 'required|unique:order_forms,name',
         ];
     }
 }

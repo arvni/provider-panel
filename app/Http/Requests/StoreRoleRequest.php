@@ -11,13 +11,10 @@ class StoreRoleRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @param Request $request
-     * @return bool
      */
     public function authorize(Request $request): bool
     {
-        return Gate::allows("create",Role::class);
+        return Gate::allows('create', Role::class);
     }
 
     /**
@@ -28,8 +25,8 @@ class StoreRoleRequest extends FormRequest
     public function rules()
     {
         return [
-            "name" => "required|unique:roles,name",
-            "permissions.*.id" => "required|exists:permissions,id"
+            'name' => 'required|unique:roles,name',
+            'permissions.*.id' => 'required|exists:permissions,id',
         ];
     }
 }

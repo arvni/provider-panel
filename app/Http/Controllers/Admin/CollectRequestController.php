@@ -23,7 +23,7 @@ class CollectRequestController extends Controller
     public function __construct(CollectRequestRepositoryInterface $collectRequestRepository)
     {
         $this->collectRequestRepository = $collectRequestRepository;
-        $this->middleware("indexProvider")->only("index");
+        $this->middleware('indexProvider')->only('index');
     }
 
     /**
@@ -31,10 +31,11 @@ class CollectRequestController extends Controller
      */
     public function index(Request $request): Response
     {
-        $this->authorize("viewAny", CollectRequest::class);
+        $this->authorize('viewAny', CollectRequest::class);
         $requestInputs = $request->all();
-        $collectRequests = fn() => $this->collectRequestRepository->list($requestInputs);
-        return Inertia::render('CollectRequest/Index', ["collectRequests" => $collectRequests, 'request' => $requestInputs]);
+        $collectRequests = fn () => $this->collectRequestRepository->list($requestInputs);
+
+        return Inertia::render('CollectRequest/Index', ['collectRequests' => $collectRequests, 'request' => $requestInputs]);
     }
 
     /**
@@ -50,44 +51,42 @@ class CollectRequestController extends Controller
      */
     public function show(CollectRequest $collectRequest)
     {
-        $this->authorize("view", $collectRequest);
+        $this->authorize('view', $collectRequest);
         $collectRequest = $this->collectRequestRepository->show($collectRequest);
-        return Inertia::render('CollectRequest/Show', ["collectRequest" => $collectRequest]);
+
+        return Inertia::render('CollectRequest/Show', ['collectRequest' => $collectRequest]);
     }
 
     /**
      * Update the specified resource in storage.
-     * @param UpdateCollectRequestRequest $request
-     * @param CollectRequest $collectRequest
-     * @return RedirectResponse
      */
     public function update(UpdateCollectRequestRequest $request, CollectRequest $collectRequest): RedirectResponse
     {
-        $status=$request->get("status");
+        $status = $request->get('status');
         $data = [
-            "status" => $status,
-            "details" => array_merge($collectRequest->details??[],$request->except("status","_method"))
+            'status' => $status,
+            'details' => array_merge($collectRequest->details ?? [], $request->except('status', '_method')),
         ];
         $this->collectRequestRepository->update($collectRequest, $data);
-        if ($request->get("status")==CollectRequestStatus::PICKED_UP->value)
-            $collectRequest->Orders()->update(["status"=>OrderStatus::SENT]);
-        return back()->with(["status" => __("messages.successfullyUpdated")]);
+        if ($request->get('status') == CollectRequestStatus::PICKED_UP->value) {
+            $collectRequest->Orders()->update(['status' => OrderStatus::SENT]);
+        }
+
+        return back()->with(['status' => __('messages.successfullyUpdated')]);
     }
 
     /**
      * Send collection request to main server
-     * @param CollectRequest $collectRequest
-     * @return RedirectResponse
      */
     public function send(CollectRequest $collectRequest): RedirectResponse
     {
-        $this->authorize("update", $collectRequest);
+        $this->authorize('update', $collectRequest);
 
         // Check if already sent
         if ($collectRequest->server_id) {
             return back()->with([
-                "status" => "Collection request has already been sent to the server.",
-                "error" => true
+                'status' => 'Collection request has already been sent to the server.',
+                'error' => true,
             ]);
         }
 
@@ -95,21 +94,21 @@ class CollectRequestController extends Controller
         SendCollectionRequest::dispatch($collectRequest);
 
         return back()->with([
-            "status" => "Collection request has been queued for sending to the server.",
-            "success" => true
+            'status' => 'Collection request has been queued for sending to the server.',
+            'success' => true,
         ]);
     }
 
     /**
      * Remove the specified resource from storage.
-     * @param CollectRequest $collectRequest
-     * @return RedirectResponse
+     *
      * @throws AuthorizationException
      */
     public function destroy(CollectRequest $collectRequest): RedirectResponse
     {
-        $this->authorize("delete",$collectRequest);
+        $this->authorize('delete', $collectRequest);
         $this->collectRequestRepository->delete($collectRequest);
-        return back()->with(["stats"=>__("successfullyDeleted",["title"=>"collect request"])]);
+
+        return back()->with(['stats' => __('successfullyDeleted', ['title' => 'collect request'])]);
     }
 }

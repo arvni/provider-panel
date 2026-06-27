@@ -28,13 +28,13 @@ class CollectRequestController extends Controller
         $requestInputs = $request->all();
 
         // Get collect requests for the authenticated user only
-        $collectRequests = fn() => $this->collectRequestRepository->list(
+        $collectRequests = fn () => $this->collectRequestRepository->list(
             array_merge($requestInputs, ['user_id' => auth()->id()])
         );
 
         return Inertia::render('CollectRequest/UserIndex', [
             'collectRequests' => $collectRequests,
-            'request' => $requestInputs
+            'request' => $requestInputs,
         ]);
     }
 
@@ -47,7 +47,7 @@ class CollectRequestController extends Controller
         $collectRequest = $this->collectRequestRepository->show($collectRequest);
 
         return Inertia::render('CollectRequest/UserShow', [
-            'collectRequest' => $collectRequest
+            'collectRequest' => $collectRequest,
         ]);
     }
 }

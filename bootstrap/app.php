@@ -1,8 +1,21 @@
 <?php
 
+use App\Http\Middleware\Authenticate;
+use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\IndexProvider;
+use App\Http\Middleware\ProviderAccess;
+use App\Http\Middleware\RedirectIfAuthenticated;
+use App\Http\Middleware\ValidateSignature;
+use App\Http\Middleware\VerifyWebhookSignature;
+use Illuminate\Auth\Middleware\EnsureEmailIsVerified;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
+use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
+use Spatie\Permission\Middleware\PermissionMiddleware;
+use Spatie\Permission\Middleware\RoleMiddleware;
+use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -13,25 +26,25 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->web(append: [
-            \App\Http\Middleware\HandleInertiaRequests::class,
-            \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
+            HandleInertiaRequests::class,
+            AddLinkHeadersForPreloadedAssets::class,
         ]);
 
         $middleware->api(prepend: [
-            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+            EnsureFrontendRequestsAreStateful::class,
         ]);
 
         $middleware->alias([
-            'auth' => \App\Http\Middleware\Authenticate::class,
-            'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
-            'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-            'signed' => \App\Http\Middleware\ValidateSignature::class,
-            'indexProvider' => \App\Http\Middleware\IndexProvider::class,
-            'providerAccess' => \App\Http\Middleware\ProviderAccess::class,
-            'verify.webhook' => \App\Http\Middleware\VerifyWebhookSignature::class,
-            'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
-            'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
-            'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+            'auth' => Authenticate::class,
+            'guest' => RedirectIfAuthenticated::class,
+            'verified' => EnsureEmailIsVerified::class,
+            'signed' => ValidateSignature::class,
+            'indexProvider' => IndexProvider::class,
+            'providerAccess' => ProviderAccess::class,
+            'verify.webhook' => VerifyWebhookSignature::class,
+            'role' => RoleMiddleware::class,
+            'permission' => PermissionMiddleware::class,
+            'role_or_permission' => RoleOrPermissionMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

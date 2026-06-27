@@ -27,12 +27,14 @@ class SendCollectionRequest implements ShouldQueue
 
     /**
      * Execute the job.
+     *
      * @throws ApiServiceException
      */
     public function handle(): void
     {
         $res = RequestLogistic::send($this->collectRequest);
-        if (!$res->ok())
+        if (! $res->ok()) {
             $this->fail($res->toException());
+        }
     }
 }

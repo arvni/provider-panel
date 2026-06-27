@@ -18,9 +18,9 @@ class ConsentTermResource extends JsonResource
     public function toArray($request)
     {
         return [
-            "name"=>$this->name,
-            "is_active"=>$this->is_active,
-            "id"=>$this->id
+            'name' => $this->name,
+            'is_active' => $this->is_active,
+            'id' => $this->id,
         ];
     }
 }

@@ -3,7 +3,6 @@
 namespace App\Notifications;
 
 use App\Models\OrderMaterial;
-use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -39,12 +38,12 @@ class AdminOrderMaterialNotification extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         $message = (new MailMessage)
-            ->subject( "New Material Order #{$this->orderMaterial->id} - {$this->orderMaterial->user->name}")
+            ->subject("New Material Order #{$this->orderMaterial->id} - {$this->orderMaterial->user->name}")
             ->greeting('Hello Admin!')
-            ->line("A new material order has been submitted by {$this->orderMaterial->user->name} for {$this->orderMaterial->amount} of {$this->orderMaterial->sampleType->name}.",);
+            ->line("A new material order has been submitted by {$this->orderMaterial->user->name} for {$this->orderMaterial->amount} of {$this->orderMaterial->sampleType->name}.");
 
         // Add order details
-        $message->line("**Order Details:**")
+        $message->line('**Order Details:**')
             ->line("• ID: #{$this->orderMaterial->id}")
             ->line("• Customer: {$this->orderMaterial->user->name}")
             ->line("• Sample Type: {$this->orderMaterial->sampleType->name}")
@@ -58,7 +57,7 @@ class AdminOrderMaterialNotification extends Notification implements ShouldQueue
 
         // Add notes if available
         if ($this->orderMaterial->notes) {
-            $message->line("**Notes:**");
+            $message->line('**Notes:**');
             $message->line($this->orderMaterial->notes);
         }
 
@@ -86,17 +85,16 @@ class AdminOrderMaterialNotification extends Notification implements ShouldQueue
             'delivery_date' => $this->orderMaterial->delivery_date?->toDateString(),
             'message' => "A new material order has been submitted by {$this->orderMaterial->user->name} for {$this->orderMaterial->amount} of {$this->orderMaterial->SampleType->name}.",
             'url' => $this->getAdminUrl(),
-            'priority' =>  'high',
+            'priority' => 'high',
             'timestamp' => now()->toISOString(),
         ];
     }
-
 
     /**
      * Get admin panel URL
      */
     private function getAdminUrl(): string
     {
-        return route("admin.orderMaterials.index");
+        return route('admin.orderMaterials.index');
     }
 }

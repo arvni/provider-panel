@@ -7,8 +7,8 @@ use App\Models\User;
 use App\Notifications\CollectRequestDeleted;
 use App\Notifications\CollectRequestUpdated;
 use App\Services\AdminNotificationService;
-use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 
 class CollectRequestObserver
 {
@@ -32,7 +32,7 @@ class CollectRequestObserver
         // Get the changes that were made
         $changes = $this->getRelevantChanges($collectRequest);
 
-        if (!empty($changes)) {
+        if (! empty($changes)) {
             // Send notification to customer and notify user
             $this->sendCustomerNotification($collectRequest, 'updated');
 
@@ -47,7 +47,7 @@ class CollectRequestObserver
             if (isset($changes['status']) && $this->isUrgentStatusChange($changes['status'])) {
                 AdminNotificationService::sendUrgentNotification(
                     $collectRequest,
-                    'Status changed to ' . $collectRequest->status->getLabel()
+                    'Status changed to '.$collectRequest->status->getLabel()
                 );
             }
         }
@@ -63,7 +63,7 @@ class CollectRequestObserver
 
             // Send notification to customer and notify user
             $users = $this->getCustomerNotificationRecipients($collectRequest);
-            if (!empty($users)) {
+            if (! empty($users)) {
                 Notification::send($users, new CollectRequestDeleted($collectRequest->id));
             }
 
@@ -73,11 +73,10 @@ class CollectRequestObserver
         } catch (\Exception $e) {
             Log::error('Failed to send collect request deleted notification', [
                 'collect_request_id' => $collectRequest->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }
-
 
     /**
      * Send notification to customer and designated notify user
@@ -88,14 +87,14 @@ class CollectRequestObserver
             $collectRequest->load('user');
             $users = $this->getCustomerNotificationRecipients($collectRequest);
 
-            if (!empty($users)) {
+            if (! empty($users)) {
                 Notification::send($users, new CollectRequestUpdated($collectRequest, $action));
             }
         } catch (\Exception $e) {
             Log::error('Failed to send collect request customer notification', [
                 'collect_request_id' => $collectRequest->id,
                 'action' => $action,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }
@@ -127,7 +126,7 @@ class CollectRequestObserver
             if ($collectRequest->wasChanged($field)) {
                 $changes[$field] = [
                     'old' => $collectRequest->getOriginal($field),
-                    'new' => $collectRequest->getAttribute($field)
+                    'new' => $collectRequest->getAttribute($field),
                 ];
 
                 // Special handling for enum values

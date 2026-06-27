@@ -8,7 +8,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Run the migrations.
      */
@@ -19,12 +20,12 @@ return new class extends Migration {
             $table->foreignIdFor(OrderMaterial::class)->constrained();
             $table->foreignIdFor(SampleType::class)->constrained();
             $table->foreignIdFor(User::class)->constrained();
-            $table->string("barcode")->unique()->index();
-            $table->timestamp("expire_date")->nullable();
+            $table->string('barcode')->unique()->index();
+            $table->timestamp('expire_date')->nullable();
             $table->timestamps();
         });
 
-        Schema::table("samples", function (Blueprint $table) {
+        Schema::table('samples', function (Blueprint $table) {
             $table->foreignIdFor(Material::class)->nullable()->constrained();
         });
 
@@ -35,7 +36,7 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::table("samples", function (Blueprint $table) {
+        Schema::table('samples', function (Blueprint $table) {
             $table->dropConstrainedForeignIdFor(Material::class);
         });
         Schema::dropIfExists('materials');

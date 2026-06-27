@@ -13,12 +13,13 @@ class OrderItemPatientTableSeeder extends Seeder
     public function run(): void
     {
         OrderItem::query()
-            ->whereDoesntHave("Patients")
-            ->with("Order")->chunk(100, function ($orderItems) {
+            ->whereDoesntHave('Patients')
+            ->with('Order')->chunk(100, function ($orderItems) {
                 foreach ($orderItems as $orderItem) {
                     $orderItem->Patients()->sync($orderItem->Order->main_patient_id);
-                    if ($orderItem->isDirty())
+                    if ($orderItem->isDirty()) {
                         $orderItem->save();
+                    }
                 }
             });
     }

@@ -37,7 +37,6 @@ class UserFactory extends Factory
         ];
     }
 
-
     public function admin(): static
     {
         return $this->afterCreating(function (User $user) {

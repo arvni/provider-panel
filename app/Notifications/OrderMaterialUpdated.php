@@ -7,6 +7,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+
 use function route;
 
 class OrderMaterialUpdated extends Notification implements ShouldQueue
@@ -20,7 +21,7 @@ class OrderMaterialUpdated extends Notification implements ShouldQueue
      */
     public function __construct(OrderMaterial $orderMaterial)
     {
-        $orderMaterial->loadMissing("SampleType");
+        $orderMaterial->loadMissing('SampleType');
         $this->orderMaterial = $orderMaterial;
     }
 
@@ -40,7 +41,7 @@ class OrderMaterialUpdated extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->line("We Have Processed Your Order for " . $this->orderMaterial->amount . ", of " . $this->orderMaterial->SampleType->name)
+            ->line('We Have Processed Your Order for '.$this->orderMaterial->amount.', of '.$this->orderMaterial->SampleType->name)
             ->line('Thank you for using our application!');
     }
 
@@ -52,8 +53,8 @@ class OrderMaterialUpdated extends Notification implements ShouldQueue
     public function toArray(object $notifiable): array
     {
         return [
-            "order_id" => $this->orderMaterial->id,
-            "url" => route("orderMaterials.index", false),
+            'order_id' => $this->orderMaterial->id,
+            'url' => route('orderMaterials.index', false),
             'message' => "material order has been processed for {$this->orderMaterial->amount} of {$this->orderMaterial->SampleType->name}.",
         ];
     }

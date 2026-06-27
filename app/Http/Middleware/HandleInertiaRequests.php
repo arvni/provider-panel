@@ -17,7 +17,7 @@ class HandleInertiaRequests extends Middleware
     /**
      * Determine the current asset version.
      */
-    public function version(Request $request): string|null
+    public function version(Request $request): ?string
     {
         return parent::version($request);
     }
@@ -29,17 +29,20 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
-        $props=[
+        $props = [
             ...parent::share($request),
             'auth' => [
                 'user' => $request->user(),
-                'permissions' => auth()->user() ? auth()->user()->effectivePermissions() : null
+                'permissions' => auth()->user() ? auth()->user()->effectivePermissions() : null,
             ],
         ];
-        if ($request->session()->has("success"))
-            $props["success"] = $request->session()->get('success');
-        if ($request->session()->has("status"))
-            $props["status"] = $request->session()->get('status');
+        if ($request->session()->has('success')) {
+            $props['success'] = $request->session()->get('success');
+        }
+        if ($request->session()->has('status')) {
+            $props['status'] = $request->session()->get('status');
+        }
+
         return $props;
     }
 }

@@ -1,15 +1,13 @@
 <?php
 
-
 namespace App\Interfaces;
-
-
 
 use Spatie\Permission\Models\Role;
 
 interface RoleRepositoryInterface
 {
     public function list(array $queryData);
+
     public function getAll(array $queryData);
 
     public function create(array $roleData);

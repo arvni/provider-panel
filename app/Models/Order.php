@@ -9,66 +9,66 @@ use App\Traits\Statusable;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Support\Facades\Gate;
 
 class Order extends Model
 {
-    use HasFactory, Statusable, Searchable;
+    use HasFactory, Searchable, Statusable;
 
     protected $searchable = [
-        "id",
-        "Patient.fullName",
-        "Patient.reference_id"
+        'id',
+        'Patient.fullName',
+        'Patient.reference_id',
     ];
 
     protected $fillable = [
-        "status",
-        "step",
-        "orderForms",
-        "consents",
-        "files",
-        "sent_at",
-        "received_at",
-        "reported_at",
-        "server_id",
-        "main_patient_id",
-        "patient_ids",
+        'status',
+        'step',
+        'orderForms',
+        'consents',
+        'files',
+        'sent_at',
+        'received_at',
+        'reported_at',
+        'server_id',
+        'main_patient_id',
+        'patient_ids',
         'user_id',
         'created_at',
-        'updated_at'
+        'updated_at',
     ];
+
     protected $casts = [
-        "status" => OrderStatus::class,
-        "step" => OrderStep::class,
-        "orderForms" => "json",
-        "files" => "json",
-        "consents" => "json",
-        "patient_ids" => "json",
-        "sent_at" => "datetime",
-        "received_at" => "datetime",
-        "reported_at" => "datetime",
+        'status' => OrderStatus::class,
+        'step' => OrderStep::class,
+        'orderForms' => 'json',
+        'files' => 'json',
+        'consents' => 'json',
+        'patient_ids' => 'json',
+        'sent_at' => 'datetime',
+        'received_at' => 'datetime',
+        'reported_at' => 'datetime',
     ];
 
     protected $appends = [
-        "editable",
-        "deletable",
-        "orderId"
+        'editable',
+        'deletable',
+        'orderId',
     ];
 
     public function getOrderIdAttribute()
     {
-        return "OR" . Carbon::parse($this->created_at)->format(".Ymd.") . $this->id;
+        return 'OR'.Carbon::parse($this->created_at)->format('.Ymd.').$this->id;
     }
 
     public function getEditableAttribute(): bool
     {
-        return Gate::allows("update", $this);
+        return Gate::allows('update', $this);
     }
 
     public function getDeletableAttribute(): bool
     {
-        return Gate::allows("delete",$this);
+        return Gate::allows('delete', $this);
     }
 
     public function Patient()
@@ -105,7 +105,7 @@ class Order extends Model
      */
     public function getSamplesAttribute()
     {
-        if (!$this->relationLoaded('OrderItems')) {
+        if (! $this->relationLoaded('OrderItems')) {
             $this->load('OrderItems.Samples');
         }
 
@@ -119,12 +119,11 @@ class Order extends Model
 
     public function Tests()
     {
-        return $this->belongsToMany(Test::class, "order_items");
+        return $this->belongsToMany(Test::class, 'order_items');
     }
 
     public function CollectRequest()
     {
         return $this->belongsTo(CollectRequest::class);
     }
-
 }

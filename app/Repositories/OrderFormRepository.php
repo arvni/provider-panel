@@ -1,8 +1,6 @@
 <?php
 
-
 namespace App\Repositories;
-
 
 use App\Interfaces\OrderFormRepositoryInterface;
 use App\Models\OrderForm;
@@ -21,30 +19,35 @@ class OrderFormRepository extends BaseRepository implements OrderFormRepositoryI
         $this->query = $orderForm->newQuery();
     }
 
-
     public function list(array $queryData): LengthAwarePaginator
     {
-        if (isset($queryData["filters"]))
-            $this->applyFilter($queryData["filters"]);
-        if (isset($queryData["sort"]))
-            $this->applyOrderBy($queryData["sort"]);
-        return $this->applyPagination($queryData["pageSize"] ?? $this->pageSize);
+        if (isset($queryData['filters'])) {
+            $this->applyFilter($queryData['filters']);
+        }
+        if (isset($queryData['sort'])) {
+            $this->applyOrderBy($queryData['sort']);
+        }
+
+        return $this->applyPagination($queryData['pageSize'] ?? $this->pageSize);
     }
 
     public function getAll(array $queryData): Collection|array
     {
-        if (isset($queryData["filters"]))
-            $this->applyFilter($queryData["filters"]);
-        if (isset($queryData["sort"]))
-            $this->applyOrderBy($queryData["sort"]);
-        return $this->applyGet(["order_forms.*"]);
+        if (isset($queryData['filters'])) {
+            $this->applyFilter($queryData['filters']);
+        }
+        if (isset($queryData['sort'])) {
+            $this->applyOrderBy($queryData['sort']);
+        }
+
+        return $this->applyGet(['order_forms.*']);
     }
 
     public function create($orderFormDetails): OrderForm
     {
         return $this->query->create([
             ...$orderFormDetails,
-            "file" => $orderFormDetails["file"]?$this->uploadFileService->init("orderForms")[0]:""]);
+            'file' => $orderFormDetails['file'] ? $this->uploadFileService->init('orderForms')[0] : '']);
     }
 
     public function show(OrderForm $orderForm): OrderForm
@@ -56,39 +59,40 @@ class OrderFormRepository extends BaseRepository implements OrderFormRepositoryI
     {
         $orderForm->update([
             ...$newOrderFormDetails,
-            "file" => $newOrderFormDetails["file"]?(is_string($newOrderFormDetails["file"]) ? $newOrderFormDetails["file"] : $this->uploadFileService->init("orderForms")[0]):""]);
+            'file' => $newOrderFormDetails['file'] ? (is_string($newOrderFormDetails['file']) ? $newOrderFormDetails['file'] : $this->uploadFileService->init('orderForms')[0]) : '']);
     }
 
     public function delete(OrderForm $orderForm): ?bool
     {
-        if ($orderForm->Tests()->count() < 1)
-        return $orderForm->delete();
+        if ($orderForm->Tests()->count() < 1) {
+            return $orderForm->delete();
+        }
+
         return false;
     }
 
     public function applyFilter($filters = []): void
     {
-        if (isset($filters["search"])) {
-            $this->query->search($filters["search"]);
+        if (isset($filters['search'])) {
+            $this->query->search($filters['search']);
         }
-        if (isset($filters["name"])) {
-            $this->query->search($filters["name"], ["name"]);
+        if (isset($filters['name'])) {
+            $this->query->search($filters['name'], ['name']);
         }
-        if (isset($filters["tests"])) {
-            $this->query->whereHas("Tests", function ($q) use ($filters) {
-                $q->whereIn("tests.id", $filters["tests"]);
+        if (isset($filters['tests'])) {
+            $this->query->whereHas('Tests', function ($q) use ($filters) {
+                $q->whereIn('tests.id', $filters['tests']);
             });
         }
     }
 
-    public function getById($id): OrderForm|null
+    public function getById($id): ?OrderForm
     {
-        return $this->query->where("id", $id)->first();
+        return $this->query->where('id', $id)->first();
     }
-
 
     public function getByServerId(int $id)
     {
-        return $this->query->where("server_id", $id)->first();
+        return $this->query->where('server_id', $id)->first();
     }
 }

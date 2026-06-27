@@ -37,11 +37,12 @@ class OrderMaterialRequested extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $orderMaterial=OrderMaterial::query()
-            ->withAggregate("SampleType", "name")
-            ->where("id", $this->orderId)->first();
+        $orderMaterial = OrderMaterial::query()
+            ->withAggregate('SampleType', 'name')
+            ->where('id', $this->orderId)->first();
+
         return (new MailMessage)
-            ->line("We Have Received Your Order For " . $orderMaterial->amount . ", of " . $orderMaterial->sample_type_name)
+            ->line('We Have Received Your Order For '.$orderMaterial->amount.', of '.$orderMaterial->sample_type_name)
             ->line('Thank you for using our application!');
     }
 }

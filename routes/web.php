@@ -4,13 +4,12 @@ use App\Http\Controllers\AddOrderByBarcodeController;
 use App\Http\Controllers\Admin\ChangePasswordController;
 use App\Http\Controllers\Admin\CollectRequestController as AdminCollectRequestController;
 use App\Http\Controllers\Admin\ConsentController;
-use App\Http\Controllers\CollectRequestController;
 use App\Http\Controllers\Admin\ConsentTermController;
 use App\Http\Controllers\Admin\EditUserTestsListController;
 use App\Http\Controllers\Admin\ExportExcelMaterialsController;
-use App\Http\Controllers\Admin\GenerateMaterialController;
 use App\Http\Controllers\Admin\InstructionController;
 use App\Http\Controllers\Admin\OrderFormController;
+use App\Http\Controllers\Admin\OrderMaterialController as OrderMaterialAdminController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SampleTypeController;
@@ -21,6 +20,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Api\ListTestsByBarcodeController;
 use App\Http\Controllers\Api\ListUserTestsController;
 use App\Http\Controllers\Api\PatientListController;
+use App\Http\Controllers\CollectRequestController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DownloadOrderSummaryController;
 use App\Http\Controllers\DownloadReportController;
@@ -29,16 +29,10 @@ use App\Http\Controllers\ListTestController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrderMaterialController;
-use App\Http\Controllers\Admin\OrderMaterialController as OrderMaterialAdminController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\SampleController;
 use App\Http\Controllers\StoreCollectRequestController;
 use App\Http\Controllers\StoreSampleCollectRequestController;
-use App\Models\CollectRequest;
-use App\Models\Sample;
-use App\Services\MaterialOrder;
-use App\Services\RequestLogistic;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -53,11 +47,12 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    if (auth()->check())
-        return redirect()->route("dashboard");
-    return redirect()->route("login");
-});
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    }
 
+    return redirect()->route('login');
+});
 
 Route::middleware('auth')->group(function () {
 
@@ -68,56 +63,54 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{id}', [NotificationController::class, 'destroy']);
     });
 
-
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
-    Route::prefix("admin")->as("admin.")->group(function () {
-        Route::post("/users/sync", SyncReferrersController::class)->name("users.sync");
-        Route::post("/users/{user}/send-reset-password", [UserController::class, "sendResetPassword"])->name("users.sendResetPassword");
-        Route::get("/users/{user}/tests", EditUserTestsListController::class)->name("users.tests.edit");
-        Route::put("/users/{user}/tests", UpdateUserTestsListController::class)->name("users.tests.update");
-        Route::resource("/users", UserController::class);
-        Route::put("/change-password/{user}", ChangePasswordController::class)->name("users.updatePassword");
-        Route::resource("/roles", RoleController::class);
-        Route::resource("/permissions", PermissionController::class)->except(["create", "edit"]);
-        Route::resource("/consentTerms", ConsentTermController::class)->except(["create", "edit"]);
-        Route::resource("/consents", ConsentController::class)->except(["create", "edit"]);
-        Route::resource("/instructions", InstructionController::class)->except(["create", "edit"]);
-        Route::resource("orderForms", OrderFormController::class)->except("show");
-        Route::post("collectRequests/{collectRequest}/send", [AdminCollectRequestController::class, 'send'])->name("collectRequests.send");
-        Route::resource("collectRequests", AdminCollectRequestController::class)->except(["edit"]);
-        Route::resource("sampleTypes", SampleTypeController::class);
-        Route::resource("tests", TestController::class)->except("show");
-        Route::resource("orderMaterials", OrderMaterialAdminController::class)->only(["show", "index", "destroy"]);
-        Route::get("/materials", ExportExcelMaterialsController::class)->name("materials");
+    Route::prefix('admin')->as('admin.')->group(function () {
+        Route::post('/users/sync', SyncReferrersController::class)->name('users.sync');
+        Route::post('/users/{user}/send-reset-password', [UserController::class, 'sendResetPassword'])->name('users.sendResetPassword');
+        Route::get('/users/{user}/tests', EditUserTestsListController::class)->name('users.tests.edit');
+        Route::put('/users/{user}/tests', UpdateUserTestsListController::class)->name('users.tests.update');
+        Route::resource('/users', UserController::class);
+        Route::put('/change-password/{user}', ChangePasswordController::class)->name('users.updatePassword');
+        Route::resource('/roles', RoleController::class);
+        Route::resource('/permissions', PermissionController::class)->except(['create', 'edit']);
+        Route::resource('/consentTerms', ConsentTermController::class)->except(['create', 'edit']);
+        Route::resource('/consents', ConsentController::class)->except(['create', 'edit']);
+        Route::resource('/instructions', InstructionController::class)->except(['create', 'edit']);
+        Route::resource('orderForms', OrderFormController::class)->except('show');
+        Route::post('collectRequests/{collectRequest}/send', [AdminCollectRequestController::class, 'send'])->name('collectRequests.send');
+        Route::resource('collectRequests', AdminCollectRequestController::class)->except(['edit']);
+        Route::resource('sampleTypes', SampleTypeController::class);
+        Route::resource('tests', TestController::class)->except('show');
+        Route::resource('orderMaterials', OrderMaterialAdminController::class)->only(['show', 'index', 'destroy']);
+        Route::get('/materials', ExportExcelMaterialsController::class)->name('materials');
     });
-    Route::get("patient-list", PatientListController::class)->name("api.patients.list");
-    Route::get("patients", [PatientController::class, "index"])->name("patients.index")->middleware("providerAccess:Patient.Index");
-    Route::resource("patients", PatientController::class)->only(["show", "edit", "update", "destroy"])->middleware("providerAccess:Patient.Index");
-    Route::get("collectRequests", [CollectRequestController::class, "index"])->name("collectRequests.index")->middleware("providerAccess:CollectRequest.Index");
-    Route::resource("collectRequests", CollectRequestController::class)->only(["show"])->names([
+    Route::get('patient-list', PatientListController::class)->name('api.patients.list');
+    Route::get('patients', [PatientController::class, 'index'])->name('patients.index')->middleware('providerAccess:Patient.Index');
+    Route::resource('patients', PatientController::class)->only(['show', 'edit', 'update', 'destroy'])->middleware('providerAccess:Patient.Index');
+    Route::get('collectRequests', [CollectRequestController::class, 'index'])->name('collectRequests.index')->middleware('providerAccess:CollectRequest.Index');
+    Route::resource('collectRequests', CollectRequestController::class)->only(['show'])->names([
         'show' => 'collectRequests.show',
     ]);
-    Route::get("/files/{type}/{id}/{filename?}", GetFileController::class)->name("file");
-    Route::get("samples", [SampleController::class, "index"])->name("samples.index")->middleware("providerAccess:Sample.Index");
-    Route::post("samples/collect-request", StoreSampleCollectRequestController::class)->name("samples.collect-request");
-    Route::post("orders/logistic", StoreCollectRequestController::class)->name("orders.logistic")->middleware("providerAccess:Order.Create");
-    Route::post("orders/create-by-barcode", AddOrderByBarcodeController::class)->name("orders.create-by-barcode")->middleware("providerAccess:Order.Create");
-    Route::get("orders", [OrderController::class, "index"])->name("orders.index")->middleware("providerAccess:Order.Index");
-    Route::resource("orders", OrderController::class)->only(["create", "store"])->middleware("providerAccess:Order.Create");
-    Route::resource("orders", OrderController::class)->only(["show", "destroy"]);
-    Route::get("orderMaterials", [OrderMaterialController::class, "index"])->name("orderMaterials.index")->middleware("providerAccess:OrderMaterial.Index");
-    Route::resource("orderMaterials", OrderMaterialController::class)->only(["store"])->middleware("providerAccess:OrderMaterial.Create");
-    Route::resource("orderMaterials", OrderMaterialController::class)->only(["show"]);
-    Route::get("orders/{order}/report", DownloadReportController::class)->name("orders.report");
-    Route::get("orders/{order}/edit/{step}", [OrderController::class, "edit"])->name("orders.edit");
-    Route::put("orders/{order}/edit/{step}", [OrderController::class, "update"])->name("orders.update");
-    Route::get("order-summary/{order}", DownloadOrderSummaryController::class)->name("order-summary");
-    Route::get("/tests/list", ListUserTestsController::class)->name("api.user.tests.list");
-    Route::get("/tests-by-barcode", ListTestsByBarcodeController::class)->name("tests-by-barcode");
-    Route::get("tests", ListTestController::class)->name("tests.index");
+    Route::get('/files/{type}/{id}/{filename?}', GetFileController::class)->name('file');
+    Route::get('samples', [SampleController::class, 'index'])->name('samples.index')->middleware('providerAccess:Sample.Index');
+    Route::post('samples/collect-request', StoreSampleCollectRequestController::class)->name('samples.collect-request');
+    Route::post('orders/logistic', StoreCollectRequestController::class)->name('orders.logistic')->middleware('providerAccess:Order.Create');
+    Route::post('orders/create-by-barcode', AddOrderByBarcodeController::class)->name('orders.create-by-barcode')->middleware('providerAccess:Order.Create');
+    Route::get('orders', [OrderController::class, 'index'])->name('orders.index')->middleware('providerAccess:Order.Index');
+    Route::resource('orders', OrderController::class)->only(['create', 'store'])->middleware('providerAccess:Order.Create');
+    Route::resource('orders', OrderController::class)->only(['show', 'destroy']);
+    Route::get('orderMaterials', [OrderMaterialController::class, 'index'])->name('orderMaterials.index')->middleware('providerAccess:OrderMaterial.Index');
+    Route::resource('orderMaterials', OrderMaterialController::class)->only(['store'])->middleware('providerAccess:OrderMaterial.Create');
+    Route::resource('orderMaterials', OrderMaterialController::class)->only(['show']);
+    Route::get('orders/{order}/report', DownloadReportController::class)->name('orders.report');
+    Route::get('orders/{order}/edit/{step}', [OrderController::class, 'edit'])->name('orders.edit');
+    Route::put('orders/{order}/edit/{step}', [OrderController::class, 'update'])->name('orders.update');
+    Route::get('order-summary/{order}', DownloadOrderSummaryController::class)->name('order-summary');
+    Route::get('/tests/list', ListUserTestsController::class)->name('api.user.tests.list');
+    Route::get('/tests-by-barcode', ListTestsByBarcodeController::class)->name('tests-by-barcode');
+    Route::get('tests', ListTestController::class)->name('tests.index');
 });
 
-Route::get("tester/", function () {
-});
+Route::get('tester/', function () {});
 
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';

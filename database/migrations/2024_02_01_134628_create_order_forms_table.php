@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('order_forms', function (Blueprint $table) {
             $table->id();
-            $table->string("name")->unique();
-            $table->text("file");
-            $table->json("formData");
+            $table->string('name')->unique();
+            $table->text('file');
+            $table->json('formData');
             $table->timestamps();
         });
     }

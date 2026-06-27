@@ -1,30 +1,24 @@
 <?php
+
 namespace App\Traits;
 
-use Illuminate\Support\Arr;
 use Illuminate\Database\Eloquent\Builder;
-
+use Illuminate\Support\Arr;
 
 trait Searchable
 {
-
     /**
      * Scope a query to search for a term in the attributes
-     *
-     * @param Builder $query
-     * @return Builder
      */
     protected function scopeSearch(Builder $query): Builder
     {
 
         [$searchTerm, $attributes] = $this->parseArguments(func_get_args());
 
-
-        if (!$searchTerm || !$attributes) {
+        if (! $searchTerm || ! $attributes) {
 
             return $query;
         }
-
 
         return $query->where(function (Builder $query) use ($attributes, $searchTerm) {
 
@@ -52,12 +46,9 @@ trait Searchable
         });
     }
 
-
-
     /**
      * Parse search scope arguments
      *
-     * @param array $arguments
      * @return array
      */
     private function parseArguments(array $arguments)
@@ -65,15 +56,13 @@ trait Searchable
 
         $args_count = count($arguments);
 
-
         switch ($args_count) {
 
             case 1:
 
-                return [request(config('searchable.key',"search")), $this->searchableAttributes()];
+                return [request(config('searchable.key', 'search')), $this->searchableAttributes()];
 
                 break;
-
 
             case 2:
 
@@ -85,7 +74,6 @@ trait Searchable
 
                 break;
 
-
             case 3:
                 return is_string($arguments[1])
 
@@ -95,7 +83,6 @@ trait Searchable
 
                 break;
 
-
             default:
 
                 return [null, []];
@@ -104,12 +91,8 @@ trait Searchable
         }
     }
 
-
-
     /**
      * Get searchable columns
-     *
-     * @return array
      */
     public function searchableAttributes(): array
     {
@@ -118,7 +101,6 @@ trait Searchable
 
             return $this->searchable();
         }
-
 
         return property_exists($this, 'searchable') ? $this->searchable : [];
     }

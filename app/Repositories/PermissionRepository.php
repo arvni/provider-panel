@@ -1,13 +1,10 @@
 <?php
 
-
 namespace App\Repositories;
-
 
 use App\Interfaces\PermissionRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
-use JetBrains\PhpStorm\ArrayShape;
 use Spatie\Permission\Models\Permission;
 
 class PermissionRepository extends BaseRepository implements PermissionRepositoryInterface
@@ -19,19 +16,25 @@ class PermissionRepository extends BaseRepository implements PermissionRepositor
 
     public function list(array $queryData): LengthAwarePaginator
     {
-        if (isset($queryData["filters"]))
-            $this->applyFilter($queryData["filters"]);
-        if (isset($queryData["sort"]))
-            $this->applyOrderBy($queryData["sort"]);
-        return $this->applyPagination($queryData["pageSize"]??$this->pageSize);
+        if (isset($queryData['filters'])) {
+            $this->applyFilter($queryData['filters']);
+        }
+        if (isset($queryData['sort'])) {
+            $this->applyOrderBy($queryData['sort']);
+        }
+
+        return $this->applyPagination($queryData['pageSize'] ?? $this->pageSize);
     }
 
     public function getAll(array $queryData): Collection|array
     {
-        if (isset($queryData["filters"]))
-            $this->applyFilter($queryData["filters"]);
-        if (isset($queryData["sort"]))
-            $this->applyOrderBy($queryData["sort"]);
+        if (isset($queryData['filters'])) {
+            $this->applyFilter($queryData['filters']);
+        }
+        if (isset($queryData['sort'])) {
+            $this->applyOrderBy($queryData['sort']);
+        }
+
         return $this->applyGet();
     }
 
@@ -57,38 +60,37 @@ class PermissionRepository extends BaseRepository implements PermissionRepositor
 
     public function applyFilter($filters = []): void
     {
-        if (isset($filters["search"])) {
-            $this->query->where("name", "ilike", "%" . $filters["search"] . "%");
+        if (isset($filters['search'])) {
+            $this->query->where('name', 'ilike', '%'.$filters['search'].'%');
         }
-        if (isset($filters["name"])) {
-            $this->query->where("name", "ilike", "%" . $filters["name"] . "%");
+        if (isset($filters['name'])) {
+            $this->query->where('name', 'ilike', '%'.$filters['name'].'%');
         }
     }
 
-    public function getPermissionByName($name): Permission|null
+    public function getPermissionByName($name): ?Permission
     {
-        return $this->query->where("name", $name)->first();
+        return $this->query->where('name', $name)->first();
     }
-
 
     public function preparedPermissions()
     {
-        return $this->query->orderBy("name")->get(['name', 'id'])
+        return $this->query->orderBy('name')->get(['name', 'id'])
             ->map(function ($item) {
-                $sections = explode(".", $item->name);
-                list($section, $parentClass, $parentId, $class, $id) = optional($sections);
+                $sections = explode('.', $item->name);
+                [$section, $parentClass, $parentId, $class, $id] = optional($sections);
+
                 return [
-                    "name" => $id ? "$class->$id" : ($class ? "$parentId->$class" : ($parentId ? "$parentClass->$parentId" : ($parentClass ? $parentClass : $section))),
-                    "id" => $item->id,
-                    "key" => $item->name,
-                    "level" => !!$section + !!$parentClass + !!$parentId + !!$class + !!$id,
-                    "section" => __("$section"),
-                    "subSection" => __("$parentClass"),
-                    "lastGroup" => $parentId
+                    'name' => $id ? "$class->$id" : ($class ? "$parentId->$class" : ($parentId ? "$parentClass->$parentId" : ($parentClass ? $parentClass : $section))),
+                    'id' => $item->id,
+                    'key' => $item->name,
+                    'level' => (bool) $section + (bool) $parentClass + (bool) $parentId + (bool) $class + (bool) $id,
+                    'section' => __("$section"),
+                    'subSection' => __("$parentClass"),
+                    'lastGroup' => $parentId,
                 ];
-            })->groupBy("section")->map(function ($item) {
-                return $item->groupBy("subSection");
+            })->groupBy('section')->map(function ($item) {
+                return $item->groupBy('subSection');
             });
     }
-
 }

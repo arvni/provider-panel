@@ -15,7 +15,9 @@ class AdminCollectRequestNotification extends Notification implements ShouldQueu
     use Queueable;
 
     protected CollectRequest $collectRequest;
+
     protected string $action;
+
     protected ?array $changes;
 
     /**
@@ -49,28 +51,28 @@ class AdminCollectRequestNotification extends Notification implements ShouldQueu
             ->line($this->getActionMessage());
 
         // Add request details
-        $message->line("**Request Details:**")
+        $message->line('**Request Details:**')
             ->line("• ID: #{$this->collectRequest->id}")
             ->line("• Customer: {$this->collectRequest->user->name}")
             ->line("• Status: {$this->collectRequest->status->getLabel()}")
             ->line("• Created: {$this->collectRequest->created_at->format('M d, Y H:i')}");
 
         if ($this->collectRequest->preferred_date) {
-            $date = Carbon::parse($this->collectRequest->preferred_date, "Asia/Muscat");
+            $date = Carbon::parse($this->collectRequest->preferred_date, 'Asia/Muscat');
             $message->line("• Preferred Date: {$date->format('M d, Y')}");
         }
 
         // Add change details for updates
         if ($this->action === 'updated' && $this->changes) {
-            $message->line("**Changes Made:**");
+            $message->line('**Changes Made:**');
             foreach ($this->changes as $field => $change) {
-                $message->line("• " . $this->formatChange($field, $change));
+                $message->line('• '.$this->formatChange($field, $change));
             }
         }
 
         // Add details if available
         if ($this->collectRequest->details) {
-            $message->line("**Additional Details:**");
+            $message->line('**Additional Details:**');
             if (is_array($this->collectRequest->details)) {
                 foreach ($this->collectRequest->details as $key => $value) {
                     if (is_array($value)) {
@@ -78,7 +80,7 @@ class AdminCollectRequestNotification extends Notification implements ShouldQueu
                     } elseif (is_bool($value)) {
                         $value = $value ? 'Yes' : 'No';
                     }
-                    $message->line("• " . ucfirst((string) $key) . ": " . $value);
+                    $message->line('• '.ucfirst((string) $key).': '.$value);
                 }
             } else {
                 $message->line($this->collectRequest->details);
@@ -105,7 +107,7 @@ class AdminCollectRequestNotification extends Notification implements ShouldQueu
             'action' => $this->action,
             'status' => $this->collectRequest->status->value,
             'status_label' => $this->collectRequest->status->getLabel(),
-            'preferred_date' => Carbon::parse($this->collectRequest->preferred_date, "Asia/Muscat")?->toDateString(),
+            'preferred_date' => Carbon::parse($this->collectRequest->preferred_date, 'Asia/Muscat')?->toDateString(),
             'changes' => $this->changes,
             'message' => $this->getActionMessage(),
             'url' => $this->getAdminUrl(),
@@ -124,7 +126,7 @@ class AdminCollectRequestNotification extends Notification implements ShouldQueu
             'updated' => "Collect Request #{$this->collectRequest->id} Updated - {$this->collectRequest->status->getLabel()}",
             'deleted' => "Collect Request #{$this->collectRequest->id} Deleted",
             'restored' => "Collect Request #{$this->collectRequest->id} Restored",
-            default => "Collect Request #{$this->collectRequest->id} - " . ucfirst($this->action),
+            default => "Collect Request #{$this->collectRequest->id} - ".ucfirst($this->action),
         };
     }
 
@@ -154,8 +156,8 @@ class AdminCollectRequestNotification extends Notification implements ShouldQueu
         // Special formatting for specific fields
         return match ($field) {
             'status' => "{$fieldName}: {$old} → {$new}",
-            'preferred_date' => "{$fieldName}: " . ($old ? date('M d, Y', strtotime($old)) : 'Not set') .
-                " → " . ($new ? date('M d, Y', strtotime($new)) : 'Not set'),
+            'preferred_date' => "{$fieldName}: ".($old ? date('M d, Y', strtotime($old)) : 'Not set').
+                ' → '.($new ? date('M d, Y', strtotime($new)) : 'Not set'),
             'details' => "{$fieldName}: Updated",
             default => "{$fieldName}: {$old} → {$new}",
         };
@@ -166,7 +168,7 @@ class AdminCollectRequestNotification extends Notification implements ShouldQueu
      */
     private function getAdminUrl(): string
     {
-        return route("admin.collectRequests.show", $this->collectRequest->id);
+        return route('admin.collectRequests.show', $this->collectRequest->id);
     }
 
     /**

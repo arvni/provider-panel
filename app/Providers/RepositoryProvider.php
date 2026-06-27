@@ -13,22 +13,22 @@ class RepositoryProvider extends ServiceProvider
      */
     public function register()
     {
-        $models = array(
+        $models = [
             'Permission',
             'Role',
             'User',
-            "Consent",
-            "Instruction",
-            "ConsentTerm",
-            "OrderForm",
-            "OrderMaterial",
-            "SampleType",
-            "Test",
-            "Order",
-            "CollectRequest",
-            "Material",
-            "Patient"
-        );
+            'Consent',
+            'Instruction',
+            'ConsentTerm',
+            'OrderForm',
+            'OrderMaterial',
+            'SampleType',
+            'Test',
+            'Order',
+            'CollectRequest',
+            'Material',
+            'Patient',
+        ];
 
         foreach ($models as $model) {
             $this->app->bind("App\Interfaces\\{$model}RepositoryInterface", "App\Repositories\\{$model}Repository");

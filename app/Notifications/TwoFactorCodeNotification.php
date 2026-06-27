@@ -21,9 +21,7 @@ class TwoFactorCodeNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    public function __construct(protected string $code, protected int $userId)
-    {
-    }
+    public function __construct(protected string $code, protected int $userId) {}
 
     /**
      * @return array<int, string>
@@ -38,13 +36,13 @@ class TwoFactorCodeNotification extends Notification implements ShouldQueue
         $minutes = config('two_factor.expiry', 10);
 
         return (new MailMessage)
-            ->subject('Your ' . config('app.name') . ' login code')
-            ->greeting('Hello ' . ($notifiable->name ?? '') . ',')
+            ->subject('Your '.config('app.name').' login code')
+            ->greeting('Hello '.($notifiable->name ?? '').',')
             ->line('Use the following code to finish signing in:')
-            ->line('# ' . $this->code)
+            ->line('# '.$this->code)
             ->line("This code expires in {$minutes} minutes and can only be used once.")
             ->line('If you did not try to sign in, you can safely ignore this email and your password should be changed.')
-            ->salutation('Best regards,<br>' . config('app.name'));
+            ->salutation('Best regards,<br>'.config('app.name'));
     }
 
     /**

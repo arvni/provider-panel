@@ -10,14 +10,14 @@ class Material extends Model
     use HasFactory;
 
     protected $fillable = [
-        "order_material_id",
-        "sample_type_id",
-        "barcode",
-        "expire_date"
+        'order_material_id',
+        'sample_type_id',
+        'barcode',
+        'expire_date',
     ];
 
     protected $casts = [
-        "expire_date" => "datetime:Y-m-d"
+        'expire_date' => 'datetime:Y-m-d',
     ];
 
     public function Sample()
@@ -42,9 +42,8 @@ class Material extends Model
 
     public function scopeUsed($query)
     {
-        return $query->whereHas("Sample", function ($q) {
-            $q->whereNotNull("samples.id");
+        return $query->whereHas('Sample', function ($q) {
+            $q->whereNotNull('samples.id');
         });
     }
-
 }

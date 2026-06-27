@@ -26,7 +26,8 @@ class SampleTypeController extends Controller
     public function index(Request $request)
     {
         $sampleTypes = $this->sampleTypeRepository->list($request->all());
-        return Inertia::render("SampleType/Index", ["sampleTypes" => $sampleTypes, "request" => $request->all()]);
+
+        return Inertia::render('SampleType/Index', ['sampleTypes' => $sampleTypes, 'request' => $request->all()]);
     }
 
     /**
@@ -35,7 +36,8 @@ class SampleTypeController extends Controller
     public function store(StoreSampleTypeRequest $request)
     {
         $this->sampleTypeRepository->create($request->all());
-        return redirect()->back()->with(["status" => __("messages.successfullyAdded", ["type" => "Sample Type", "title" => $request->get("name")])]);
+
+        return redirect()->back()->with(['status' => __('messages.successfullyAdded', ['type' => 'Sample Type', 'title' => $request->get('name')])]);
     }
 
     /**
@@ -52,7 +54,8 @@ class SampleTypeController extends Controller
     public function update(UpdateSampleTypeRequest $request, SampleType $sampleType)
     {
         $this->sampleTypeRepository->update($sampleType, $request->all());
-        return redirect()->back()->with(["status" => __("messages.successfullyUpdated", ["type" => "Sample Type", "title" => $request->get("name")])]);
+
+        return redirect()->back()->with(['status' => __('messages.successfullyUpdated', ['type' => 'Sample Type', 'title' => $request->get('name')])]);
     }
 
     /**
@@ -60,8 +63,9 @@ class SampleTypeController extends Controller
      */
     public function destroy(SampleType $sampleType)
     {
-        $title=$sampleType->name;
+        $title = $sampleType->name;
         $this->sampleTypeRepository->delete($sampleType);
-        return redirect()->back()->with(["status" => __("messages.successfullyDeleted", ["type" => "Sample Type", "title" => $title])]);
+
+        return redirect()->back()->with(['status' => __('messages.successfullyDeleted', ['type' => 'Sample Type', 'title' => $title])]);
     }
 }

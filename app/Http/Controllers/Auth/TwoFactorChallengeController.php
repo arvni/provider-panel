@@ -137,7 +137,7 @@ class TwoFactorChallengeController extends Controller
             return redirect()->route('login');
         }
 
-        $resendKey = 'two-factor-resend:' . $user->id;
+        $resendKey = 'two-factor-resend:'.$user->id;
         $throttle = (int) config('two_factor.resend_throttle', 60);
 
         if (RateLimiter::tooManyAttempts($resendKey, 1)) {
@@ -217,7 +217,7 @@ class TwoFactorChallengeController extends Controller
 
     private function throttleKey(Request $request, int $userId): string
     {
-        return Str::lower('two-factor|' . $userId . '|' . $request->ip());
+        return Str::lower('two-factor|'.$userId.'|'.$request->ip());
     }
 
     /**
@@ -232,8 +232,8 @@ class TwoFactorChallengeController extends Controller
         }
 
         $visible = mb_substr($name, 0, 1);
-        $masked = $visible . str_repeat('*', max(mb_strlen($name) - 1, 1));
+        $masked = $visible.str_repeat('*', max(mb_strlen($name) - 1, 1));
 
-        return $masked . '@' . $domain;
+        return $masked.'@'.$domain;
     }
 }

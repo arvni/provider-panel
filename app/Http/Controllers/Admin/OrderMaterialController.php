@@ -5,8 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Interfaces\OrderMaterialRepositoryInterface;
 use App\Models\OrderMaterial;
-use App\Http\Requests\StoreOrderMaterialRequest;
-use App\Http\Requests\UpdateOrderMaterialRequest;
 use App\Models\SampleType;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
@@ -20,40 +18,40 @@ class OrderMaterialController extends Controller
     public function __construct(OrderMaterialRepositoryInterface $orderMaterialRepository)
     {
         $this->orderMaterialRepository = $orderMaterialRepository;
-        $this->middleware("indexProvider")->only("index");
+        $this->middleware('indexProvider')->only('index');
     }
 
     /**
      * Display a listing of the resource.
      *
-     * @param Request $request
-     * @return Response
      * @throws AuthorizationException
      */
     public function index(Request $request): Response
     {
-        $this->authorize("viewAny", OrderMaterial::class);
+        $this->authorize('viewAny', OrderMaterial::class);
         $requestInputs = $request->all();
-        $orderMaterials = fn() => $this->orderMaterialRepository->list($requestInputs);
-        $sampleTypes = SampleType::where("orderable", true)->get();
-        $data = ["orderMaterials" => $orderMaterials, "request" => $requestInputs, "sampleTypes" => $sampleTypes];
+        $orderMaterials = fn () => $this->orderMaterialRepository->list($requestInputs);
+        $sampleTypes = SampleType::where('orderable', true)->get();
+        $data = ['orderMaterials' => $orderMaterials, 'request' => $requestInputs, 'sampleTypes' => $sampleTypes];
+
         return Inertia::render('OrderMaterial/AdminIndex', $data);
     }
-
 
     /**
      * Display the specified resource.
      */
     public function show(OrderMaterial $orderMaterial)
     {
-        $this->authorize("view", $orderMaterial);
-        return view("Materials", ["orderMaterial" => $this->orderMaterialRepository->show($orderMaterial)]);
+        $this->authorize('view', $orderMaterial);
+
+        return view('Materials', ['orderMaterial' => $this->orderMaterialRepository->show($orderMaterial)]);
     }
 
     public function destroy(OrderMaterial $orderMaterial)
     {
-        $this->authorize("delete", $orderMaterial);
+        $this->authorize('delete', $orderMaterial);
         $this->orderMaterialRepository->delete($orderMaterial);
-        return back()->with(["status" => __("messages.successfullyDeleted", ["title" => "Order Material"])]);
+
+        return back()->with(['status' => __('messages.successfullyDeleted', ['title' => 'Order Material'])]);
     }
 }

@@ -13,13 +13,14 @@ class CheckOrderForLogistic implements ValidationRule
     /**
      * Run the validation rule.
      *
-     * @param Closure(string): PotentiallyTranslatedString $fail
+     * @param  Closure(string): PotentiallyTranslatedString  $fail
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         $orderRepository = app(OrderRepositoryInterface::class);
         $order = $orderRepository->getById($value);
-        if ($order->status !== OrderStatus::REQUESTED)
-            $fail("the order status must be in requested");
+        if ($order->status !== OrderStatus::REQUESTED) {
+            $fail('the order status must be in requested');
+        }
     }
 }

@@ -5,9 +5,7 @@ namespace Database\Seeders;
 use App\Models\SampleType;
 use App\Models\Test;
 use App\Services\ApiService;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
 class TestSeeder extends Seeder
@@ -17,52 +15,56 @@ class TestSeeder extends Seeder
      */
     public function run(): void
     {
-        $url = config("api.server_url") . config("api.tests_path");
+        $url = config('api.server_url').config('api.tests_path');
         $tests = ApiService::get($url);
         foreach ($tests->json() as $test) {
-            $t = Test::where("server_id", $test["id"])->first();
-            if (!$t)
+            $t = Test::where('server_id', $test['id'])->first();
+            if (! $t) {
                 $t = Test::factory()->create(
                     [
-                        "server_id" => $test["id"],
-                        "name" => $test["fullName"],
-                        "code" => $test["code"],
-                        "shortName" => $test["name"],
-                        "description" => $test["description"],
-                        "turnaroundTime" => $test["methods_max_turnaround_time"] / 24 ?? 0,
-                        "is_active" => false
+                        'server_id' => $test['id'],
+                        'name' => $test['fullName'],
+                        'code' => $test['code'],
+                        'shortName' => $test['name'],
+                        'description' => $test['description'],
+                        'turnaroundTime' => $test['methods_max_turnaround_time'] / 24 ?? 0,
+                        'is_active' => false,
                     ]
                 );
-            else
+            } else {
                 $t->fill([
-                    "server_id" => $test["id"],
-                    "name" => $test["fullName"],
-                    "code" => $test["code"],
-                    "shortName" => $test["name"],
-                    "description" => $test["description"],
-                    "turnaroundTime" => $test["methods_max_turnaround_time"] / 24 ?? 0,
+                    'server_id' => $test['id'],
+                    'name' => $test['fullName'],
+                    'code' => $test['code'],
+                    'shortName' => $test['name'],
+                    'description' => $test['description'],
+                    'turnaroundTime' => $test['methods_max_turnaround_time'] / 24 ?? 0,
                 ]);
-            if ($t->isDirty())
+            }
+            if ($t->isDirty()) {
                 $t->save();
+            }
             $output = [];
-            foreach ($test["sample_types"] as $sample_type) {
-                $st = SampleType::find($sample_type["id"]);
-                if (!$st)
+            foreach ($test['sample_types'] as $sample_type) {
+                $st = SampleType::find($sample_type['id']);
+                if (! $st) {
                     $st = SampleType::create([
-                        "id" => $sample_type["id"],
-                        "name" => $sample_type["name"],
+                        'id' => $sample_type['id'],
+                        'name' => $sample_type['name'],
                     ]);
-                else
+                } else {
                     $st->fill([
-                        "name" => $sample_type["name"]
+                        'name' => $sample_type['name'],
                     ]);
-                if ($st->isDirty())
+                }
+                if ($st->isDirty()) {
                     $st->save();
+                }
 
                 $output[$st->id] = [
-                    "id" => Str::uuid(),
-                    "description" => $sample_type["pivot"]["description"],
-                    "is_default" => $sample_type["pivot"]["defaultType"]
+                    'id' => Str::uuid(),
+                    'description' => $sample_type['pivot']['description'],
+                    'is_default' => $sample_type['pivot']['defaultType'],
                 ];
 
             }

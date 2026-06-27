@@ -18,7 +18,7 @@ class UpdateOrderRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return Gate::allows("update", $this->route()->parameter("order"));
+        return Gate::allows('update', $this->route()->parameter('order'));
     }
 
     /**
@@ -28,43 +28,45 @@ class UpdateOrderRequest extends FormRequest
      */
     public function rules(): array
     {
-        $step = $this->route()->parameter("step");
+        $step = $this->route()->parameter('step');
         switch ($step) {
             case OrderStep::PATIENT_DETAILS:
                 // Support both single patient (backward compatibility) and multiple patients array
                 if ($this->has('patients')) {
                     return [
-                        "patients" => "required|array|min:1",
-                        "patients.*.id" => "sometimes|exists:patients,id",
-                        "patients.*.consanguineousParents" => ["required", Rule::in(["-1", "0", "1", -1, 0, 1])],
-                        "patients.*.fullName" => "required",
-                        "patients.*.gender" => ["required", Rule::in(["-1", "0", "1", -1, 0, 1])],
-                        "patients.*.dateOfBirth" => "required|date_format:Y-m-d|before:today",
-                        "patients.*.nationality.code" => ["required", function ($attribute, $value, $fail) {
-                            if ((new Nationality)($value) == -1)
-                                $fail("Please Select A nationality");
-                        }]
+                        'patients' => 'required|array|min:1',
+                        'patients.*.id' => 'sometimes|exists:patients,id',
+                        'patients.*.consanguineousParents' => ['required', Rule::in(['-1', '0', '1', -1, 0, 1])],
+                        'patients.*.fullName' => 'required',
+                        'patients.*.gender' => ['required', Rule::in(['-1', '0', '1', -1, 0, 1])],
+                        'patients.*.dateOfBirth' => 'required|date_format:Y-m-d|before:today',
+                        'patients.*.nationality.code' => ['required', function ($attribute, $value, $fail) {
+                            if ((new Nationality)($value) == -1) {
+                                $fail('Please Select A nationality');
+                            }
+                        }],
                     ];
                 } else {
                     // Backward compatibility: single patient format
                     return [
-                        "id" => "exists:patients,id",
-                        "consanguineousParents" => ["required", Rule::in(["-1", "0", "1", -1, 0, 1])],
-                        "fullName" => "required",
-                        "gender" => ["required", Rule::in(["-1", "0", "1", -1, 0, 1])],
-                        "dateOfBirth" => "required|date_format:Y-m-d|before:today",
-                        "nationality.code" => ["required", function ($attribute, $value, $fail) {
-                            if ((new Nationality)($value) == -1)
-                                $fail("Please Select A nationality");
-                        }]
+                        'id' => 'exists:patients,id',
+                        'consanguineousParents' => ['required', Rule::in(['-1', '0', '1', -1, 0, 1])],
+                        'fullName' => 'required',
+                        'gender' => ['required', Rule::in(['-1', '0', '1', -1, 0, 1])],
+                        'dateOfBirth' => 'required|date_format:Y-m-d|before:today',
+                        'nationality.code' => ['required', function ($attribute, $value, $fail) {
+                            if ((new Nationality)($value) == -1) {
+                                $fail('Please Select A nationality');
+                            }
+                        }],
                     ];
                 }
             case OrderStep::SAMPLE_DETAILS:
                 return [
-                    "samples" => ["required", new CheckSamples($this->route()->parameter("order"))],
-                    "samples.*" => ["required", new CheckSampleMaterial()],
-                    "samples.*.collectionDate" => "required|date|before_or_equal:today",
-                    "samples.*.pooling" => "boolean",
+                    'samples' => ['required', new CheckSamples($this->route()->parameter('order'))],
+                    'samples.*' => ['required', new CheckSampleMaterial],
+                    'samples.*.collectionDate' => 'required|date|before_or_equal:today',
+                    'samples.*.pooling' => 'boolean',
                 ];
             default:
                 return [];

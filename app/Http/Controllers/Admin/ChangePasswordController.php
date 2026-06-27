@@ -23,13 +23,14 @@ class ChangePasswordController extends Controller
      */
     public function __invoke(User $user, Request $request)
     {
-        $this->authorize("changePassword", $user);
+        $this->authorize('changePassword', $user);
         $validated = $request->validate([
             'password' => ['required', Password::defaults(), 'confirmed'],
         ]);
         $this->userRepository->edit($user, [
             'password' => Hash::make($validated['password']),
         ]);
-        return redirect()->route("admin.users.index")->with(["status" => "Password Successfully Changed"]);
+
+        return redirect()->route('admin.users.index')->with(['status' => 'Password Successfully Changed']);
     }
 }

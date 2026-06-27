@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Jobs\SendCollectionRequest;
 use App\Jobs\SendOrderMaterial;
 use App\Models\CollectRequest;
 use App\Models\OrderMaterial;
@@ -10,8 +9,8 @@ use App\Models\User;
 use App\Notifications\AdminCollectRequestNotification;
 use App\Notifications\AdminOrderMaterialNotification;
 use Exception;
-use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 
 class AdminNotificationService
 {
@@ -20,18 +19,18 @@ class AdminNotificationService
      */
     public static function sendCollectRequestNotification(
         CollectRequest $collectRequest,
-        string         $action,
-        ?array         $changes = null
-    ): void
-    {
+        string $action,
+        ?array $changes = null
+    ): void {
         try {
             $admins = static::getAdminUsers();
 
             if ($admins->isEmpty()) {
                 Log::warning('No admin users found for collect request notification', [
                     'collect_request_id' => $collectRequest->id,
-                    'action' => $action
+                    'action' => $action,
                 ]);
+
                 return;
             }
 
@@ -43,14 +42,14 @@ class AdminNotificationService
             Log::info('Admin notification sent for collect request', [
                 'collect_request_id' => $collectRequest->id,
                 'action' => $action,
-                'admin_count' => $admins->count()
+                'admin_count' => $admins->count(),
             ]);
 
         } catch (Exception $e) {
             Log::error('Failed to send admin collect request notification', [
                 'collect_request_id' => $collectRequest->id,
                 'action' => $action,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }
@@ -76,9 +75,8 @@ class AdminNotificationService
      */
     public static function sendUrgentNotification(
         CollectRequest $collectRequest,
-        string         $reason
-    ): void
-    {
+        string $reason
+    ): void {
         try {
             $admins = static::getAdminUsers();
 
@@ -98,7 +96,7 @@ class AdminNotificationService
             Log::error('Failed to send urgent admin notification', [
                 'collect_request_id' => $collectRequest->id,
                 'reason' => $reason,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }
@@ -108,9 +106,8 @@ class AdminNotificationService
      */
     public static function sendOrderMaterialNotification(
         OrderMaterial $orderMaterial,
-        string        $reason
-    ): void
-    {
+        string $reason
+    ): void {
         try {
             $admins = static::getAdminUsers();
 
@@ -130,7 +127,7 @@ class AdminNotificationService
             Log::error('Failed to send urgent admin notification', [
                 'collect_request_id' => $orderMaterial->id,
                 'reason' => $reason,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }

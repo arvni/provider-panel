@@ -8,7 +8,7 @@ enum Gender: string
 {
     use InteractWithEnum;
 
-    case MALE = "1";
-    case FEMALE = "0";
-    case UNKNOWN = "-1";
+    case MALE = '1';
+    case FEMALE = '0';
+    case UNKNOWN = '-1';
 }

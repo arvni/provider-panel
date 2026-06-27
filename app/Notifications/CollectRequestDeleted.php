@@ -16,7 +16,7 @@ class CollectRequestDeleted extends Notification implements ShouldQueue
     /**
      * Create a new notification instance.
      */
-    public function __construct( $collectRequestId)
+    public function __construct($collectRequestId)
     {
         $this->collectRequestId = $collectRequestId;
     }

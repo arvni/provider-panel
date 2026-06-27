@@ -9,27 +9,27 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Test extends Model
 {
-    use Searchable, SoftDeletes, HasFactory;
+    use HasFactory, Searchable, SoftDeletes;
 
-    protected $searchable = ["name", "code", "shortName"];
+    protected $searchable = ['name', 'code', 'shortName'];
+
     protected $fillable = [
-        "server_id",
-        "name",
-        "code",
-        "shortName",
-        "description",
-        "turnaroundTime",
-        "is_active",
-        "multi_add",
-        "gender"
+        'server_id',
+        'name',
+        'code',
+        'shortName',
+        'description',
+        'turnaroundTime',
+        'is_active',
+        'multi_add',
+        'gender',
     ];
 
     protected $casts = [
-        "multi_add" => "boolean",
-        "is_active" => "boolean",
-        "gender" => "json"
+        'multi_add' => 'boolean',
+        'is_active' => 'boolean',
+        'gender' => 'json',
     ];
-
 
     public function Instruction()
     {
@@ -49,36 +49,34 @@ class Test extends Model
     public function SampleTypes()
     {
         return $this->hasMany(SampleTypeTest::class)
-            ->with(["SampleType"]);
+            ->with(['SampleType']);
     }
 
     public function AllSampleTypes()
     {
-        return $this->hasManyThrough(SampleType::class, SampleTypeTest::class, "test_id", "id", "id", "sample_type_id");
+        return $this->hasManyThrough(SampleType::class, SampleTypeTest::class, 'test_id', 'id', 'id', 'sample_type_id');
     }
 
     public function ServerSampleTypes()
     {
-        return $this->belongsToMany(SampleType::class, "sample_type_test")->withPivot(["is_default", "description", "id"]);
+        return $this->belongsToMany(SampleType::class, 'sample_type_test')->withPivot(['is_default', 'description', 'id']);
     }
 
     public function DefaultSampleType()
     {
-        return $this->hasManyThrough(SampleType::class, SampleTypeTest::class, "test_id", "id", "id", "sample_type_id")
+        return $this->hasManyThrough(SampleType::class, SampleTypeTest::class, 'test_id', 'id', 'id', 'sample_type_id')
             ->one()
-            ->where("is_default", true)
-            ->with(["SampleType"]);
+            ->where('is_default', true)
+            ->with(['SampleType']);
     }
 
     public function scopeActive($query)
     {
-        return $query->where("is_active", true);
+        return $query->where('is_active', true);
     }
 
     public function Tests()
     {
         return $this->belongsToMany(User::class);
     }
-
-
 }

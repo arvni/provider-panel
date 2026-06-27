@@ -27,14 +27,11 @@ class EventServiceProvider extends ServiceProvider
     /**
      * Register any events for your application.
      */
-    public function boot(): void
-    {
-
-    }
+    public function boot(): void {}
 
     protected $observers = [
         CollectRequest::class => [CollectRequestObserver::class],
-        Order::class=>[OrderObserver::class],
+        Order::class => [OrderObserver::class],
     ];
 
     /**

@@ -14,7 +14,8 @@ class UpdateUserTestsListController extends Controller
      */
     public function __invoke(User $user, Request $request)
     {
-        $user->Tests()->sync(Arr::pluck($request->get("tests"),"id"));
-        return redirect()->route("admin.users.index");
+        $user->Tests()->sync(Arr::pluck($request->get('tests'), 'id'));
+
+        return redirect()->route('admin.users.index');
     }
 }

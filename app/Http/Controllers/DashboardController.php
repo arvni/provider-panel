@@ -22,6 +22,7 @@ class DashboardController extends Controller
     {
         $recentlyOrders = $this->orderRepository->getRecentlyOrders();
         $notDownloadedReports = $this->orderRepository->notDownloadedOrdersReportCount();
-        return Inertia::render('Dashboard', compact("recentlyOrders", "notDownloadedReports"));
+
+        return Inertia::render('Dashboard', compact('recentlyOrders', 'notDownloadedReports'));
     }
 }

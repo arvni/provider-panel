@@ -40,13 +40,14 @@ class MaterialRequested extends Mailable implements ShouldQueue
      */
     public function content(): Content
     {
-        $orderMaterial=OrderMaterial::query()
-            ->withAggregate("User", "name")
-            ->withAggregate("SampleType", "name")
-            ->where("id", $this->id)->first();
+        $orderMaterial = OrderMaterial::query()
+            ->withAggregate('User', 'name')
+            ->withAggregate('SampleType', 'name')
+            ->where('id', $this->id)->first();
+
         return new Content(
             view: 'Mail.material',
-            with: ["orderMaterial"=>$orderMaterial]
+            with: ['orderMaterial' => $orderMaterial]
         );
     }
 

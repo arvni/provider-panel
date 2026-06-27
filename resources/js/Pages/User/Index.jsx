@@ -144,14 +144,14 @@ function Index({users: {data: usersData, ...pagination}, request}) {
             <PageHeader
                 title="Users"
                 actions={[
-                    <Button variant="contained"
+                    <Button key="add" variant="contained"
                             href={route("admin.users.create")}
                             onClick={handleAdd}
                             color="success"
                             startIcon={<AddIcon/>}>
                         Add
                     </Button>,
-                    <Button variant="contained"
+                    <Button key="sync" variant="contained"
                             onClick={syncUsers}
                             color="success"
                             startIcon={<Sync/>}>

@@ -10,20 +10,19 @@ class ConsentTerm extends Model
 {
     use HasFactory, Searchable;
 
-    protected $searchable=["name"];
+    protected $searchable = ['name'];
 
-    protected $fillable=[
-        "name",
-        "is_active"
+    protected $fillable = [
+        'name',
+        'is_active',
     ];
 
-    protected $casts=[
-        "is_active"=>"boolean"
+    protected $casts = [
+        'is_active' => 'boolean',
     ];
 
     public function scopeActive($query)
     {
-        return $query->where("is_active",true);
+        return $query->where('is_active', true);
     }
-
 }

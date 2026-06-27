@@ -29,7 +29,9 @@ function readStoredMode() {
 function saveMode(mode) {
     try {
         localStorage.setItem(COLOR_MODE_KEY, mode);
-    } catch {}
+    } catch {
+        /* localStorage unavailable (private mode / disabled) */
+    }
 }
 
 // Inner component — consumes the theme provided below

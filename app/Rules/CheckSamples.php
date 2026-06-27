@@ -15,22 +15,24 @@ class CheckSamples implements ValidationRule
     {
         $this->order = $order;
     }
+
     /**
      * Run the validation rule.
      *
-     * @param Closure(string): PotentiallyTranslatedString $fail
+     * @param  Closure(string): PotentiallyTranslatedString  $fail
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        $tests = $this->order->Tests()->with("SampleTypes")->get();
-        $sampleTypesId=array_map(fn($item)=>$item["sample_type"]["id"],$value);
-        $this->checkTestsSampleType($tests,$sampleTypesId,$fail);
+        $tests = $this->order->Tests()->with('SampleTypes')->get();
+        $sampleTypesId = array_map(fn ($item) => $item['sample_type']['id'], $value);
+        $this->checkTestsSampleType($tests, $sampleTypesId, $fail);
     }
-    protected function checkTestsSampleType($tests,array $sampleTypesId, Closure $fail)
+
+    protected function checkTestsSampleType($tests, array $sampleTypesId, Closure $fail)
     {
-        foreach ($tests as $test){
-            if($test->SampleTypes->whereIn("id",$sampleTypesId)->count()>0) {
-                $fail("Please select a sample type that related to the $test->name and these sample types will be acceptable: " . implode(", ", array_map(fn($b) => $b["sample_type"]["name"], $test->SampleTypes->toArray())));
+        foreach ($tests as $test) {
+            if ($test->SampleTypes->whereIn('id', $sampleTypesId)->count() > 0) {
+                $fail("Please select a sample type that related to the $test->name and these sample types will be acceptable: ".implode(', ', array_map(fn ($b) => $b['sample_type']['name'], $test->SampleTypes->toArray())));
             }
         }
     }

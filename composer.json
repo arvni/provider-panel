@@ -24,6 +24,7 @@
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
+        "larastan/larastan": "^3.0",
         "laravel/pint": "^1.13",
         "laravel/sail": "^1.29",
         "mockery/mockery": "^1.6",
@@ -56,7 +57,11 @@
         ],
         "post-create-project-cmd": [
             "@php artisan key:generate --ansi"
-        ]
+        ],
+        "lint": "pint",
+        "lint:test": "pint --test",
+        "analyse": "phpstan analyse --memory-limit=512M",
+        "test": "@php artisan test"
     },
     "extra": {
         "laravel": {

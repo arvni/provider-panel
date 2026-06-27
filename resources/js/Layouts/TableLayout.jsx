@@ -151,7 +151,7 @@ function renderCell(item, col) {
         case "number":
             return <Typography align={col.align || "right"}>{value.toLocaleString()}</Typography>;
 
-        case "status":
+        case "status": {
             const statusMap = {
                 active: "success",
                 pending: "warning",
@@ -176,6 +176,7 @@ function renderCell(item, col) {
                     />
                 </Box>
             );
+        }
 
         default:
             return <Typography variant="body2">{value}</Typography>;

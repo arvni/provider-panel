@@ -11,7 +11,6 @@ use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -24,13 +23,12 @@ use Illuminate\Support\Facades\Log;
 class RequestLogistic
 {
     private const REQUEST_TIMEOUT = 180;
+
     private const MAX_FILE_SIZE = 30485760; // ~30MB in bytes
 
     /**
      * Send a collect request to the main server
      *
-     * @param CollectRequest $collectRequest
-     * @return Response
      * @throws ApiServiceException
      */
     public static function send(CollectRequest $collectRequest): Response
@@ -43,18 +41,18 @@ class RequestLogistic
             // samples across several requests; resolving via samples keeps each
             // request sending exactly its own samples.
             $orders = Order::whereHas('OrderItems.Samples', function ($query) use ($collectRequest) {
-                    $query->where('samples.collect_request_id', $collectRequest->id);
-                })
+                $query->where('samples.collect_request_id', $collectRequest->id);
+            })
                 ->with([
-                    'OrderItems.Test',
-                    'OrderItems.Patients',
-                    'OrderItems.Samples' => function ($query) use ($collectRequest) {
-                        $query->where('samples.collect_request_id', $collectRequest->id)
-                            ->with(['SampleType', 'Material']);
-                    },
-                    'Patient',
-                    'Tests',
-                ])
+                'OrderItems.Test',
+                'OrderItems.Patients',
+                'OrderItems.Samples' => function ($query) use ($collectRequest) {
+                    $query->where('samples.collect_request_id', $collectRequest->id)
+                        ->with(['SampleType', 'Material']);
+                },
+                'Patient',
+                'Tests',
+            ])
                 ->get();
 
             $collectRequest->setRelation('Orders', $orders);
@@ -83,16 +81,16 @@ class RequestLogistic
             Log::info('Sending logistic request', [
                 'collect_request_id' => $collectRequest->id,
                 'orders_count' => $collectRequest->Orders->count(),
-                'referrer_id' => $collectRequest->User->referrer_id
+                'referrer_id' => $collectRequest->User->referrer_id,
             ]);
 
             $response = $request->post($url);
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 Log::error('Logistic request failed', [
                     'collect_request_id' => $collectRequest->id,
                     'status' => $response->status(),
-                    'body' => $response->body()
+                    'body' => $response->body(),
                 ]);
 
                 throw new ApiServiceException(
@@ -100,10 +98,10 @@ class RequestLogistic
                     $response->status()
                 );
             }
-            $collectRequest->update(["server_id" => $response->json('id')]);
+            $collectRequest->update(['server_id' => $response->json('id')]);
             Log::info('Logistic request successful', [
                 'collect_request_id' => $collectRequest->id,
-                'response_status' => $response->status()
+                'response_status' => $response->status(),
             ]);
 
             return $response;
@@ -115,7 +113,7 @@ class RequestLogistic
             Log::error('Unexpected error in logistic request', [
                 'collect_request_id' => $collectRequest->id ?? null,
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
 
             throw new ApiServiceException(
@@ -129,12 +127,11 @@ class RequestLogistic
     /**
      * Validate the collect request before sending
      *
-     * @param CollectRequest $collectRequest
      * @throws ApiServiceException
      */
     private static function validateCollectRequest(CollectRequest $collectRequest): void
     {
-        if (!$collectRequest->User || !$collectRequest->User->referrer_id) {
+        if (! $collectRequest->User || ! $collectRequest->User->referrer_id) {
             throw new ApiServiceException('Collect request user or referrer_id is missing', 400);
         }
 
@@ -143,7 +140,7 @@ class RequestLogistic
         }
 
         foreach ($collectRequest->Orders as $order) {
-            if (!$order->Patient) {
+            if (! $order->Patient) {
                 throw new ApiServiceException("Order {$order->id} has no patient assigned", 400);
             }
 
@@ -153,7 +150,7 @@ class RequestLogistic
 
             // Validate that all tests have server_id
             foreach ($order->Tests as $test) {
-                if (!$test->server_id) {
+                if (! $test->server_id) {
                     throw new ApiServiceException(
                         "Test '{$test->name}' (ID: {$test->id}) in order {$order->id} has no server_id",
                         400
@@ -164,13 +161,13 @@ class RequestLogistic
             // Validate that all samples have required data
             foreach ($order->OrderItems as $orderItem) {
                 foreach ($orderItem->Samples as $sample) {
-                    if (!$sample->SampleType) {
+                    if (! $sample->SampleType) {
                         throw new ApiServiceException(
                             "Sample {$sample->id} in order {$order->id} has no sample type",
                             400
                         );
                     }
-                    if (!$sample->SampleType->server_id) {
+                    if (! $sample->SampleType->server_id) {
                         throw new ApiServiceException(
                             "Sample type '{$sample->SampleType->name}' has no server_id",
                             400
@@ -184,7 +181,6 @@ class RequestLogistic
     /**
      * Build the authenticated multipart HTTP request
      *
-     * @return PendingRequest
      * @throws ApiServiceException
      */
     private static function buildMultipartRequest(): PendingRequest
@@ -196,9 +192,6 @@ class RequestLogistic
 
     /**
      * Prepare orders data for the request
-     *
-     * @param CollectRequest $collectRequest
-     * @return array
      */
     private static function prepareOrdersData(CollectRequest $collectRequest): array
     {
@@ -209,7 +202,7 @@ class RequestLogistic
 
             $ordersData[$orderId] = [
                 'order' => $order,
-                'data' => self::prepareOrderData($order)
+                'data' => self::prepareOrderData($order),
             ];
         }
 
@@ -218,20 +211,14 @@ class RequestLogistic
 
     /**
      * Generate a standardized order ID
-     *
-     * @param Order $order
-     * @return string
      */
     private static function generateOrderId(Order $order): string
     {
-        return 'OR' . Carbon::parse($order->created_at)->format('.Ymd.') . $order->id;
+        return 'OR'.Carbon::parse($order->created_at)->format('.Ymd.').$order->id;
     }
 
     /**
      * Prepare individual order data
-     *
-     * @param Order $order
-     * @return array
      */
     private static function prepareOrderData(Order $order): array
     {
@@ -241,60 +228,60 @@ class RequestLogistic
         $orderItems = $order->OrderItems
             ->filter(fn ($orderItem) => $orderItem->Samples->isNotEmpty())
             ->map(function ($orderItem) {
-            // Get samples for this order item
-            $samples = $orderItem->Samples->map(function ($sample) {
-                return [
-                    'id' => $sample->id,
-                    'sampleId' => $sample->sampleId,
-                    'sample_type_id' => $sample->SampleType->server_id ?? null,
-                    'material_id' => $sample->material_id,
-                    'collectionDate'=> $sample->collectionDate,
-                    'sample_type' => $sample->SampleType ? [
-                        'id'=>$sample->SampleType->id,
-                        'server_id' => $sample->SampleType->server_id,
-                        'name' => $sample->SampleType->name,
-                        'sample_id_required' => $sample->SampleType->sample_id_required,
-                    ] : null,
-                    'material' => $sample->Material ? [
-                        'id' => $sample->Material->id,
-                        'barcode' => $sample->Material->barcode,
-                    ] : null,
-                ];
-            })->toArray();
+                // Get samples for this order item
+                $samples = $orderItem->Samples->map(function ($sample) {
+                    return [
+                        'id' => $sample->id,
+                        'sampleId' => $sample->sampleId,
+                        'sample_type_id' => $sample->SampleType->server_id ?? null,
+                        'material_id' => $sample->material_id,
+                        'collectionDate' => $sample->collectionDate,
+                        'sample_type' => $sample->SampleType ? [
+                            'id' => $sample->SampleType->id,
+                            'server_id' => $sample->SampleType->server_id,
+                            'name' => $sample->SampleType->name,
+                            'sample_id_required' => $sample->SampleType->sample_id_required,
+                        ] : null,
+                        'material' => $sample->Material ? [
+                            'id' => $sample->Material->id,
+                            'barcode' => $sample->Material->barcode,
+                        ] : null,
+                    ];
+                })->toArray();
 
-            // Get patients for this order item
-            $patients = $orderItem->Patients->map(function ($patient) {
-                return [
-                    'id' => $patient->id,
-                    'fullName' => $patient->fullName,
-                    'nationality' => $patient->nationality,
-                    'dateOfBirth' => $patient->dateOfBirth,
-                    'gender' => $patient->gender,
-                    'consanguineousParents' => $patient->consanguineousParents,
-                    'contact' => $patient->contact,
-                    'isFetus' => $patient->isFetus,
-                    'reference_id' => $patient->reference_id,
-                    'id_no' => $patient->id_no,
-                    'is_main' => $patient->pivot->is_main ?? false,
-                ];
-            })->toArray();
+                // Get patients for this order item
+                $patients = $orderItem->Patients->map(function ($patient) {
+                    return [
+                        'id' => $patient->id,
+                        'fullName' => $patient->fullName,
+                        'nationality' => $patient->nationality,
+                        'dateOfBirth' => $patient->dateOfBirth,
+                        'gender' => $patient->gender,
+                        'consanguineousParents' => $patient->consanguineousParents,
+                        'contact' => $patient->contact,
+                        'isFetus' => $patient->isFetus,
+                        'reference_id' => $patient->reference_id,
+                        'id_no' => $patient->id_no,
+                        'is_main' => $patient->pivot->is_main ?? false,
+                    ];
+                })->toArray();
 
-            return [
-                'id' => $orderItem->id,
-                'server_id' => $orderItem->server_id,
-                'test_id' => $orderItem->Test->server_id ?? $orderItem->test_id,
-                'test' => $orderItem->Test ? [
-                    'id' => $orderItem->Test->id,
-                    'server_id' => $orderItem->Test->server_id,
-                    'name' => $orderItem->Test->name,
-                    'code' => $orderItem->Test->code,
-                    'shortName' => $orderItem->Test->shortName,
-                    'gender' => $orderItem->Test->gender,
-                ] : null,
-                'samples' => $samples,
-                'patients' => $patients,
-            ];
-        })->values()->toArray();
+                return [
+                    'id' => $orderItem->id,
+                    'server_id' => $orderItem->server_id,
+                    'test_id' => $orderItem->Test->server_id ?? $orderItem->test_id,
+                    'test' => $orderItem->Test ? [
+                        'id' => $orderItem->Test->id,
+                        'server_id' => $orderItem->Test->server_id,
+                        'name' => $orderItem->Test->name,
+                        'code' => $orderItem->Test->code,
+                        'shortName' => $orderItem->Test->shortName,
+                        'gender' => $orderItem->Test->gender,
+                    ] : null,
+                    'samples' => $samples,
+                    'patients' => $patients,
+                ];
+            })->values()->toArray();
 
         // Process order forms
         $orderForms = collect($order->orderForms ?? [])
@@ -320,7 +307,7 @@ class RequestLogistic
 
         // Prepare all patients in the order
         $allPatients = [];
-        if (!empty($order->patient_ids)) {
+        if (! empty($order->patient_ids)) {
             $patients = Patient::whereIn('id', $order->patient_ids)->get();
             $allPatients = $patients->map(function ($patient) use ($order) {
                 return [
@@ -375,10 +362,7 @@ class RequestLogistic
     /**
      * Attach files for all orders to the request
      *
-     * @param PendingRequest $request
-     * @param Collection $orders
-     * @param array $ordersData
-     * @return void
+     * @param  Collection  $orders
      */
     private static function attachOrderFiles(PendingRequest $request, $orders, array $ordersData): void
     {
@@ -387,7 +371,7 @@ class RequestLogistic
             $fileCounter = 0;
 
             // Attach regular order files
-            if (!empty($order->files) && is_array($order->files)) {
+            if (! empty($order->files) && is_array($order->files)) {
                 $fileCounter = self::attachFiles(
                     $request,
                     $order->files,
@@ -413,31 +397,26 @@ class RequestLogistic
     /**
      * Attach files to the request
      *
-     * @param PendingRequest $request
-     * @param array $files
-     * @param string $orderId
-     * @param int $counter
-     * @param string $fileType
      * @return int New counter value
      */
     private static function attachFiles(
         PendingRequest $request,
-        array          $files,
-        string         $orderId,
-        int            $counter,
-        string         $fileType
-    ): int
-    {
+        array $files,
+        string $orderId,
+        int $counter,
+        string $fileType
+    ): int {
         foreach ($files as $filePath) {
             try {
                 $fullPath = storage_path("app/{$filePath}");
 
                 // Check if file exists
-                if (!file_exists($fullPath)) {
+                if (! file_exists($fullPath)) {
                     Log::warning("File not found for order {$orderId}", [
                         'file_path' => $filePath,
-                        'file_type' => $fileType
+                        'file_type' => $fileType,
                     ]);
+
                     continue;
                 }
 
@@ -447,16 +426,18 @@ class RequestLogistic
                     Log::warning("File too large for order {$orderId}", [
                         'file_path' => $filePath,
                         'size' => $fileSize,
-                        'max_size' => self::MAX_FILE_SIZE
+                        'max_size' => self::MAX_FILE_SIZE,
                     ]);
+
                     continue;
                 }
 
                 // Check if file is readable
-                if (!is_readable($fullPath)) {
+                if (! is_readable($fullPath)) {
                     Log::warning("File not readable for order {$orderId}", [
-                        'file_path' => $filePath
+                        'file_path' => $filePath,
                     ]);
+
                     continue;
                 }
 
@@ -464,8 +445,9 @@ class RequestLogistic
                 $fileContents = file_get_contents($fullPath);
                 if ($fileContents === false) {
                     Log::warning("Failed to read file for order {$orderId}", [
-                        'file_path' => $filePath
+                        'file_path' => $filePath,
                     ]);
+
                     continue;
                 }
 
@@ -478,7 +460,7 @@ class RequestLogistic
             } catch (Exception $e) {
                 Log::error("Error attaching file for order {$orderId}", [
                     'file_path' => $filePath,
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ]);
             }
         }
@@ -488,10 +470,6 @@ class RequestLogistic
 
     /**
      * Prepare the main payload for the request
-     *
-     * @param CollectRequest $collectRequest
-     * @param array $ordersData
-     * @return array
      */
     private static function prepareMainPayload(CollectRequest $collectRequest, array $ordersData): array
     {
@@ -528,15 +506,12 @@ class RequestLogistic
 
     /**
      * Build the request URL
-     *
-     * @param int $referrerId
-     * @return string
      */
     private static function buildRequestUrl(int $referrerId): string
     {
         $baseUrl = config('api.server_url');
         $logisticPath = config('api.logistic_request');
 
-        return rtrim($baseUrl, '/') . '/' . trim($logisticPath, '/') . '/' . $referrerId;
+        return rtrim($baseUrl, '/').'/'.trim($logisticPath, '/').'/'.$referrerId;
     }
 }

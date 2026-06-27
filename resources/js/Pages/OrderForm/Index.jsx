@@ -86,7 +86,7 @@ function Index({orderForms: {data: orderFormsData, ...pagination}, request}) {
             <PageHeader
                 title="Order Forms"
                 actions={[
-                    <Button variant="contained"
+                    <Button key="add" variant="contained"
                             href={route("admin.orderForms.create")}
                             onClick={handleAdd}
                             color="success"

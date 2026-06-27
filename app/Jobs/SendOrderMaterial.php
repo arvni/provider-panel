@@ -18,18 +18,18 @@ class SendOrderMaterial implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(protected OrderMaterial $orderMaterial)
-    {
-    }
+    public function __construct(protected OrderMaterial $orderMaterial) {}
 
     /**
      * Execute the job.
+     *
      * @throws ApiServiceException
      */
     public function handle(): void
     {
         $res = MaterialOrder::send($this->orderMaterial);
-        if (!$res->ok())
+        if (! $res->ok()) {
             $this->fail($res->toException());
+        }
     }
 }

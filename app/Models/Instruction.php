@@ -9,11 +9,11 @@ use Illuminate\Database\Eloquent\Model;
 class Instruction extends Model
 {
     use HasFactory, Searchable;
-    protected $searchable = ["name"];
+
+    protected $searchable = ['name'];
 
     protected $fillable = [
-        "name",
-        "file"
+        'name',
+        'file',
     ];
-
 }

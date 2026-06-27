@@ -25,36 +25,36 @@ class StoreSampleCollectRequestController extends Controller
     public function __invoke(Request $request)
     {
         $validated = $request->validate([
-            "samples" => ["required", "array", "min:1"],
-            "samples.*" => ["integer"],
-            "preferred_date" => ["required", "date", "after_or_equal:today"],
-            "note" => ["nullable", "string"],
-            "address" => ["nullable", "string"],
+            'samples' => ['required', 'array', 'min:1'],
+            'samples.*' => ['integer'],
+            'preferred_date' => ['required', 'date', 'after_or_equal:today'],
+            'note' => ['nullable', 'string'],
+            'address' => ['nullable', 'string'],
         ]);
 
         $user = $request->user();
-        $sampleIds = array_values(array_unique($validated["samples"]));
+        $sampleIds = array_values(array_unique($validated['samples']));
 
         // Authorisation + integrity: each sample must be un-collected and belong
         // to one of the provider's own orders.
-        $samples = Sample::whereIn("id", $sampleIds)
-            ->whereNull("collect_request_id")
-            ->whereHas("OrderItems.Order", function ($query) use ($user) {
-                $query->where("user_id", $user->id);
+        $samples = Sample::whereIn('id', $sampleIds)
+            ->whereNull('collect_request_id')
+            ->whereHas('OrderItems.Order', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
             })
-            ->with("OrderItems")
+            ->with('OrderItems')
             ->get();
 
         if ($samples->count() !== count($sampleIds)) {
             throw ValidationException::withMessages([
-                "samples" => __("Some of the selected samples are not available for collection."),
+                'samples' => __('Some of the selected samples are not available for collection.'),
             ]);
         }
 
         $orderIds = $samples
-            ->pluck("OrderItems")
+            ->pluck('OrderItems')
             ->flatten()
-            ->pluck("order_id")
+            ->pluck('order_id')
             ->filter()
             ->unique()
             ->values()
@@ -62,28 +62,28 @@ class StoreSampleCollectRequestController extends Controller
 
         if (empty($orderIds)) {
             throw ValidationException::withMessages([
-                "samples" => __("The selected samples are not linked to any order."),
+                'samples' => __('The selected samples are not linked to any order.'),
             ]);
         }
 
         $collectRequest = DB::transaction(function () use ($validated, $orderIds, $sampleIds, $user) {
             $collectRequest = CollectRequest::create([
-                "user_id" => $user->id,
-                "status" => CollectRequestStatus::REQUESTED,
-                "preferred_date" => $validated["preferred_date"],
-                "details" => ["address" => $validated["address"] ?? null],
-                "notes" => $validated["note"] ?? null,
+                'user_id' => $user->id,
+                'status' => CollectRequestStatus::REQUESTED,
+                'preferred_date' => $validated['preferred_date'],
+                'details' => ['address' => $validated['address'] ?? null],
+                'notes' => $validated['note'] ?? null,
             ]);
 
             // Attach the parent orders so the order-structured payload can be built.
-            Order::whereIn("id", $orderIds)->update([
-                "collect_request_id" => $collectRequest->id,
-                "status" => OrderStatus::LOGISTIC_REQUESTED,
+            Order::whereIn('id', $orderIds)->update([
+                'collect_request_id' => $collectRequest->id,
+                'status' => OrderStatus::LOGISTIC_REQUESTED,
             ]);
 
             // Tag ONLY the selected samples — this is what makes it per-sample.
-            Sample::whereIn("id", $sampleIds)->update([
-                "collect_request_id" => $collectRequest->id,
+            Sample::whereIn('id', $sampleIds)->update([
+                'collect_request_id' => $collectRequest->id,
             ]);
 
             return $collectRequest;
@@ -91,6 +91,6 @@ class StoreSampleCollectRequestController extends Controller
 
         SendCollectionRequest::dispatch($collectRequest);
 
-        return back()->with(["status" => __("messages.ordersSuccessfullyRequestLogistic")]);
+        return back()->with(['status' => __('messages.ordersSuccessfullyRequestLogistic')]);
     }
 }

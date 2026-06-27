@@ -13,13 +13,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('instructions', function (Blueprint $table) {
-                $table->id();
-                $table->string("name")->unique();
-                $table->text("file");
-                $table->timestamps();
+            $table->id();
+            $table->string('name')->unique();
+            $table->text('file');
+            $table->timestamps();
         });
 
-        Schema::table("tests",function (Blueprint $table){
+        Schema::table('tests', function (Blueprint $table) {
             $table->foreignIdFor(Instruction::class)->nullable()->constrained()->nullOnDelete();
         });
     }
@@ -29,7 +29,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table("tests",function (Blueprint $table){
+        Schema::table('tests', function (Blueprint $table) {
             $table->dropConstrainedForeignIdFor(Instruction::class);
         });
         Schema::dropIfExists('instructions');

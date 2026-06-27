@@ -5,7 +5,6 @@ namespace App\Http\Requests;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Validation\Rules\File;
 
 class UpdateConsentRequest extends FormRequest
 {
@@ -14,7 +13,7 @@ class UpdateConsentRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return Gate::allows("update", $this->route()->parameter("consent"));
+        return Gate::allows('update', $this->route()->parameter('consent'));
     }
 
     /**
@@ -25,7 +24,7 @@ class UpdateConsentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "name" => "required|unique:consents,name, " . $this->route()->parameter("consent")->id
+            'name' => 'required|unique:consents,name, '.$this->route()->parameter('consent')->id,
         ];
     }
 }

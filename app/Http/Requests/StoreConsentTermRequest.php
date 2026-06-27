@@ -14,7 +14,7 @@ class StoreConsentTermRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return Gate::allows("create",ConsentTerm::class);
+        return Gate::allows('create', ConsentTerm::class);
     }
 
     /**
@@ -25,8 +25,8 @@ class StoreConsentTermRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "name"=>"required",
-            "is_active"=>"required|boolean"
+            'name' => 'required',
+            'is_active' => 'required|boolean',
         ];
     }
 }

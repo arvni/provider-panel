@@ -4,7 +4,6 @@ namespace App\Policies;
 
 use App\Models\CollectRequest;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class CollectRequestPolicy
 {
@@ -13,7 +12,7 @@ class CollectRequestPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can("Admin.CollectRequest.Index");
+        return $user->can('Admin.CollectRequest.Index');
     }
 
     /**
@@ -21,7 +20,7 @@ class CollectRequestPolicy
      */
     public function view(User $user, CollectRequest $collectRequest): bool
     {
-        return $user->can("Admin.CollectRequest.Show") || $collectRequest->user_id === $user->id;
+        return $user->can('Admin.CollectRequest.Show') || $collectRequest->user_id === $user->id;
     }
 
     /**
@@ -29,7 +28,7 @@ class CollectRequestPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can("Admin.CollectRequest.Create");
+        return $user->can('Admin.CollectRequest.Create');
     }
 
     /**
@@ -37,7 +36,7 @@ class CollectRequestPolicy
      */
     public function update(User $user, CollectRequest $collectRequest): bool
     {
-        return $user->can("Admin.CollectRequest.Update");
+        return $user->can('Admin.CollectRequest.Update');
     }
 
     /**
@@ -45,7 +44,7 @@ class CollectRequestPolicy
      */
     public function delete(User $user, CollectRequest $collectRequest): bool
     {
-        return $user->can("Admin.CollectRequest.Delete");
+        return $user->can('Admin.CollectRequest.Delete');
     }
 
     /**
@@ -53,7 +52,7 @@ class CollectRequestPolicy
      */
     public function restore(User $user, CollectRequest $collectRequest): bool
     {
-        //
+        return false;
     }
 
     /**
@@ -61,6 +60,6 @@ class CollectRequestPolicy
      */
     public function forceDelete(User $user, CollectRequest $collectRequest): bool
     {
-        //
+        return false;
     }
 }

@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('order_items', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger("server_id")->nullable();
+            $table->unsignedBigInteger('server_id')->nullable();
             $table->foreignIdFor(Order::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(Test::class)->constrained();
             $table->timestamps();

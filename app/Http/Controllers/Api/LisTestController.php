@@ -10,16 +10,19 @@ use Illuminate\Http\Request;
 class LisTestController extends Controller
 {
     private TestRepositoryInterface $testRepository;
+
     public function __construct(TestRepositoryInterface $testRepository)
     {
-        $this->testRepository=$testRepository;
+        $this->testRepository = $testRepository;
     }
+
     /**
      * Handle the incoming request.
      */
     public function __invoke(Request $request)
     {
-        $tests=$this->testRepository->getPaginate(["filters"=>$request->all()]);
+        $tests = $this->testRepository->getPaginate(['filters' => $request->all()]);
+
         return TestResource::collection($tests);
     }
 }

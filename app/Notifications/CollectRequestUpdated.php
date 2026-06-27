@@ -14,6 +14,7 @@ class CollectRequestUpdated extends Notification implements ShouldQueue
     use Queueable;
 
     protected CollectRequest $collectRequest;
+
     protected string $action;
 
     /**
@@ -45,15 +46,16 @@ class CollectRequestUpdated extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         $statusLabel = $this->collectRequest->status->getLabel();
-        $subject = ucfirst($this->action) . ' Collect Request #' . $this->collectRequest->id;
+        $subject = ucfirst($this->action).' Collect Request #'.$this->collectRequest->id;
 
         return (new MailMessage)
             ->subject($subject)
-            ->greeting('Hello ' . $notifiable->name . '!')
+            ->greeting('Hello '.$notifiable->name.'!')
             ->line("Your collect request #{$this->collectRequest->id} has been {$this->action}.")
             ->line("Status: {$statusLabel}")
             ->when($this->collectRequest->preferred_date, function ($message) {
-                $date = Carbon::parse($this->collectRequest->preferred_date, "Asia/Muscat")->format('M d, Y');
+                $date = Carbon::parse($this->collectRequest->preferred_date, 'Asia/Muscat')->format('M d, Y');
+
                 return $message->line("Preferred Date: {$date}");
             })
             ->line('Thank you for using our service!');
@@ -71,7 +73,7 @@ class CollectRequestUpdated extends Notification implements ShouldQueue
             'action' => $this->action,
             'status' => $this->collectRequest->status->value,
             'status_label' => $this->collectRequest->status->getLabel(),
-            'preferred_date' => Carbon::parse($this->collectRequest->preferred_date,"Asia/Muscat")?->toDateString(),
+            'preferred_date' => Carbon::parse($this->collectRequest->preferred_date, 'Asia/Muscat')?->toDateString(),
             'message' => "Collect request #{$this->collectRequest->id} has been {$this->action}",
         ];
     }

@@ -12,17 +12,17 @@ class IndexProvider
     /**
      * Handle an incoming request.
      *
-     * @param Request $request
-     * @param Closure(Request): (Response|RedirectResponse)  $next
+     * @param  Closure(Request): (Response|RedirectResponse)  $next
      * @return Response|RedirectResponse
      */
     public function handle(Request $request, Closure $next)
     {
-        $inputs["filters"] = array_merge($request->get("filters",[]), $request->except("filters", "page", "sort", "pageSize"));
-        $inputs["page"] = $request->get("page", 1);
-        $inputs["sort"] = $request->get("sort", ["field" => "id", "type" => "desc"]);
-        $inputs["pageSize"] = $request->get("pageSize", 10);
+        $inputs['filters'] = array_merge($request->get('filters', []), $request->except('filters', 'page', 'sort', 'pageSize'));
+        $inputs['page'] = $request->get('page', 1);
+        $inputs['sort'] = $request->get('sort', ['field' => 'id', 'type' => 'desc']);
+        $inputs['pageSize'] = $request->get('pageSize', 10);
         $request->replace($inputs);
+
         return $next($request);
     }
 }

@@ -4,7 +4,6 @@ namespace App\Policies;
 
 use App\Models\OrderForm;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class OrderFormPolicy
 {
@@ -13,7 +12,7 @@ class OrderFormPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can("Admin.OrderForm.Index");
+        return $user->can('Admin.OrderForm.Index');
     }
 
     /**
@@ -21,7 +20,7 @@ class OrderFormPolicy
      */
     public function view(User $user, OrderForm $orderForm): bool
     {
-        return $user->can("Admin.OrderForm.Show");
+        return $user->can('Admin.OrderForm.Show');
     }
 
     /**
@@ -29,7 +28,7 @@ class OrderFormPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can("Admin.OrderForm.Create");
+        return $user->can('Admin.OrderForm.Create');
     }
 
     /**
@@ -37,7 +36,7 @@ class OrderFormPolicy
      */
     public function update(User $user, OrderForm $orderForm): bool
     {
-        return $user->can("Admin.OrderForm.Update");
+        return $user->can('Admin.OrderForm.Update');
     }
 
     /**
@@ -45,7 +44,7 @@ class OrderFormPolicy
      */
     public function delete(User $user, OrderForm $orderForm): bool
     {
-        return $user->can("Admin.OrderForm.Delete");
+        return $user->can('Admin.OrderForm.Delete');
     }
 
     /**
@@ -53,7 +52,7 @@ class OrderFormPolicy
      */
     public function restore(User $user, OrderForm $orderForm): bool
     {
-        //
+        return false;
     }
 
     /**
@@ -61,6 +60,6 @@ class OrderFormPolicy
      */
     public function forceDelete(User $user, OrderForm $orderForm): bool
     {
-        //
+        return false;
     }
 }

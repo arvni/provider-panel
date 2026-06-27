@@ -13,7 +13,7 @@ class UpdateInstructionRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return Gate::allows("update", $this->route()->parameter("instruction"));
+        return Gate::allows('update', $this->route()->parameter('instruction'));
     }
 
     /**
@@ -24,7 +24,7 @@ class UpdateInstructionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "name" => "required|unique:instructions,name, " . $this->route()->parameter("instruction")->id
+            'name' => 'required|unique:instructions,name, '.$this->route()->parameter('instruction')->id,
         ];
     }
 }

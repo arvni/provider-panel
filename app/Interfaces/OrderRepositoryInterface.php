@@ -4,7 +4,6 @@ namespace App\Interfaces;
 
 use App\Enums\OrderStep;
 use App\Models\Order;
-use App\Models\User;
 
 interface OrderRepositoryInterface
 {

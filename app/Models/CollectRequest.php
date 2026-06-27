@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Gate;
 
 class CollectRequest extends Model
@@ -19,7 +18,7 @@ class CollectRequest extends Model
         'user.name',
         'details',
         'status',
-        'server_id'
+        'server_id',
     ];
 
     protected $fillable = [
@@ -28,17 +27,17 @@ class CollectRequest extends Model
         'status',
         'preferred_date',
         'notes',
-        'server_id'
+        'server_id',
     ];
 
     protected $appends = [
         'deletable',
-        'status_label'
+        'status_label',
     ];
 
     protected $casts = [
         'details' => 'json',
-        'status' => CollectRequestStatus::class
+        'status' => CollectRequestStatus::class,
     ];
 
     // Accessors
@@ -78,7 +77,7 @@ class CollectRequest extends Model
     {
         return $query->whereIn('status', [
             CollectRequestStatus::REQUESTED,
-            CollectRequestStatus::SCHEDULED
+            CollectRequestStatus::SCHEDULED,
         ]);
     }
 
@@ -86,7 +85,7 @@ class CollectRequest extends Model
     {
         return $query->whereIn('status', [
             CollectRequestStatus::PICKED_UP,
-            CollectRequestStatus::RECEIVED
+            CollectRequestStatus::RECEIVED,
         ]);
     }
 

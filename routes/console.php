@@ -31,4 +31,3 @@ Artisan::command('inspire', function () {
 Schedule::command('sync:orders')->everyFiveMinutes();
 Schedule::command('sync:referrers')->hourly();
 Schedule::command('sync:tests')->hourly();
-
