@@ -44,15 +44,15 @@ class RequestLogistic
                 $query->where('samples.collect_request_id', $collectRequest->id);
             })
                 ->with([
-                'OrderItems.Test',
-                'OrderItems.Patients',
-                'OrderItems.Samples' => function ($query) use ($collectRequest) {
-                    $query->where('samples.collect_request_id', $collectRequest->id)
-                        ->with(['SampleType', 'Material']);
-                },
-                'Patient',
-                'Tests',
-            ])
+                    'OrderItems.Test',
+                    'OrderItems.Patients',
+                    'OrderItems.Samples' => function ($query) use ($collectRequest) {
+                        $query->where('samples.collect_request_id', $collectRequest->id)
+                            ->with(['SampleType', 'Material']);
+                    },
+                    'Patient',
+                    'Tests',
+                ])
                 ->get();
 
             $collectRequest->setRelation('Orders', $orders);
