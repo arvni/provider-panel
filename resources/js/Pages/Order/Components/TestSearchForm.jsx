@@ -121,8 +121,8 @@ const TestSearchForm = (props) => {
         setShowSuggestions(false);
     };
 
-    // Use a suggestion
-    const useSuggestion = (suggestion) => () => {
+    // Apply a suggestion (handler factory — not a hook, despite the old name)
+    const applySuggestion = (suggestion) => () => {
         setValues(prevState => ({
             ...prevState,
             search: suggestion
@@ -329,7 +329,7 @@ const TestSearchForm = (props) => {
                         {recentSearches.map((search, index) => (
                             <MenuItem
                                 key={index}
-                                onClick={useSuggestion(search)}
+                                onClick={applySuggestion(search)}
                                 sx={{
                                     py: 1,
                                     px: 2,
