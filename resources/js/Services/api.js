@@ -39,7 +39,7 @@ export const useSubmitForm = (defaultValues, route) => {
     };
 }
 
-export const uploadFiles = (url) => {
+export const useUploadFiles = (url) => {
     const [progress, setProgress] = useState(0);
     const upload = (file) => {
         let formData = new FormData();
