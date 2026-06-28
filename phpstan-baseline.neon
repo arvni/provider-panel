@@ -723,11 +723,41 @@ parameters:
 		-
 			message: '#^Access to an undefined property App\\Models\\Order\:\:\$Patient\.$#'
 			identifier: property.notFound
-			count: 10
+			count: 1
 			path: app/Services/RequestLogistic.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Order\:\:\$Tests\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/RequestLogistic.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\OrderItem\:\:\$Patients\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/RequestLogistic.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\OrderItem\:\:\$Samples\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/RequestLogistic.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\OrderItem\:\:\$Test\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/RequestLogistic.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Sample\:\:\$Material\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/RequestLogistic.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Sample\:\:\$SampleType\.$#'
 			identifier: property.notFound
 			count: 1
 			path: app/Services/RequestLogistic.php
