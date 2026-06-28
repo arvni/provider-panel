@@ -55,6 +55,7 @@ class PermissionController extends Controller
      */
     public function show(Permission $permission): PermissionResource
     {
+        $this->authorize('view', $permission);
         $permission = $this->permissionRepository->show($permission);
 
         return new PermissionResource($permission);

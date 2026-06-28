@@ -55,6 +55,7 @@ class ConsentTermController extends Controller
      */
     public function show(ConsentTerm $consentTerm): ConsentTermResource
     {
+        $this->authorize('view', $consentTerm);
         $consentTerm = $this->consentTermRepository->show($consentTerm);
 
         return new ConsentTermResource($consentTerm);
