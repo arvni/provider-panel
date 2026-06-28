@@ -47,6 +47,9 @@ jobs:
       - name: Lint JS (ESLint)
         run: npm run lint
 
+      - name: Frontend unit tests (Vitest)
+        run: npm test
+
   phpunit:
     runs-on: ubuntu-latest
 
