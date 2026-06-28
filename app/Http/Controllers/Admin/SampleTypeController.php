@@ -25,6 +25,7 @@ class SampleTypeController extends Controller
      */
     public function index(Request $request)
     {
+        $this->authorize('viewAny', SampleType::class);
         $sampleTypes = $this->sampleTypeRepository->list($request->all());
 
         return Inertia::render('SampleType/Index', ['sampleTypes' => $sampleTypes, 'request' => $request->all()]);
@@ -45,6 +46,8 @@ class SampleTypeController extends Controller
      */
     public function show(SampleType $sampleType)
     {
+        $this->authorize('view', $sampleType);
+
         return new SampleTypeResource($sampleType);
     }
 
@@ -63,6 +66,7 @@ class SampleTypeController extends Controller
      */
     public function destroy(SampleType $sampleType)
     {
+        $this->authorize('delete', $sampleType);
         $title = $sampleType->name;
         $this->sampleTypeRepository->delete($sampleType);
 
