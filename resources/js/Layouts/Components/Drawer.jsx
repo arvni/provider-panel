@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { styled, useTheme } from '@mui/material/styles';
-import MuiDrawer from '@mui/material/Drawer';
+import React, { useEffect, useState } from "react";
+import { styled, useTheme } from "@mui/material/styles";
+import MuiDrawer from "@mui/material/Drawer";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
@@ -21,59 +21,62 @@ const drawerWidth = 260;
 
 // Enhanced styled drawer with improved animations and responsiveness
 const StyledDrawer = styled(MuiDrawer, {
-    shouldForwardProp: (prop) => !['open', 'colorMode'].includes(prop)
+    shouldForwardProp: (prop) => !["open", "colorMode"].includes(prop),
 })(({ theme, open, colorMode }) => ({
     width: open ? drawerWidth : theme.spacing(9),
     flexShrink: 0,
-    whiteSpace: 'nowrap',
-    boxSizing: 'border-box',
-    '@media print': {
-        display: 'none !important',
+    whiteSpace: "nowrap",
+    boxSizing: "border-box",
+    "@media print": {
+        display: "none !important",
     },
 
-    '& .MuiDrawer-paper': {
-        position: 'relative',
+    "& .MuiDrawer-paper": {
+        position: "relative",
         width: drawerWidth,
-        transition: theme.transitions.create(['width', 'background-color', 'box-shadow'], {
+        transition: theme.transitions.create(["width", "background-color", "box-shadow"], {
             easing: theme.transitions.easing.easeInOut,
             duration: theme.transitions.duration.standard,
         }),
-        boxSizing: 'border-box',
-        backgroundColor: colorMode === 'dark' ? '#1a1a1a' : '#ffffff',
-        backgroundImage: colorMode === 'dark'
-            ? 'linear-gradient(rgba(26, 26, 26, 0.8), rgba(26, 26, 26, 0.9)), url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%232a3990\' fill-opacity=\'0.05\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")'
-            : 'linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.9)), url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%232a3990\' fill-opacity=\'0.05\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
-        backgroundSize: '30px 30px',
-        boxShadow: colorMode === 'dark'
-            ? '1px 0 8px rgba(0, 0, 0, 0.5)'
-            : '1px 0 10px rgba(0, 0, 0, 0.05)',
-        borderRight: colorMode === 'dark'
-            ? '1px solid rgba(255, 255, 255, 0.05)'
-            : '1px solid rgba(0, 0, 0, 0.05)',
-        overflowX: 'hidden',
+        boxSizing: "border-box",
+        backgroundColor: colorMode === "dark" ? "#1a1a1a" : "#ffffff",
+        backgroundImage:
+            colorMode === "dark"
+                ? "linear-gradient(rgba(26, 26, 26, 0.8), rgba(26, 26, 26, 0.9)), url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%232a3990' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")"
+                : "linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.9)), url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%232a3990' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")",
+        backgroundSize: "30px 30px",
+        boxShadow:
+            colorMode === "dark"
+                ? "1px 0 8px rgba(0, 0, 0, 0.5)"
+                : "1px 0 10px rgba(0, 0, 0, 0.05)",
+        borderRight:
+            colorMode === "dark"
+                ? "1px solid rgba(255, 255, 255, 0.05)"
+                : "1px solid rgba(0, 0, 0, 0.05)",
+        overflowX: "hidden",
 
         // Collapse animation
         ...(!open && {
-            overflowX: 'hidden',
-            transition: theme.transitions.create(['width', 'box-shadow'], {
+            overflowX: "hidden",
+            transition: theme.transitions.create(["width", "box-shadow"], {
                 easing: theme.transitions.easing.easeInOut,
                 duration: theme.transitions.duration.standard,
             }),
             width: theme.spacing(7),
-            [theme.breakpoints.up('sm')]: {
+            [theme.breakpoints.up("sm")]: {
                 width: theme.spacing(9),
             },
-            boxShadow: 'none',
+            boxShadow: "none",
         }),
 
         // Mobile behavior
-        [theme.breakpoints.down('sm')]: {
-            position: 'fixed',
-            height: '100%',
+        [theme.breakpoints.down("sm")]: {
+            position: "fixed",
+            height: "100%",
             zIndex: theme.zIndex.drawer,
             width: drawerWidth,
             left: open ? 0 : -drawerWidth,
-            boxShadow: open ? '4px 0 25px rgba(0, 0, 0, 0.3)' : 'none',
+            boxShadow: open ? "4px 0 25px rgba(0, 0, 0, 0.3)" : "none",
         },
     },
 }));
@@ -86,15 +89,15 @@ const menuItemVariants = {
         x: 0,
         transition: {
             duration: 0.3,
-        }
+        },
     },
     exit: {
         opacity: 0,
         x: -20,
         transition: {
-            duration: 0.2
-        }
-    }
+            duration: 0.2,
+        },
+    },
 };
 
 // Animation for drawer content
@@ -104,9 +107,9 @@ const drawerContentVariants = {
         opacity: 1,
         transition: {
             staggerChildren: 0.05,
-            delayChildren: 0.05
-        }
-    }
+            delayChildren: 0.05,
+        },
+    },
 };
 
 // Render menu items with permissions check
@@ -136,16 +139,16 @@ const renderMenu = (item, index, permissions, handleVisit, currentPath, open) =>
     );
 };
 
-const Drawer = ({ toggleDrawer, auth, open, colorMode = 'light' }) => {
+const Drawer = ({ toggleDrawer, auth, open, colorMode = "light" }) => {
     const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-    const [activeSection, setActiveSection] = useState('');
-    const [currentPath, setCurrentPath] = useState('');
+    const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+    const [_activeSection, setActiveSection] = useState("");
+    const [currentPath, setCurrentPath] = useState("");
 
     // Group routes by section
     const routeSections = {};
-    routes.forEach(route => {
-        const section = route.section || 'Main';
+    routes.forEach((route) => {
+        const section = route.section || "Main";
         if (!routeSections[section]) {
             routeSections[section] = [];
         }
@@ -159,9 +162,9 @@ const Drawer = ({ toggleDrawer, auth, open, colorMode = 'light' }) => {
         setCurrentPath(path);
 
         // Find matching route to set active section
-        const currentRoute = routes.find(route => route.route === path);
+        const currentRoute = routes.find((route) => route.route === path);
         if (currentRoute) {
-            setActiveSection(currentRoute.section || 'Main');
+            setActiveSection(currentRoute.section || "Main");
         }
     }, []);
 
@@ -173,26 +176,26 @@ const Drawer = ({ toggleDrawer, auth, open, colorMode = 'light' }) => {
             setCurrentPath(path);
 
             // Find matching route to set active section
-            const currentRoute = routes.find(route => route.route === path);
+            const currentRoute = routes.find((route) => route.route === path);
             if (currentRoute) {
-                setActiveSection(currentRoute.section || 'Main');
+                setActiveSection(currentRoute.section || "Main");
             }
         };
 
-        document.addEventListener('inertia:success', handleNavigate);
+        document.addEventListener("inertia:success", handleNavigate);
 
         return () => {
-            document.removeEventListener('inertia:success', handleNavigate);
+            document.removeEventListener("inertia:success", handleNavigate);
         };
     }, []);
 
     // Handle navigation
-    const handleVisit = (addr) => e => {
+    const handleVisit = (addr) => () => {
         if (isMobile) {
             toggleDrawer();
         }
         router.visit(addr, {
-            preserveState: true
+            preserveState: true,
         });
     };
 
@@ -205,14 +208,15 @@ const Drawer = ({ toggleDrawer, auth, open, colorMode = 'light' }) => {
         >
             <Toolbar
                 sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
                     px: 1,
                     py: 1,
                     minHeight: 64,
-                    borderBottom: '1px solid',
-                    borderColor: colorMode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'
+                    borderBottom: "1px solid",
+                    borderColor:
+                        colorMode === "dark" ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)",
                 }}
             >
                 <AnimatePresence mode="wait">
@@ -223,11 +227,11 @@ const Drawer = ({ toggleDrawer, auth, open, colorMode = 'light' }) => {
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             sx={{
-                                display: 'flex',
-                                alignItems: 'center',
+                                display: "flex",
+                                alignItems: "center",
                                 gap: 0.5,
-                                overflow: 'hidden',
-                                width: '100%',
+                                overflow: "hidden",
+                                width: "100%",
                             }}
                         >
                             <Avatar
@@ -237,9 +241,9 @@ const Drawer = ({ toggleDrawer, auth, open, colorMode = 'light' }) => {
                                 sx={{
                                     width: 36,
                                     height: 36,
-                                    backgroundColor: '#f5f5f5',
+                                    backgroundColor: "#f5f5f5",
                                     p: 0,
-                                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                                    boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
                                 }}
                             />
                             <Typography
@@ -248,8 +252,8 @@ const Drawer = ({ toggleDrawer, auth, open, colorMode = 'light' }) => {
                                 noWrap
                                 sx={{
                                     fontWeight: 600,
-                                    fontSize: '1rem',
-                                    color: theme.palette.primary.main
+                                    fontSize: "1rem",
+                                    color: theme.palette.primary.main,
                                 }}
                             >
                                 Providers Panel
@@ -262,9 +266,9 @@ const Drawer = ({ toggleDrawer, auth, open, colorMode = 'light' }) => {
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             sx={{
-                                display: 'flex',
-                                justifyContent: 'center',
-                                width: '100%',
+                                display: "flex",
+                                justifyContent: "center",
+                                width: "100%",
                             }}
                         >
                             <Avatar
@@ -274,9 +278,9 @@ const Drawer = ({ toggleDrawer, auth, open, colorMode = 'light' }) => {
                                 sx={{
                                     width: 36,
                                     height: 36,
-                                    backgroundColor: '#f5f5f5',
+                                    backgroundColor: "#f5f5f5",
                                     p: 0.5,
-                                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                                    boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
                                 }}
                             />
                         </Box>
@@ -287,11 +291,11 @@ const Drawer = ({ toggleDrawer, auth, open, colorMode = 'light' }) => {
                     <IconButton
                         onClick={toggleDrawer}
                         sx={{
-                            transition: 'all 0.2s',
+                            transition: "all 0.2s",
                             borderRadius: 1,
-                            '&:hover': {
+                            "&:hover": {
                                 backgroundColor: alpha(theme.palette.primary.main, 0.1),
-                            }
+                            },
                         }}
                     >
                         {open ? <ChevronLeftIcon /> : <MenuOpenIcon />}
@@ -307,32 +311,35 @@ const Drawer = ({ toggleDrawer, auth, open, colorMode = 'light' }) => {
                 initial="hidden"
                 animate="visible"
                 sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    height: 'calc(100% - 64px)',
+                    display: "flex",
+                    flexDirection: "column",
+                    height: "calc(100% - 64px)",
                     overflowX: "hidden",
                     overflowY: "auto",
-                    '&::-webkit-scrollbar': {
-                        width: '6px',
+                    "&::-webkit-scrollbar": {
+                        width: "6px",
                     },
-                    '&::-webkit-scrollbar-track': {
-                        background: 'transparent',
+                    "&::-webkit-scrollbar-track": {
+                        background: "transparent",
                     },
-                    '&::-webkit-scrollbar-thumb': {
-                        background: colorMode === 'dark'
-                            ? 'rgba(255, 255, 255, 0.2)'
-                            : 'rgba(0, 0, 0, 0.1)',
-                        borderRadius: '3px',
+                    "&::-webkit-scrollbar-thumb": {
+                        background:
+                            colorMode === "dark"
+                                ? "rgba(255, 255, 255, 0.2)"
+                                : "rgba(0, 0, 0, 0.1)",
+                        borderRadius: "3px",
                     },
-                    '&::-webkit-scrollbar-thumb:hover': {
-                        background: colorMode === 'dark'
-                            ? 'rgba(255, 255, 255, 0.3)'
-                            : 'rgba(0, 0, 0, 0.2)',
+                    "&::-webkit-scrollbar-thumb:hover": {
+                        background:
+                            colorMode === "dark"
+                                ? "rgba(255, 255, 255, 0.3)"
+                                : "rgba(0, 0, 0, 0.2)",
                     },
-                    scrollbarWidth: 'thin',
-                    scrollbarColor: colorMode === 'dark'
-                        ? 'rgba(255, 255, 255, 0.2) transparent'
-                        : 'rgba(0, 0, 0, 0.1) transparent',
+                    scrollbarWidth: "thin",
+                    scrollbarColor:
+                        colorMode === "dark"
+                            ? "rgba(255, 255, 255, 0.2) transparent"
+                            : "rgba(0, 0, 0, 0.1) transparent",
                 }}
             >
                 {Object.entries(routeSections).map(([section, sectionRoutes]) => (
@@ -346,11 +353,14 @@ const Drawer = ({ toggleDrawer, auth, open, colorMode = 'light' }) => {
                                     px: 3,
                                     pt: 2,
                                     pb: 1,
-                                    fontSize: '0.7rem',
+                                    fontSize: "0.7rem",
                                     fontWeight: 700,
-                                    color: colorMode === 'dark' ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)',
+                                    color:
+                                        colorMode === "dark"
+                                            ? "rgba(255,255,255,0.5)"
+                                            : "rgba(0,0,0,0.5)",
                                     letterSpacing: 1,
-                                    textTransform: 'uppercase',
+                                    textTransform: "uppercase",
                                 }}
                             >
                                 {section}
@@ -360,7 +370,14 @@ const Drawer = ({ toggleDrawer, auth, open, colorMode = 'light' }) => {
                         {/* Section menu items */}
                         <List component="nav" disablePadding>
                             {sectionRoutes.map((item, index) =>
-                                renderMenu(item, `${section}-${index}`, auth.permissions, handleVisit, currentPath, open)
+                                renderMenu(
+                                    item,
+                                    `${section}-${index}`,
+                                    auth.permissions,
+                                    handleVisit,
+                                    currentPath,
+                                    open
+                                )
                             )}
                         </List>
 
@@ -372,14 +389,18 @@ const Drawer = ({ toggleDrawer, auth, open, colorMode = 'light' }) => {
                 {open && (
                     <Box
                         sx={{
-                            mt: 'auto',
+                            mt: "auto",
                             p: 2,
-                            display: 'flex',
-                            alignItems: 'center',
+                            display: "flex",
+                            alignItems: "center",
                             gap: 1.5,
-                            borderTop: '1px solid',
-                            borderColor: colorMode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
-                            backgroundColor: colorMode === 'dark' ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.02)',
+                            borderTop: "1px solid",
+                            borderColor:
+                                colorMode === "dark"
+                                    ? "rgba(255,255,255,0.05)"
+                                    : "rgba(0,0,0,0.05)",
+                            backgroundColor:
+                                colorMode === "dark" ? "rgba(0,0,0,0.2)" : "rgba(0,0,0,0.02)",
                         }}
                     >
                         <Avatar
@@ -388,32 +409,32 @@ const Drawer = ({ toggleDrawer, auth, open, colorMode = 'light' }) => {
                                 width: 40,
                                 height: 40,
                                 fontWeight: 600,
-                                boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+                                boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
                             }}
                         >
-                            {auth?.user?.name?.charAt(0).toUpperCase() || 'U'}
+                            {auth?.user?.name?.charAt(0).toUpperCase() || "U"}
                         </Avatar>
-                        <Box sx={{ overflow: 'hidden' }}>
+                        <Box sx={{ overflow: "hidden" }}>
                             <Typography
                                 variant="subtitle2"
                                 noWrap
                                 sx={{
                                     fontWeight: 600,
-                                    lineHeight: 1.2
+                                    lineHeight: 1.2,
                                 }}
                             >
-                                {auth?.user?.name || 'User'}
+                                {auth?.user?.name || "User"}
                             </Typography>
                             <Typography
                                 variant="caption"
                                 noWrap
                                 sx={{
                                     opacity: 0.7,
-                                    display: 'block',
-                                    lineHeight: 1.2
+                                    display: "block",
+                                    lineHeight: 1.2,
                                 }}
                             >
-                                {auth?.user?.email || ''}
+                                {auth?.user?.email || ""}
                             </Typography>
                         </Box>
                     </Box>

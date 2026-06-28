@@ -101,7 +101,7 @@ const Index = () => {
     };
     const handleSubmitForm = () =>
         post(edit ? route("admin.consents.update", data.id) : route("admin.consents.store"), {
-            onSuccess: (e) => {
+            onSuccess: () => {
                 setOpenAddForm(false);
                 reset();
             },

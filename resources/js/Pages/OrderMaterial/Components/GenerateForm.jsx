@@ -4,20 +4,9 @@ import { DialogActions, DialogContent, TextField } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
-import MenuItem from "@mui/material/MenuItem";
 import * as React from "react";
 
-const GenerateForm = ({
-    values,
-    setValues,
-    submit,
-    open,
-    setOpen,
-    title,
-    loading,
-    reset,
-    sampleTypes,
-}) => {
+const GenerateForm = ({ values, setValues, submit, open, setOpen, title, loading, reset }) => {
     const handleChange = (e) =>
         setValues((prevState) => ({ ...prevState, [e.target.name]: e.target.value }));
     const handleClose = () => {

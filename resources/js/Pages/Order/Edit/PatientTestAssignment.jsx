@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
     Box,
     Typography,
@@ -70,11 +70,6 @@ const PatientTestAssignment = ({ auth, order, step, patients }) => {
 
     const handleSubmit = () => {
         submit();
-    };
-
-    // Get patient details
-    const getPatientById = (id) => {
-        return patients.find((p) => p.id === id);
     };
 
     const isMainPatient = (patientId) => {

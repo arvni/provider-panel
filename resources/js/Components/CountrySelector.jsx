@@ -133,7 +133,7 @@ const CountrySelector = ({ value, onChange }) => {
                             disableCloseOnSelect
                             PopperComponent={PopperComponent}
                             renderTags={() => null}
-                            renderOption={(props, option, { selected }) => (
+                            renderOption={(props, option) => (
                                 <Box
                                     component="li"
                                     sx={{ "& > img": { mr: 2, flexShrink: 0 } }}

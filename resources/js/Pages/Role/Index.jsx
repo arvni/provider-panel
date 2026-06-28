@@ -17,7 +17,7 @@ const breadcrumbs = [
     },
 ];
 
-function Index({ auth, roles: { data: rolesData, ...pagination }, status, request }) {
+function Index({ roles: { data: rolesData, ...pagination }, request }) {
     const {
         data,
         processing,

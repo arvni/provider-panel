@@ -14,13 +14,7 @@ import { Description } from "@mui/icons-material";
  */
 const Add = (props) => {
     // Initialize form state with default values
-    const {
-        data,
-        setData,
-        post,
-        processing,
-        errors: formErrors,
-    } = useForm({
+    const { data, setData, post, processing } = useForm({
         name: "",
         formData: [],
         file: null,

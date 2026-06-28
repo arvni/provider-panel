@@ -2,15 +2,11 @@ import React, { useState } from "react";
 import { useSubmitForm } from "@/Services/api";
 import EditLayout from "@/Pages/Order/EditLayout";
 import ClinicalDetailsForm from "../Components/ClinicalDetailsForm";
-import {
-    clinicalDetailsValidate,
-    formatClinicalData,
-    resetClinicalFormErrors,
-} from "@/Services/validate";
+import { clinicalDetailsValidate, resetClinicalFormErrors } from "@/Services/validate";
 import { Alert } from "@mui/material";
 import { motion, AnimatePresence } from "framer-motion";
 
-const ClinicalDetails = ({ auth, order, step, forms = [] }) => {
+const ClinicalDetails = ({ auth, order, step }) => {
     const { data, setData, submit, errors, setError, clearErrors, processing } = useSubmitForm(
         { ...order, _method: "put" },
         route("orders.update", { order: order.id, step })
@@ -49,15 +45,12 @@ const ClinicalDetails = ({ auth, order, step, forms = [] }) => {
     };
 
     // Submit form with validation
-    const handleSubmit = (e) => {
+    const handleSubmit = () => {
         // Reset all form errors
         resetClinicalFormErrors(data, clearErrors);
 
         // Validate form data
         if (clinicalDetailsValidate(data, setError)) {
-            // Format data before submission
-            const formattedData = formatClinicalData(data);
-
             // Submit form
             submit({
                 onSuccess: () => {

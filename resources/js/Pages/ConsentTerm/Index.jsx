@@ -91,7 +91,7 @@ const Index = () => {
         post(
             edit ? route("admin.consentTerms.update", data.id) : route("admin.consentTerms.store"),
             {
-                onSuccess: (e) => {
+                onSuccess: () => {
                     setOpenAddForm(false);
                     reset();
                 },

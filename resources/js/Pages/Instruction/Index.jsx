@@ -103,7 +103,7 @@ const Index = () => {
         post(
             edit ? route("admin.instructions.update", data.id) : route("admin.instructions.store"),
             {
-                onSuccess: (e) => {
+                onSuccess: () => {
                     setOpenAddForm(false);
                     reset();
                 },

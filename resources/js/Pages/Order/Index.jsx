@@ -21,7 +21,6 @@ import {
     LocalShipping as ShippingIcon,
     Download as DownloadIcon,
     ViewList as ViewListIcon,
-    CheckCircle as CheckCircleIcon,
     Schedule as ScheduleIcon,
 } from "@mui/icons-material";
 import ClientLayout from "@/Layouts/AuthenticatedLayout";

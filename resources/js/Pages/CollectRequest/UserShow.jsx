@@ -4,24 +4,12 @@ import {
     Box,
     Button,
     Chip,
-    Divider,
     Grid,
-    List,
-    ListItem,
-    ListItemAvatar,
-    ListItemText,
     Paper,
     Stack,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
     Typography,
     Avatar,
     Card,
-    CardHeader,
     CardContent,
     useTheme,
     Accordion,
@@ -37,23 +25,17 @@ import {
     LocalShipping,
     Event,
     LocationOn,
-    Email,
     ArrowBack,
     Biotech,
     Vaccines,
-    Thermostat,
-    MyLocation,
-    AccessTime,
     QrCode,
     Timeline,
     ExpandMore,
     Info,
-    Map,
 } from "@mui/icons-material";
 import { router } from "@inertiajs/react";
 import PageHeader from "@/Components/PageHeader";
 import {
-    LineChart,
     Line,
     XAxis,
     YAxis,
@@ -62,7 +44,6 @@ import {
     Legend,
     ResponsiveContainer,
     ReferenceLine,
-    Area,
     ComposedChart,
 } from "recharts";
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from "react-leaflet";
@@ -131,7 +112,7 @@ const UserShow = ({ collectRequest }) => {
                 month: "long",
                 day: "numeric",
             });
-        } catch (e) {
+        } catch {
             return dateString || "Not specified";
         }
     };
@@ -149,7 +130,7 @@ const UserShow = ({ collectRequest }) => {
                 hour: "2-digit",
                 minute: "2-digit",
             });
-        } catch (e) {
+        } catch {
             return dateString || "Not specified";
         }
     };

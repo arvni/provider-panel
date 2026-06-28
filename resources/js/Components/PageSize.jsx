@@ -10,8 +10,6 @@ import {
     alpha,
     Stack,
     Chip,
-    ButtonGroup,
-    Button,
 } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { motion } from "framer-motion";
@@ -47,14 +45,6 @@ const PageSize = ({
     // Handle change of page size
     const handleChange = (e) => {
         const newValue = e.target.value;
-        setValue(newValue);
-        if (onChange) {
-            onChange(newValue);
-        }
-    };
-
-    // Handle direct button selection
-    const handleButtonSelect = (newValue) => () => {
         setValue(newValue);
         if (onChange) {
             onChange(newValue);
@@ -252,58 +242,6 @@ const PageSize = ({
                 </Typography>
             )}
         </FormControl>
-    );
-
-    // Alternative button group view
-    const ButtonGroupView = () => (
-        <Box
-            sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 0.5,
-            }}
-        >
-            {showLabel && (
-                <Typography variant="caption" color="text.secondary">
-                    Items per page
-                </Typography>
-            )}
-
-            <ButtonGroup
-                variant="outlined"
-                size={size}
-                aria-label="page size options"
-                sx={{
-                    "& .MuiButton-root": {
-                        minWidth: 48,
-                        fontWeight: 500,
-                    },
-                }}
-            >
-                {options.slice(0, 4).map((option) => (
-                    <Button
-                        key={option}
-                        onClick={handleButtonSelect(option)}
-                        variant={value === option ? "contained" : "outlined"}
-                        sx={{
-                            borderColor:
-                                value === option
-                                    ? theme.palette.primary.main
-                                    : theme.palette.divider,
-                            "&:hover": {
-                                backgroundColor:
-                                    value === option
-                                        ? theme.palette.primary.main
-                                        : alpha(theme.palette.primary.main, 0.1),
-                            },
-                        }}
-                    >
-                        {option}
-                    </Button>
-                ))}
-            </ButtonGroup>
-        </Box>
     );
 
     // Choose which view to display

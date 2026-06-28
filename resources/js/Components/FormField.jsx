@@ -50,7 +50,7 @@ const FormField = ({
     errorPath,
 }) => {
     const theme = useTheme();
-    const [focused, setFocused] = React.useState(false);
+    const [_focused, setFocused] = React.useState(false);
 
     // Determine the error path for this field
     const fieldErrorPath = errorPath || rest.name;

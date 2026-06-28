@@ -2,12 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useSubmitForm } from "@/Services/api";
 import EditLayout from "../EditLayout";
 import SampleDetailsForm from "../Components/SampleDetailsForm";
-import { Box, Alert, Typography } from "@mui/material";
-import {
-    sampleDetailsValidate,
-    formatSampleData,
-    resetSampleFormErrors,
-} from "@/Services/validate";
+import { Alert } from "@mui/material";
+import { sampleDetailsValidate, resetSampleFormErrors } from "@/Services/validate";
 import { motion, AnimatePresence } from "framer-motion";
 
 /**

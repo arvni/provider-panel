@@ -83,7 +83,7 @@ const Index = () => {
     };
     const handleSubmitForm = () =>
         post(edit ? route("admin.permissions.update", data.id) : route("admin.permissions.store"), {
-            onSuccess: (e) => {
+            onSuccess: () => {
                 setOpenAddForm(false);
                 reset();
             },

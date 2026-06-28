@@ -138,7 +138,7 @@ const Show = ({ collectRequest }) => {
 
         try {
             return new Date(dateString).toLocaleString();
-        } catch (e) {
+        } catch {
             return dateString || "Not specified";
         }
     };

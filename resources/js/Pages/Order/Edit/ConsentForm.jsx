@@ -5,7 +5,6 @@ import {
     Alert,
     Avatar,
     Box,
-    Button,
     Checkbox,
     Chip,
     Collapse,
@@ -29,11 +28,18 @@ import {
 } from "@mui/icons-material";
 import FileUploader from "@/Components/FileUploader.jsx";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-    consentFormValidate,
-    formatConsentData,
-    resetConsentFormErrors,
-} from "@/Services/validate";
+import { consentFormValidate, resetConsentFormErrors } from "@/Services/validate";
+
+/**
+ * Enhanced ConsentForm component with improved validation and UI
+ *
+ * @param {Object} props Component props
+ * @param {Object} props.auth Authentication information
+ * @param {Object} props.order Order data containing consent information
+ * @param {string|number} props.step Current step in the process
+ * @param {Array} props.consents Available consent options
+ * @returns {JSX.Element} Rendered component
+ */
 
 /**
  * Enhanced ConsentForm component with improved validation and UI

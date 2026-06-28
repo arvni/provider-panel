@@ -14,13 +14,7 @@ import { Description, Edit as EditIcon } from "@mui/icons-material";
  */
 const Edit = (props) => {
     // Initialize form with existing data
-    const {
-        data,
-        setData,
-        post,
-        processing,
-        errors: formErrors,
-    } = useForm({
+    const { data, setData, post, processing } = useForm({
         ...props.orderForm,
         _method: "put",
     });

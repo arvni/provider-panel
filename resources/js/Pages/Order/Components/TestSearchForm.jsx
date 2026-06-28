@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
     Button,
     Divider,
@@ -60,7 +60,7 @@ const TestSearchForm = (props) => {
         if (storedSearches) {
             try {
                 setRecentSearches(JSON.parse(storedSearches).slice(0, 5));
-            } catch (e) {
+            } catch {
                 // Handle parsing error
                 setRecentSearches([]);
             }

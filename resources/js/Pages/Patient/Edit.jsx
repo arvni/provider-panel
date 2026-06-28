@@ -6,8 +6,6 @@ import {
     Box,
     Button,
     Typography,
-    Card,
-    CardContent,
     Paper,
     useTheme,
     Stack,
@@ -38,7 +36,7 @@ const Edit = ({ patient, canDelete, deleteReason, genders }) => {
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
     // Form state management
-    const { data, setData, submit, errors, setError, clearErrors, processing } = useSubmitForm(
+    const { data, setData, submit, errors, clearErrors, processing } = useSubmitForm(
         {
             ...patient,
             _method: "put",

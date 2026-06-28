@@ -67,7 +67,7 @@ function Index({ collectRequests: { data: collectRequestsData, ...pagination }, 
         try {
             const date = new Date(dateString);
             if (isValid(date)) return formatInTimeZone(date, "Asia/Muscat", "MMM d, yyyy h:mm a");
-        } catch (e) {
+        } catch {
             /* fall through */
         }
         return dateString;

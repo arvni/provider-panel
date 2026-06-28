@@ -139,7 +139,7 @@ const PatientList = ({ open, onClose, onSelect }) => {
                 month: "short",
                 day: "numeric",
             });
-        } catch (e) {
+        } catch {
             return dateString;
         }
     };

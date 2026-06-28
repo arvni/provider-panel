@@ -65,7 +65,6 @@ const AddForm = ({
     loading,
     reset,
     sampleTypes,
-    errors = {},
 }) => {
     // Local form validation state
     const [validationErrors, setValidationErrors] = useState({});

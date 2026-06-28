@@ -14,7 +14,6 @@ import {
     Chip,
     useTheme,
     alpha,
-    Divider,
 } from "@mui/material";
 import { Add as AddIcon, Delete as DeleteIcon, Person as PersonIcon } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
@@ -52,7 +51,7 @@ const PatientDetails = ({ auth, order, step, genders }) => {
     const [selectedPatientIndex, setSelectedPatientIndex] = useState(null);
 
     // Form state management
-    const { data, setData, submit, errors, setError, clearErrors, processing } = useSubmitForm(
+    const { setData, submit, errors, setError, clearErrors, processing } = useSubmitForm(
         { patients, _method: "put" },
         route("orders.update", { order: order.id, step })
     );

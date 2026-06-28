@@ -26,7 +26,6 @@ import {
     Clear as ClearIcon,
     Science as ScienceIcon,
 } from "@mui/icons-material";
-import { format } from "date-fns";
 
 /**
  * OrderMaterials Index component
@@ -68,16 +67,6 @@ const Index = () => {
 
     // State for filter panel
     const [showFilters, setShowFilters] = useState(false);
-
-    // Format date function
-    const formatDate = (dateString) => {
-        if (!dateString) return "—";
-        try {
-            return format(new Date(dateString), "MMM d, yyyy h:mm a");
-        } catch (e) {
-            return dateString;
-        }
-    };
 
     // Status chip component
     const StatusChip = ({ status }) => {

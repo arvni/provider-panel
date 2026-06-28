@@ -5,7 +5,7 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import Form from "./Components/Form";
 
 const Add = (props) => {
-    const { data, setData, post, processing } = useForm({
+    const { data, setData, post } = useForm({
         name: "",
         shortName: "",
         code: "",
