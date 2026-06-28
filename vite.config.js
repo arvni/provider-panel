@@ -23,13 +23,4 @@ export default defineConfig({
         }),
         react(),
     ],
-    // Vitest: jsdom + Testing Library for component/unit tests.
-    test: {
-        globals: true,
-        environment: 'jsdom',
-        setupFiles: ['./resources/js/test/setup.js'],
-        include: ['resources/js/**/*.{test,spec}.{js,jsx}'],
-        css: false,
-        restoreMocks: true,
-    },
 });
