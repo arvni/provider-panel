@@ -16,16 +16,9 @@ import {
     TextField,
     Typography,
     Slide,
-    Box
+    Box,
 } from "@mui/material";
-import {
-    Save,
-    Cancel,
-    Science,
-    Description,
-    CheckCircle,
-    Close
-} from "@mui/icons-material";
+import { Save, Cancel, Science, Description, CheckCircle, Close } from "@mui/icons-material";
 import SelectSearch from "@/Components/SelectSearch";
 
 /**
@@ -48,14 +41,7 @@ const SlideTransition = React.forwardRef(function Transition(props, ref) {
  * @param {boolean} props.disabled Whether form is disabled
  * @returns {JSX.Element} Rendered component
  */
-const AddSampleTypeForm = ({
-                               data,
-                               setData,
-                               open,
-                               onClose,
-                               onSubmit,
-                               disabled = false
-                           }) => {
+const AddSampleTypeForm = ({ data, setData, open, onClose, onSubmit, disabled = false }) => {
     // Validation errors state
     const [errors, setErrors] = useState({});
 
@@ -67,7 +53,7 @@ const AddSampleTypeForm = ({
     const handleChange = (e) => {
         // Clear error for this field if it exists
         if (errors[e.target.name]) {
-            setErrors(prev => {
+            setErrors((prev) => {
                 const newErrors = { ...prev };
                 delete newErrors[e.target.name];
                 return newErrors;
@@ -134,9 +120,9 @@ const AddSampleTypeForm = ({
      * @param {string} error Error message
      */
     const addError = (key, error) => {
-        setErrors(prev => ({
+        setErrors((prev) => ({
             ...prev,
-            [key]: error
+            [key]: error,
         }));
     };
 
@@ -172,20 +158,24 @@ const AddSampleTypeForm = ({
             slots={{ transition: SlideTransition }}
             PaperProps={{
                 elevation: 5,
-                sx: { borderRadius: 2 }
+                sx: { borderRadius: 2 },
             }}
         >
             {/* Dialog title */}
-            <DialogTitle sx={{
-                pb: 1,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between'
-            }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <DialogTitle
+                sx={{
+                    pb: 1,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                }}
+            >
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     <Science color="success" />
                     <Typography variant="h6">
-                        {data.id && data.sample_type?.id ? 'Edit Sample Type' : 'Add New Sample Type'}
+                        {data.id && data.sample_type?.id
+                            ? "Edit Sample Type"
+                            : "Add New Sample Type"}
                     </Typography>
                 </Box>
 
@@ -206,7 +196,8 @@ const AddSampleTypeForm = ({
             <DialogContent sx={{ py: 3 }}>
                 <Box sx={{ mb: 3 }}>
                     <Typography variant="body2" color="text.secondary">
-                        Add a sample type that can be used for this test. You can mark this as the default sample type.
+                        Add a sample type that can be used for this test. You can mark this as the
+                        default sample type.
                     </Typography>
                 </Box>
 
@@ -219,7 +210,10 @@ const AddSampleTypeForm = ({
                             url={route("api.sampleTypes.list")}
                             label="Sample Type"
                             onchange={handleChange}
-                            helperText={errors?.sample_type || "Select the type of sample that can be used for this test"}
+                            helperText={
+                                errors?.sample_type ||
+                                "Select the type of sample that can be used for this test"
+                            }
                             error={!!errors?.sample_type}
                             required
                             disabled={disabled}
@@ -233,11 +227,11 @@ const AddSampleTypeForm = ({
                             variant="outlined"
                             sx={{
                                 p: 2,
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                                bgcolor: data.is_default ? 'success.lightest' : 'background.paper',
-                                borderColor: data.is_default ? 'success.light' : 'divider',
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                bgcolor: data.is_default ? "success.lightest" : "background.paper",
+                                borderColor: data.is_default ? "success.light" : "divider",
                             }}
                         >
                             <Stack direction="row" spacing={1} alignItems="center">
@@ -273,17 +267,23 @@ const AddSampleTypeForm = ({
                             multiline
                             rows={4}
                             name="description"
-                            value={data.description || ''}
+                            value={data.description || ""}
                             onChange={handleChange}
                             label="Description"
                             placeholder="Provide details about this sample type, including any special handling instructions"
                             error={!!errors?.description}
-                            helperText={errors?.description || "Explain how this sample type should be handled"}
+                            helperText={
+                                errors?.description ||
+                                "Explain how this sample type should be handled"
+                            }
                             disabled={disabled}
                             required
                             InputProps={{
                                 startAdornment: (
-                                    <InputAdornment position="start" sx={{ alignSelf: 'flex-start', mt: 1.5 }}>
+                                    <InputAdornment
+                                        position="start"
+                                        sx={{ alignSelf: "flex-start", mt: 1.5 }}
+                                    >
                                         <Description color="primary" />
                                     </InputAdornment>
                                 ),
@@ -297,11 +297,7 @@ const AddSampleTypeForm = ({
 
             {/* Dialog actions */}
             <DialogActions sx={{ px: 3, py: 2 }}>
-                <Button
-                    onClick={handleClose}
-                    startIcon={<Cancel />}
-                    disabled={disabled}
-                >
+                <Button onClick={handleClose} startIcon={<Cancel />} disabled={disabled}>
                     Cancel
                 </Button>
 
@@ -312,7 +308,7 @@ const AddSampleTypeForm = ({
                     onClick={handleSubmit}
                     disabled={disabled}
                 >
-                    {data.id && data.sample_type?.id ? 'Update Sample Type' : 'Add Sample Type'}
+                    {data.id && data.sample_type?.id ? "Update Sample Type" : "Add Sample Type"}
                 </Button>
             </DialogActions>
         </Dialog>

@@ -29,25 +29,27 @@ const ConfirmSubmitDialog = ({ open, onClose, onConfirm, processing, orderId }) 
             PaperProps={{
                 sx: {
                     borderRadius: 2,
-                    boxShadow: theme.shadows[10]
-                }
+                    boxShadow: theme.shadows[10],
+                },
             }}
         >
-            <DialogTitle sx={{
-                pb: 1,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 1.5
-            }}>
+            <DialogTitle
+                sx={{
+                    pb: 1,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1.5,
+                }}
+            >
                 <Box
                     sx={{
                         width: 48,
                         height: 48,
-                        borderRadius: '50%',
+                        borderRadius: "50%",
                         bgcolor: alpha(theme.palette.warning.main, 0.1),
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
                     }}
                 >
                     <WarningIcon color="warning" sx={{ fontSize: 28 }} />
@@ -74,8 +76,8 @@ const ConfirmSubmitDialog = ({ open, onClose, onConfirm, processing, orderId }) 
                             p: 2,
                             bgcolor: alpha(theme.palette.warning.main, 0.05),
                             borderRadius: 1,
-                            border: '1px solid',
-                            borderColor: alpha(theme.palette.warning.main, 0.2)
+                            border: "1px solid",
+                            borderColor: alpha(theme.palette.warning.main, 0.2),
                         }}
                     >
                         <Stack spacing={1}>
@@ -103,8 +105,8 @@ const ConfirmSubmitDialog = ({ open, onClose, onConfirm, processing, orderId }) 
                     color="inherit"
                     sx={{
                         borderRadius: 1.5,
-                        textTransform: 'none',
-                        px: 3
+                        textTransform: "none",
+                        px: 3,
                     }}
                 >
                     Cancel
@@ -117,15 +119,15 @@ const ConfirmSubmitDialog = ({ open, onClose, onConfirm, processing, orderId }) 
                     disabled={processing}
                     sx={{
                         borderRadius: 1.5,
-                        textTransform: 'none',
+                        textTransform: "none",
                         px: 3,
-                        boxShadow: 'none',
-                        '&:hover': {
-                            boxShadow: theme.shadows[2]
-                        }
+                        boxShadow: "none",
+                        "&:hover": {
+                            boxShadow: theme.shadows[2],
+                        },
                     }}
                 >
-                    {processing ? 'Submitting...' : 'Confirm & Submit'}
+                    {processing ? "Submitting..." : "Confirm & Submit"}
                 </Button>
             </DialogActions>
         </Dialog>

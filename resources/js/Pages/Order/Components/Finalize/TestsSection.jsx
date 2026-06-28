@@ -54,12 +54,10 @@ const TestsSection = ({ data, errors, expanded, onToggle, status, hasError, orde
                                 <TableRow key={`test-${index}`}>
                                     <TableCell>{index + 1}</TableCell>
                                     <TableCell>
-                                        <Typography fontWeight="500">
-                                            {test.name}
-                                        </Typography>
+                                        <Typography fontWeight="500">{test.name}</Typography>
                                     </TableCell>
-                                    <TableCell>{test.code || 'N/A'}</TableCell>
-                                    <TableCell>{test.turnaroundTime || 'N/A'}</TableCell>
+                                    <TableCell>{test.code || "N/A"}</TableCell>
+                                    <TableCell>{test.turnaroundTime || "N/A"}</TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>

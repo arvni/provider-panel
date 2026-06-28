@@ -8,16 +8,16 @@ import {
     Paper,
     Stack,
     TextField,
-    Typography
+    Typography,
 } from "@mui/material";
-import {Cancel, Save} from "@mui/icons-material";
-import {router, useForm} from "@inertiajs/react";
+import { Cancel, Save } from "@mui/icons-material";
+import { router, useForm } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import PageHeader from "@/Components/PageHeader";
 
-const Test = ({user, tests}) => {
-    const {data, setData, put, processing, errors} = useForm({
-        tests: user.tests ?? user.Tests ?? []
+const Test = ({ user, tests }) => {
+    const { data, setData, put, processing, errors } = useForm({
+        tests: user.tests ?? user.Tests ?? [],
     });
 
     const handleSubmit = () => {
@@ -36,7 +36,7 @@ const Test = ({user, tests}) => {
                     <Button
                         key="cancel"
                         onClick={handleCancel}
-                        startIcon={<Cancel/>}
+                        startIcon={<Cancel />}
                         disabled={processing}
                     >
                         Cancel
@@ -45,15 +45,15 @@ const Test = ({user, tests}) => {
                         key="save"
                         variant="contained"
                         onClick={handleSubmit}
-                        startIcon={<Save/>}
+                        startIcon={<Save />}
                         disabled={processing}
                     >
                         Save
-                    </Button>
+                    </Button>,
                 ]}
             />
 
-            <Paper sx={{mt: "3em", p: "1rem"}}>
+            <Paper sx={{ mt: "3em", p: "1rem" }}>
                 <Stack spacing={3}>
                     <Box>
                         <Typography variant="h6">Assigned Tests</Typography>
@@ -75,14 +75,16 @@ const Test = ({user, tests}) => {
                                 <Stack spacing={0.5}>
                                     <Typography variant="body2">{option.name}</Typography>
                                     <Typography variant="caption" color="text.secondary">
-                                        {[option.code, option.shortName].filter(Boolean).join(" - ")}
+                                        {[option.code, option.shortName]
+                                            .filter(Boolean)
+                                            .join(" - ")}
                                     </Typography>
                                 </Stack>
                             </Box>
                         )}
                         renderTags={(value, getTagProps) =>
                             value.map((option, index) => {
-                                const {key, ...tagProps} = getTagProps({index});
+                                const { key, ...tagProps } = getTagProps({ index });
 
                                 return (
                                     <Chip
@@ -113,17 +115,19 @@ const breadCrumbs = [
     {
         title: "Users",
         link: "/admin/users",
-        icon: null
+        icon: null,
     },
     {
         title: "User Tests",
         link: null,
-        icon: null
-    }
+        icon: null,
+    },
 ];
 
 Test.layout = (page) => (
-    <AuthenticatedLayout auth={page.props.auth} children={page} breadcrumbs={breadCrumbs}/>
+    <AuthenticatedLayout auth={page.props.auth} breadcrumbs={breadCrumbs}>
+        {page}
+    </AuthenticatedLayout>
 );
 
 export default Test;

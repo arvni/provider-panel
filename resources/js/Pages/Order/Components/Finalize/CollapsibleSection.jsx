@@ -44,12 +44,12 @@ const CollapsibleSection = ({
             sx={{
                 mb,
                 borderRadius: 2,
-                overflow: 'hidden',
-                border: '1px solid',
+                overflow: "hidden",
+                border: "1px solid",
                 borderColor: hasError ? theme.palette.error.main : theme.palette.divider,
                 ...(hasError && {
-                    boxShadow: `0 0 0 1px ${theme.palette.error.main}`
-                })
+                    boxShadow: `0 0 0 1px ${theme.palette.error.main}`,
+                }),
             }}
         >
             <Box
@@ -57,14 +57,14 @@ const CollapsibleSection = ({
                     p: 2,
                     bgcolor: hasError ? alpha(theme.palette.error.main, 0.1) : headerBg,
                     color: headerColor,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    cursor: 'pointer'
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    cursor: "pointer",
                 }}
                 onClick={onToggle}
             >
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     {icon}
                     <Typography variant="h6" fontWeight={600}>
                         {title}
@@ -85,9 +85,7 @@ const CollapsibleSection = ({
             </Box>
 
             <Collapse in={expanded}>
-                <Box sx={{ p: 3 }}>
-                    {children}
-                </Box>
+                <Box sx={{ p: 3 }}>{children}</Box>
             </Collapse>
         </Paper>
     );

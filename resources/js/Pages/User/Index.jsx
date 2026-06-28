@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import {
     Alert,
     Button,
@@ -10,27 +10,27 @@ import {
     IconButton,
     Paper,
     Stack,
-    Tooltip
+    Tooltip,
 } from "@mui/material";
-import AddIcon from '@mui/icons-material/Add';
-import {Edit, EditCalendar, LockReset, PasswordOutlined, Sync} from "@mui/icons-material";
+import AddIcon from "@mui/icons-material/Add";
+import { Edit, EditCalendar, LockReset, PasswordOutlined, Sync } from "@mui/icons-material";
 import PageHeader from "@/Components/PageHeader";
 import TableLayout from "@/Layouts/TableLayout";
-import {usePageReload} from "@/Services/api";
+import { usePageReload } from "@/Services/api";
 import ChangePasswordForm from "@/Components/ChangePasswordForm";
 import LoadingButton from "@/Components/LoadingButton.jsx";
 import AdminLayout from "@/Layouts/AuthenticatedLayout";
-import {router} from "@inertiajs/react";
+import { router } from "@inertiajs/react";
 
 const breadcrumbs = [
     {
         title: "Users",
         link: "",
-        icon: null
+        icon: null,
     },
 ];
 
-function Index({users: {data: usersData, ...pagination}, request}) {
+function Index({ users: { data: usersData, ...pagination }, request }) {
     const {
         data,
         processing,
@@ -38,15 +38,16 @@ function Index({users: {data: usersData, ...pagination}, request}) {
         onPageSizeChange,
         onOrderByChange,
         onFilterChange,
-        onPageChange
+        onPageChange,
     } = usePageReload(request, ["users"]);
     const [user, setUser] = useState();
     const [openChangePasswordForm, setOpenChangePasswordForm] = useState(false);
     const [resetPasswordUser, setResetPasswordUser] = useState(null);
     const [sendingReset, setSendingReset] = useState(false);
 
-    const handleAdd = e => e.preventDefault() || router.visit(route("admin.users.create"));
-    const handleOpenChangePasswordForm = (user) => () => setUser(user) || setOpenChangePasswordForm(true);
+    const handleAdd = (e) => e.preventDefault() || router.visit(route("admin.users.create"));
+    const handleOpenChangePasswordForm = (user) => () =>
+        setUser(user) || setOpenChangePasswordForm(true);
     const handleCloseChangePasswordForm = () => resetUser() || setOpenChangePasswordForm(false);
 
     const resetUser = () => setUser(null);
@@ -60,7 +61,7 @@ function Index({users: {data: usersData, ...pagination}, request}) {
                 name: "name",
                 label: "Name",
                 type: "text",
-                value: data?.filters?.name
+                value: data?.filters?.name,
             },
             sortable: true,
         },
@@ -72,7 +73,7 @@ function Index({users: {data: usersData, ...pagination}, request}) {
                 name: "userName",
                 label: "userName",
                 type: "text",
-                value: data?.filters?.userName
+                value: data?.filters?.userName,
             },
             sortable: true,
         },
@@ -84,7 +85,7 @@ function Index({users: {data: usersData, ...pagination}, request}) {
                 name: "email",
                 label: "Email",
                 type: "text",
-                value: data?.filters?.email
+                value: data?.filters?.email,
             },
             sortable: true,
         },
@@ -97,69 +98,95 @@ function Index({users: {data: usersData, ...pagination}, request}) {
                 label: "Role",
                 type: "selectSearch",
                 value: data?.filters?.role,
-                url: route("api.roles.list")
+                url: route("api.roles.list"),
             },
-            render: (row) => row?.roles?.map(item => item.name).join(", "),
+            render: (row) => row?.roles?.map((item) => item.name).join(", "),
             sortable: false,
         },
         {
             field: "id",
             title: "#",
             type: "actions",
-            render: (row) => <Stack direction="row" spacing={1}>
-                <IconButton onClick={handleEdit(row.id)} href={route("admin.users.edit", row.id)}><Edit/></IconButton>
-                <IconButton onClick={()=>router.get(route("admin.users.tests.edit", row.id))}
-                            href={route("admin.users.tests.edit", row.id)}><EditCalendar/></IconButton>
-                <Tooltip title="Change Password">
-                    <IconButton onClick={handleOpenChangePasswordForm(row)}><PasswordOutlined/></IconButton>
-                </Tooltip>
-                <Tooltip title="Send Reset Password Email">
-                    <IconButton onClick={handleOpenResetPassword(row)}><LockReset/></IconButton>
-                </Tooltip>
-            </Stack>
-        }
+            render: (row) => (
+                <Stack direction="row" spacing={1}>
+                    <IconButton
+                        onClick={handleEdit(row.id)}
+                        href={route("admin.users.edit", row.id)}
+                    >
+                        <Edit />
+                    </IconButton>
+                    <IconButton
+                        onClick={() => router.get(route("admin.users.tests.edit", row.id))}
+                        href={route("admin.users.tests.edit", row.id)}
+                    >
+                        <EditCalendar />
+                    </IconButton>
+                    <Tooltip title="Change Password">
+                        <IconButton onClick={handleOpenChangePasswordForm(row)}>
+                            <PasswordOutlined />
+                        </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Send Reset Password Email">
+                        <IconButton onClick={handleOpenResetPassword(row)}>
+                            <LockReset />
+                        </IconButton>
+                    </Tooltip>
+                </Stack>
+            ),
+        },
     ];
 
-    const handleEdit = (id) => e => e.preventDefault() || router.visit(route("admin.users.edit", id))
+    const handleEdit = (id) => (e) =>
+        e.preventDefault() || router.visit(route("admin.users.edit", id));
 
     const handleOpenResetPassword = (user) => () => setResetPasswordUser(user);
     const handleCloseResetPassword = () => setResetPasswordUser(null);
 
     const handleConfirmResetPassword = () => {
         if (!resetPasswordUser) return;
-        router.post(route("admin.users.sendResetPassword", resetPasswordUser.id), {}, {
-            preserveScroll: true,
-            onStart: () => setSendingReset(true),
-            onFinish: () => setSendingReset(false),
-            onSuccess: handleCloseResetPassword,
-        });
-    }
-
+        router.post(
+            route("admin.users.sendResetPassword", resetPasswordUser.id),
+            {},
+            {
+                preserveScroll: true,
+                onStart: () => setSendingReset(true),
+                onFinish: () => setSendingReset(false),
+                onSuccess: handleCloseResetPassword,
+            }
+        );
+    };
 
     const handlePage = (e) => e.preventDefault() || reload();
 
     const syncUsers = () => router.post(route("admin.users.sync"));
 
-    return (<>
+    return (
+        <>
             <PageHeader
                 title="Users"
                 actions={[
-                    <Button key="add" variant="contained"
-                            href={route("admin.users.create")}
-                            onClick={handleAdd}
-                            color="success"
-                            startIcon={<AddIcon/>}>
+                    <Button
+                        key="add"
+                        variant="contained"
+                        href={route("admin.users.create")}
+                        onClick={handleAdd}
+                        color="success"
+                        startIcon={<AddIcon />}
+                    >
                         Add
                     </Button>,
-                    <Button key="sync" variant="contained"
-                            onClick={syncUsers}
-                            color="success"
-                            startIcon={<Sync/>}>
+                    <Button
+                        key="sync"
+                        variant="contained"
+                        onClick={syncUsers}
+                        color="success"
+                        startIcon={<Sync />}
+                    >
                         Sync Referrers
                     </Button>,
                 ]}
             />
-            <Paper sx={{mt: "3em", p: "1rem"}}>
+            <Paper sx={{ mt: "3em", p: "1rem" }}>
                 <TableLayout
                     columns={columns}
                     data={usersData}
@@ -173,18 +200,22 @@ function Index({users: {data: usersData, ...pagination}, request}) {
                     tableModel={{
                         orderBy: data.orderBy ?? {
                             field: "id",
-                            type: "asc"
+                            type: "asc",
                         },
                         page: data.page,
-                        filter: data.filters
+                        filter: data.filters,
                     }}
                     pageSize={{
                         defaultValue: data.pageSize ?? 10,
-                        onChange: onPageSizeChange
+                        onChange: onPageSizeChange,
                     }}
                 />
             </Paper>
-            <ChangePasswordForm open={openChangePasswordForm} onClose={handleCloseChangePasswordForm} user={user}/>
+            <ChangePasswordForm
+                open={openChangePasswordForm}
+                onClose={handleCloseChangePasswordForm}
+                user={user}
+            />
             <Dialog open={Boolean(resetPasswordUser)} onClose={handleCloseResetPassword}>
                 <DialogTitle>Send Reset Password Email</DialogTitle>
                 <DialogContent>
@@ -194,20 +225,28 @@ function Index({users: {data: usersData, ...pagination}, request}) {
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <Button color="secondary" onClick={handleCloseResetPassword}>Cancel</Button>
+                    <Button color="secondary" onClick={handleCloseResetPassword}>
+                        Cancel
+                    </Button>
                     <LoadingButton
                         loading={sendingReset}
                         variant="contained"
                         color="success"
                         onClick={handleConfirmResetPassword}
                         autoFocus
-                    >Send</LoadingButton>
+                    >
+                        Send
+                    </LoadingButton>
                 </DialogActions>
             </Dialog>
         </>
     );
 }
 
-Index.layout = (page) => <AdminLayout auth={page.props.auth} breadcrumbs={breadcrumbs} children={page}/>;
+Index.layout = (page) => (
+    <AdminLayout auth={page.props.auth} breadcrumbs={breadcrumbs}>
+        {page}
+    </AdminLayout>
+);
 
 export default Index;

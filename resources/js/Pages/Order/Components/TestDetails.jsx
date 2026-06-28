@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import {
     Dialog,
     DialogActions,
@@ -21,7 +21,7 @@ import {
     alpha,
     Slide,
     useMediaQuery,
-    CircularProgress
+    CircularProgress,
 } from "@mui/material";
 import {
     Close as CloseIcon,
@@ -33,7 +33,7 @@ import {
     ScienceOutlined as ScienceIcon,
     Info as InfoIcon,
     ArrowBack as ArrowBackIcon,
-    AttachFile as AttachFileIcon
+    AttachFile as AttachFileIcon,
 } from "@mui/icons-material";
 
 /**
@@ -41,7 +41,7 @@ import {
  */
 const TestDetails = ({ test, open = false, onClose }) => {
     const theme = useTheme();
-    const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+    const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
     const [downloading, setDownloading] = useState({});
 
     // Animation for the dialog
@@ -66,7 +66,7 @@ const TestDetails = ({ test, open = false, onClose }) => {
         const days = parseInt(time, 10);
         if (isNaN(days)) return time;
 
-        return `${days} ${days === 1 ? 'business day' : 'business days'}`;
+        return `${days} ${days === 1 ? "business day" : "business days"}`;
     };
 
     // Group files by type for better organization
@@ -75,31 +75,31 @@ const TestDetails = ({ test, open = false, onClose }) => {
 
         if (test?.order_form_file) {
             files.push({
-                type: 'orderForm',
+                type: "orderForm",
                 id: test?.order_form_id,
-                name: 'Order Form',
+                name: "Order Form",
                 icon: <AssignmentIcon />,
-                route: route("file", { type: "orderForm", id: test?.order_form_id })
+                route: route("file", { type: "orderForm", id: test?.order_form_id }),
             });
         }
 
         if (test?.consent_file) {
             files.push({
-                type: 'consent',
+                type: "consent",
                 id: test?.consent_id,
-                name: 'Consent Form',
+                name: "Consent Form",
                 icon: <FileCopyIcon />,
-                route: route("file", { type: "consent", id: test?.consent_id })
+                route: route("file", { type: "consent", id: test?.consent_id }),
             });
         }
 
         if (test?.instruction_file) {
             files.push({
-                type: 'instruction',
+                type: "instruction",
                 id: test?.instruction_id,
-                name: 'Instruction',
+                name: "Instruction",
                 icon: <DescriptionIcon />,
-                route: route("file", { type: "instruction", id: test?.instruction_id })
+                route: route("file", { type: "instruction", id: test?.instruction_id }),
             });
         }
 
@@ -120,8 +120,8 @@ const TestDetails = ({ test, open = false, onClose }) => {
                 elevation: 5,
                 sx: {
                     borderRadius: 2,
-                    overflow: 'hidden'
-                }
+                    overflow: "hidden",
+                },
             }}
         >
             {/* Dialog title with close button */}
@@ -130,9 +130,9 @@ const TestDetails = ({ test, open = false, onClose }) => {
                     p: 2,
                     bgcolor: theme.palette.primary.main,
                     color: theme.palette.primary.contrastText,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 1
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
                 }}
             >
                 <ScienceIcon sx={{ mr: 1 }} />
@@ -141,17 +141,12 @@ const TestDetails = ({ test, open = false, onClose }) => {
                     component="div"
                     sx={{
                         flexGrow: 1,
-                        fontWeight: 600
+                        fontWeight: 600,
                     }}
                 >
-                    {test?.name || 'Test Details'}
+                    {test?.name || "Test Details"}
                 </Typography>
-                <IconButton
-                    edge="end"
-                    color="inherit"
-                    onClick={onClose}
-                    aria-label="close"
-                >
+                <IconButton edge="end" color="inherit" onClick={onClose} aria-label="close">
                     <CloseIcon />
                 </IconButton>
             </DialogTitle>
@@ -160,8 +155,8 @@ const TestDetails = ({ test, open = false, onClose }) => {
                 dividers
                 sx={{
                     p: 0,
-                    display: 'flex',
-                    flexDirection: 'column'
+                    display: "flex",
+                    flexDirection: "column",
                 }}
             >
                 {/* Test overview section */}
@@ -173,9 +168,9 @@ const TestDetails = ({ test, open = false, onClose }) => {
                                 fontWeight={600}
                                 sx={{
                                     mb: 2,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 1
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 1,
                                 }}
                             >
                                 <InfoIcon color="primary" />
@@ -187,19 +182,21 @@ const TestDetails = ({ test, open = false, onClose }) => {
                                 sx={{
                                     p: 2,
                                     borderRadius: 2,
-                                    border: '1px solid',
+                                    border: "1px solid",
                                     borderColor: theme.palette.divider,
-                                    mb: 3
+                                    mb: 3,
                                 }}
                             >
                                 <Box
                                     sx={{
-                                        '& p': { margin: '0 0 16px 0' },
-                                        '& ul': { marginBottom: '16px' },
-                                        '& a': { color: theme.palette.primary.main },
-                                        '& img': { maxWidth: '100%', height: 'auto' }
+                                        "& p": { margin: "0 0 16px 0" },
+                                        "& ul": { marginBottom: "16px" },
+                                        "& a": { color: theme.palette.primary.main },
+                                        "& img": { maxWidth: "100%", height: "auto" },
                                     }}
-                                    dangerouslySetInnerHTML={{ __html: test?.description || 'No description available.' }}
+                                    dangerouslySetInnerHTML={{
+                                        __html: test?.description || "No description available.",
+                                    }}
                                 />
                             </Paper>
 
@@ -210,7 +207,7 @@ const TestDetails = ({ test, open = false, onClose }) => {
                                         Categories & Methods
                                     </Typography>
 
-                                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
+                                    <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 2 }}>
                                         {test?.categories?.map((category, index) => (
                                             <Chip
                                                 key={`category-${index}`}
@@ -244,10 +241,10 @@ const TestDetails = ({ test, open = false, onClose }) => {
                                 sx={{
                                     p: 2,
                                     borderRadius: 2,
-                                    border: '1px solid',
+                                    border: "1px solid",
                                     borderColor: theme.palette.divider,
                                     bgcolor: alpha(theme.palette.primary.main, 0.03),
-                                    mb: 3
+                                    mb: 3,
                                 }}
                             >
                                 <Typography
@@ -255,9 +252,9 @@ const TestDetails = ({ test, open = false, onClose }) => {
                                     fontWeight={600}
                                     sx={{
                                         mb: 1,
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: 1
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: 1,
                                     }}
                                 >
                                     <TimeIcon color="primary" fontSize="small" />
@@ -270,7 +267,7 @@ const TestDetails = ({ test, open = false, onClose }) => {
                                     sx={{
                                         fontWeight: 500,
                                         mt: 1,
-                                        borderRadius: 1
+                                        borderRadius: 1,
                                     }}
                                 />
                             </Paper>
@@ -282,7 +279,7 @@ const TestDetails = ({ test, open = false, onClose }) => {
                                     sx={{
                                         p: 2,
                                         borderRadius: 2,
-                                        border: '1px solid',
+                                        border: "1px solid",
                                         borderColor: theme.palette.divider,
                                         bgcolor: alpha(theme.palette.info.main, 0.03),
                                     }}
@@ -292,9 +289,9 @@ const TestDetails = ({ test, open = false, onClose }) => {
                                         fontWeight={600}
                                         sx={{
                                             mb: 2,
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: 1
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: 1,
                                         }}
                                     >
                                         <AttachFileIcon color="info" fontSize="small" />
@@ -312,8 +309,8 @@ const TestDetails = ({ test, open = false, onClose }) => {
                                                     <ListItemText
                                                         primary={file.name}
                                                         primaryTypographyProps={{
-                                                            variant: 'body2',
-                                                            fontWeight: 500
+                                                            variant: "body2",
+                                                            fontWeight: 500,
                                                         }}
                                                     />
                                                     <Tooltip title={`Download ${file.name}`}>
@@ -325,23 +322,37 @@ const TestDetails = ({ test, open = false, onClose }) => {
                                                             target="_blank"
                                                             startIcon={
                                                                 downloading[file.type] ? (
-                                                                    <CircularProgress size={16} color="inherit" />
+                                                                    <CircularProgress
+                                                                        size={16}
+                                                                        color="inherit"
+                                                                    />
                                                                 ) : (
                                                                     <DownloadIcon fontSize="small" />
                                                                 )
                                                             }
-                                                            onClick={handleDownload(file.type, file.id)}
+                                                            onClick={handleDownload(
+                                                                file.type,
+                                                                file.id
+                                                            )}
                                                             sx={{
                                                                 borderRadius: 1.5,
-                                                                textTransform: 'none',
+                                                                textTransform: "none",
                                                                 minWidth: 0,
-                                                                '& .MuiButton-startIcon': {
-                                                                    mr: 0
+                                                                "& .MuiButton-startIcon": {
+                                                                    mr: 0,
                                                                 },
-                                                                px: { xs: 1, sm: 2 }
+                                                                px: { xs: 1, sm: 2 },
                                                             }}
                                                         >
-                                                            <Box component="span" sx={{ display: { xs: 'none', sm: 'block' } }}>
+                                                            <Box
+                                                                component="span"
+                                                                sx={{
+                                                                    display: {
+                                                                        xs: "none",
+                                                                        sm: "block",
+                                                                    },
+                                                                }}
+                                                            >
                                                                 Download
                                                             </Box>
                                                         </Button>
@@ -365,9 +376,9 @@ const TestDetails = ({ test, open = false, onClose }) => {
                             sx={{
                                 mt: 3,
                                 mb: 2,
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 1
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 1,
                             }}
                         >
                             <ScienceIcon color="primary" />
@@ -381,12 +392,12 @@ const TestDetails = ({ test, open = false, onClose }) => {
                                         elevation={0}
                                         sx={{
                                             p: 2,
-                                            height: '100%',
+                                            height: "100%",
                                             borderRadius: 2,
-                                            border: '1px solid',
+                                            border: "1px solid",
                                             borderColor: theme.palette.divider,
-                                            display: 'flex',
-                                            flexDirection: 'column'
+                                            display: "flex",
+                                            flexDirection: "column",
                                         }}
                                     >
                                         <Typography
@@ -404,8 +415,12 @@ const TestDetails = ({ test, open = false, onClose }) => {
 
                                         {sampleType.additional_info && (
                                             <Box sx={{ mt: 1 }}>
-                                                <Typography variant="caption" color="text.secondary">
-                                                    <strong>Additional Info:</strong> {sampleType.additional_info}
+                                                <Typography
+                                                    variant="caption"
+                                                    color="text.secondary"
+                                                >
+                                                    <strong>Additional Info:</strong>{" "}
+                                                    {sampleType.additional_info}
                                                 </Typography>
                                             </Box>
                                         )}
@@ -420,10 +435,10 @@ const TestDetails = ({ test, open = false, onClose }) => {
             <DialogActions
                 sx={{
                     p: 2,
-                    borderTop: '1px solid',
+                    borderTop: "1px solid",
                     borderColor: theme.palette.divider,
-                    display: 'flex',
-                    justifyContent: 'space-between'
+                    display: "flex",
+                    justifyContent: "space-between",
                 }}
             >
                 <Button
@@ -433,7 +448,7 @@ const TestDetails = ({ test, open = false, onClose }) => {
                     startIcon={<ArrowBackIcon />}
                     sx={{
                         borderRadius: 1.5,
-                        textTransform: 'none'
+                        textTransform: "none",
                     }}
                 >
                     Back to Test Catalog

@@ -1,23 +1,23 @@
-import React, {useState} from "react";
-import {Button, IconButton, Paper, Stack} from "@mui/material";
-import AddIcon from '@mui/icons-material/Add';
-import {Delete, Edit, RemoveRedEye} from "@mui/icons-material";
+import React, { useState } from "react";
+import { Button, IconButton, Paper, Stack } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import { Delete, Edit, RemoveRedEye } from "@mui/icons-material";
 import PageHeader from "@/Components/PageHeader";
 import TableLayout from "@/Layouts/TableLayout";
-import {usePageReload} from "@/Services/api";
+import { usePageReload } from "@/Services/api";
 import DeleteForm from "@/Components/DeleteForm";
 import AdminLayout from "@/Layouts/AuthenticatedLayout";
-import {router} from "@inertiajs/react";
+import { router } from "@inertiajs/react";
 
 const breadcrumbs = [
     {
         title: "Order Forms",
         link: "",
-        icon: null
+        icon: null,
     },
 ];
 
-function Index({orderForms: {data: orderFormsData, ...pagination}, request}) {
+function Index({ orderForms: { data: orderFormsData, ...pagination }, request }) {
     const {
         data,
         processing,
@@ -25,22 +25,24 @@ function Index({orderForms: {data: orderFormsData, ...pagination}, request}) {
         onPageSizeChange,
         onOrderByChange,
         onFilterChange,
-        onPageChange
+        onPageChange,
     } = usePageReload(request, ["orderForms"]);
     const [orderForm, setOrderForm] = useState();
     const [openDeleteForm, setOpenDeleteForm] = useState(false);
 
-    const handleAdd = e => e.preventDefault() || router.visit(route("admin.orderForms.create"));
-    const handleOpenDeleteForm = (orderForm) => () => setOrderForm(orderForm) || setOpenDeleteForm(true);
+    const handleAdd = (e) => e.preventDefault() || router.visit(route("admin.orderForms.create"));
+    const handleOpenDeleteForm = (orderForm) => () =>
+        setOrderForm(orderForm) || setOpenDeleteForm(true);
     const handleCloseDeleteForm = () => resetOrderForm() || setOpenDeleteForm(false);
 
     const resetOrderForm = () => setOrderForm(null);
 
-    const handleDelete = () => router.post(
-        route("admin.orderForms.destroy", orderForm.id),
-        {_method: "delete"},
-        {onSuccess: handleCloseDeleteForm}
-    );
+    const handleDelete = () =>
+        router.post(
+            route("admin.orderForms.destroy", orderForm.id),
+            { _method: "delete" },
+            { onSuccess: handleCloseDeleteForm }
+        );
 
     const columns = [
         {
@@ -51,7 +53,7 @@ function Index({orderForms: {data: orderFormsData, ...pagination}, request}) {
                 name: "name",
                 label: "Name",
                 type: "text",
-                value: data?.filters?.name
+                value: data?.filters?.name,
             },
             sortable: true,
         },
@@ -60,42 +62,61 @@ function Index({orderForms: {data: orderFormsData, ...pagination}, request}) {
             title: "File",
             type: "text",
             sortable: false,
-            render: (row) => row.file && <IconButton href={route("file", {id: row.id, type: "order-form"})}
-                                                     target="_blank"><RemoveRedEye/></IconButton>,
-            width: "70px"
+            render: (row) =>
+                row.file && (
+                    <IconButton
+                        href={route("file", { id: row.id, type: "order-form" })}
+                        target="_blank"
+                    >
+                        <RemoveRedEye />
+                    </IconButton>
+                ),
+            width: "70px",
         },
         {
             field: "id",
             title: "#",
             type: "actions",
             width: "100px",
-            render: (row) => <Stack direction="row" spacing={1}>
-                <IconButton onClick={handleEdit(row.id)}
-                            href={route("admin.orderForms.edit", row.id)}><Edit/></IconButton>
-                <IconButton onClick={handleOpenDeleteForm(row)}><Delete/></IconButton>
-            </Stack>
-        }
+            render: (row) => (
+                <Stack direction="row" spacing={1}>
+                    <IconButton
+                        onClick={handleEdit(row.id)}
+                        href={route("admin.orderForms.edit", row.id)}
+                    >
+                        <Edit />
+                    </IconButton>
+                    <IconButton onClick={handleOpenDeleteForm(row)}>
+                        <Delete />
+                    </IconButton>
+                </Stack>
+            ),
+        },
     ];
 
-    const handleEdit = (id) => e => e.preventDefault() || router.visit(route("admin.orderForms.edit", id))
-
+    const handleEdit = (id) => (e) =>
+        e.preventDefault() || router.visit(route("admin.orderForms.edit", id));
 
     const handlePage = (e) => e.preventDefault() || reload();
 
-    return (<>
+    return (
+        <>
             <PageHeader
                 title="Order Forms"
                 actions={[
-                    <Button key="add" variant="contained"
-                            href={route("admin.orderForms.create")}
-                            onClick={handleAdd}
-                            color="success"
-                            startIcon={<AddIcon/>}>
+                    <Button
+                        key="add"
+                        variant="contained"
+                        href={route("admin.orderForms.create")}
+                        onClick={handleAdd}
+                        color="success"
+                        startIcon={<AddIcon />}
+                    >
                         Add
-                    </Button>
+                    </Button>,
                 ]}
             />
-            <Paper sx={{mt: "3em", p: "1rem"}}>
+            <Paper sx={{ mt: "3em", p: "1rem" }}>
                 <TableLayout
                     columns={columns}
                     data={orderFormsData}
@@ -109,25 +130,31 @@ function Index({orderForms: {data: orderFormsData, ...pagination}, request}) {
                     tableModel={{
                         orderBy: data.orderBy ?? {
                             field: "id",
-                            type: "asc"
+                            type: "asc",
                         },
                         page: data.page,
-                        filter: data.filters
+                        filter: data.filters,
                     }}
                     pageSize={{
                         defaultValue: data.pageSize ?? 10,
-                        onChange: onPageSizeChange
+                        onChange: onPageSizeChange,
                     }}
                 />
             </Paper>
-            <DeleteForm title={orderForm?.name}
-                        agreeCB={handleDelete}
-                        disAgreeCB={handleCloseDeleteForm}
-                        openDelete={openDeleteForm}/>
+            <DeleteForm
+                title={orderForm?.name}
+                agreeCB={handleDelete}
+                disAgreeCB={handleCloseDeleteForm}
+                openDelete={openDeleteForm}
+            />
         </>
     );
 }
 
-Index.layout = (page) => <AdminLayout auth={page.props.auth} breadcrumbs={breadcrumbs} children={page}/>;
+Index.layout = (page) => (
+    <AdminLayout auth={page.props.auth} breadcrumbs={breadcrumbs}>
+        {page}
+    </AdminLayout>
+);
 
 export default Index;

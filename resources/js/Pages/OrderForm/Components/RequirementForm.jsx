@@ -14,7 +14,7 @@ import {
     Tooltip,
     Typography,
     Avatar,
-    ListItemIcon
+    ListItemIcon,
 } from "@mui/material";
 import {
     Add as AddIcon,
@@ -24,7 +24,7 @@ import {
     CheckBox,
     List as ListIcon,
     Numbers,
-    Warning
+    Warning,
 } from "@mui/icons-material";
 import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import DeleteButton from "@/Components/DeleteButton";
@@ -51,7 +51,7 @@ const RequirementForm = ({ errors, requirements = [], onChange, disabled = false
         required: true,
         options: [],
         value: "",
-        placeholder: ""
+        placeholder: "",
     });
 
     // State for field dialog
@@ -93,7 +93,7 @@ const RequirementForm = ({ errors, requirements = [], onChange, disabled = false
     const handleRequirementChange = (key, value) => {
         setRequirement((prevState) => ({
             ...prevState,
-            [key]: value
+            [key]: value,
         }));
     };
 
@@ -108,7 +108,7 @@ const RequirementForm = ({ errors, requirements = [], onChange, disabled = false
             required: true,
             options: [],
             value: "",
-            placeholder: ""
+            placeholder: "",
         });
     };
 
@@ -128,7 +128,7 @@ const RequirementForm = ({ errors, requirements = [], onChange, disabled = false
      */
     const handleEditRequirement = (index) => () => {
         if (requirements && requirements[index]) {
-            setRequirement({...requirements[index]});
+            setRequirement({ ...requirements[index] });
         }
         setOpenAddRequirement(true);
     };
@@ -168,13 +168,13 @@ const RequirementForm = ({ errors, requirements = [], onChange, disabled = false
      */
     const getFieldTypeIcon = (type) => {
         switch (type) {
-            case 'text':
+            case "text":
                 return <TextFields fontSize="small" color="primary" />;
-            case 'checkbox':
+            case "checkbox":
                 return <CheckBox fontSize="small" color="secondary" />;
-            case 'number':
+            case "number":
                 return <Numbers fontSize="small" color="warning" />;
-            case 'select':
+            case "select":
                 return <ListIcon fontSize="small" color="success" />;
             default:
                 return <TextFields fontSize="small" color="primary" />;
@@ -189,14 +189,14 @@ const RequirementForm = ({ errors, requirements = [], onChange, disabled = false
      */
     const getTypeLabel = (type) => {
         switch (type) {
-            case 'text':
-                return 'Text Field';
-            case 'checkbox':
-                return 'Checkbox';
-            case 'number':
-                return 'Number Field';
-            case 'select':
-                return 'Dropdown';
+            case "text":
+                return "Text Field";
+            case "checkbox":
+                return "Checkbox";
+            case "number":
+                return "Number Field";
+            case "select":
+                return "Dropdown";
             default:
                 return type.charAt(0).toUpperCase() + type.slice(1);
         }
@@ -224,20 +224,16 @@ const RequirementForm = ({ errors, requirements = [], onChange, disabled = false
                     </Button>
 
                     <Chip
-                        label={`${requirements.length} ${requirements.length === 1 ? 'field' : 'fields'}`}
+                        label={`${requirements.length} ${requirements.length === 1 ? "field" : "fields"}`}
                         color="primary"
                         variant="outlined"
                         size="small"
                     />
                 </Stack>
 
-                {errors && errors['formData'] && (
-                    <Alert
-                        severity="error"
-                        icon={<Warning />}
-                        sx={{ mb: 2 }}
-                    >
-                        {errors['formData']}
+                {errors && errors["formData"] && (
+                    <Alert severity="error" icon={<Warning />} sx={{ mb: 2 }}>
+                        {errors["formData"]}
                     </Alert>
                 )}
             </Box>
@@ -247,12 +243,12 @@ const RequirementForm = ({ errors, requirements = [], onChange, disabled = false
                     variant="outlined"
                     sx={{
                         p: 4,
-                        textAlign: 'center',
-                        borderStyle: 'dashed',
+                        textAlign: "center",
+                        borderStyle: "dashed",
                         borderWidth: 1,
-                        borderColor: 'divider',
-                        bgcolor: 'background.paper',
-                        mb: 3
+                        borderColor: "divider",
+                        bgcolor: "background.paper",
+                        mb: 3,
                     }}
                 >
                     <TextFields color="disabled" sx={{ fontSize: 48, mb: 2, opacity: 0.5 }} />
@@ -261,8 +257,13 @@ const RequirementForm = ({ errors, requirements = [], onChange, disabled = false
                         No Fields Added Yet
                     </Typography>
 
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 3, maxWidth: 450, mx: 'auto' }}>
-                        Add fields to create your form structure. You can include text fields, checkboxes, number fields, and dropdown selects.
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ mb: 3, maxWidth: 450, mx: "auto" }}
+                    >
+                        Add fields to create your form structure. You can include text fields,
+                        checkboxes, number fields, and dropdown selects.
                     </Typography>
 
                     <Button
@@ -282,8 +283,8 @@ const RequirementForm = ({ errors, requirements = [], onChange, disabled = false
                                 variant="outlined"
                                 sx={{
                                     borderRadius: 1,
-                                    overflow: 'hidden',
-                                    mb: 3
+                                    overflow: "hidden",
+                                    mb: 3,
                                 }}
                                 ref={provided.innerRef}
                                 {...provided.droppableProps}
@@ -302,22 +303,26 @@ const RequirementForm = ({ errors, requirements = [], onChange, disabled = false
                                                     {...provided.draggableProps}
                                                     divider={index < requirements.length - 1}
                                                     sx={{
-                                                        bgcolor: snapshot.isDragging ? 'rgba(25, 118, 210, 0.08)' : 'background.paper',
-                                                        '&:hover': {
-                                                            bgcolor: 'rgba(25, 118, 210, 0.04)',
+                                                        bgcolor: snapshot.isDragging
+                                                            ? "rgba(25, 118, 210, 0.08)"
+                                                            : "background.paper",
+                                                        "&:hover": {
+                                                            bgcolor: "rgba(25, 118, 210, 0.04)",
                                                         },
-                                                        transition: 'background-color 0.2s'
+                                                        transition: "background-color 0.2s",
                                                     }}
                                                 >
                                                     {/* Drag handle */}
                                                     <ListItemIcon
                                                         {...provided.dragHandleProps}
                                                         sx={{
-                                                            cursor: disabled ? 'default' : 'grab',
-                                                            color: 'text.secondary',
-                                                            '&:hover': {
-                                                                color: disabled ? 'text.secondary' : 'primary.main'
-                                                            }
+                                                            cursor: disabled ? "default" : "grab",
+                                                            color: "text.secondary",
+                                                            "&:hover": {
+                                                                color: disabled
+                                                                    ? "text.secondary"
+                                                                    : "primary.main",
+                                                            },
                                                         }}
                                                     >
                                                         <DragIndicator />
@@ -327,8 +332,12 @@ const RequirementForm = ({ errors, requirements = [], onChange, disabled = false
                                                     <ListItemAvatar>
                                                         <Avatar
                                                             sx={{
-                                                                bgcolor: field.required ? 'primary.main' : 'grey.200',
-                                                                color: field.required ? 'primary.contrastText' : 'text.primary'
+                                                                bgcolor: field.required
+                                                                    ? "primary.main"
+                                                                    : "grey.200",
+                                                                color: field.required
+                                                                    ? "primary.contrastText"
+                                                                    : "text.primary",
                                                             }}
                                                         >
                                                             {index + 1}
@@ -338,7 +347,13 @@ const RequirementForm = ({ errors, requirements = [], onChange, disabled = false
                                                     {/* Field information */}
                                                     <ListItemText
                                                         primary={
-                                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                            <Box
+                                                                sx={{
+                                                                    display: "flex",
+                                                                    alignItems: "center",
+                                                                    gap: 1,
+                                                                }}
+                                                            >
                                                                 <Typography variant="subtitle2">
                                                                     {field.label}
                                                                 </Typography>
@@ -354,33 +369,54 @@ const RequirementForm = ({ errors, requirements = [], onChange, disabled = false
                                                         }
                                                         secondary={
                                                             <Stack
-                                                                direction={{ xs: 'column', sm: 'row' }}
+                                                                direction={{
+                                                                    xs: "column",
+                                                                    sm: "row",
+                                                                }}
                                                                 spacing={{ xs: 1, sm: 2 }}
                                                                 sx={{ mt: 0.5 }}
                                                             >
                                                                 <Chip
-                                                                    icon={getFieldTypeIcon(field.type)}
+                                                                    icon={getFieldTypeIcon(
+                                                                        field.type
+                                                                    )}
                                                                     label={getTypeLabel(field.type)}
                                                                     size="small"
                                                                     variant="filled"
                                                                     sx={{
                                                                         height: 24,
-                                                                        '& .MuiChip-label': { px: 1 },
-                                                                        '& .MuiChip-icon': { fontSize: 16 }
+                                                                        "& .MuiChip-label": {
+                                                                            px: 1,
+                                                                        },
+                                                                        "& .MuiChip-icon": {
+                                                                            fontSize: 16,
+                                                                        },
                                                                     }}
                                                                 />
 
                                                                 {field.placeholder && (
-                                                                    <Typography variant="caption" color="text.secondary">
-                                                                        Placeholder: "{field.placeholder}"
+                                                                    <Typography
+                                                                        variant="caption"
+                                                                        color="text.secondary"
+                                                                    >
+                                                                        Placeholder: &quot;
+                                                                        {field.placeholder}&quot;
                                                                     </Typography>
                                                                 )}
 
-                                                                {field.type === 'select' && field.options && field.options.length > 0 && (
-                                                                    <Typography variant="caption" color="text.secondary">
-                                                                        Options: {field.options.join(", ")}
-                                                                    </Typography>
-                                                                )}
+                                                                {field.type === "select" &&
+                                                                    field.options &&
+                                                                    field.options.length > 0 && (
+                                                                        <Typography
+                                                                            variant="caption"
+                                                                            color="text.secondary"
+                                                                        >
+                                                                            Options:{" "}
+                                                                            {field.options.join(
+                                                                                ", "
+                                                                            )}
+                                                                        </Typography>
+                                                                    )}
                                                             </Stack>
                                                         }
                                                     />
@@ -390,7 +426,9 @@ const RequirementForm = ({ errors, requirements = [], onChange, disabled = false
                                                         <Tooltip title="Edit Field">
                                                             <IconButton
                                                                 color="primary"
-                                                                onClick={handleEditRequirement(index)}
+                                                                onClick={handleEditRequirement(
+                                                                    index
+                                                                )}
                                                                 size="small"
                                                                 disabled={disabled}
                                                             >
@@ -399,10 +437,12 @@ const RequirementForm = ({ errors, requirements = [], onChange, disabled = false
                                                         </Tooltip>
 
                                                         <DeleteButton
-                                                            onConfirm={handleDeleteRequirement(index)}
+                                                            onConfirm={handleDeleteRequirement(
+                                                                index
+                                                            )}
                                                             size="small"
                                                             disabled={disabled}
-                                                            IconProps={{ fontSize: 'small' }}
+                                                            IconProps={{ fontSize: "small" }}
                                                         />
                                                     </Stack>
                                                 </ListItem>

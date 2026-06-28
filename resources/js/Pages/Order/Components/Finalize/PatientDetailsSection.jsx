@@ -11,12 +11,7 @@ import {
     useTheme,
     alpha,
 } from "@mui/material";
-import {
-    Person,
-    Assignment,
-    MedicalServices,
-    EventNote,
-} from "@mui/icons-material";
+import { Person, Assignment, MedicalServices, EventNote } from "@mui/icons-material";
 import CollapsibleSection from "@/Pages/Order/Components/Finalize/CollapsibleSection";
 import EditSectionButton from "@/Pages/Order/Components/Finalize/EditSectionButton";
 import { formatLongDate } from "@/Pages/Order/Components/orderDisplay";
@@ -55,17 +50,22 @@ const PatientDetailsSection = ({ data, errors, expanded, onToggle, status, hasEr
                                 <ListItemText
                                     primary="Full Name"
                                     secondary={data.patient?.fullName || "Not specified"}
-                                    primaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
+                                    primaryTypographyProps={{
+                                        variant: "body2",
+                                        color: "text.secondary",
+                                    }}
                                     secondaryTypographyProps={{
-                                        variant: 'body1',
-                                        fontWeight: '500',
-                                        color: errors['patient.fullName'] ? 'error.main' : 'text.primary'
+                                        variant: "body1",
+                                        fontWeight: "500",
+                                        color: errors["patient.fullName"]
+                                            ? "error.main"
+                                            : "text.primary",
                                     }}
                                 />
                             </ListItem>
-                            {errors['patient.fullName'] && (
+                            {errors["patient.fullName"] && (
                                 <Typography variant="caption" color="error" sx={{ pl: 9 }}>
-                                    {errors['patient.fullName']}
+                                    {errors["patient.fullName"]}
                                 </Typography>
                             )}
 
@@ -78,16 +78,21 @@ const PatientDetailsSection = ({ data, errors, expanded, onToggle, status, hasEr
                                 <ListItemText
                                     primary="Date of Birth"
                                     secondary={formatLongDate(data.patient?.dateOfBirth)}
-                                    primaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
+                                    primaryTypographyProps={{
+                                        variant: "body2",
+                                        color: "text.secondary",
+                                    }}
                                     secondaryTypographyProps={{
-                                        variant: 'body1',
-                                        color: errors['patient.dateOfBirth'] ? 'error.main' : 'text.primary'
+                                        variant: "body1",
+                                        color: errors["patient.dateOfBirth"]
+                                            ? "error.main"
+                                            : "text.primary",
                                     }}
                                 />
                             </ListItem>
-                            {errors['patient.dateOfBirth'] && (
+                            {errors["patient.dateOfBirth"] && (
                                 <Typography variant="caption" color="error" sx={{ pl: 9 }}>
-                                    {errors['patient.dateOfBirth']}
+                                    {errors["patient.dateOfBirth"]}
                                 </Typography>
                             )}
 
@@ -100,8 +105,11 @@ const PatientDetailsSection = ({ data, errors, expanded, onToggle, status, hasEr
                                 <ListItemText
                                     primary="Reference ID"
                                     secondary={data.patient?.reference_id || "Not specified"}
-                                    primaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
-                                    secondaryTypographyProps={{ variant: 'body1' }}
+                                    primaryTypographyProps={{
+                                        variant: "body2",
+                                        color: "text.secondary",
+                                    }}
+                                    secondaryTypographyProps={{ variant: "body1" }}
                                 />
                             </ListItem>
 
@@ -113,17 +121,22 @@ const PatientDetailsSection = ({ data, errors, expanded, onToggle, status, hasEr
                                 </ListItemIcon>
                                 <ListItemText
                                     primary="Gender"
-                                    secondary={(data.patient?.gender * 1) ? "Male" : "Female"}
-                                    primaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
+                                    secondary={data.patient?.gender * 1 ? "Male" : "Female"}
+                                    primaryTypographyProps={{
+                                        variant: "body2",
+                                        color: "text.secondary",
+                                    }}
                                     secondaryTypographyProps={{
-                                        variant: 'body1',
-                                        color: errors['patient.gender'] ? 'error.main' : 'text.primary'
+                                        variant: "body1",
+                                        color: errors["patient.gender"]
+                                            ? "error.main"
+                                            : "text.primary",
                                     }}
                                 />
                             </ListItem>
-                            {errors['patient.gender'] && (
+                            {errors["patient.gender"] && (
                                 <Typography variant="caption" color="error" sx={{ pl: 9 }}>
-                                    {errors['patient.gender']}
+                                    {errors["patient.gender"]}
                                 </Typography>
                             )}
 
@@ -136,16 +149,21 @@ const PatientDetailsSection = ({ data, errors, expanded, onToggle, status, hasEr
                                 <ListItemText
                                     primary="Consanguineous Parents"
                                     secondary={data.patient?.consanguineousParents ? "Yes" : "No"}
-                                    primaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
+                                    primaryTypographyProps={{
+                                        variant: "body2",
+                                        color: "text.secondary",
+                                    }}
                                     secondaryTypographyProps={{
-                                        variant: 'body1',
-                                        color: errors['patient.consanguineousParents'] ? 'error.main' : 'text.primary'
+                                        variant: "body1",
+                                        color: errors["patient.consanguineousParents"]
+                                            ? "error.main"
+                                            : "text.primary",
                                     }}
                                 />
                             </ListItem>
-                            {errors['patient.consanguineousParents'] && (
+                            {errors["patient.consanguineousParents"] && (
                                 <Typography variant="caption" color="error" sx={{ pl: 9 }}>
-                                    {errors['patient.consanguineousParents']}
+                                    {errors["patient.consanguineousParents"]}
                                 </Typography>
                             )}
                         </List>
@@ -161,8 +179,11 @@ const PatientDetailsSection = ({ data, errors, expanded, onToggle, status, hasEr
                                 <ListItemText
                                     primary="Email"
                                     secondary={data?.patient?.contact?.email || "Not specified"}
-                                    primaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
-                                    secondaryTypographyProps={{ variant: 'body1' }}
+                                    primaryTypographyProps={{
+                                        variant: "body2",
+                                        color: "text.secondary",
+                                    }}
+                                    secondaryTypographyProps={{ variant: "body1" }}
                                 />
                             </ListItem>
 
@@ -172,8 +193,11 @@ const PatientDetailsSection = ({ data, errors, expanded, onToggle, status, hasEr
                                 <ListItemText
                                     primary="Phone"
                                     secondary={data?.patient?.contact?.phone || "Not specified"}
-                                    primaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
-                                    secondaryTypographyProps={{ variant: 'body1' }}
+                                    primaryTypographyProps={{
+                                        variant: "body2",
+                                        color: "text.secondary",
+                                    }}
+                                    secondaryTypographyProps={{ variant: "body1" }}
                                 />
                             </ListItem>
 
@@ -186,8 +210,11 @@ const PatientDetailsSection = ({ data, errors, expanded, onToggle, status, hasEr
                                    ${data?.patient?.contact?.city ? ", " + data?.patient?.contact?.city : ""}
                                    ${data?.patient?.contact?.state ? ", " + data?.patient?.contact?.state : ""}
                                    ${data?.patient?.contact?.country?.label ? ", " + data?.patient?.contact?.country?.label : ""}`}
-                                    primaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
-                                    secondaryTypographyProps={{ variant: 'body1' }}
+                                    primaryTypographyProps={{
+                                        variant: "body2",
+                                        color: "text.secondary",
+                                    }}
+                                    secondaryTypographyProps={{ variant: "body1" }}
                                 />
                             </ListItem>
                         </List>
@@ -199,7 +226,11 @@ const PatientDetailsSection = ({ data, errors, expanded, onToggle, status, hasEr
                 </Alert>
             )}
 
-            <EditSectionButton orderId={orderId} step="patient details" label="Edit Patient Details" />
+            <EditSectionButton
+                orderId={orderId}
+                step="patient details"
+                label="Edit Patient Details"
+            />
         </CollapsibleSection>
     );
 };

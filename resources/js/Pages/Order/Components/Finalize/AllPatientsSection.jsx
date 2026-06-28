@@ -57,8 +57,10 @@ const AllPatientsSection = ({ patients, mainPatientId, expanded, onToggle, order
                             <TableRow key={patient.id}>
                                 <TableCell>{index + 1}</TableCell>
                                 <TableCell>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                        <Typography fontWeight={patient.id === mainPatientId ? 600 : 400}>
+                                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                                        <Typography
+                                            fontWeight={patient.id === mainPatientId ? 600 : 400}
+                                        >
                                             {patient.fullName || patient.full_name}
                                         </Typography>
                                         {patient.id === mainPatientId && (
@@ -72,7 +74,7 @@ const AllPatientsSection = ({ patients, mainPatientId, expanded, onToggle, order
                                     </Box>
                                 </TableCell>
                                 <TableCell>{formatLongDate(patient.dateOfBirth)}</TableCell>
-                                <TableCell>{(patient.gender * 1) ? "Male" : "Female"}</TableCell>
+                                <TableCell>{patient.gender * 1 ? "Male" : "Female"}</TableCell>
                                 <TableCell>
                                     <Chip
                                         label="Active"

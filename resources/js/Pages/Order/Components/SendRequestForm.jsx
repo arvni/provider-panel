@@ -1,24 +1,37 @@
 import {
-    Alert, alpha,
-    Box, Button, Chip, CircularProgress,
-    Dialog, DialogActions, DialogContent,
+    Alert,
+    alpha,
+    Box,
+    Button,
+    Chip,
+    CircularProgress,
+    Dialog,
+    DialogActions,
+    DialogContent,
     DialogTitle,
     IconButton,
-    LinearProgress, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField,
+    LinearProgress,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    TextField,
     Typography,
     useMediaQuery,
     useTheme,
-    Zoom
+    Zoom,
 } from "@mui/material";
 
 import {
-LocalShipping as ShippingIcon,
+    LocalShipping as ShippingIcon,
     Close as CloseIcon,
     CalendarMonth as CalendarIcon,
-    Send as SendIcon
+    Send as SendIcon,
 } from "@mui/icons-material";
-import {useEffect, useRef, useState} from "react";
-import {router} from "@inertiajs/react";
+import { useEffect, useRef, useState } from "react";
+import { router } from "@inertiajs/react";
 
 /**
  * Helper function to get minimum date
@@ -27,16 +40,16 @@ const minDate = () => {
     const timeZone = "Asia/Muscat";
 
     // Get the current date in the specified time zone
-    const formatter = new Intl.DateTimeFormat('en-US', {
+    const formatter = new Intl.DateTimeFormat("en-US", {
         timeZone,
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
     });
 
     // Format to YYYY-MM-DD for input value
     const now = new Date();
-    const [month, , day, , year] = formatter.formatToParts(now).map(part => part.value);
+    const [month, , day, , year] = formatter.formatToParts(now).map((part) => part.value);
     return `${year}-${month}-${day}`;
 };
 
@@ -45,7 +58,7 @@ const minDate = () => {
  */
 const SendRequestForm = ({ open, onClose, orders }) => {
     const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
     const formRef = useRef();
     const [preferredDate, setPreferredDate] = useState(minDate());
     const [errors, setErrors] = useState({});
@@ -71,18 +84,18 @@ const SendRequestForm = ({ open, onClose, orders }) => {
             router.post(
                 route("orders.logistic"),
                 {
-                    selectedOrders: orders.map(item => item.id),
-                    preferred_date: preferredDate
+                    selectedOrders: orders.map((item) => item.id),
+                    preferred_date: preferredDate,
                 },
                 {
                     onSuccess: () => {
                         setIsSubmitting(false);
                         onClose();
                     },
-                    onError: errs => {
+                    onError: (errs) => {
                         setIsSubmitting(false);
                         setErrors(errs);
-                    }
+                    },
                 }
             );
         }
@@ -101,8 +114,8 @@ const SendRequestForm = ({ open, onClose, orders }) => {
                 elevation: 5,
                 sx: {
                     borderRadius: 2,
-                    overflow: 'hidden'
-                }
+                    overflow: "hidden",
+                },
             }}
         >
             <DialogTitle
@@ -111,9 +124,9 @@ const SendRequestForm = ({ open, onClose, orders }) => {
                     py: 2,
                     bgcolor: theme.palette.primary.main,
                     color: theme.palette.primary.contrastText,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 1
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
                 }}
             >
                 <ShippingIcon sx={{ mr: 1 }} />
@@ -136,14 +149,11 @@ const SendRequestForm = ({ open, onClose, orders }) => {
             <DialogContent sx={{ p: 0 }}>
                 <Box sx={{ p: 3 }}>
                     <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 500 }}>
-                        {orders.length} {orders.length === 1 ? 'Order' : 'Orders'} Selected for Pickup
+                        {orders.length} {orders.length === 1 ? "Order" : "Orders"} Selected for
+                        Pickup
                     </Typography>
 
-                    <Alert
-                        severity="info"
-                        variant="outlined"
-                        sx={{ mb: 3, mt: 1 }}
-                    >
+                    <Alert severity="info" variant="outlined" sx={{ mb: 3, mt: 1 }}>
                         Please review the selected orders and choose a preferred pickup date.
                     </Alert>
                 </Box>
@@ -152,9 +162,30 @@ const SendRequestForm = ({ open, onClose, orders }) => {
                     <Table size="small" stickyHeader>
                         <TableHead>
                             <TableRow>
-                                <TableCell sx={{ fontWeight: 600, bgcolor: alpha(theme.palette.primary.main, 0.05) }}>#</TableCell>
-                                <TableCell sx={{ fontWeight: 600, bgcolor: alpha(theme.palette.primary.main, 0.05) }}>Patient Name</TableCell>
-                                <TableCell sx={{ fontWeight: 600, bgcolor: alpha(theme.palette.primary.main, 0.05) }}>Test Name</TableCell>
+                                <TableCell
+                                    sx={{
+                                        fontWeight: 600,
+                                        bgcolor: alpha(theme.palette.primary.main, 0.05),
+                                    }}
+                                >
+                                    #
+                                </TableCell>
+                                <TableCell
+                                    sx={{
+                                        fontWeight: 600,
+                                        bgcolor: alpha(theme.palette.primary.main, 0.05),
+                                    }}
+                                >
+                                    Patient Name
+                                </TableCell>
+                                <TableCell
+                                    sx={{
+                                        fontWeight: 600,
+                                        bgcolor: alpha(theme.palette.primary.main, 0.05),
+                                    }}
+                                >
+                                    Test Name
+                                </TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -162,13 +193,18 @@ const SendRequestForm = ({ open, onClose, orders }) => {
                                 <TableRow
                                     key={order?.id}
                                     sx={{
-                                        '&:nth-of-type(odd)': {
-                                            backgroundColor: alpha(theme.palette.primary.main, 0.02),
-                                        }
+                                        "&:nth-of-type(odd)": {
+                                            backgroundColor: alpha(
+                                                theme.palette.primary.main,
+                                                0.02
+                                            ),
+                                        },
                                     }}
                                 >
                                     <TableCell>{index + 1}</TableCell>
-                                    <TableCell sx={{ fontWeight: 500 }}>{order?.patient_full_name}</TableCell>
+                                    <TableCell sx={{ fontWeight: 500 }}>
+                                        {order?.patient_full_name}
+                                    </TableCell>
                                     <TableCell>
                                         {order?.tests?.map((test, i) => (
                                             <Chip
@@ -178,8 +214,8 @@ const SendRequestForm = ({ open, onClose, orders }) => {
                                                 sx={{
                                                     mr: 0.5,
                                                     mb: 0.5,
-                                                    fontSize: '0.75rem',
-                                                    height: 20
+                                                    fontSize: "0.75rem",
+                                                    height: 20,
                                                 }}
                                             />
                                         ))}
@@ -197,9 +233,9 @@ const SendRequestForm = ({ open, onClose, orders }) => {
                     sx={{
                         p: 3,
                         mt: 2,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: 2
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 2,
                     }}
                 >
                     <TextField
@@ -219,16 +255,18 @@ const SendRequestForm = ({ open, onClose, orders }) => {
                         }}
                         fullWidth
                         sx={{
-                            maxWidth: { xs: '100%', sm: '300px' },
-                            '& .MuiInputBase-root': {
+                            maxWidth: { xs: "100%", sm: "300px" },
+                            "& .MuiInputBase-root": {
                                 borderRadius: 1.5,
-                            }
+                            },
                         }}
                     />
                 </Box>
             </DialogContent>
 
-            <DialogActions sx={{ px: 3, py: 2, borderTop: '1px solid', borderColor: theme.palette.divider }}>
+            <DialogActions
+                sx={{ px: 3, py: 2, borderTop: "1px solid", borderColor: theme.palette.divider }}
+            >
                 <Button
                     onClick={onClose}
                     disabled={isSubmitting}
@@ -247,14 +285,14 @@ const SendRequestForm = ({ open, onClose, orders }) => {
                     startIcon={isSubmitting ? <CircularProgress size={20} /> : <SendIcon />}
                     sx={{
                         borderRadius: 1.5,
-                        boxShadow: 'none',
+                        boxShadow: "none",
                         minWidth: 120,
-                        '&:hover': {
-                            boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
-                        }
+                        "&:hover": {
+                            boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+                        },
                     }}
                 >
-                    {isSubmitting ? 'Submitting...' : 'Send Request'}
+                    {isSubmitting ? "Submitting..." : "Send Request"}
                 </Button>
             </DialogActions>
         </Dialog>

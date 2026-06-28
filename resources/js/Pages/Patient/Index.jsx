@@ -20,8 +20,10 @@ import PageHeader from "@/Components/PageHeader";
 import { usePageReload } from "@/Services/api";
 import TableLayout from "@/Layouts/TableLayout";
 
-const getGenderLabel = (gender) => ({ '1': 'Male', '0': 'Female', '-1': 'Unknown' }[String(gender)] ?? 'Unknown');
-const getGenderColor = (gender) => ({ '1': 'primary', '0': 'secondary', '-1': 'default' }[String(gender)] ?? 'default');
+const getGenderLabel = (gender) =>
+    ({ 1: "Male", 0: "Female", "-1": "Unknown" })[String(gender)] ?? "Unknown";
+const getGenderColor = (gender) =>
+    ({ 1: "primary", 0: "secondary", "-1": "default" })[String(gender)] ?? "default";
 
 const Index = ({ patients: { data: patientsData, ...pagination }, request }) => {
     const theme = useTheme();
@@ -34,10 +36,13 @@ const Index = ({ patients: { data: patientsData, ...pagination }, request }) => 
         onPageChange,
         onPageSizeChange,
         onOrderByChange,
-        get
+        get,
     } = usePageReload(request, ["patients", "request"]);
 
-    const gotoPage = (url) => (e) => { e.preventDefault(); get(url); };
+    const gotoPage = (url) => (e) => {
+        e.preventDefault();
+        get(url);
+    };
 
     const columns = [
         {
@@ -49,7 +54,7 @@ const Index = ({ patients: { data: patientsData, ...pagination }, request }) => 
                 <Typography variant="body2" fontWeight={500} color="text.secondary">
                     #{row.id}
                 </Typography>
-            )
+            ),
         },
         {
             field: "fullName",
@@ -60,24 +65,26 @@ const Index = ({ patients: { data: patientsData, ...pagination }, request }) => 
                 name: "search",
                 label: "Search name / ID / Reference",
                 type: "text",
-                value: data?.filters?.search ?? '',
+                value: data?.filters?.search ?? "",
             },
             render: (row) => (
                 <Box>
-                    <Typography variant="body2" fontWeight={600}>{row.fullName}</Typography>
+                    <Typography variant="body2" fontWeight={600}>
+                        {row.fullName}
+                    </Typography>
                     {row.reference_id && (
-                        <Typography variant="caption" color="text.secondary">Ref: {row.reference_id}</Typography>
+                        <Typography variant="caption" color="text.secondary">
+                            Ref: {row.reference_id}
+                        </Typography>
                     )}
                 </Box>
-            )
+            ),
         },
         {
             field: "id_no",
             title: "ID Number",
             type: "text",
-            render: (row) => (
-                <Typography variant="body2">{row.id_no || '—'}</Typography>
-            )
+            render: (row) => <Typography variant="body2">{row.id_no || "—"}</Typography>,
         },
         {
             field: "gender",
@@ -94,7 +101,7 @@ const Index = ({ patients: { data: patientsData, ...pagination }, request }) => 
                     { value: "0", label: "Female" },
                     { value: "-1", label: "Unknown" },
                 ],
-                value: data?.filters?.gender ?? ''
+                value: data?.filters?.gender ?? "",
             },
             render: (row) => (
                 <Chip
@@ -104,7 +111,7 @@ const Index = ({ patients: { data: patientsData, ...pagination }, request }) => 
                     variant="outlined"
                     sx={{ fontWeight: 500 }}
                 />
-            )
+            ),
         },
         {
             field: "dateOfBirth",
@@ -116,24 +123,31 @@ const Index = ({ patients: { data: patientsData, ...pagination }, request }) => 
                     name: "dateOfBirth.from",
                     label: "From",
                     type: "date",
-                    value: data?.filters?.dateOfBirth?.from ?? '',
+                    value: data?.filters?.dateOfBirth?.from ?? "",
                     inputProps: { max: data?.filters?.dateOfBirth?.to },
                 },
                 {
                     name: "dateOfBirth.to",
                     label: "To",
                     type: "date",
-                    value: data?.filters?.dateOfBirth?.to ?? '',
+                    value: data?.filters?.dateOfBirth?.to ?? "",
                     inputProps: { min: data?.filters?.dateOfBirth?.from },
                 },
             ],
-            render: (row) => row.dateOfBirth ? (
-                <Typography variant="body2">
-                    {new Date(row.dateOfBirth).toLocaleDateString(undefined, {
-                        year: 'numeric', month: 'short', day: 'numeric'
-                    })}
-                </Typography>
-            ) : <Typography variant="body2" color="text.secondary">—</Typography>
+            render: (row) =>
+                row.dateOfBirth ? (
+                    <Typography variant="body2">
+                        {new Date(row.dateOfBirth).toLocaleDateString(undefined, {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                        })}
+                    </Typography>
+                ) : (
+                    <Typography variant="body2" color="text.secondary">
+                        —
+                    </Typography>
+                ),
         },
         {
             field: "nationality",
@@ -143,15 +157,15 @@ const Index = ({ patients: { data: patientsData, ...pagination }, request }) => 
                 name: "nationality",
                 label: "Nationality",
                 type: "text",
-                value: data?.filters?.nationality ?? '',
+                value: data?.filters?.nationality ?? "",
             },
             render: (row) => (
                 <Typography variant="body2">
-                    {typeof row.nationality === 'object'
-                        ? (row.nationality?.label || row.nationality?.name || '—')
-                        : (row.nationality || '—')}
+                    {typeof row.nationality === "object"
+                        ? row.nationality?.label || row.nationality?.name || "—"
+                        : row.nationality || "—"}
                 </Typography>
-            )
+            ),
         },
         {
             field: "orders_count",
@@ -166,7 +180,7 @@ const Index = ({ patients: { data: patientsData, ...pagination }, request }) => 
                     { value: "1", label: "With orders" },
                     { value: "0", label: "Without orders" },
                 ],
-                value: data?.filters?.has_orders ?? ''
+                value: data?.filters?.has_orders ?? "",
             },
             render: (row) => (
                 <Chip
@@ -176,7 +190,7 @@ const Index = ({ patients: { data: patientsData, ...pagination }, request }) => 
                     variant={row.orders_count > 0 ? "filled" : "outlined"}
                     sx={{ fontWeight: 600, minWidth: 36 }}
                 />
-            )
+            ),
         },
         {
             field: "order_items_count",
@@ -190,7 +204,7 @@ const Index = ({ patients: { data: patientsData, ...pagination }, request }) => 
                     variant={row.order_items_count > 0 ? "filled" : "outlined"}
                     sx={{ fontWeight: 600, minWidth: 36 }}
                 />
-            )
+            ),
         },
         {
             field: "actions",
@@ -206,9 +220,9 @@ const Index = ({ patients: { data: patientsData, ...pagination }, request }) => 
                             href={route("patients.show", row.id)}
                             onClick={gotoPage(route("patients.show", row.id))}
                             sx={{
-                                border: '1px solid',
+                                border: "1px solid",
                                 borderColor: alpha(theme.palette.info.main, 0.3),
-                                '&:hover': { backgroundColor: alpha(theme.palette.info.main, 0.1) }
+                                "&:hover": { backgroundColor: alpha(theme.palette.info.main, 0.1) },
                             }}
                         >
                             <ViewIcon fontSize="small" />
@@ -221,16 +235,18 @@ const Index = ({ patients: { data: patientsData, ...pagination }, request }) => 
                             href={route("patients.edit", row.id)}
                             onClick={gotoPage(route("patients.edit", row.id))}
                             sx={{
-                                border: '1px solid',
+                                border: "1px solid",
                                 borderColor: alpha(theme.palette.warning.main, 0.3),
-                                '&:hover': { backgroundColor: alpha(theme.palette.warning.main, 0.1) }
+                                "&:hover": {
+                                    backgroundColor: alpha(theme.palette.warning.main, 0.1),
+                                },
                             }}
                         >
                             <EditIcon fontSize="small" />
                         </IconButton>
                     </Tooltip>
                 </Stack>
-            )
+            ),
         },
     ];
 
@@ -247,10 +263,10 @@ const Index = ({ patients: { data: patientsData, ...pagination }, request }) => 
                         onClick={gotoPage(route("orders.create"))}
                         color="primary"
                         startIcon={<PersonAddIcon />}
-                        sx={{ borderRadius: 1.5, textTransform: 'none', boxShadow: 'none' }}
+                        sx={{ borderRadius: 1.5, textTransform: "none", boxShadow: "none" }}
                     >
                         New Order
-                    </Button>
+                    </Button>,
                 ]}
             />
 
@@ -268,11 +284,11 @@ const Index = ({ patients: { data: patientsData, ...pagination }, request }) => 
                 tableModel={{
                     sort: data.sort ?? { field: "id", type: "desc" },
                     page: data.page,
-                    filter: data.filters
+                    filter: data.filters,
                 }}
                 pageSize={{
                     defaultValue: data.pageSize ?? 10,
-                    onChange: onPageSizeChange
+                    onChange: onPageSizeChange,
                 }}
             />
         </>
@@ -280,6 +296,10 @@ const Index = ({ patients: { data: patientsData, ...pagination }, request }) => 
 };
 
 const breadcrumbs = [{ title: "Patients", link: "", icon: null }];
-Index.layout = (page) => <ClientLayout auth={page.props.auth} breadcrumbs={breadcrumbs} children={page} />;
+Index.layout = (page) => (
+    <ClientLayout auth={page.props.auth} breadcrumbs={breadcrumbs}>
+        {page}
+    </ClientLayout>
+);
 
 export default Index;

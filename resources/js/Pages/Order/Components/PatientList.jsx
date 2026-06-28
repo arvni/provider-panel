@@ -1,23 +1,35 @@
 import {
     Alert,
-    alpha, Avatar,
-    Box, Button, CircularProgress,
-    Dialog, DialogActions,
+    alpha,
+    Avatar,
+    Box,
+    Button,
+    CircularProgress,
+    Dialog,
+    DialogActions,
     DialogContent,
     DialogTitle,
     IconButton,
-    InputAdornment, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow,
+    InputAdornment,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TablePagination,
+    TableRow,
     TextField,
     Typography,
-    useTheme
+    useTheme,
 } from "@mui/material";
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import {
     Check as CheckIcon,
     Clear as ClearIcon,
-    Close as CloseIcon, Info as InfoIcon,
+    Close as CloseIcon,
+    Info as InfoIcon,
     PersonSearch as PersonSearchIcon,
-    Search as SearchIcon
+    Search as SearchIcon,
 } from "@mui/icons-material";
 
 /**
@@ -62,7 +74,8 @@ const PatientList = ({ open, onClose, onSelect }) => {
         setLoading(true);
         setSelectedPatient(null);
 
-        axios.get(route("api.patients.list", { search }))
+        axios
+            .get(route("api.patients.list", { search }))
             .then(({ data }) => {
                 setPatientList(data.data);
                 // Reset pagination
@@ -122,9 +135,9 @@ const PatientList = ({ open, onClose, onSelect }) => {
         try {
             const date = new Date(dateString);
             return date.toLocaleDateString(undefined, {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric'
+                year: "numeric",
+                month: "short",
+                day: "numeric",
             });
         } catch (e) {
             return dateString;
@@ -132,8 +145,7 @@ const PatientList = ({ open, onClose, onSelect }) => {
     };
 
     // Calculate displayed rows
-    const displayedRows = patientList
-        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+    const displayedRows = patientList.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
     // Empty state
     const isEmptyList = patientList.length === 0 && !loading;
@@ -148,8 +160,8 @@ const PatientList = ({ open, onClose, onSelect }) => {
                 elevation: 5,
                 sx: {
                     borderRadius: 2,
-                    overflow: 'hidden'
-                }
+                    overflow: "hidden",
+                },
             }}
         >
             <DialogTitle
@@ -158,24 +170,19 @@ const PatientList = ({ open, onClose, onSelect }) => {
                     py: 2,
                     bgcolor: theme.palette.primary.main,
                     color: theme.palette.primary.contrastText,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between'
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
                 }}
             >
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     <PersonSearchIcon />
                     <Typography variant="h6" component="div">
                         Patient List
                     </Typography>
                 </Box>
 
-                <IconButton
-                    edge="end"
-                    color="inherit"
-                    onClick={onClose}
-                    aria-label="close"
-                >
+                <IconButton edge="end" color="inherit" onClick={onClose} aria-label="close">
                     <CloseIcon />
                 </IconButton>
             </DialogTitle>
@@ -187,11 +194,11 @@ const PatientList = ({ open, onClose, onSelect }) => {
                     onSubmit={handleSearch}
                     sx={{
                         p: 2,
-                        borderBottom: '1px solid',
+                        borderBottom: "1px solid",
                         borderColor: theme.palette.divider,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 1
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
                     }}
                 >
                     <TextField
@@ -220,7 +227,7 @@ const PatientList = ({ open, onClose, onSelect }) => {
                             ),
                             sx: {
                                 borderRadius: 1.5,
-                            }
+                            },
                         }}
                         sx={{ flexGrow: 1 }}
                     />
@@ -231,12 +238,12 @@ const PatientList = ({ open, onClose, onSelect }) => {
                         startIcon={<SearchIcon />}
                         sx={{
                             borderRadius: 1.5,
-                            textTransform: 'none',
-                            boxShadow: 'none',
+                            textTransform: "none",
+                            boxShadow: "none",
                             px: 2,
-                            '&:hover': {
-                                boxShadow: theme.shadows[2]
-                            }
+                            "&:hover": {
+                                boxShadow: theme.shadows[2],
+                            },
                         }}
                     >
                         Search
@@ -247,17 +254,27 @@ const PatientList = ({ open, onClose, onSelect }) => {
                 <TableContainer
                     sx={{
                         maxHeight: 400,
-                        position: 'relative'
+                        position: "relative",
                     }}
                 >
                     <Table stickyHeader>
                         <TableHead>
                             <TableRow>
-                                <TableCell sx={{ fontWeight: 600, minWidth: 200 }}>Patient Name</TableCell>
-                                <TableCell sx={{ fontWeight: 600, minWidth: 120 }}>ID Number</TableCell>
-                                <TableCell sx={{ fontWeight: 600, minWidth: 120 }}>Reference ID</TableCell>
-                                <TableCell sx={{ fontWeight: 600, minWidth: 120 }}>Date of Birth</TableCell>
-                                <TableCell sx={{ fontWeight: 600, minWidth: 120 }}>Nationality</TableCell>
+                                <TableCell sx={{ fontWeight: 600, minWidth: 200 }}>
+                                    Patient Name
+                                </TableCell>
+                                <TableCell sx={{ fontWeight: 600, minWidth: 120 }}>
+                                    ID Number
+                                </TableCell>
+                                <TableCell sx={{ fontWeight: 600, minWidth: 120 }}>
+                                    Reference ID
+                                </TableCell>
+                                <TableCell sx={{ fontWeight: 600, minWidth: 120 }}>
+                                    Date of Birth
+                                </TableCell>
+                                <TableCell sx={{ fontWeight: 600, minWidth: 120 }}>
+                                    Nationality
+                                </TableCell>
                             </TableRow>
                         </TableHead>
 
@@ -267,7 +284,11 @@ const PatientList = ({ open, onClose, onSelect }) => {
                                 <TableRow>
                                     <TableCell colSpan={5} align="center" sx={{ py: 8 }}>
                                         <CircularProgress size={40} />
-                                        <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+                                        <Typography
+                                            variant="body2"
+                                            color="text.secondary"
+                                            sx={{ mt: 2 }}
+                                        >
                                             Loading patients...
                                         </Typography>
                                     </TableCell>
@@ -278,16 +299,16 @@ const PatientList = ({ open, onClose, onSelect }) => {
                                     <TableCell colSpan={5} align="center" sx={{ py: 8 }}>
                                         <Box
                                             sx={{
-                                                display: 'flex',
-                                                flexDirection: 'column',
-                                                alignItems: 'center',
-                                                gap: 2
+                                                display: "flex",
+                                                flexDirection: "column",
+                                                alignItems: "center",
+                                                gap: 2,
                                             }}
                                         >
                                             <PersonSearchIcon
                                                 sx={{
                                                     fontSize: 48,
-                                                    color: alpha(theme.palette.text.secondary, 0.5)
+                                                    color: alpha(theme.palette.text.secondary, 0.5),
                                                 }}
                                             />
                                             <Typography variant="h6" color="text.secondary">
@@ -307,7 +328,7 @@ const PatientList = ({ open, onClose, onSelect }) => {
                                                     sx={{
                                                         mt: 1,
                                                         borderRadius: 1.5,
-                                                        textTransform: 'none'
+                                                        textTransform: "none",
                                                     }}
                                                 >
                                                     Clear Search
@@ -326,32 +347,53 @@ const PatientList = ({ open, onClose, onSelect }) => {
                                         onClick={handleSelect(patient)}
                                         sx={{
                                             cursor: "pointer",
-                                            '&.Mui-selected': {
-                                                backgroundColor: alpha(theme.palette.primary.main, 0.08),
+                                            "&.Mui-selected": {
+                                                backgroundColor: alpha(
+                                                    theme.palette.primary.main,
+                                                    0.08
+                                                ),
                                             },
-                                            '&.Mui-selected:hover': {
-                                                backgroundColor: alpha(theme.palette.primary.main, 0.12),
-                                            }
+                                            "&.Mui-selected:hover": {
+                                                backgroundColor: alpha(
+                                                    theme.palette.primary.main,
+                                                    0.12
+                                                ),
+                                            },
                                         }}
                                     >
                                         <TableCell>
-                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                                            <Box
+                                                sx={{
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    gap: 1.5,
+                                                }}
+                                            >
                                                 <Avatar
                                                     sx={{
                                                         width: 32,
                                                         height: 32,
-                                                        bgcolor: selectedPatient?.id === patient.id
-                                                            ? theme.palette.primary.main
-                                                            : theme.palette.grey[500],
-                                                        fontSize: '0.875rem',
-                                                        fontWeight: 600
+                                                        bgcolor:
+                                                            selectedPatient?.id === patient.id
+                                                                ? theme.palette.primary.main
+                                                                : theme.palette.grey[500],
+                                                        fontSize: "0.875rem",
+                                                        fontWeight: 600,
                                                     }}
                                                 >
                                                     {getInitials(patient?.fullName)}
                                                 </Avatar>
                                                 <Typography
-                                                    fontWeight={selectedPatient?.id === patient.id ? 600 : 400}
-                                                    color={selectedPatient?.id === patient.id ? 'primary.main' : 'text.primary'}
+                                                    fontWeight={
+                                                        selectedPatient?.id === patient.id
+                                                            ? 600
+                                                            : 400
+                                                    }
+                                                    color={
+                                                        selectedPatient?.id === patient.id
+                                                            ? "primary.main"
+                                                            : "text.primary"
+                                                    }
                                                 >
                                                     {patient?.fullName || "—"}
                                                 </Typography>
@@ -362,12 +404,18 @@ const PatientList = ({ open, onClose, onSelect }) => {
                                         <TableCell>{formatDate(patient?.dateOfBirth)}</TableCell>
                                         <TableCell>
                                             {patient?.nationality?.label ? (
-                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                <Box
+                                                    sx={{
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        gap: 1,
+                                                    }}
+                                                >
                                                     <Box
                                                         component="img"
                                                         alt=""
                                                         src={`https://flagcdn.com/w20/${patient.nationality.code.toLowerCase()}.png`}
-                                                        sx={{ width: 20, height: 'auto' }}
+                                                        sx={{ width: 20, height: "auto" }}
                                                     />
                                                     {patient.nationality.label}
                                                 </Box>
@@ -399,9 +447,9 @@ const PatientList = ({ open, onClose, onSelect }) => {
             <DialogActions
                 sx={{
                     p: 2,
-                    borderTop: '1px solid',
+                    borderTop: "1px solid",
                     borderColor: theme.palette.divider,
-                    justifyContent: 'space-between'
+                    justifyContent: "space-between",
                 }}
             >
                 {selectedPatient && (
@@ -411,9 +459,9 @@ const PatientList = ({ open, onClose, onSelect }) => {
                         sx={{
                             flexGrow: 1,
                             mr: 2,
-                            '& .MuiAlert-icon': {
-                                alignItems: 'center'
-                            }
+                            "& .MuiAlert-icon": {
+                                alignItems: "center",
+                            },
                         }}
                     >
                         <Typography variant="body2">
@@ -422,7 +470,7 @@ const PatientList = ({ open, onClose, onSelect }) => {
                     </Alert>
                 )}
 
-                <Box sx={{ display: 'flex', gap: 1 }}>
+                <Box sx={{ display: "flex", gap: 1 }}>
                     <Button
                         variant="outlined"
                         color="inherit"
@@ -430,7 +478,7 @@ const PatientList = ({ open, onClose, onSelect }) => {
                         startIcon={<CloseIcon />}
                         sx={{
                             borderRadius: 1.5,
-                            textTransform: 'none'
+                            textTransform: "none",
                         }}
                     >
                         Cancel
@@ -439,19 +487,25 @@ const PatientList = ({ open, onClose, onSelect }) => {
                     <Button
                         variant="contained"
                         color="primary"
-                        startIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : <CheckIcon />}
+                        startIcon={
+                            isSubmitting ? (
+                                <CircularProgress size={20} color="inherit" />
+                            ) : (
+                                <CheckIcon />
+                            )
+                        }
                         onClick={handleConfirmSelection}
                         disabled={!selectedPatient || isSubmitting}
                         sx={{
                             borderRadius: 1.5,
-                            textTransform: 'none',
-                            boxShadow: 'none',
-                            '&:hover': {
-                                boxShadow: theme.shadows[2]
-                            }
+                            textTransform: "none",
+                            boxShadow: "none",
+                            "&:hover": {
+                                boxShadow: theme.shadows[2],
+                            },
                         }}
                     >
-                        {isSubmitting ? 'Loading...' : 'Use Selected Patient'}
+                        {isSubmitting ? "Loading..." : "Use Selected Patient"}
                     </Button>
                 </Box>
             </DialogActions>

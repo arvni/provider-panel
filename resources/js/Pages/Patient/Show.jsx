@@ -37,28 +37,43 @@ import ClientLayout from "@/Layouts/AuthenticatedLayout";
 import { router } from "@inertiajs/react";
 import { motion } from "framer-motion";
 
-const getGenderLabel = (gender) => ({ '1': 'Male', '0': 'Female', '-1': 'Unknown' }[String(gender)] ?? 'Unknown');
-const getGenderColor = (gender) => ({ '1': 'primary', '0': 'secondary', '-1': 'default' }[String(gender)] ?? 'default');
+const getGenderLabel = (gender) =>
+    ({ 1: "Male", 0: "Female", "-1": "Unknown" })[String(gender)] ?? "Unknown";
+const getGenderColor = (gender) =>
+    ({ 1: "primary", 0: "secondary", "-1": "default" })[String(gender)] ?? "default";
 
-const getStatusColor = (status) => ({
-    'requested': 'info',
-    'logistic requested': 'warning',
-    'sent': 'primary',
-    'received': 'success',
-    'processing': 'secondary',
-    'reported': 'success',
-    'report downloaded': 'default',
-    'pending': 'error',
-}[status] ?? 'default');
+const getStatusColor = (status) =>
+    ({
+        requested: "info",
+        "logistic requested": "warning",
+        sent: "primary",
+        received: "success",
+        processing: "secondary",
+        reported: "success",
+        "report downloaded": "default",
+        pending: "error",
+    })[status] ?? "default";
 
 const InfoRow = ({ icon: Icon, label, value, color }) => {
     const theme = useTheme();
     if (!value) return null;
     return (
-        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5, py: 0.75 }}>
-            <Icon sx={{ fontSize: 18, color: color ?? theme.palette.text.secondary, mt: 0.2, flexShrink: 0 }} />
+        <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1.5, py: 0.75 }}>
+            <Icon
+                sx={{
+                    fontSize: 18,
+                    color: color ?? theme.palette.text.secondary,
+                    mt: 0.2,
+                    flexShrink: 0,
+                }}
+            />
             <Box>
-                <Typography variant="caption" color="text.secondary" display="block" lineHeight={1.2}>
+                <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    display="block"
+                    lineHeight={1.2}
+                >
                     {label}
                 </Typography>
                 <Typography variant="body2" fontWeight={500}>
@@ -74,11 +89,11 @@ const Show = ({ patient }) => {
     const orders = patient.orders ?? [];
     const relatedPatients = patient.related_patients ?? patient.RelatedPatients ?? [];
 
-    const initials = (patient.fullName ?? '')
-        .split(' ')
+    const initials = (patient.fullName ?? "")
+        .split(" ")
         .slice(0, 2)
-        .map(w => w[0])
-        .join('')
+        .map((w) => w[0])
+        .join("")
         .toUpperCase();
 
     const gotoPage = (url) => (e) => {
@@ -97,22 +112,22 @@ const Show = ({ patient }) => {
             initial="hidden"
             animate="visible"
             variants={{ visible: { transition: { staggerChildren: 0.08 } } }}
-            sx={{ width: '100%' }}
+            sx={{ width: "100%" }}
         >
             {/* ── Header ── */}
             <Box
                 component={motion.div}
                 variants={itemVariants}
                 sx={{
-                    display: 'flex',
-                    flexDirection: { xs: 'column', sm: 'row' },
-                    alignItems: { xs: 'flex-start', sm: 'center' },
-                    justifyContent: 'space-between',
+                    display: "flex",
+                    flexDirection: { xs: "column", sm: "row" },
+                    alignItems: { xs: "flex-start", sm: "center" },
+                    justifyContent: "space-between",
                     mb: 3,
                     gap: 2,
                 }}
             >
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                     <Avatar
                         sx={{
                             width: 56,
@@ -120,13 +135,15 @@ const Show = ({ patient }) => {
                             bgcolor: alpha(theme.palette.primary.main, 0.12),
                             color: theme.palette.primary.main,
                             fontWeight: 700,
-                            fontSize: '1.2rem',
+                            fontSize: "1.2rem",
                         }}
                     >
                         {initials || <PersonIcon />}
                     </Avatar>
                     <Box>
-                        <Typography variant="h5" fontWeight={700}>{patient.fullName}</Typography>
+                        <Typography variant="h5" fontWeight={700}>
+                            {patient.fullName}
+                        </Typography>
                         <Stack direction="row" spacing={1} flexWrap="wrap" mt={0.5}>
                             <Chip
                                 label={getGenderLabel(patient.gender)}
@@ -136,7 +153,13 @@ const Show = ({ patient }) => {
                                 sx={{ fontWeight: 500 }}
                             />
                             {patient.isFetus && (
-                                <Chip icon={<ChildIcon />} label="Fetus" size="small" color="info" variant="outlined" />
+                                <Chip
+                                    icon={<ChildIcon />}
+                                    label="Fetus"
+                                    size="small"
+                                    color="info"
+                                    variant="outlined"
+                                />
                             )}
                         </Stack>
                     </Box>
@@ -149,7 +172,7 @@ const Show = ({ patient }) => {
                         startIcon={<ArrowBackIcon />}
                         href={route("patients.index")}
                         onClick={gotoPage(route("patients.index"))}
-                        sx={{ borderRadius: 1, textTransform: 'none' }}
+                        sx={{ borderRadius: 1, textTransform: "none" }}
                     >
                         Back
                     </Button>
@@ -159,7 +182,7 @@ const Show = ({ patient }) => {
                         startIcon={<EditIcon />}
                         href={route("patients.edit", patient.id)}
                         onClick={gotoPage(route("patients.edit", patient.id))}
-                        sx={{ borderRadius: 1, textTransform: 'none', boxShadow: 'none' }}
+                        sx={{ borderRadius: 1, textTransform: "none", boxShadow: "none" }}
                     >
                         Edit Patient
                     </Button>
@@ -173,21 +196,23 @@ const Show = ({ patient }) => {
                         elevation={0}
                         sx={{
                             borderRadius: 2,
-                            border: '1px solid',
+                            border: "1px solid",
                             borderColor: theme.palette.divider,
-                            height: '100%',
+                            height: "100%",
                         }}
                     >
                         <CardHeader
                             title={
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                                     <PersonIcon color="primary" fontSize="small" />
-                                    <Typography variant="h6" fontWeight={600}>Patient Info</Typography>
+                                    <Typography variant="h6" fontWeight={600}>
+                                        Patient Info
+                                    </Typography>
                                 </Box>
                             }
                             sx={{
                                 bgcolor: alpha(theme.palette.primary.main, 0.04),
-                                borderBottom: '1px solid',
+                                borderBottom: "1px solid",
                                 borderColor: theme.palette.divider,
                                 py: 1.5,
                             }}
@@ -196,41 +221,47 @@ const Show = ({ patient }) => {
                             <InfoRow
                                 icon={CalendarIcon}
                                 label="Date of Birth"
-                                value={patient.dateOfBirth
-                                    ? new Date(patient.dateOfBirth).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
-                                    : null}
+                                value={
+                                    patient.dateOfBirth
+                                        ? new Date(patient.dateOfBirth).toLocaleDateString(
+                                              undefined,
+                                              { year: "numeric", month: "long", day: "numeric" }
+                                          )
+                                        : null
+                                }
                             />
                             <InfoRow
                                 icon={NationalityIcon}
                                 label="Nationality"
-                                value={typeof patient.nationality === 'object'
-                                    ? (patient.nationality?.label || patient.nationality?.name)
-                                    : patient.nationality}
+                                value={
+                                    typeof patient.nationality === "object"
+                                        ? patient.nationality?.label || patient.nationality?.name
+                                        : patient.nationality
+                                }
                             />
-                            <InfoRow
-                                icon={BadgeIcon}
-                                label="ID Number"
-                                value={patient.id_no}
-                            />
+                            <InfoRow icon={BadgeIcon} label="ID Number" value={patient.id_no} />
                             <InfoRow
                                 icon={BadgeIcon}
                                 label="Reference ID"
                                 value={patient.reference_id}
                             />
-                            {patient.consanguineousParents !== undefined && patient.consanguineousParents !== null && (
-                                <>
-                                    <Divider sx={{ my: 1.5 }} />
-                                    <InfoRow
-                                        icon={FamilyIcon}
-                                        label="Consanguineous Parents"
-                                        value={
-                                            patient.consanguineousParents == 1 ? 'Yes'
-                                            : patient.consanguineousParents == 0 ? 'No'
-                                            : 'Unknown'
-                                        }
-                                    />
-                                </>
-                            )}
+                            {patient.consanguineousParents !== undefined &&
+                                patient.consanguineousParents !== null && (
+                                    <>
+                                        <Divider sx={{ my: 1.5 }} />
+                                        <InfoRow
+                                            icon={FamilyIcon}
+                                            label="Consanguineous Parents"
+                                            value={
+                                                patient.consanguineousParents == 1
+                                                    ? "Yes"
+                                                    : patient.consanguineousParents == 0
+                                                      ? "No"
+                                                      : "Unknown"
+                                            }
+                                        />
+                                    </>
+                                )}
 
                             {/* Stats row */}
                             <Divider sx={{ my: 2 }} />
@@ -240,15 +271,21 @@ const Show = ({ patient }) => {
                                         elevation={0}
                                         sx={{
                                             p: 1.5,
-                                            textAlign: 'center',
+                                            textAlign: "center",
                                             bgcolor: alpha(theme.palette.primary.main, 0.06),
                                             borderRadius: 1.5,
                                         }}
                                     >
-                                        <Typography variant="h5" fontWeight={700} color="primary.main">
+                                        <Typography
+                                            variant="h5"
+                                            fontWeight={700}
+                                            color="primary.main"
+                                        >
                                             {orders.length}
                                         </Typography>
-                                        <Typography variant="caption" color="text.secondary">Orders</Typography>
+                                        <Typography variant="caption" color="text.secondary">
+                                            Orders
+                                        </Typography>
                                     </Paper>
                                 </Grid>
                                 <Grid item xs={6}>
@@ -256,15 +293,19 @@ const Show = ({ patient }) => {
                                         elevation={0}
                                         sx={{
                                             p: 1.5,
-                                            textAlign: 'center',
+                                            textAlign: "center",
                                             bgcolor: alpha(theme.palette.info.main, 0.06),
                                             borderRadius: 1.5,
                                         }}
                                     >
                                         <Typography variant="h5" fontWeight={700} color="info.main">
-                                            {patient.order_items?.length ?? patient.order_items_count ?? 0}
+                                            {patient.order_items?.length ??
+                                                patient.order_items_count ??
+                                                0}
                                         </Typography>
-                                        <Typography variant="caption" color="text.secondary">Tests</Typography>
+                                        <Typography variant="caption" color="text.secondary">
+                                            Tests
+                                        </Typography>
                                     </Paper>
                                 </Grid>
                             </Grid>
@@ -282,63 +323,79 @@ const Show = ({ patient }) => {
                             elevation={0}
                             sx={{
                                 borderRadius: 2,
-                                border: '1px solid',
+                                border: "1px solid",
                                 borderColor: theme.palette.divider,
                             }}
                         >
                             <CardHeader
                                 title={
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                                         <AssignmentIcon color="primary" fontSize="small" />
-                                        <Typography variant="h6" fontWeight={600}>Orders</Typography>
+                                        <Typography variant="h6" fontWeight={600}>
+                                            Orders
+                                        </Typography>
                                         <Chip
                                             label={orders.length}
                                             size="small"
                                             color="primary"
-                                            sx={{ ml: 0.5, height: 20, fontSize: '0.75rem' }}
+                                            sx={{ ml: 0.5, height: 20, fontSize: "0.75rem" }}
                                         />
                                     </Box>
                                 }
                                 sx={{
                                     bgcolor: alpha(theme.palette.primary.main, 0.04),
-                                    borderBottom: '1px solid',
+                                    borderBottom: "1px solid",
                                     borderColor: theme.palette.divider,
                                     py: 1.5,
                                 }}
                             />
                             <CardContent sx={{ p: 0 }}>
                                 {orders.length === 0 ? (
-                                    <Box sx={{ py: 5, textAlign: 'center' }}>
-                                        <AssignmentIcon sx={{ fontSize: 40, color: alpha(theme.palette.text.secondary, 0.3), mb: 1 }} />
-                                        <Typography color="text.secondary">No orders yet</Typography>
+                                    <Box sx={{ py: 5, textAlign: "center" }}>
+                                        <AssignmentIcon
+                                            sx={{
+                                                fontSize: 40,
+                                                color: alpha(theme.palette.text.secondary, 0.3),
+                                                mb: 1,
+                                            }}
+                                        />
+                                        <Typography color="text.secondary">
+                                            No orders yet
+                                        </Typography>
                                     </Box>
                                 ) : (
-                                    <Box sx={{ overflowX: 'auto' }}>
+                                    <Box sx={{ overflowX: "auto" }}>
                                         <Box
                                             component="table"
                                             sx={{
-                                                width: '100%',
-                                                borderCollapse: 'collapse',
-                                                '& th': {
-                                                    textAlign: 'left',
+                                                width: "100%",
+                                                borderCollapse: "collapse",
+                                                "& th": {
+                                                    textAlign: "left",
                                                     px: 2,
                                                     py: 1.25,
-                                                    typography: 'caption',
+                                                    typography: "caption",
                                                     fontWeight: 600,
-                                                    color: 'text.secondary',
-                                                    bgcolor: alpha(theme.palette.background.default, 0.6),
+                                                    color: "text.secondary",
+                                                    bgcolor: alpha(
+                                                        theme.palette.background.default,
+                                                        0.6
+                                                    ),
                                                     borderBottom: `1px solid ${theme.palette.divider}`,
-                                                    whiteSpace: 'nowrap',
+                                                    whiteSpace: "nowrap",
                                                 },
-                                                '& td': {
+                                                "& td": {
                                                     px: 2,
                                                     py: 1.25,
                                                     borderBottom: `1px solid ${theme.palette.divider}`,
-                                                    verticalAlign: 'middle',
+                                                    verticalAlign: "middle",
                                                 },
-                                                '& tr:last-child td': { borderBottom: 'none' },
-                                                '& tbody tr:hover td': {
-                                                    bgcolor: alpha(theme.palette.primary.main, 0.03),
+                                                "& tr:last-child td": { borderBottom: "none" },
+                                                "& tbody tr:hover td": {
+                                                    bgcolor: alpha(
+                                                        theme.palette.primary.main,
+                                                        0.03
+                                                    ),
                                                 },
                                             }}
                                         >
@@ -355,22 +412,43 @@ const Show = ({ patient }) => {
                                                 {orders.map((order) => (
                                                     <tr key={order.id}>
                                                         <td>
-                                                            <Typography variant="body2" fontWeight={600} color="primary">
+                                                            <Typography
+                                                                variant="body2"
+                                                                fontWeight={600}
+                                                                color="primary"
+                                                            >
                                                                 #{order.id}
                                                             </Typography>
                                                         </td>
                                                         <td>
-                                                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                                                {(order.tests ?? []).map((test, i) => (
-                                                                    <Chip
-                                                                        key={i}
-                                                                        label={test.name}
-                                                                        size="small"
-                                                                        sx={{ fontSize: '0.7rem', height: 20 }}
-                                                                    />
-                                                                ))}
-                                                                {(!order.tests || order.tests.length === 0) && (
-                                                                    <Typography variant="body2" color="text.secondary">—</Typography>
+                                                            <Box
+                                                                sx={{
+                                                                    display: "flex",
+                                                                    flexWrap: "wrap",
+                                                                    gap: 0.5,
+                                                                }}
+                                                            >
+                                                                {(order.tests ?? []).map(
+                                                                    (test, i) => (
+                                                                        <Chip
+                                                                            key={i}
+                                                                            label={test.name}
+                                                                            size="small"
+                                                                            sx={{
+                                                                                fontSize: "0.7rem",
+                                                                                height: 20,
+                                                                            }}
+                                                                        />
+                                                                    )
+                                                                )}
+                                                                {(!order.tests ||
+                                                                    order.tests.length === 0) && (
+                                                                    <Typography
+                                                                        variant="body2"
+                                                                        color="text.secondary"
+                                                                    >
+                                                                        —
+                                                                    </Typography>
                                                                 )}
                                                             </Box>
                                                         </td>
@@ -383,27 +461,57 @@ const Show = ({ patient }) => {
                                                             />
                                                         </td>
                                                         <td>
-                                                            <Typography variant="body2" color="text.secondary">
+                                                            <Typography
+                                                                variant="body2"
+                                                                color="text.secondary"
+                                                            >
                                                                 {order.created_at
-                                                                    ? new Date(order.created_at).toLocaleDateString(undefined, {
-                                                                        year: 'numeric', month: 'short', day: 'numeric'
-                                                                    })
-                                                                    : '—'}
+                                                                    ? new Date(
+                                                                          order.created_at
+                                                                      ).toLocaleDateString(
+                                                                          undefined,
+                                                                          {
+                                                                              year: "numeric",
+                                                                              month: "short",
+                                                                              day: "numeric",
+                                                                          }
+                                                                      )
+                                                                    : "—"}
                                                             </Typography>
                                                         </td>
                                                         <td>
                                                             <Stack direction="row" spacing={0.5}>
-                                                                {order.status !== 'pending' && (
+                                                                {order.status !== "pending" && (
                                                                     <Tooltip title="View Order">
                                                                         <IconButton
                                                                             size="small"
                                                                             color="info"
-                                                                            href={route("orders.show", order.id)}
-                                                                            onClick={gotoPage(route("orders.show", order.id))}
+                                                                            href={route(
+                                                                                "orders.show",
+                                                                                order.id
+                                                                            )}
+                                                                            onClick={gotoPage(
+                                                                                route(
+                                                                                    "orders.show",
+                                                                                    order.id
+                                                                                )
+                                                                            )}
                                                                             sx={{
-                                                                                border: '1px solid',
-                                                                                borderColor: alpha(theme.palette.info.main, 0.3),
-                                                                                '&:hover': { bgcolor: alpha(theme.palette.info.main, 0.1) },
+                                                                                border: "1px solid",
+                                                                                borderColor: alpha(
+                                                                                    theme.palette
+                                                                                        .info.main,
+                                                                                    0.3
+                                                                                ),
+                                                                                "&:hover": {
+                                                                                    bgcolor: alpha(
+                                                                                        theme
+                                                                                            .palette
+                                                                                            .info
+                                                                                            .main,
+                                                                                        0.1
+                                                                                    ),
+                                                                                },
                                                                             }}
                                                                         >
                                                                             <ViewIcon fontSize="small" />
@@ -415,29 +523,75 @@ const Show = ({ patient }) => {
                                                                         <IconButton
                                                                             size="small"
                                                                             color="warning"
-                                                                            href={route("orders.edit", { order: order.id, step: order.step })}
-                                                                            onClick={gotoPage(route("orders.edit", { order: order.id, step: order.step }))}
+                                                                            href={route(
+                                                                                "orders.edit",
+                                                                                {
+                                                                                    order: order.id,
+                                                                                    step: order.step,
+                                                                                }
+                                                                            )}
+                                                                            onClick={gotoPage(
+                                                                                route(
+                                                                                    "orders.edit",
+                                                                                    {
+                                                                                        order: order.id,
+                                                                                        step: order.step,
+                                                                                    }
+                                                                                )
+                                                                            )}
                                                                             sx={{
-                                                                                border: '1px solid',
-                                                                                borderColor: alpha(theme.palette.warning.main, 0.3),
-                                                                                '&:hover': { bgcolor: alpha(theme.palette.warning.main, 0.1) },
+                                                                                border: "1px solid",
+                                                                                borderColor: alpha(
+                                                                                    theme.palette
+                                                                                        .warning
+                                                                                        .main,
+                                                                                    0.3
+                                                                                ),
+                                                                                "&:hover": {
+                                                                                    bgcolor: alpha(
+                                                                                        theme
+                                                                                            .palette
+                                                                                            .warning
+                                                                                            .main,
+                                                                                        0.1
+                                                                                    ),
+                                                                                },
                                                                             }}
                                                                         >
                                                                             <EditIcon fontSize="small" />
                                                                         </IconButton>
                                                                     </Tooltip>
                                                                 )}
-                                                                {['reported', 'report downloaded'].includes(order.status) && (
+                                                                {[
+                                                                    "reported",
+                                                                    "report downloaded",
+                                                                ].includes(order.status) && (
                                                                     <Tooltip title="Download Report">
                                                                         <IconButton
                                                                             size="small"
                                                                             color="success"
-                                                                            href={route("orders.report", order.id)}
+                                                                            href={route(
+                                                                                "orders.report",
+                                                                                order.id
+                                                                            )}
                                                                             target="_blank"
                                                                             sx={{
-                                                                                border: '1px solid',
-                                                                                borderColor: alpha(theme.palette.success.main, 0.3),
-                                                                                '&:hover': { bgcolor: alpha(theme.palette.success.main, 0.1) },
+                                                                                border: "1px solid",
+                                                                                borderColor: alpha(
+                                                                                    theme.palette
+                                                                                        .success
+                                                                                        .main,
+                                                                                    0.3
+                                                                                ),
+                                                                                "&:hover": {
+                                                                                    bgcolor: alpha(
+                                                                                        theme
+                                                                                            .palette
+                                                                                            .success
+                                                                                            .main,
+                                                                                        0.1
+                                                                                    ),
+                                                                                },
                                                                             }}
                                                                         >
                                                                             <DownloadIcon fontSize="small" />
@@ -463,26 +617,28 @@ const Show = ({ patient }) => {
                                 elevation={0}
                                 sx={{
                                     borderRadius: 2,
-                                    border: '1px solid',
+                                    border: "1px solid",
                                     borderColor: theme.palette.divider,
                                 }}
                             >
                                 <CardHeader
                                     title={
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                                             <PeopleIcon color="primary" fontSize="small" />
-                                            <Typography variant="h6" fontWeight={600}>Related Patients</Typography>
+                                            <Typography variant="h6" fontWeight={600}>
+                                                Related Patients
+                                            </Typography>
                                             <Chip
                                                 label={relatedPatients.length}
                                                 size="small"
                                                 color="primary"
-                                                sx={{ ml: 0.5, height: 20, fontSize: '0.75rem' }}
+                                                sx={{ ml: 0.5, height: 20, fontSize: "0.75rem" }}
                                             />
                                         </Box>
                                     }
                                     sx={{
                                         bgcolor: alpha(theme.palette.primary.main, 0.04),
-                                        borderBottom: '1px solid',
+                                        borderBottom: "1px solid",
                                         borderColor: theme.palette.divider,
                                         py: 1.5,
                                     }}
@@ -493,33 +649,57 @@ const Show = ({ patient }) => {
                                             <Box
                                                 key={related.id}
                                                 sx={{
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'space-between',
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    justifyContent: "space-between",
                                                     p: 1.5,
                                                     borderRadius: 1.5,
-                                                    border: '1px solid',
+                                                    border: "1px solid",
                                                     borderColor: theme.palette.divider,
-                                                    '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.03) },
+                                                    "&:hover": {
+                                                        bgcolor: alpha(
+                                                            theme.palette.primary.main,
+                                                            0.03
+                                                        ),
+                                                    },
                                                 }}
                                             >
-                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                                                <Box
+                                                    sx={{
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        gap: 1.5,
+                                                    }}
+                                                >
                                                     <Avatar
                                                         sx={{
                                                             width: 32,
                                                             height: 32,
-                                                            bgcolor: alpha(theme.palette.secondary.main, 0.12),
+                                                            bgcolor: alpha(
+                                                                theme.palette.secondary.main,
+                                                                0.12
+                                                            ),
                                                             color: theme.palette.secondary.main,
-                                                            fontSize: '0.75rem',
+                                                            fontSize: "0.75rem",
                                                             fontWeight: 700,
                                                         }}
                                                     >
-                                                        {(related.fullName ?? '?').charAt(0).toUpperCase()}
+                                                        {(related.fullName ?? "?")
+                                                            .charAt(0)
+                                                            .toUpperCase()}
                                                     </Avatar>
                                                     <Box>
-                                                        <Typography variant="body2" fontWeight={600}>{related.fullName}</Typography>
+                                                        <Typography
+                                                            variant="body2"
+                                                            fontWeight={600}
+                                                        >
+                                                            {related.fullName}
+                                                        </Typography>
                                                         {related.pivot?.relation_type && (
-                                                            <Typography variant="caption" color="text.secondary">
+                                                            <Typography
+                                                                variant="caption"
+                                                                color="text.secondary"
+                                                            >
                                                                 {related.pivot.relation_type}
                                                             </Typography>
                                                         )}
@@ -530,7 +710,9 @@ const Show = ({ patient }) => {
                                                         size="small"
                                                         color="info"
                                                         href={route("patients.show", related.id)}
-                                                        onClick={gotoPage(route("patients.show", related.id))}
+                                                        onClick={gotoPage(
+                                                            route("patients.show", related.id)
+                                                        )}
                                                     >
                                                         <ViewIcon fontSize="small" />
                                                     </IconButton>
@@ -554,7 +736,9 @@ const breadcrumbs = [
 ];
 
 Show.layout = (page) => (
-    <ClientLayout auth={page.props.auth} breadcrumbs={breadcrumbs} children={page} />
+    <ClientLayout auth={page.props.auth} breadcrumbs={breadcrumbs}>
+        {page}
+    </ClientLayout>
 );
 
 export default Show;

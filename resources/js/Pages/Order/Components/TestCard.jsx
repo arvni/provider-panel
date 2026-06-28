@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import {
     Button,
     Card,
@@ -13,7 +13,7 @@ import {
     useTheme,
     Grid,
     Paper,
-    Badge
+    Badge,
 } from "@mui/material";
 import {
     Info as InfoIcon,
@@ -23,10 +23,10 @@ import {
     Science as ScienceIcon,
     ExpandMore as ExpandMoreIcon,
     ArrowForward as ArrowForwardIcon,
-    Timer as TimerIcon
+    Timer as TimerIcon,
 } from "@mui/icons-material";
 import TestDetails from "./TestDetails";
-import {motion} from "framer-motion";
+import { motion } from "framer-motion";
 
 /**
  * Enhanced TestCard component with improved design and interactions
@@ -68,7 +68,7 @@ const TestCard = (props) => {
         const days = parseInt(time, 10);
         if (isNaN(days)) return time;
 
-        return `${days} ${days === 1 ? 'business day' : 'business days'}`;
+        return `${days} ${days === 1 ? "business day" : "business days"}`;
     };
 
     return (
@@ -77,49 +77,45 @@ const TestCard = (props) => {
             whileHover={{
                 y: -4,
                 boxShadow: theme.shadows[6],
-                transition: {duration: 0.2}
+                transition: { duration: 0.2 },
             }}
-            initial={{opacity: 0, y: 20}}
-            animate={{opacity: 1, y: 0}}
-            transition={{duration: 0.3}}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
             elevation={selected ? 6 : 1}
             sx={{
                 width: "100%",
                 borderRadius: 2,
-                border: '1px solid',
-                borderColor: selected
-                    ? theme.palette.primary.main
-                    : theme.palette.divider,
-                position: 'relative',
-                overflow: 'visible',
+                border: "1px solid",
+                borderColor: selected ? theme.palette.primary.main : theme.palette.divider,
+                position: "relative",
+                overflow: "visible",
                 bgcolor: selected
                     ? alpha(theme.palette.primary.main, 0.03)
                     : theme.palette.background.paper,
-                transition: 'all 0.3s ease',
+                transition: "all 0.3s ease",
             }}
         >
             {/* Selected badge */}
             {selected && (
                 <Box
                     sx={{
-                        position: 'absolute',
+                        position: "absolute",
                         top: -10,
                         right: -10,
-                        zIndex: 1
+                        zIndex: 1,
                     }}
                 >
                     <Badge
-                        badgeContent={
-                            <CheckIcon sx={{fontSize: 12, color: 'white'}}/>
-                        }
+                        badgeContent={<CheckIcon sx={{ fontSize: 12, color: "white" }} />}
                         color="primary"
                         sx={{
-                            '& .MuiBadge-badge': {
+                            "& .MuiBadge-badge": {
                                 width: 22,
                                 height: 22,
-                                borderRadius: '50%',
-                                boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
-                            }
+                                borderRadius: "50%",
+                                boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                            },
                         }}
                     />
                 </Box>
@@ -132,22 +128,19 @@ const TestCard = (props) => {
                     bgcolor: selected
                         ? alpha(theme.palette.primary.main, 0.05)
                         : alpha(theme.palette.grey[50], 0.5),
-                    borderBottom: '1px solid',
+                    borderBottom: "1px solid",
                     borderColor: selected
                         ? alpha(theme.palette.primary.main, 0.1)
-                        : theme.palette.divider
+                        : theme.palette.divider,
                 }}
                 title={
-                    <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
-                        <ScienceIcon
-                            color={selected ? "primary" : "action"}
-                            fontSize="small"
-                        />
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                        <ScienceIcon color={selected ? "primary" : "action"} fontSize="small" />
                         <Typography
                             variant="subtitle1"
                             fontWeight={600}
                             color={selected ? "primary.main" : "text.primary"}
-                            sx={{flex: 1}}
+                            sx={{ flex: 1 }}
                         >
                             {props.test.name}
                         </Typography>
@@ -156,42 +149,46 @@ const TestCard = (props) => {
             />
 
             {/* Card content */}
-            <CardContent sx={{p: 2}}>
+            <CardContent sx={{ p: 2 }}>
                 <Grid container spacing={2}>
                     <Grid size={{ xs: 12, sm: 8 }}>
-                        <Box sx={{mb: 2}}>
+                        <Box sx={{ mb: 2 }}>
                             <div
                                 style={{
-                                    display: '-webkit-box',
-                                    overflow: 'hidden',
-                                    WebkitBoxOrient: 'vertical',
-                                    WebkitLineClamp: expanded ? 'unset' : 2,
+                                    display: "-webkit-box",
+                                    overflow: "hidden",
+                                    WebkitBoxOrient: "vertical",
+                                    WebkitLineClamp: expanded ? "unset" : 2,
                                 }}
                                 dangerouslySetInnerHTML={{
-                                    __html: props.test.description || "<p>No description available for this test.</p>"
+                                    __html:
+                                        props.test.description ||
+                                        "<p>No description available for this test.</p>",
                                 }}
                             />
 
-                            {(props.test.description?.length > 120) && (
+                            {props.test.description?.length > 120 && (
                                 <Button
                                     size="small"
                                     onClick={handleExpandClick}
                                     endIcon={
                                         <ExpandMoreIcon
                                             sx={{
-                                                transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                                                transition: 'transform 0.3s'
+                                                transform: expanded
+                                                    ? "rotate(180deg)"
+                                                    : "rotate(0deg)",
+                                                transition: "transform 0.3s",
                                             }}
                                         />
                                     }
                                     sx={{
                                         mt: 1,
-                                        textTransform: 'none',
+                                        textTransform: "none",
                                         p: 0,
-                                        minWidth: 'auto'
+                                        minWidth: "auto",
                                     }}
                                 >
-                                    {expanded ? 'Show less' : 'Read more'}
+                                    {expanded ? "Show less" : "Read more"}
                                 </Button>
                             )}
                         </Box>
@@ -206,7 +203,7 @@ const TestCard = (props) => {
                                     sx={{
                                         mb: 0.5,
                                         borderRadius: 1,
-                                        fontSize: '0.75rem'
+                                        fontSize: "0.75rem",
                                     }}
                                 />
                             ))}
@@ -221,7 +218,7 @@ const TestCard = (props) => {
                                     sx={{
                                         mb: 0.5,
                                         borderRadius: 1,
-                                        fontSize: '0.75rem'
+                                        fontSize: "0.75rem",
                                     }}
                                 />
                             ))}
@@ -234,21 +231,21 @@ const TestCard = (props) => {
                             sx={{
                                 p: 1.5,
                                 borderRadius: 1.5,
-                                border: '1px solid',
+                                border: "1px solid",
                                 borderColor: theme.palette.divider,
-                                backgroundColor: alpha(theme.palette.background.default, 0.5)
+                                backgroundColor: alpha(theme.palette.background.default, 0.5),
                             }}
                         >
                             <Typography
                                 variant="subtitle2"
                                 sx={{
                                     mb: 1,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 0.5
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 0.5,
                                 }}
                             >
-                                <TimerIcon fontSize="small" color="action"/>
+                                <TimerIcon fontSize="small" color="action" />
                                 Turnaround Time
                             </Typography>
 
@@ -256,10 +253,10 @@ const TestCard = (props) => {
                                 variant="body2"
                                 fontWeight={500}
                                 sx={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    flexWrap: 'wrap',
-                                    gap: 0.5
+                                    display: "flex",
+                                    alignItems: "center",
+                                    flexWrap: "wrap",
+                                    gap: 0.5,
                                 }}
                             >
                                 <Chip
@@ -270,23 +267,23 @@ const TestCard = (props) => {
                                     sx={{
                                         borderRadius: 1,
                                         fontWeight: 600,
-                                        fontSize: '0.75rem'
+                                        fontSize: "0.75rem",
                                     }}
                                 />
                             </Typography>
 
                             {props.test.requirements && (
-                                <Box sx={{mt: 2}}>
+                                <Box sx={{ mt: 2 }}>
                                     <Typography
                                         variant="subtitle2"
                                         sx={{
                                             mb: 0.5,
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: 0.5
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: 0.5,
                                         }}
                                     >
-                                        <InfoIcon fontSize="small" color="action"/>
+                                        <InfoIcon fontSize="small" color="action" />
                                         Requirements
                                     </Typography>
 
@@ -305,8 +302,8 @@ const TestCard = (props) => {
                 sx={{
                     p: 2,
                     pt: 0,
-                    display: 'flex',
-                    justifyContent: 'space-between'
+                    display: "flex",
+                    justifyContent: "space-between",
                 }}
             >
                 <Button
@@ -314,10 +311,10 @@ const TestCard = (props) => {
                     size="small"
                     color="info"
                     onClick={handleOpenDetails}
-                    endIcon={<ArrowForwardIcon/>}
+                    endIcon={<ArrowForwardIcon />}
                     sx={{
                         borderRadius: 1.5,
-                        textTransform: 'none'
+                        textTransform: "none",
                     }}
                 >
                     View Details
@@ -328,15 +325,15 @@ const TestCard = (props) => {
                     size="small"
                     color={selected ? "error" : "primary"}
                     onClick={handleSelect}
-                    startIcon={selected ? <RemoveIcon/> : <AddIcon/>}
+                    startIcon={selected ? <RemoveIcon /> : <AddIcon />}
                     sx={{
                         borderRadius: 1.5,
-                        textTransform: 'none',
+                        textTransform: "none",
                         minWidth: 120,
-                        boxShadow: selected ? 'none' : theme.shadows[1],
-                        '&:hover': {
-                            boxShadow: selected ? 'none' : theme.shadows[2]
-                        }
+                        boxShadow: selected ? "none" : theme.shadows[1],
+                        "&:hover": {
+                            boxShadow: selected ? "none" : theme.shadows[2],
+                        },
                     }}
                 >
                     {selected ? "Remove Test" : "Add Test"}
@@ -344,11 +341,7 @@ const TestCard = (props) => {
             </CardActions>
 
             {/* Test details dialog */}
-            {open && <TestDetails
-                test={props.test}
-                open={open}
-                onClose={handleCloseDetails}
-            />}
+            {open && <TestDetails test={props.test} open={open} onClose={handleCloseDetails} />}
         </Card>
     );
 };

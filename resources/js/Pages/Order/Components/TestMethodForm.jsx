@@ -14,7 +14,8 @@ import {
     Fade,
     useTheme,
     alpha,
-    useMediaQuery, Tooltip
+    useMediaQuery,
+    Tooltip,
 } from "@mui/material";
 import {
     ShoppingCart as ShoppingCartIcon,
@@ -25,7 +26,7 @@ import {
     CheckCircle as CheckCircleIcon,
     Search as SearchIcon,
     ArrowUpward as ArrowUpwardIcon,
-    ArrowDownward as ArrowDownwardIcon
+    ArrowDownward as ArrowDownwardIcon,
 } from "@mui/icons-material";
 
 import { useGetData } from "@/Services/api";
@@ -38,14 +39,14 @@ import { motion, AnimatePresence } from "framer-motion";
  */
 const TestMethodForm = (props) => {
     const theme = useTheme();
-    const isTablet = useMediaQuery(theme.breakpoints.down('lg'));
+    const isTablet = useMediaQuery(theme.breakpoints.down("lg"));
 
     // State management
     const [tests, setTests] = useState([]);
     const [searchParams, setSearchParams] = useState({});
     const [sortOrder, setSortOrder] = useState("name_asc");
     const [showFilters, setShowFilters] = useState(false);
-    const [notification, setNotification] = useState({ open: false, message: '', type: 'info' });
+    const [notification, setNotification] = useState({ open: false, message: "", type: "info" });
     const [recentSearches, setRecentSearches] = useState([]);
     const { getData, loading } = useGetData();
 
@@ -54,7 +55,7 @@ const TestMethodForm = (props) => {
         handleTestSearch({});
 
         // Load recent searches from localStorage
-        const storedSearches = localStorage.getItem('recentTestSearches');
+        const storedSearches = localStorage.getItem("recentTestSearches");
         if (storedSearches) {
             try {
                 setRecentSearches(JSON.parse(storedSearches));
@@ -72,33 +73,36 @@ const TestMethodForm = (props) => {
         // Add sort order to search params
         const searchData = {
             ...values,
-            sort: sortOrder
+            sort: sortOrder,
         };
 
         // Show loading notification for better UX
         if (Object.keys(values).length > 0 && values.search) {
-            showNotification(`Searching for "${values.search}"...`, 'info');
+            showNotification(`Searching for "${values.search}"...`, "info");
         }
 
         // Fetch data from API
         return getData(route("api.user.tests.list"), searchData)
-            .then(res => {
+            .then((res) => {
                 setTests(res.data);
 
                 // Show results notification
                 if (values.search) {
                     if (res.data.length === 0) {
-                        showNotification(`No tests found for "${values.search}"`, 'warning');
+                        showNotification(`No tests found for "${values.search}"`, "warning");
                     } else {
-                        showNotification(`Found ${res.data.length} tests for "${values.search}"`, 'success');
+                        showNotification(
+                            `Found ${res.data.length} tests for "${values.search}"`,
+                            "success"
+                        );
                     }
                 }
 
                 return res.data;
             })
-            .catch(error => {
+            .catch((error) => {
                 console.error("Search error:", error);
-                showNotification("An error occurred while searching. Please try again.", 'error');
+                showNotification("An error occurred while searching. Please try again.", "error");
                 return [];
             });
     };
@@ -111,13 +115,13 @@ const TestMethodForm = (props) => {
         if (orderIndex !== -1) {
             // Remove test
             tmp.splice(orderIndex, 1);
-            showNotification("Test removed from selection", 'info');
+            showNotification("Test removed from selection", "info");
         } else {
             // Add test
             let testIndex = tests.findIndex((item) => item.id === id);
             if (testIndex !== -1 && tests[testIndex]) {
                 tmp.push(tests[testIndex]);
-                showNotification("Test added to selection", 'success');
+                showNotification("Test added to selection", "success");
             }
         }
 
@@ -138,7 +142,7 @@ const TestMethodForm = (props) => {
         setSortOrder(newSortOrder);
         handleTestSearch({
             ...searchParams,
-            sort: newSortOrder
+            sort: newSortOrder,
         });
     };
 
@@ -153,17 +157,17 @@ const TestMethodForm = (props) => {
     };
 
     // Show notification
-    const showNotification = (message, type = 'info') => {
+    const showNotification = (message, type = "info") => {
         setNotification({
             open: true,
             message,
-            type
+            type,
         });
     };
 
     // Close notification
     const handleCloseNotification = (event, reason) => {
-        if (reason === 'clickaway') {
+        if (reason === "clickaway") {
             return;
         }
         setNotification({ ...notification, open: false });
@@ -177,8 +181,8 @@ const TestMethodForm = (props) => {
             transition: {
                 when: "beforeChildren",
                 staggerChildren: 0.1,
-            }
-        }
+            },
+        },
     };
 
     const itemVariants = {
@@ -186,8 +190,8 @@ const TestMethodForm = (props) => {
         visible: {
             y: 0,
             opacity: 1,
-            transition: { duration: 0.4 }
-        }
+            transition: { duration: 0.4 },
+        },
     };
 
     return (
@@ -199,11 +203,7 @@ const TestMethodForm = (props) => {
             sx={{ width: "100%" }}
         >
             {/* Search section */}
-            <Box
-                component={motion.div}
-                variants={itemVariants}
-                sx={{ mb: 3 }}
-            >
+            <Box component={motion.div} variants={itemVariants} sx={{ mb: 3 }}>
                 <TestSearchForm
                     onSearch={handleTestSearch}
                     recentSearches={recentSearches}
@@ -220,21 +220,21 @@ const TestMethodForm = (props) => {
                 variants={itemVariants}
                 sx={{
                     mb: 3,
-                    display: 'flex',
-                    flexDirection: { xs: 'column', md: 'row' },
-                    justifyContent: 'space-between',
-                    alignItems: { xs: 'flex-start', md: 'center' },
-                    gap: 2
+                    display: "flex",
+                    flexDirection: { xs: "column", md: "row" },
+                    justifyContent: "space-between",
+                    alignItems: { xs: "flex-start", md: "center" },
+                    gap: 2,
                 }}
             >
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                     <Typography
                         variant="subtitle1"
                         fontWeight={600}
                         sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 1
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1,
                         }}
                     >
                         <ScienceIcon color="primary" />
@@ -247,7 +247,7 @@ const TestMethodForm = (props) => {
                                 variant="outlined"
                                 sx={{
                                     fontWeight: 600,
-                                    borderRadius: 1
+                                    borderRadius: 1,
                                 }}
                             />
                         )}
@@ -255,20 +255,28 @@ const TestMethodForm = (props) => {
 
                     {/* Additional filters and sorts */}
                     <Stack direction="row" spacing={1} alignItems="center">
-                        <Tooltip title={`Sort by name (${sortOrder === "name_asc" ? "A-Z" : "Z-A"})`}>
+                        <Tooltip
+                            title={`Sort by name (${sortOrder === "name_asc" ? "A-Z" : "Z-A"})`}
+                        >
                             <Button
                                 size="small"
                                 variant="outlined"
                                 color="inherit"
                                 onClick={toggleSortOrder}
                                 startIcon={<SortIcon />}
-                                endIcon={sortOrder === "name_asc" ? <ArrowUpwardIcon /> : <ArrowDownwardIcon />}
+                                endIcon={
+                                    sortOrder === "name_asc" ? (
+                                        <ArrowUpwardIcon />
+                                    ) : (
+                                        <ArrowDownwardIcon />
+                                    )
+                                }
                                 sx={{
                                     borderRadius: 1.5,
-                                    textTransform: 'none',
-                                    '& .MuiButton-endIcon': {
+                                    textTransform: "none",
+                                    "& .MuiButton-endIcon": {
                                         ml: 0.5,
-                                    }
+                                    },
                                 }}
                             >
                                 {sortOrder === "name_asc" ? "A-Z" : "Z-A"}
@@ -284,7 +292,7 @@ const TestMethodForm = (props) => {
                                 startIcon={<FilterIcon />}
                                 sx={{
                                     borderRadius: 1.5,
-                                    textTransform: 'none'
+                                    textTransform: "none",
                                 }}
                             >
                                 Filters
@@ -299,12 +307,12 @@ const TestMethodForm = (props) => {
                     color="primary"
                     showZero
                     sx={{
-                        '& .MuiBadge-badge': {
-                            fontSize: '0.75rem',
+                        "& .MuiBadge-badge": {
+                            fontSize: "0.75rem",
                             fontWeight: 600,
                             minWidth: 20,
                             height: 20,
-                        }
+                        },
                     }}
                 >
                     <Chip
@@ -315,47 +323,39 @@ const TestMethodForm = (props) => {
                         sx={{
                             fontWeight: 500,
                             borderRadius: 1.5,
-                            px: 1
+                            px: 1,
                         }}
                     />
                 </Badge>
             </Box>
 
             {/* Main content area */}
-            <Grid
-                container
-                spacing={3}
-                component={motion.div}
-                variants={itemVariants}
-            >
+            <Grid container spacing={3} component={motion.div} variants={itemVariants}>
                 {/* Tests catalog */}
-                <Grid
-                    size={{ xs: 12, md: 7, lg: 8 }}
-                    order={{ xs: 2, md: 1 }}
-                >
+                <Grid size={{ xs: 12, md: 7, lg: 8 }} order={{ xs: 2, md: 1 }}>
                     <Paper
                         elevation={0}
                         sx={{
-                            height: '100%',
+                            height: "100%",
                             borderRadius: 2,
-                            border: '1px solid',
+                            border: "1px solid",
                             borderColor: theme.palette.divider,
                             p: 2,
-                            overflow: 'hidden',
-                            display: 'flex',
-                            flexDirection: 'column'
+                            overflow: "hidden",
+                            display: "flex",
+                            flexDirection: "column",
                         }}
                     >
                         {loading ? (
                             // Loading state
                             <Box
                                 sx={{
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    alignItems: "center",
+                                    justifyContent: "center",
                                     flex: 1,
-                                    py: 8
+                                    py: 8,
                                 }}
                             >
                                 <CircularProgress size={50} sx={{ mb: 3 }} />
@@ -370,19 +370,19 @@ const TestMethodForm = (props) => {
                                     display: "flex",
                                     flexDirection: "column",
                                     gap: 2,
-                                    maxHeight: { xs: '500px', lg: '60vh' },
-                                    overflowY: 'auto',
+                                    maxHeight: { xs: "500px", lg: "60vh" },
+                                    overflowY: "auto",
                                     pr: 1,
                                     flex: 1,
-                                    '&::-webkit-scrollbar': {
-                                        width: '6px',
+                                    "&::-webkit-scrollbar": {
+                                        width: "6px",
                                     },
-                                    '&::-webkit-scrollbar-track': {
-                                        background: 'transparent',
+                                    "&::-webkit-scrollbar-track": {
+                                        background: "transparent",
                                     },
-                                    '&::-webkit-scrollbar-thumb': {
+                                    "&::-webkit-scrollbar-thumb": {
                                         background: alpha(theme.palette.primary.main, 0.2),
-                                        borderRadius: '3px',
+                                        borderRadius: "3px",
                                     },
                                 }}
                             >
@@ -397,7 +397,11 @@ const TestMethodForm = (props) => {
                                             transition={{ duration: 0.3 }}
                                         >
                                             <TestCard
-                                                selected={props.tests?.findIndex((item) => item.id === test.id) !== -1}
+                                                selected={
+                                                    props.tests?.findIndex(
+                                                        (item) => item.id === test.id
+                                                    ) !== -1
+                                                }
                                                 test={test}
                                                 onSelect={toggleSelect}
                                             />
@@ -409,26 +413,30 @@ const TestMethodForm = (props) => {
                             // Empty state
                             <Box
                                 sx={{
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    alignItems: "center",
+                                    justifyContent: "center",
                                     py: 6,
-                                    textAlign: 'center',
-                                    flex: 1
+                                    textAlign: "center",
+                                    flex: 1,
                                 }}
                             >
                                 <SearchIcon
                                     sx={{
                                         fontSize: 60,
                                         color: alpha(theme.palette.text.secondary, 0.5),
-                                        mb: 2
+                                        mb: 2,
                                     }}
                                 />
                                 <Typography variant="h6" color="text.secondary" gutterBottom>
                                     No tests found
                                 </Typography>
-                                <Typography variant="body2" color="text.secondary" sx={{ mb: 3, maxWidth: 400, mx: 'auto' }}>
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    sx={{ mb: 3, maxWidth: 400, mx: "auto" }}
+                                >
                                     {Object.keys(searchParams).length > 0 && searchParams.search
                                         ? `No tests match your search for "${searchParams.search}". Try adjusting your search or filters.`
                                         : "Use the search bar above to find tests by name, category, or method."}
@@ -441,7 +449,7 @@ const TestMethodForm = (props) => {
                                         onClick={() => handleTestSearch({})}
                                         sx={{
                                             borderRadius: 1.5,
-                                            textTransform: 'none'
+                                            textTransform: "none",
                                         }}
                                     >
                                         Show All Tests
@@ -453,21 +461,18 @@ const TestMethodForm = (props) => {
                 </Grid>
 
                 {/* Selected tests sidebar */}
-                <Grid
-                    size={{ xs: 12, md: 5, lg: 4 }}
-                    order={{ xs: 1, md: 2 }}
-                >
-                    <Box component="form" onSubmit={props.onSubmit} sx={{ height: '100%' }}>
+                <Grid size={{ xs: 12, md: 5, lg: 4 }} order={{ xs: 1, md: 2 }}>
+                    <Box component="form" onSubmit={props.onSubmit} sx={{ height: "100%" }}>
                         <Paper
                             elevation={0}
                             sx={{
                                 borderRadius: 2,
-                                border: '1px solid',
+                                border: "1px solid",
                                 borderColor: theme.palette.divider,
-                                overflow: 'hidden',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                height: '100%'
+                                overflow: "hidden",
+                                display: "flex",
+                                flexDirection: "column",
+                                height: "100%",
                             }}
                         >
                             {/* Order header */}
@@ -475,14 +480,14 @@ const TestMethodForm = (props) => {
                                 sx={{
                                     p: 2,
                                     bgcolor: alpha(theme.palette.primary.main, 0.05),
-                                    borderBottom: '1px solid',
+                                    borderBottom: "1px solid",
                                     borderColor: theme.palette.divider,
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center'
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    alignItems: "center",
                                 }}
                             >
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                                     <ShoppingCartIcon color="primary" />
                                     <Typography variant="subtitle1" fontWeight={600}>
                                         Selected Tests
@@ -494,7 +499,7 @@ const TestMethodForm = (props) => {
                                         sx={{
                                             fontWeight: 600,
                                             minWidth: 28,
-                                            height: 24
+                                            height: 24,
                                         }}
                                     />
                                 </Box>
@@ -507,15 +512,15 @@ const TestMethodForm = (props) => {
                                     startIcon={<CheckCircleIcon />}
                                     sx={{
                                         borderRadius: 1.5,
-                                        textTransform: 'none',
+                                        textTransform: "none",
                                         px: { xs: 2, md: 3 },
-                                        boxShadow: 'none',
-                                        '&:hover': {
-                                            boxShadow: theme.shadows[2]
-                                        }
+                                        boxShadow: "none",
+                                        "&:hover": {
+                                            boxShadow: theme.shadows[2],
+                                        },
                                     }}
                                 >
-                                    {isTablet ? 'Continue' : 'Continue with Selection'}
+                                    {isTablet ? "Continue" : "Continue with Selection"}
                                 </Button>
                             </Box>
 
@@ -523,19 +528,20 @@ const TestMethodForm = (props) => {
                             <Box
                                 sx={{
                                     flex: 1,
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    justifyContent: props.tests.length === 0 ? 'center' : 'flex-start',
-                                    overflowY: 'auto',
-                                    '&::-webkit-scrollbar': {
-                                        width: '6px',
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    justifyContent:
+                                        props.tests.length === 0 ? "center" : "flex-start",
+                                    overflowY: "auto",
+                                    "&::-webkit-scrollbar": {
+                                        width: "6px",
                                     },
-                                    '&::-webkit-scrollbar-track': {
-                                        background: 'transparent',
+                                    "&::-webkit-scrollbar-track": {
+                                        background: "transparent",
                                     },
-                                    '&::-webkit-scrollbar-thumb': {
+                                    "&::-webkit-scrollbar-thumb": {
                                         background: alpha(theme.palette.primary.main, 0.2),
-                                        borderRadius: '3px',
+                                        borderRadius: "3px",
                                     },
                                 }}
                             >
@@ -543,22 +549,26 @@ const TestMethodForm = (props) => {
                                     // Empty state
                                     <Box
                                         sx={{
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
+                                            display: "flex",
+                                            flexDirection: "column",
+                                            alignItems: "center",
+                                            justifyContent: "center",
                                             p: 3,
-                                            textAlign: 'center'
+                                            textAlign: "center",
                                         }}
                                     >
                                         <ShoppingCartIcon
                                             sx={{
                                                 fontSize: 50,
                                                 color: alpha(theme.palette.text.secondary, 0.5),
-                                                mb: 2
+                                                mb: 2,
                                             }}
                                         />
-                                        <Typography variant="h6" color="text.secondary" gutterBottom>
+                                        <Typography
+                                            variant="h6"
+                                            color="text.secondary"
+                                            gutterBottom
+                                        >
                                             No tests selected
                                         </Typography>
                                         <Typography variant="body2" color="text.secondary">
@@ -572,23 +582,29 @@ const TestMethodForm = (props) => {
                                             <motion.div
                                                 key={`selected-${test.id}`}
                                                 initial={{ opacity: 0, height: 0 }}
-                                                animate={{ opacity: 1, height: 'auto' }}
+                                                animate={{ opacity: 1, height: "auto" }}
                                                 exit={{ opacity: 0, height: 0 }}
                                                 transition={{ duration: 0.3 }}
                                             >
                                                 <Box
                                                     sx={{
                                                         p: 2,
-                                                        borderBottom: '1px solid',
-                                                        borderColor: alpha(theme.palette.divider, 0.5),
-                                                        display: 'flex',
-                                                        justifyContent: 'space-between',
-                                                        alignItems: 'flex-start',
-                                                        gap: 2
+                                                        borderBottom: "1px solid",
+                                                        borderColor: alpha(
+                                                            theme.palette.divider,
+                                                            0.5
+                                                        ),
+                                                        display: "flex",
+                                                        justifyContent: "space-between",
+                                                        alignItems: "flex-start",
+                                                        gap: 2,
                                                     }}
                                                 >
                                                     <Box>
-                                                        <Typography variant="subtitle2" fontWeight={600}>
+                                                        <Typography
+                                                            variant="subtitle2"
+                                                            fontWeight={600}
+                                                        >
                                                             {test.name}
                                                         </Typography>
 
@@ -597,13 +613,19 @@ const TestMethodForm = (props) => {
                                                             color="text.secondary"
                                                             sx={{
                                                                 mt: 0.5,
-                                                                display: 'flex',
-                                                                alignItems: 'center',
-                                                                gap: 0.5
+                                                                display: "flex",
+                                                                alignItems: "center",
+                                                                gap: 0.5,
                                                             }}
                                                         >
-                                                            <ScienceIcon fontSize="small" color="action" />
-                                                            Turnaround: {test.turnaroundTime} {parseInt(test.turnaroundTime, 10) === 1 ? 'day' : 'days'}
+                                                            <ScienceIcon
+                                                                fontSize="small"
+                                                                color="action"
+                                                            />
+                                                            Turnaround: {test.turnaroundTime}{" "}
+                                                            {parseInt(test.turnaroundTime, 10) === 1
+                                                                ? "day"
+                                                                : "days"}
                                                         </Typography>
                                                     </Box>
 
@@ -616,7 +638,7 @@ const TestMethodForm = (props) => {
                                                             minWidth: 0,
                                                             borderRadius: 1.5,
                                                             px: 1.5,
-                                                            textTransform: 'none'
+                                                            textTransform: "none",
                                                         }}
                                                     >
                                                         Remove
@@ -633,9 +655,9 @@ const TestMethodForm = (props) => {
                                 <Box
                                     sx={{
                                         p: 2,
-                                        borderTop: '1px solid',
+                                        borderTop: "1px solid",
                                         borderColor: theme.palette.divider,
-                                        bgcolor: theme.palette.background.paper
+                                        bgcolor: theme.palette.background.paper,
                                     }}
                                 >
                                     <Alert
@@ -644,18 +666,24 @@ const TestMethodForm = (props) => {
                                         icon={<InfoIcon />}
                                         sx={{
                                             borderRadius: 1.5,
-                                            '& .MuiAlert-icon': {
-                                                alignItems: 'center'
-                                            }
+                                            "& .MuiAlert-icon": {
+                                                alignItems: "center",
+                                            },
                                         }}
                                     >
-                                        You've selected {props.tests.length} {props.tests.length === 1 ? 'test' : 'tests'} for this order.
+                                        You&apos;ve selected {props.tests.length}{" "}
+                                        {props.tests.length === 1 ? "test" : "tests"} for this
+                                        order.
                                         {props.tests.length > 0 && (
                                             <Button
                                                 color="info"
                                                 size="small"
                                                 type="submit"
-                                                sx={{ ml: 1, textTransform: 'none', fontWeight: 600 }}
+                                                sx={{
+                                                    ml: 1,
+                                                    textTransform: "none",
+                                                    fontWeight: 600,
+                                                }}
                                             >
                                                 Continue
                                             </Button>
@@ -673,7 +701,7 @@ const TestMethodForm = (props) => {
                 open={notification.open}
                 autoHideDuration={4000}
                 onClose={handleCloseNotification}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
                 slots={{ transition: Fade }}
             >
                 <Alert
@@ -681,11 +709,11 @@ const TestMethodForm = (props) => {
                     severity={notification.type}
                     variant="filled"
                     sx={{
-                        width: '100%',
+                        width: "100%",
                         boxShadow: theme.shadows[3],
-                        '& .MuiAlert-icon': {
-                            alignItems: 'center'
-                        }
+                        "& .MuiAlert-icon": {
+                            alignItems: "center",
+                        },
                     }}
                 >
                     {notification.message}

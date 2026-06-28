@@ -13,10 +13,10 @@ const TestsRequested = ({ tests = [] }) => (
         variants={itemVariants}
         sx={{
             mb: 4,
-            '@media print': {
-                marginBottom: '3mm !important',
-                pageBreakInside: 'avoid'
-            }
+            "@media print": {
+                marginBottom: "3mm !important",
+                pageBreakInside: "avoid",
+            },
         }}
     >
         <Typography
@@ -24,23 +24,23 @@ const TestsRequested = ({ tests = [] }) => (
             fontWeight={600}
             sx={{
                 mb: 2,
-                display: 'flex',
-                alignItems: 'center',
+                display: "flex",
+                alignItems: "center",
                 gap: 1,
-                '@media print': {
-                    fontSize: '10px !important',
-                    fontWeight: 'bold !important',
-                    marginBottom: '2mm !important',
-                    color: '#000 !important'
-                }
+                "@media print": {
+                    fontSize: "10px !important",
+                    fontWeight: "bold !important",
+                    marginBottom: "2mm !important",
+                    color: "#000 !important",
+                },
             }}
         >
             <ScienceIcon
                 color="primary"
                 sx={{
-                    '@media print': {
-                        display: 'none !important'
-                    }
+                    "@media print": {
+                        display: "none !important",
+                    },
                 }}
             />
             Analysis Requested
@@ -48,14 +48,14 @@ const TestsRequested = ({ tests = [] }) => (
 
         <Box
             sx={{
-                display: 'flex',
-                flexWrap: 'wrap',
+                display: "flex",
+                flexWrap: "wrap",
                 gap: 1,
                 ml: 4,
-                '@media print': {
-                    marginLeft: '0 !important',
-                    gap: '1mm !important'
-                }
+                "@media print": {
+                    marginLeft: "0 !important",
+                    gap: "1mm !important",
+                },
             }}
         >
             {tests.map((test, index) => (
@@ -68,15 +68,15 @@ const TestsRequested = ({ tests = [] }) => (
                         fontWeight: 500,
                         borderRadius: 1,
                         height: 32,
-                        '@media print': {
-                            fontSize: '7px !important',
-                            height: 'auto !important',
-                            padding: '1mm !important',
-                            border: '1px solid #000 !important',
-                            borderRadius: '2px !important',
-                            backgroundColor: '#f5f5f5 !important',
-                            color: '#000 !important'
-                        }
+                        "@media print": {
+                            fontSize: "7px !important",
+                            height: "auto !important",
+                            padding: "1mm !important",
+                            border: "1px solid #000 !important",
+                            borderRadius: "2px !important",
+                            backgroundColor: "#f5f5f5 !important",
+                            color: "#000 !important",
+                        },
                     }}
                 />
             ))}

@@ -13,7 +13,7 @@ import {
     useTheme,
     alpha,
     Collapse,
-    IconButton
+    IconButton,
 } from "@mui/material";
 import TestMethodForm from "../Components/TestMethodForm";
 import { useSubmitForm } from "@/Services/api";
@@ -24,7 +24,7 @@ import {
     ErrorOutline as ErrorIcon,
     Save as SaveIcon,
     Close as CloseIcon,
-    Info as InfoIcon
+    Info as InfoIcon,
 } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -38,18 +38,14 @@ const TestMethod = ({ auth, order, step }) => {
     const [savedSuccess, setSavedSuccess] = useState(false);
 
     // Form state management
-    const {
-        data,
-        setData,
-        submit,
-        errors,
-        clearErrors,
-        processing
-    } = useSubmitForm({ ...order, _method: "put" }, route("orders.update", { order: order.id, step }));
+    const { data, setData, submit, errors, clearErrors, processing } = useSubmitForm(
+        { ...order, _method: "put" },
+        route("orders.update", { order: order.id, step })
+    );
 
     // Handle form field changes
     const handleChange = (key, value) => {
-        setData(previousData => ({ ...previousData, [key]: value }));
+        setData((previousData) => ({ ...previousData, [key]: value }));
 
         // Clear any existing errors for this field
         if (errors[key]) {
@@ -78,7 +74,7 @@ const TestMethod = ({ auth, order, step }) => {
             },
             onError: () => {
                 setIsSubmitting(false);
-            }
+            },
         });
     };
 
@@ -100,16 +96,12 @@ const TestMethod = ({ auth, order, step }) => {
         visible: {
             opacity: 1,
             y: 0,
-            transition: { duration: 0.4 }
-        }
+            transition: { duration: 0.4 },
+        },
     };
 
     return (
-        <EditLayout
-            step={step}
-            auth={auth}
-            id={order.id}
-        >
+        <EditLayout step={step} auth={auth} id={order.id}>
             <Box
                 component="form"
                 id="current-step-form"
@@ -121,7 +113,7 @@ const TestMethod = ({ auth, order, step }) => {
                     {savedSuccess && (
                         <motion.div
                             initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
+                            animate={{ opacity: 1, height: "auto" }}
                             exit={{ opacity: 0, height: 0 }}
                             transition={{ duration: 0.3 }}
                         >
@@ -131,9 +123,9 @@ const TestMethod = ({ auth, order, step }) => {
                                 sx={{
                                     mb: 3,
                                     borderRadius: 1,
-                                    '& .MuiAlert-icon': {
-                                        alignItems: 'center'
-                                    }
+                                    "& .MuiAlert-icon": {
+                                        alignItems: "center",
+                                    },
                                 }}
                                 onClose={() => setSavedSuccess(false)}
                             >
@@ -148,7 +140,7 @@ const TestMethod = ({ auth, order, step }) => {
                     {errors.tests && (
                         <motion.div
                             initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
+                            animate={{ opacity: 1, height: "auto" }}
                             exit={{ opacity: 0, height: 0 }}
                             transition={{ duration: 0.3 }}
                         >
@@ -158,11 +150,11 @@ const TestMethod = ({ auth, order, step }) => {
                                 sx={{
                                     mb: 3,
                                     borderRadius: 1,
-                                    '& .MuiAlert-icon': {
-                                        alignItems: 'center'
-                                    }
+                                    "& .MuiAlert-icon": {
+                                        alignItems: "center",
+                                    },
                                 }}
-                                onClose={() => clearErrors('tests')}
+                                onClose={() => clearErrors("tests")}
                             >
                                 {errors.tests || "Please select at least one test method"}
                             </Alert>
@@ -177,16 +169,16 @@ const TestMethod = ({ auth, order, step }) => {
                         sx={{
                             mb: 3,
                             borderColor: alpha(theme.palette.info.main, 0.3),
-                            backgroundColor: alpha(theme.palette.info.main, 0.05)
+                            backgroundColor: alpha(theme.palette.info.main, 0.05),
                         }}
                     >
-                        <CardContent sx={{ position: 'relative', pb: 2 }}>
+                        <CardContent sx={{ position: "relative", pb: 2 }}>
                             <IconButton
                                 aria-label="close"
                                 onClick={toggleTips}
                                 size="small"
                                 sx={{
-                                    position: 'absolute',
+                                    position: "absolute",
                                     right: 8,
                                     top: 8,
                                     color: theme.palette.grey[500],
@@ -195,7 +187,7 @@ const TestMethod = ({ auth, order, step }) => {
                                 <CloseIcon fontSize="small" />
                             </IconButton>
 
-                            <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1, mb: 1 }}>
+                            <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1, mb: 1 }}>
                                 <InfoIcon color="info" sx={{ mt: 0.5 }} />
                                 <Typography variant="subtitle1" fontWeight={600} color="info.main">
                                     How to Select Test Methods
@@ -203,7 +195,9 @@ const TestMethod = ({ auth, order, step }) => {
                             </Box>
 
                             <Typography variant="body2" color="text.secondary" paragraph>
-                                Select one or more tests from the available options below. The selected tests will determine what information needs to be collected in the following steps.
+                                Select one or more tests from the available options below. The
+                                selected tests will determine what information needs to be collected
+                                in the following steps.
                             </Typography>
 
                             <Box component="ul" sx={{ m: 0, pl: 3 }}>
@@ -219,7 +213,8 @@ const TestMethod = ({ auth, order, step }) => {
                                 </Box>
                                 <Box component="li">
                                     <Typography variant="body2" color="text.secondary">
-                                        Remember to save your changes before proceeding to the next step
+                                        Remember to save your changes before proceeding to the next
+                                        step
                                     </Typography>
                                 </Box>
                             </Box>
@@ -241,9 +236,9 @@ const TestMethod = ({ auth, order, step }) => {
                             fontWeight={600}
                             sx={{
                                 mb: 1,
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 1
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 1,
                             }}
                         >
                             <ScienceIcon fontSize="small" color="primary" />
@@ -252,14 +247,14 @@ const TestMethod = ({ auth, order, step }) => {
 
                         <Box
                             sx={{
-                                display: 'flex',
-                                flexWrap: 'wrap',
+                                display: "flex",
+                                flexWrap: "wrap",
                                 gap: 1,
                                 p: 2,
                                 borderRadius: 1,
                                 bgcolor: alpha(theme.palette.primary.main, 0.05),
-                                border: '1px solid',
-                                borderColor: alpha(theme.palette.primary.main, 0.1)
+                                border: "1px solid",
+                                borderColor: alpha(theme.palette.primary.main, 0.1),
                             }}
                         >
                             {data.tests.map((test, index) => (
@@ -271,7 +266,7 @@ const TestMethod = ({ auth, order, step }) => {
                                     icon={<ScienceIcon fontSize="small" />}
                                     sx={{
                                         fontWeight: 500,
-                                        borderRadius: 1
+                                        borderRadius: 1,
                                     }}
                                 />
                             ))}
@@ -291,9 +286,9 @@ const TestMethod = ({ auth, order, step }) => {
                         sx={{
                             p: 2,
                             borderRadius: 2,
-                            border: '1px solid',
+                            border: "1px solid",
                             borderColor: theme.palette.divider,
-                            backgroundColor: theme.palette.background.paper
+                            backgroundColor: theme.palette.background.paper,
                         }}
                     >
                         <TestMethodForm
@@ -306,10 +301,10 @@ const TestMethod = ({ auth, order, step }) => {
 
                         <Box
                             sx={{
-                                display: 'flex',
-                                justifyContent: 'flex-end',
-                                alignItems: 'center',
-                                gap: 2
+                                display: "flex",
+                                justifyContent: "flex-end",
+                                alignItems: "center",
+                                gap: 2,
                             }}
                         >
                             <Button
@@ -318,10 +313,10 @@ const TestMethod = ({ auth, order, step }) => {
                                 onClick={toggleTips}
                                 sx={{
                                     borderRadius: 1,
-                                    textTransform: 'none'
+                                    textTransform: "none",
                                 }}
                             >
-                                {showTips ? 'Hide Tips' : 'Show Tips'}
+                                {showTips ? "Hide Tips" : "Show Tips"}
                             </Button>
 
                             <Button
@@ -329,17 +324,23 @@ const TestMethod = ({ auth, order, step }) => {
                                 variant="contained"
                                 color="primary"
                                 disabled={isSubmitting || processing}
-                                startIcon={isSubmitting || processing ? <CircularProgress size={20} color="inherit" /> : <SaveIcon />}
+                                startIcon={
+                                    isSubmitting || processing ? (
+                                        <CircularProgress size={20} color="inherit" />
+                                    ) : (
+                                        <SaveIcon />
+                                    )
+                                }
                                 sx={{
                                     borderRadius: 1,
-                                    textTransform: 'none',
-                                    boxShadow: 'none',
-                                    '&:hover': {
-                                        boxShadow: theme.shadows[2]
-                                    }
+                                    textTransform: "none",
+                                    boxShadow: "none",
+                                    "&:hover": {
+                                        boxShadow: theme.shadows[2],
+                                    },
                                 }}
                             >
-                                {isSubmitting || processing ? 'Saving...' : 'Save Test Methods'}
+                                {isSubmitting || processing ? "Saving..." : "Save Test Methods"}
                             </Button>
                         </Box>
                     </Paper>

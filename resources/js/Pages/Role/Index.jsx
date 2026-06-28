@@ -1,23 +1,23 @@
-import React, {useState} from "react";
-import {Button, IconButton, Paper, Stack} from "@mui/material";
-import AddIcon from '@mui/icons-material/Add';
-import {Delete, Edit} from "@mui/icons-material";
+import React, { useState } from "react";
+import { Button, IconButton, Paper, Stack } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import { Delete, Edit } from "@mui/icons-material";
 import PageHeader from "@/Components/PageHeader";
 import TableLayout from "@/Layouts/TableLayout";
-import {usePageReload} from "@/Services/api";
+import { usePageReload } from "@/Services/api";
 import AdminLayout from "@/Layouts/AuthenticatedLayout";
-import {router} from "@inertiajs/react";
+import { router } from "@inertiajs/react";
 import DeleteForm from "@/Components/DeleteForm.jsx";
 
 const breadcrumbs = [
     {
         title: "Roles",
         link: "",
-        icon: null
+        icon: null,
     },
 ];
 
-function Index({auth, roles: {data: rolesData, ...pagination}, status, request}) {
+function Index({ auth, roles: { data: rolesData, ...pagination }, status, request }) {
     const {
         data,
         processing,
@@ -25,12 +25,12 @@ function Index({auth, roles: {data: rolesData, ...pagination}, status, request})
         onPageSizeChange,
         onOrderByChange,
         onFilterChange,
-        onPageChange
+        onPageChange,
     } = usePageReload(request, ["roles"]);
     const [role, setRole] = useState();
     const [openDeleteForm, setOpenDeleteForm] = useState(false);
 
-    const handleAdd = e => e.preventDefault() || router.visit(route("admin.roles.create"));
+    const handleAdd = (e) => e.preventDefault() || router.visit(route("admin.roles.create"));
     const handleOpenDeleteForm = (role) => () => setRole(role) || setOpenDeleteForm(true);
     const handleCloseDeleteForm = () => resetRole() || setOpenDeleteForm(false);
 
@@ -45,7 +45,7 @@ function Index({auth, roles: {data: rolesData, ...pagination}, status, request})
                 name: "name",
                 label: "Name",
                 type: "text",
-                value: data?.filters?.name
+                value: data?.filters?.name,
             },
             sortable: true,
         },
@@ -53,34 +53,52 @@ function Index({auth, roles: {data: rolesData, ...pagination}, status, request})
             field: "id",
             title: "#",
             type: "actions",
-            render: (row) => <Stack direction="row" spacing={1}>
-                <IconButton onClick={handleEdit(row.id)} href={route("admin.roles.edit", row.id)}><Edit/></IconButton>
-                <IconButton onClick={handleOpenDeleteForm(row)}><Delete/></IconButton>
-            </Stack>
-        }
+            render: (row) => (
+                <Stack direction="row" spacing={1}>
+                    <IconButton
+                        onClick={handleEdit(row.id)}
+                        href={route("admin.roles.edit", row.id)}
+                    >
+                        <Edit />
+                    </IconButton>
+                    <IconButton onClick={handleOpenDeleteForm(row)}>
+                        <Delete />
+                    </IconButton>
+                </Stack>
+            ),
+        },
     ];
 
-    const handleEdit = (id) => e => e.preventDefault() || router.visit(route("admin.roles.edit", id))
-
+    const handleEdit = (id) => (e) =>
+        e.preventDefault() || router.visit(route("admin.roles.edit", id));
 
     const handlePage = (e) => e.preventDefault() || reload();
 
-    const handleDelete = () => router.post(route("admin.roles.destroy", role.id), {_method: "delete"}, {onSuccess: handleCloseDeleteForm});
+    const handleDelete = () =>
+        router.post(
+            route("admin.roles.destroy", role.id),
+            { _method: "delete" },
+            { onSuccess: handleCloseDeleteForm }
+        );
 
-    return (<>
+    return (
+        <>
             <PageHeader
                 title="Roles"
                 actions={[
-                    <Button key="add" variant="contained"
-                            href={route("admin.roles.create")}
-                            onClick={handleAdd}
-                            color="success"
-                            startIcon={<AddIcon/>}>
+                    <Button
+                        key="add"
+                        variant="contained"
+                        href={route("admin.roles.create")}
+                        onClick={handleAdd}
+                        color="success"
+                        startIcon={<AddIcon />}
+                    >
                         Add
-                    </Button>
+                    </Button>,
                 ]}
             />
-            <Paper sx={{mt: "3em", p: "1rem"}}>
+            <Paper sx={{ mt: "3em", p: "1rem" }}>
                 <TableLayout
                     columns={columns}
                     data={rolesData}
@@ -94,25 +112,31 @@ function Index({auth, roles: {data: rolesData, ...pagination}, status, request})
                     tableModel={{
                         orderBy: data.orderBy ?? {
                             field: "id",
-                            type: "asc"
+                            type: "asc",
                         },
                         page: data.page,
-                        filter: data.filters
+                        filter: data.filters,
                     }}
                     pageSize={{
                         defaultValue: data.pageSize ?? 10,
-                        onChange: onPageSizeChange
+                        onChange: onPageSizeChange,
                     }}
                 />
             </Paper>
-            <DeleteForm agreeCB={handleDelete}
-                        disAgreeCB={handleCloseDeleteForm}
-                        openDelete={openDeleteForm}
-                        title={role?.name}/>
+            <DeleteForm
+                agreeCB={handleDelete}
+                disAgreeCB={handleCloseDeleteForm}
+                openDelete={openDeleteForm}
+                title={role?.name}
+            />
         </>
     );
 }
 
-Index.layout = (page) => <AdminLayout auth={page.props.auth} breadcrumbs={breadcrumbs} children={page}/>;
+Index.layout = (page) => (
+    <AdminLayout auth={page.props.auth} breadcrumbs={breadcrumbs}>
+        {page}
+    </AdminLayout>
+);
 
 export default Index;

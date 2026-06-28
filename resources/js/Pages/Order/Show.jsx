@@ -31,19 +31,19 @@ const Show = ({ order: { consents, ...restOrder }, patients = [] }) => {
             animate="visible"
             sx={{
                 width: "100%",
-                '@media print': {
+                "@media print": {
                     // A5 paper dimensions and settings
-                    '@page': {
-                        size: 'A5',
-                        margin: '10mm'
+                    "@page": {
+                        size: "A5",
+                        margin: "10mm",
                     },
                     margin: 0,
                     padding: 0,
-                    fontSize: '9px',
+                    fontSize: "9px",
                     lineHeight: 1.2,
-                    color: '#000 !important',
-                    backgroundColor: '#fff !important'
-                }
+                    color: "#000 !important",
+                    backgroundColor: "#fff !important",
+                },
             }}
         >
             <Paper
@@ -53,17 +53,17 @@ const Show = ({ order: { consents, ...restOrder }, patients = [] }) => {
                     mt: 2,
                     mb: 4,
                     borderRadius: 2,
-                    border: '1px solid',
+                    border: "1px solid",
                     borderColor: theme.palette.divider,
-                    overflow: 'hidden',
-                    '@media print': {
-                        boxShadow: 'none !important',
-                        border: 'none !important',
-                        borderRadius: '0 !important',
-                        margin: '0 !important',
-                        padding: '5mm !important',
-                        backgroundColor: '#fff !important'
-                    }
+                    overflow: "hidden",
+                    "@media print": {
+                        boxShadow: "none !important",
+                        border: "none !important",
+                        borderRadius: "0 !important",
+                        margin: "0 !important",
+                        padding: "5mm !important",
+                        backgroundColor: "#fff !important",
+                    },
                 }}
             >
                 <OrderHeader order={restOrder} />
@@ -73,15 +73,20 @@ const Show = ({ order: { consents, ...restOrder }, patients = [] }) => {
                 <PatientDetailsCard order={restOrder} />
 
                 {patients.length > 1 && (
-                    <AllPatientsCard patients={patients} mainPatientId={restOrder.main_patient_id} />
-                )}
-
-                {patients.length > 0 && restOrder.order_items && restOrder.order_items.length > 0 && (
-                    <PatientTestAssignmentCard
-                        orderItems={restOrder.order_items}
+                    <AllPatientsCard
+                        patients={patients}
                         mainPatientId={restOrder.main_patient_id}
                     />
                 )}
+
+                {patients.length > 0 &&
+                    restOrder.order_items &&
+                    restOrder.order_items.length > 0 && (
+                        <PatientTestAssignmentCard
+                            orderItems={restOrder.order_items}
+                            mainPatientId={restOrder.main_patient_id}
+                        />
+                    )}
 
                 {restOrder?.orderForms?.length > 0 && (
                     <RequestFormCard orderForms={restOrder.orderForms} />
@@ -102,7 +107,7 @@ const breadcrumbs = [
     {
         title: "Orders",
         link: route("orders.index"),
-        icon: null
+        icon: null,
     },
 ];
 
@@ -115,11 +120,12 @@ Show.layout = (page) => (
             {
                 title: "Order #" + page.props.order.id,
                 link: "",
-                icon: null
+                icon: null,
             },
         ]}
-        children={page}
-    />
+    >
+        {page}
+    </ClientLayout>
 );
 
 export default Show;

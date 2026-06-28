@@ -53,11 +53,11 @@ const Finalize = ({ auth, order, step, patients = [] }) => {
     const [expandedSections, setExpandedSections] = useState({
         tests: true,
         patient: true,
-        allPatients: patients.length > 1,  // Expand if multiple patients
+        allPatients: patients.length > 1, // Expand if multiple patients
         patientTestAssignment: true,
         samples: true,
         forms: true,
-        consent: true
+        consent: true,
     });
 
     const [showHelp, setShowHelp] = useState(false);
@@ -65,14 +65,7 @@ const Finalize = ({ auth, order, step, patients = [] }) => {
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
     // Setup form with existing data
-    const {
-        data,
-        submit,
-        errors,
-        setError,
-        clearErrors,
-        processing
-    } = useSubmitForm(
+    const { data, submit, errors, setError, clearErrors, processing } = useSubmitForm(
         { ...order, _method: "put", status: "requested" },
         route("orders.update", { order: order.id, step })
     );
@@ -96,18 +89,17 @@ const Finalize = ({ auth, order, step, patients = [] }) => {
         setShowConfirmDialog(false);
 
         // Reset all previous errors
-        Object.keys(errors).forEach(key => clearErrors(key));
+        Object.keys(errors).forEach((key) => clearErrors(key));
 
         // Create processed data with normalized consent structure
         const processedData = {
             ...data,
             consents: restConsents,
-            consentForm: consentForm
+            consentForm: consentForm,
         };
 
         // Validate the entire order with processed data
         if (validateFullOrder(processedData, setError)) {
-
             // Submit the order
             submit({
                 onSuccess: () => {
@@ -118,23 +110,23 @@ const Finalize = ({ auth, order, step, patients = [] }) => {
                     setTimeout(() => {
                         window.location.href = route("orders.index");
                     }, 5000);
-                }
+                },
             });
         } else {
             // Expand sections with errors for better visibility
             const sectionsWithErrors = {
-                tests: Object.keys(errors).some(key => key.startsWith('tests')),
-                patient: Object.keys(errors).some(key => key.startsWith('patient')),
-                samples: Object.keys(errors).some(key => key.startsWith('samples')),
-                forms: Object.keys(errors).some(key => key.startsWith('orderForms')),
-                consent: Object.keys(errors).some(key => key.startsWith('consents'))
+                tests: Object.keys(errors).some((key) => key.startsWith("tests")),
+                patient: Object.keys(errors).some((key) => key.startsWith("patient")),
+                samples: Object.keys(errors).some((key) => key.startsWith("samples")),
+                forms: Object.keys(errors).some((key) => key.startsWith("orderForms")),
+                consent: Object.keys(errors).some((key) => key.startsWith("consents")),
             };
 
-            setExpandedSections(prev => ({
+            setExpandedSections((prev) => ({
                 ...prev,
                 ...Object.entries(sectionsWithErrors)
                     .filter(([_, hasError]) => hasError)
-                    .reduce((acc, [section]) => ({ ...acc, [section]: true }), {})
+                    .reduce((acc, [section]) => ({ ...acc, [section]: true }), {}),
             }));
         }
     };
@@ -143,9 +135,9 @@ const Finalize = ({ auth, order, step, patients = [] }) => {
      * Toggle section expansion
      */
     const toggleSection = (section) => {
-        setExpandedSections(prev => ({
+        setExpandedSections((prev) => ({
             ...prev,
-            [section]: !prev[section]
+            [section]: !prev[section],
         }));
     };
 
@@ -161,15 +153,15 @@ const Finalize = ({ auth, order, step, patients = [] }) => {
      */
     const hasSectionErrors = (section) => {
         const errorKeyMappings = {
-            tests: 'tests',
-            patient: 'patient',
-            samples: 'samples',
-            forms: 'orderForms',
-            consent: 'consents'
+            tests: "tests",
+            patient: "patient",
+            samples: "samples",
+            forms: "orderForms",
+            consent: "consents",
         };
 
         const errorPrefix = errorKeyMappings[section];
-        return errorPrefix && Object.keys(errors).some(key => key.startsWith(errorPrefix));
+        return errorPrefix && Object.keys(errors).some((key) => key.startsWith(errorPrefix));
     };
 
     /**
@@ -177,53 +169,102 @@ const Finalize = ({ auth, order, step, patients = [] }) => {
      */
     const getSectionStatus = (section) => {
         if (hasSectionErrors(section)) {
-            return { color: 'error', label: 'Errors', icon: <ErrorIcon fontSize="small" /> };
+            return { color: "error", label: "Errors", icon: <ErrorIcon fontSize="small" /> };
         }
 
         // Define completion criteria for each section
         switch (section) {
-            case 'tests':
+            case "tests":
                 return data.tests && data.tests.length > 0
-                    ? { color: 'success', label: 'Complete', icon: <CheckCircle fontSize="small" /> }
-                    : { color: 'warning', label: 'Incomplete', icon: <WarningIcon fontSize="small" /> };
+                    ? {
+                          color: "success",
+                          label: "Complete",
+                          icon: <CheckCircle fontSize="small" />,
+                      }
+                    : {
+                          color: "warning",
+                          label: "Incomplete",
+                          icon: <WarningIcon fontSize="small" />,
+                      };
 
-            case 'patient': {
-                const patientComplete = data.patient && data.patient.fullName &&
-                    data.patient.dateOfBirth && data.patient.gender;
+            case "patient": {
+                const patientComplete =
+                    data.patient &&
+                    data.patient.fullName &&
+                    data.patient.dateOfBirth &&
+                    data.patient.gender;
                 return patientComplete
-                    ? { color: 'success', label: 'Complete', icon: <CheckCircle fontSize="small" /> }
-                    : { color: 'warning', label: 'Incomplete', icon: <WarningIcon fontSize="small" /> };
+                    ? {
+                          color: "success",
+                          label: "Complete",
+                          icon: <CheckCircle fontSize="small" />,
+                      }
+                    : {
+                          color: "warning",
+                          label: "Incomplete",
+                          icon: <WarningIcon fontSize="small" />,
+                      };
             }
 
-            case 'samples': {
-                const samplesComplete = data.samples && data.samples.length > 0 &&
-                    data.samples.every(sample => sample.sample_type && sample.collectionDate);
+            case "samples": {
+                const samplesComplete =
+                    data.samples &&
+                    data.samples.length > 0 &&
+                    data.samples.every((sample) => sample.sample_type && sample.collectionDate);
                 return samplesComplete
-                    ? { color: 'success', label: 'Complete', icon: <CheckCircle fontSize="small" /> }
-                    : { color: 'warning', label: 'Incomplete', icon: <WarningIcon fontSize="small" /> };
+                    ? {
+                          color: "success",
+                          label: "Complete",
+                          icon: <CheckCircle fontSize="small" />,
+                      }
+                    : {
+                          color: "warning",
+                          label: "Incomplete",
+                          icon: <WarningIcon fontSize="small" />,
+                      };
             }
 
-            case 'forms': {
+            case "forms": {
                 const formsComplete = data.orderForms && data.orderForms.length > 0;
                 return formsComplete
-                    ? { color: 'success', label: 'Complete', icon: <CheckCircle fontSize="small" /> }
-                    : { color: 'warning', label: 'Incomplete', icon: <WarningIcon fontSize="small" /> };
+                    ? {
+                          color: "success",
+                          label: "Complete",
+                          icon: <CheckCircle fontSize="small" />,
+                      }
+                    : {
+                          color: "warning",
+                          label: "Incomplete",
+                          icon: <WarningIcon fontSize="small" />,
+                      };
             }
 
-            case 'consent': {
+            case "consent": {
                 // Use processed consent data
                 if (!restConsents || restConsents.length === 0) {
-                    return { color: 'warning', label: 'Incomplete', icon: <WarningIcon fontSize="small" /> };
+                    return {
+                        color: "warning",
+                        label: "Incomplete",
+                        icon: <WarningIcon fontSize="small" />,
+                    };
                 }
 
-                const allAgreed = restConsents.every(consent => !!consent.value);
+                const allAgreed = restConsents.every((consent) => !!consent.value);
                 return allAgreed
-                    ? { color: 'success', label: 'Complete', icon: <CheckCircle fontSize="small" /> }
-                    : { color: 'warning', label: 'Incomplete', icon: <WarningIcon fontSize="small" /> };
+                    ? {
+                          color: "success",
+                          label: "Complete",
+                          icon: <CheckCircle fontSize="small" />,
+                      }
+                    : {
+                          color: "warning",
+                          label: "Incomplete",
+                          icon: <WarningIcon fontSize="small" />,
+                      };
             }
 
             default:
-                return { color: 'info', label: 'Unknown', icon: null };
+                return { color: "info", label: "Unknown", icon: null };
         }
     };
 
@@ -240,7 +281,7 @@ const Finalize = ({ auth, order, step, patients = [] }) => {
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
-                sx={{ width: '100%' }}
+                sx={{ width: "100%" }}
             >
                 <FinalizeAlerts
                     showHelp={showHelp}
@@ -253,13 +294,13 @@ const Finalize = ({ auth, order, step, patients = [] }) => {
                     component={motion.div}
                     variants={itemVariants}
                     sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        mb: 3
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        mb: 3,
                     }}
                 >
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                         <DoneAllIcon color="primary" />
                         <Typography variant="h5" fontWeight={600}>
                             Order Summary
@@ -294,8 +335,8 @@ const Finalize = ({ auth, order, step, patients = [] }) => {
                         mb: 4,
                         bgcolor: alpha(theme.palette.primary.main, 0.05),
                         borderRadius: 2,
-                        border: '1px solid',
-                        borderColor: theme.palette.primary.lighter || theme.palette.primary.light
+                        border: "1px solid",
+                        borderColor: theme.palette.primary.lighter || theme.palette.primary.light,
                     }}
                 >
                     <Typography variant="h6" fontWeight={600} gutterBottom>
@@ -303,13 +344,13 @@ const Finalize = ({ auth, order, step, patients = [] }) => {
                     </Typography>
 
                     <Typography variant="body2" paragraph>
-                        Please review all information below carefully. To finalize your order, click the "Submit Order"
-                        button at the bottom of the page.
+                        Please review all information below carefully. To finalize your order, click
+                        the &quot;Submit Order&quot; button at the bottom of the page.
                     </Typography>
 
                     <Typography variant="body2">
-                        After submission, you'll receive a confirmation email with your order details. If you need to
-                        make changes, please do so before submitting.
+                        After submission, you&apos;ll receive a confirmation email with your order
+                        details. If you need to make changes, please do so before submitting.
                     </Typography>
                 </Paper>
 
@@ -317,9 +358,9 @@ const Finalize = ({ auth, order, step, patients = [] }) => {
                     data={data}
                     errors={errors}
                     expanded={expandedSections.tests}
-                    onToggle={() => toggleSection('tests')}
-                    status={getSectionStatus('tests')}
-                    hasError={hasSectionErrors('tests')}
+                    onToggle={() => toggleSection("tests")}
+                    status={getSectionStatus("tests")}
+                    hasError={hasSectionErrors("tests")}
                     orderId={order.id}
                 />
 
@@ -327,9 +368,9 @@ const Finalize = ({ auth, order, step, patients = [] }) => {
                     data={data}
                     errors={errors}
                     expanded={expandedSections.patient}
-                    onToggle={() => toggleSection('patient')}
-                    status={getSectionStatus('patient')}
-                    hasError={hasSectionErrors('patient')}
+                    onToggle={() => toggleSection("patient")}
+                    status={getSectionStatus("patient")}
+                    hasError={hasSectionErrors("patient")}
                     orderId={order.id}
                 />
 
@@ -338,7 +379,7 @@ const Finalize = ({ auth, order, step, patients = [] }) => {
                         patients={patients}
                         mainPatientId={order.main_patient_id}
                         expanded={expandedSections.allPatients}
-                        onToggle={() => toggleSection('allPatients')}
+                        onToggle={() => toggleSection("allPatients")}
                         orderId={order.id}
                     />
                 )}
@@ -348,7 +389,7 @@ const Finalize = ({ auth, order, step, patients = [] }) => {
                         orderItems={order.order_items}
                         mainPatientId={order.main_patient_id}
                         expanded={expandedSections.patientTestAssignment}
-                        onToggle={() => toggleSection('patientTestAssignment')}
+                        onToggle={() => toggleSection("patientTestAssignment")}
                         orderId={order.id}
                     />
                 )}
@@ -357,9 +398,9 @@ const Finalize = ({ auth, order, step, patients = [] }) => {
                     data={data}
                     errors={errors}
                     expanded={expandedSections.samples}
-                    onToggle={() => toggleSection('samples')}
-                    status={getSectionStatus('samples')}
-                    hasError={hasSectionErrors('samples')}
+                    onToggle={() => toggleSection("samples")}
+                    status={getSectionStatus("samples")}
+                    hasError={hasSectionErrors("samples")}
                     orderId={order.id}
                 />
 
@@ -367,9 +408,9 @@ const Finalize = ({ auth, order, step, patients = [] }) => {
                     data={data}
                     errors={errors}
                     expanded={expandedSections.forms}
-                    onToggle={() => toggleSection('forms')}
-                    status={getSectionStatus('forms')}
-                    hasError={hasSectionErrors('forms')}
+                    onToggle={() => toggleSection("forms")}
+                    status={getSectionStatus("forms")}
+                    hasError={hasSectionErrors("forms")}
                     orderId={order.id}
                 />
 
@@ -378,9 +419,9 @@ const Finalize = ({ auth, order, step, patients = [] }) => {
                     consentForm={consentForm}
                     errors={errors}
                     expanded={expandedSections.consent}
-                    onToggle={() => toggleSection('consent')}
-                    status={getSectionStatus('consent')}
-                    hasError={hasSectionErrors('consent')}
+                    onToggle={() => toggleSection("consent")}
+                    status={getSectionStatus("consent")}
+                    hasError={hasSectionErrors("consent")}
                     orderId={order.id}
                 />
 
@@ -389,12 +430,12 @@ const Finalize = ({ auth, order, step, patients = [] }) => {
                     component={motion.div}
                     variants={itemVariants}
                     sx={{
-                        display: 'flex',
-                        justifyContent: 'flex-end',
-                        alignItems: 'center',
-                        flexWrap: 'wrap',
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        alignItems: "center",
+                        flexWrap: "wrap",
                         gap: 2,
-                        mb: 2
+                        mb: 2,
                     }}
                 >
                     <Button
@@ -407,14 +448,14 @@ const Finalize = ({ auth, order, step, patients = [] }) => {
                         sx={{
                             borderRadius: 2,
                             px: 4,
-                            textTransform: 'none',
-                            boxShadow: 'none',
-                            '&:hover': {
-                                boxShadow: theme.shadows[2]
-                            }
+                            textTransform: "none",
+                            boxShadow: "none",
+                            "&:hover": {
+                                boxShadow: theme.shadows[2],
+                            },
                         }}
                     >
-                        {processing ? 'Processing...' : 'Submit Order'}
+                        {processing ? "Processing..." : "Submit Order"}
                     </Button>
                 </Box>
 
@@ -424,15 +465,15 @@ const Finalize = ({ auth, order, step, patients = [] }) => {
                         severity="warning"
                         sx={{
                             mb: 3,
-                            borderRadius: 2
+                            borderRadius: 2,
                         }}
                     >
                         <Typography variant="subtitle2" fontWeight={600}>
                             Please Correct the Following Issues
                         </Typography>
                         <Typography variant="body2">
-                            There are validation errors in your order. Please review the sections marked with errors and
-                            make the necessary corrections before submitting.
+                            There are validation errors in your order. Please review the sections
+                            marked with errors and make the necessary corrections before submitting.
                         </Typography>
                     </Alert>
                 )}

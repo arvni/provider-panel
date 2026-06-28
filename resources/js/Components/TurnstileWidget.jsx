@@ -53,7 +53,9 @@ const TurnstileWidget = ({ siteKey, error, onToken, widgetRef }) => {
             return cleanup;
         }
 
-        const existingScript = document.querySelector('script[src*="challenges.cloudflare.com/turnstile"]');
+        const existingScript = document.querySelector(
+            'script[src*="challenges.cloudflare.com/turnstile"]'
+        );
         if (existingScript) {
             existingScript.addEventListener("load", renderWidget);
             return () => existingScript.removeEventListener("load", renderWidget);

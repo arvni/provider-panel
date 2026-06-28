@@ -12,12 +12,12 @@ import {
     MenuItem,
     FormControl,
     InputLabel,
-    alpha
+    alpha,
 } from "@mui/material";
 import {
     KeyboardDoubleArrowLeft,
     KeyboardDoubleArrowRight,
-    Info as InfoIcon
+    Info as InfoIcon,
 } from "@mui/icons-material";
 
 /**
@@ -32,16 +32,16 @@ import {
  * @returns {JSX.Element}
  */
 const Pagination = ({
-                        paginate,
-                        onChange,
-                        size = "medium",
-                        showInfo = true,
-                        showJump = true,
-                        sx = {}
-                    }) => {
+    paginate,
+    onChange,
+    size = "medium",
+    showInfo = true,
+    showJump = true,
+    sx = {},
+}) => {
     const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-    const isTablet = useMediaQuery(theme.breakpoints.down('md'));
+    const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+    const isTablet = useMediaQuery(theme.breakpoints.down("md"));
 
     // Handle direct page jumps
     const handleJump = (page) => (e) => {
@@ -51,7 +51,7 @@ const Pagination = ({
     };
 
     // Determine page range to display in info text
-    const from = ((paginate.current_page - 1) * paginate.per_page) + 1;
+    const from = (paginate.current_page - 1) * paginate.per_page + 1;
     const to = Math.min(from + paginate.per_page - 1, paginate.total);
 
     // Calculate number of pages to show based on screen size
@@ -70,14 +70,14 @@ const Pagination = ({
 
     return (
         <Stack
-            direction={{ xs: 'column', sm: 'row' }}
+            direction={{ xs: "column", sm: "row" }}
             spacing={{ xs: 1, sm: 2 }}
             alignItems="center"
             justifyContent="center"
             sx={{
-                width: '100%',
+                width: "100%",
                 my: 1,
-                ...sx
+                ...sx,
             }}
         >
             {/* Jump to first page button */}
@@ -85,15 +85,15 @@ const Pagination = ({
                 <Tooltip title="First Page">
                     <IconButton
                         onClick={handleJump(1)}
-                        size={size === 'small' ? 'small' : 'medium'}
+                        size={size === "small" ? "small" : "medium"}
                         color="primary"
                         sx={{
-                            display: { xs: 'none', md: 'flex' },
-                            border: '1px solid',
+                            display: { xs: "none", md: "flex" },
+                            border: "1px solid",
                             borderColor: alpha(theme.palette.primary.main, 0.3),
-                            '&:hover': {
+                            "&:hover": {
                                 backgroundColor: alpha(theme.palette.primary.main, 0.05),
-                            }
+                            },
                         }}
                     >
                         <KeyboardDoubleArrowLeft />
@@ -114,14 +114,14 @@ const Pagination = ({
                 color="primary"
                 shape="rounded"
                 sx={{
-                    '& .MuiPaginationItem-root': {
+                    "& .MuiPaginationItem-root": {
                         borderRadius: 1,
                         fontWeight: 500,
                         mx: 0.2,
                     },
-                    '& .Mui-selected': {
+                    "& .Mui-selected": {
                         fontWeight: 600,
-                    }
+                    },
                 }}
             />
 
@@ -130,15 +130,15 @@ const Pagination = ({
                 <Tooltip title="Last Page">
                     <IconButton
                         onClick={handleJump(paginate.last_page)}
-                        size={size === 'small' ? 'small' : 'medium'}
+                        size={size === "small" ? "small" : "medium"}
                         color="primary"
                         sx={{
-                            display: { xs: 'none', md: 'flex' },
-                            border: '1px solid',
+                            display: { xs: "none", md: "flex" },
+                            border: "1px solid",
                             borderColor: alpha(theme.palette.primary.main, 0.3),
-                            '&:hover': {
+                            "&:hover": {
                                 backgroundColor: alpha(theme.palette.primary.main, 0.05),
-                            }
+                            },
                         }}
                     >
                         <KeyboardDoubleArrowRight />
@@ -152,9 +152,9 @@ const Pagination = ({
                     size="small"
                     sx={{
                         minWidth: 80,
-                        '& .MuiOutlinedInput-root': {
+                        "& .MuiOutlinedInput-root": {
                             borderRadius: 1.5,
-                        }
+                        },
                     }}
                 >
                     <InputLabel id="page-select-label">Page</InputLabel>
@@ -165,7 +165,7 @@ const Pagination = ({
                         label="Page"
                         onChange={handlePageSelect}
                     >
-                        {Array.from({ length: paginate.last_page }, (_, i) => i + 1).map(page => (
+                        {Array.from({ length: paginate.last_page }, (_, i) => i + 1).map((page) => (
                             <MenuItem key={page} value={page}>
                                 {page}
                             </MenuItem>
@@ -178,11 +178,11 @@ const Pagination = ({
             {showInfo && paginate.total > 0 && (
                 <Box
                     sx={{
-                        display: 'flex',
-                        alignItems: 'center',
+                        display: "flex",
+                        alignItems: "center",
                         gap: 1,
                         color: theme.palette.text.secondary,
-                        ml: { sm: 2 }
+                        ml: { sm: 2 },
                     }}
                 >
                     <InfoIcon
@@ -190,7 +190,7 @@ const Pagination = ({
                         sx={{
                             color: theme.palette.info.main,
                             opacity: 0.7,
-                            fontSize: '1rem'
+                            fontSize: "1rem",
                         }}
                     />
 
@@ -199,14 +199,12 @@ const Pagination = ({
                         component="span"
                         sx={{
                             fontWeight: 500,
-                            whiteSpace: 'nowrap'
+                            whiteSpace: "nowrap",
                         }}
                     >
-                        {isMobile ? (
-                            `${paginate.current_page} / ${paginate.last_page}`
-                        ) : (
-                            `Showing ${from}-${to} of ${paginate.total} items`
-                        )}
+                        {isMobile
+                            ? `${paginate.current_page} / ${paginate.last_page}`
+                            : `Showing ${from}-${to} of ${paginate.total} items`}
                     </Typography>
                 </Box>
             )}

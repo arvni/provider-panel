@@ -1,23 +1,23 @@
-import React, {useState} from "react";
-import {Button, IconButton, Paper, Stack} from "@mui/material";
-import AddIcon from '@mui/icons-material/Add';
-import {Delete, Edit} from "@mui/icons-material";
+import React, { useState } from "react";
+import { Button, IconButton, Paper, Stack } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import { Delete, Edit } from "@mui/icons-material";
 import PageHeader from "@/Components/PageHeader";
 import TableLayout from "@/Layouts/TableLayout";
-import {usePageReload} from "@/Services/api";
+import { usePageReload } from "@/Services/api";
 import DeleteForm from "@/Components/DeleteForm";
 import AdminLayout from "@/Layouts/AuthenticatedLayout";
-import {router} from "@inertiajs/react";
+import { router } from "@inertiajs/react";
 
 const breadcrumbs = [
     {
         title: "Tests",
         link: "",
-        icon: null
+        icon: null,
     },
 ];
 
-function Index({tests: {data: testsData, ...pagination}, request}) {
+function Index({ tests: { data: testsData, ...pagination }, request }) {
     const {
         data,
         processing,
@@ -25,22 +25,23 @@ function Index({tests: {data: testsData, ...pagination}, request}) {
         onPageSizeChange,
         onOrderByChange,
         onFilterChange,
-        onPageChange
+        onPageChange,
     } = usePageReload(request, ["tests"]);
     const [test, setTest] = useState();
     const [openDeleteForm, setOpenDeleteForm] = useState(false);
 
-    const handleAdd = e => e.preventDefault() || router.visit(route("admin.tests.create"));
+    const handleAdd = (e) => e.preventDefault() || router.visit(route("admin.tests.create"));
     const handleOpenDeleteForm = (test) => () => setTest(test) || setOpenDeleteForm(true);
     const handleCloseDeleteForm = () => resetTest() || setOpenDeleteForm(false);
 
     const resetTest = () => setTest(null);
 
-    const handleDelete = () => router.post(
-        route("admin.tests.destroy", test.id),
-        {_method: "delete"},
-        {onSuccess: handleCloseDeleteForm}
-    );
+    const handleDelete = () =>
+        router.post(
+            route("admin.tests.destroy", test.id),
+            { _method: "delete" },
+            { onSuccess: handleCloseDeleteForm }
+        );
 
     const columns = [
         {
@@ -51,7 +52,7 @@ function Index({tests: {data: testsData, ...pagination}, request}) {
                 name: "code",
                 label: "Code",
                 type: "text",
-                value: data?.filters?.cod
+                value: data?.filters?.cod,
             },
             sortable: true,
         },
@@ -63,7 +64,7 @@ function Index({tests: {data: testsData, ...pagination}, request}) {
                 name: "name",
                 label: "Name",
                 type: "text",
-                value: data?.filters?.name
+                value: data?.filters?.name,
             },
             sortable: true,
         },
@@ -75,7 +76,7 @@ function Index({tests: {data: testsData, ...pagination}, request}) {
                 name: "shortName",
                 label: "Short Name",
                 type: "text",
-                value: data?.filters?.shortName
+                value: data?.filters?.shortName,
             },
             sortable: true,
         },
@@ -96,33 +97,45 @@ function Index({tests: {data: testsData, ...pagination}, request}) {
             title: "#",
             type: "actions",
             width: "100px",
-            render: (row) => <Stack direction="row" spacing={1}>
-                <IconButton onClick={handleEdit(row.id)}
-                            href={route("admin.tests.edit", row.id)}><Edit/></IconButton>
-                <IconButton onClick={handleOpenDeleteForm(row)}><Delete/></IconButton>
-            </Stack>
-        }
+            render: (row) => (
+                <Stack direction="row" spacing={1}>
+                    <IconButton
+                        onClick={handleEdit(row.id)}
+                        href={route("admin.tests.edit", row.id)}
+                    >
+                        <Edit />
+                    </IconButton>
+                    <IconButton onClick={handleOpenDeleteForm(row)}>
+                        <Delete />
+                    </IconButton>
+                </Stack>
+            ),
+        },
     ];
 
-    const handleEdit = (id) => e => e.preventDefault() || router.visit(route("admin.tests.edit", id))
-
+    const handleEdit = (id) => (e) =>
+        e.preventDefault() || router.visit(route("admin.tests.edit", id));
 
     const handlePage = (e) => e.preventDefault() || reload();
 
-    return (<>
+    return (
+        <>
             <PageHeader
                 title="Tests"
                 actions={[
-                    <Button key="add" variant="contained"
-                            href={route("admin.tests.create")}
-                            onClick={handleAdd}
-                            color="success"
-                            startIcon={<AddIcon/>}>
+                    <Button
+                        key="add"
+                        variant="contained"
+                        href={route("admin.tests.create")}
+                        onClick={handleAdd}
+                        color="success"
+                        startIcon={<AddIcon />}
+                    >
                         Add
-                    </Button>
+                    </Button>,
                 ]}
             />
-            <Paper sx={{mt: "3em", p: "1rem"}}>
+            <Paper sx={{ mt: "3em", p: "1rem" }}>
                 <TableLayout
                     columns={columns}
                     data={testsData}
@@ -136,25 +149,31 @@ function Index({tests: {data: testsData, ...pagination}, request}) {
                     tableModel={{
                         orderBy: data.orderBy ?? {
                             field: "id",
-                            type: "asc"
+                            type: "asc",
                         },
                         page: data.page,
-                        filter: data.filters
+                        filter: data.filters,
                     }}
                     pageSize={{
                         defaultValue: data.pageSize ?? 10,
-                        onChange: onPageSizeChange
+                        onChange: onPageSizeChange,
                     }}
                 />
             </Paper>
-            <DeleteForm title={test?.name}
-                        agreeCB={handleDelete}
-                        disAgreeCB={handleCloseDeleteForm}
-                        openDelete={openDeleteForm}/>
+            <DeleteForm
+                title={test?.name}
+                agreeCB={handleDelete}
+                disAgreeCB={handleCloseDeleteForm}
+                openDelete={openDeleteForm}
+            />
         </>
     );
 }
 
-Index.layout = (page) => <AdminLayout auth={page.props.auth} breadcrumbs={breadcrumbs} children={page}/>;
+Index.layout = (page) => (
+    <AdminLayout auth={page.props.auth} breadcrumbs={breadcrumbs}>
+        {page}
+    </AdminLayout>
+);
 
 export default Index;

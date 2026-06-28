@@ -16,7 +16,7 @@ import {
     Stack,
     Tooltip,
     Typography,
-    Avatar
+    Avatar,
 } from "@mui/material";
 import {
     Add as AddIcon,
@@ -26,7 +26,7 @@ import {
     CheckCircleOutline,
     Warning,
     ScienceOutlined,
-    DragIndicator
+    DragIndicator,
 } from "@mui/icons-material";
 import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import DeleteButton from "@/Components/DeleteButton";
@@ -50,7 +50,7 @@ const SampleTypeForm = ({ error, sampleTypes = [], onChange, disabled = false })
         description: "",
         id: makeId(),
         sample_type: undefined,
-        is_default: false
+        is_default: false,
     });
 
     // Dialog open state
@@ -79,7 +79,7 @@ const SampleTypeForm = ({ error, sampleTypes = [], onChange, disabled = false })
 
         // If this is a default sample type, update other sample types to not be default
         if (newItem.is_default) {
-            newSampleTypes = newSampleTypes.map(item =>
+            newSampleTypes = newSampleTypes.map((item) =>
                 item.id !== newItem.id ? { ...item, is_default: false } : item
             );
         }
@@ -105,7 +105,7 @@ const SampleTypeForm = ({ error, sampleTypes = [], onChange, disabled = false })
     const handleSampleTypeChange = (key, value) => {
         setSampleType((prevState) => ({
             ...prevState,
-            [key]: value
+            [key]: value,
         }));
     };
 
@@ -117,7 +117,7 @@ const SampleTypeForm = ({ error, sampleTypes = [], onChange, disabled = false })
             description: "",
             id: makeId(),
             sample_type: undefined,
-            is_default: false
+            is_default: false,
         });
     };
 
@@ -205,7 +205,7 @@ const SampleTypeForm = ({ error, sampleTypes = [], onChange, disabled = false })
                     </Button>
 
                     <Chip
-                        label={`${sampleTypes.length} ${sampleTypes.length === 1 ? 'type' : 'types'}`}
+                        label={`${sampleTypes.length} ${sampleTypes.length === 1 ? "type" : "types"}`}
                         color="success"
                         variant="outlined"
                         size="small"
@@ -213,11 +213,7 @@ const SampleTypeForm = ({ error, sampleTypes = [], onChange, disabled = false })
                 </Stack>
 
                 {error && (
-                    <Alert
-                        severity="error"
-                        icon={<Warning />}
-                        sx={{ mb: 2 }}
-                    >
+                    <Alert severity="error" icon={<Warning />} sx={{ mb: 2 }}>
                         {error}
                     </Alert>
                 )}
@@ -228,12 +224,12 @@ const SampleTypeForm = ({ error, sampleTypes = [], onChange, disabled = false })
                     variant="outlined"
                     sx={{
                         p: 4,
-                        textAlign: 'center',
-                        borderStyle: 'dashed',
+                        textAlign: "center",
+                        borderStyle: "dashed",
                         borderWidth: 1,
-                        borderColor: 'divider',
-                        bgcolor: 'background.paper',
-                        mb: 3
+                        borderColor: "divider",
+                        bgcolor: "background.paper",
+                        mb: 3,
                     }}
                 >
                     <ScienceOutlined color="disabled" sx={{ fontSize: 48, mb: 2, opacity: 0.5 }} />
@@ -242,8 +238,13 @@ const SampleTypeForm = ({ error, sampleTypes = [], onChange, disabled = false })
                         No Sample Types Added Yet
                     </Typography>
 
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 3, maxWidth: 450, mx: 'auto' }}>
-                        Add sample types that are acceptable for this test. You should specify which sample type is the default option.
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ mb: 3, maxWidth: 450, mx: "auto" }}
+                    >
+                        Add sample types that are acceptable for this test. You should specify which
+                        sample type is the default option.
                     </Typography>
 
                     <Button
@@ -264,8 +265,8 @@ const SampleTypeForm = ({ error, sampleTypes = [], onChange, disabled = false })
                                 variant="outlined"
                                 sx={{
                                     borderRadius: 1,
-                                    overflow: 'hidden',
-                                    mb: 3
+                                    overflow: "hidden",
+                                    mb: 3,
                                 }}
                                 ref={provided.innerRef}
                                 {...provided.droppableProps}
@@ -284,22 +285,26 @@ const SampleTypeForm = ({ error, sampleTypes = [], onChange, disabled = false })
                                                     {...provided.draggableProps}
                                                     divider={index < sampleTypes.length - 1}
                                                     sx={{
-                                                        bgcolor: snapshot.isDragging ? 'rgba(76, 175, 80, 0.08)' : 'background.paper',
-                                                        '&:hover': {
-                                                            bgcolor: 'rgba(76, 175, 80, 0.04)',
+                                                        bgcolor: snapshot.isDragging
+                                                            ? "rgba(76, 175, 80, 0.08)"
+                                                            : "background.paper",
+                                                        "&:hover": {
+                                                            bgcolor: "rgba(76, 175, 80, 0.04)",
                                                         },
-                                                        transition: 'background-color 0.2s'
+                                                        transition: "background-color 0.2s",
                                                     }}
                                                 >
                                                     {/* Drag handle */}
                                                     <ListItemIcon
                                                         {...provided.dragHandleProps}
                                                         sx={{
-                                                            cursor: disabled ? 'default' : 'grab',
-                                                            color: 'text.secondary',
-                                                            '&:hover': {
-                                                                color: disabled ? 'text.secondary' : 'success.main'
-                                                            }
+                                                            cursor: disabled ? "default" : "grab",
+                                                            color: "text.secondary",
+                                                            "&:hover": {
+                                                                color: disabled
+                                                                    ? "text.secondary"
+                                                                    : "success.main",
+                                                            },
                                                         }}
                                                     >
                                                         <DragIndicator />
@@ -309,8 +314,12 @@ const SampleTypeForm = ({ error, sampleTypes = [], onChange, disabled = false })
                                                     <ListItemAvatar>
                                                         <Avatar
                                                             sx={{
-                                                                bgcolor: sample.is_default ? 'success.main' : 'grey.200',
-                                                                color: sample.is_default ? 'success.contrastText' : 'text.primary'
+                                                                bgcolor: sample.is_default
+                                                                    ? "success.main"
+                                                                    : "grey.200",
+                                                                color: sample.is_default
+                                                                    ? "success.contrastText"
+                                                                    : "text.primary",
                                                             }}
                                                         >
                                                             <Science />
@@ -320,16 +329,25 @@ const SampleTypeForm = ({ error, sampleTypes = [], onChange, disabled = false })
                                                     {/* Sample type information */}
                                                     <ListItemText
                                                         primary={
-                                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                            <Box
+                                                                sx={{
+                                                                    display: "flex",
+                                                                    alignItems: "center",
+                                                                    gap: 1,
+                                                                }}
+                                                            >
                                                                 <Typography variant="subtitle2">
-                                                                    {sample.sample_type?.name || "Unknown Sample Type"}
+                                                                    {sample.sample_type?.name ||
+                                                                        "Unknown Sample Type"}
                                                                 </Typography>
                                                                 {sample.is_default && (
                                                                     <Chip
                                                                         label="Default"
                                                                         size="small"
                                                                         color="success"
-                                                                        icon={<CheckCircleOutline fontSize="small" />}
+                                                                        icon={
+                                                                            <CheckCircleOutline fontSize="small" />
+                                                                        }
                                                                     />
                                                                 )}
                                                             </Box>
@@ -340,7 +358,8 @@ const SampleTypeForm = ({ error, sampleTypes = [], onChange, disabled = false })
                                                                 color="text.secondary"
                                                                 sx={{ mt: 0.5 }}
                                                             >
-                                                                {sample.description || "No description provided"}
+                                                                {sample.description ||
+                                                                    "No description provided"}
                                                             </Typography>
                                                         }
                                                     />
@@ -350,7 +369,9 @@ const SampleTypeForm = ({ error, sampleTypes = [], onChange, disabled = false })
                                                         <Tooltip title="Edit Sample Type">
                                                             <IconButton
                                                                 color="primary"
-                                                                onClick={handleEditSampleType(index)}
+                                                                onClick={handleEditSampleType(
+                                                                    index
+                                                                )}
                                                                 size="small"
                                                                 disabled={disabled}
                                                             >
@@ -359,10 +380,12 @@ const SampleTypeForm = ({ error, sampleTypes = [], onChange, disabled = false })
                                                         </Tooltip>
 
                                                         <DeleteButton
-                                                            onConfirm={handleDeleteSampleType(index)}
+                                                            onConfirm={handleDeleteSampleType(
+                                                                index
+                                                            )}
                                                             size="small"
                                                             disabled={disabled}
-                                                            IconProps={{ fontSize: 'small' }}
+                                                            IconProps={{ fontSize: "small" }}
                                                         />
                                                     </Stack>
                                                 </ListItem>

@@ -23,25 +23,25 @@ import {
     Zoom,
     alpha,
     useMediaQuery,
-    useTheme
+    useTheme,
 } from "@mui/material";
 import { useForm } from "@inertiajs/react";
 import { motion, AnimatePresence } from "framer-motion";
-import BarcodeIcon from '@mui/icons-material/QrCodeScanner';
-import SearchIcon from '@mui/icons-material/Search';
-import CheckIcon from '@mui/icons-material/Check';
-import CancelIcon from '@mui/icons-material/Cancel';
-import ScienceIcon from '@mui/icons-material/Science';
-import ClearIcon from '@mui/icons-material/Clear';
-import SettingsBackupRestoreIcon from '@mui/icons-material/SettingsBackupRestore';
-import DescriptionIcon from '@mui/icons-material/Description';
+import BarcodeIcon from "@mui/icons-material/QrCodeScanner";
+import SearchIcon from "@mui/icons-material/Search";
+import CheckIcon from "@mui/icons-material/Check";
+import CancelIcon from "@mui/icons-material/Cancel";
+import ScienceIcon from "@mui/icons-material/Science";
+import ClearIcon from "@mui/icons-material/Clear";
+import SettingsBackupRestoreIcon from "@mui/icons-material/SettingsBackupRestore";
+import DescriptionIcon from "@mui/icons-material/Description";
 
 /**
  * Enhanced AddOrderByBarcode component with improved UX and visual design
  */
 const AddOrderByBarcode = () => {
     const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
     const [barcode, setBarcode] = useState("");
     const [open, setOpen] = useState(false);
     const [tests, setTests] = useState([]);
@@ -49,16 +49,10 @@ const AddOrderByBarcode = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const inputRef = useRef(null);
 
-    const {
-        reset,
-        data,
-        setData,
-        errors,
-        post,
-        processing,
-        clearErrors,
-        setError
-    } = useForm({ barcode: "", test: null });
+    const { reset, data, setData, errors, post, processing, clearErrors, setError } = useForm({
+        barcode: "",
+        test: null,
+    });
 
     // Focus the input field when component mounts
     useEffect(() => {
@@ -80,7 +74,7 @@ const AddOrderByBarcode = () => {
             post(route("orders.create-by-barcode"), {
                 onSuccess: () => {
                     handleClose();
-                }
+                },
             });
         } else {
             setError("barcode", "Please enter the barcode");
@@ -117,7 +111,8 @@ const AddOrderByBarcode = () => {
         setLoading(true);
         setTests([]);
 
-        axios.get(route("tests-by-barcode", { barcode }))
+        axios
+            .get(route("tests-by-barcode", { barcode }))
             .then((res) => {
                 setTests(res.data.tests);
                 // Auto-select if only one test
@@ -171,7 +166,7 @@ const AddOrderByBarcode = () => {
     };
 
     // Filter tests based on search term
-    const filteredTests = tests.filter(test =>
+    const filteredTests = tests.filter((test) =>
         test.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
@@ -186,7 +181,7 @@ const AddOrderByBarcode = () => {
                 sx={{
                     p: { xs: 2, sm: 3 },
                     borderRadius: 2,
-                    border: '1px solid',
+                    border: "1px solid",
                     borderColor: theme.palette.divider,
                     backgroundColor: alpha(theme.palette.background.paper, 0.8),
                 }}
@@ -195,11 +190,11 @@ const AddOrderByBarcode = () => {
                     variant="subtitle1"
                     sx={{
                         mb: 2,
-                        display: 'flex',
-                        alignItems: 'center',
+                        display: "flex",
+                        alignItems: "center",
                         gap: 1,
                         fontWeight: 500,
-                        color: theme.palette.text.secondary
+                        color: theme.palette.text.secondary,
                     }}
                 >
                     <BarcodeIcon color="primary" fontSize="small" />
@@ -210,14 +205,14 @@ const AddOrderByBarcode = () => {
                     component="form"
                     onSubmit={openTestList}
                     sx={{
-                        display: 'flex',
-                        flexDirection: { xs: 'column', sm: 'row' },
+                        display: "flex",
+                        flexDirection: { xs: "column", sm: "row" },
                         gap: { xs: 2, sm: 3 },
-                        alignItems: { xs: 'stretch', sm: 'flex-start' },
+                        alignItems: { xs: "stretch", sm: "flex-start" },
                     }}
                 >
                     <TextField
-                        error={errors.hasOwnProperty("barcode")}
+                        error={Object.prototype.hasOwnProperty.call(errors, "barcode")}
                         label="Scan Barcode"
                         placeholder="Scan or type barcode..."
                         helperText={errors?.barcode}
@@ -247,28 +242,28 @@ const AddOrderByBarcode = () => {
                             sx: {
                                 borderRadius: 2,
                                 height: 56,
-                                transition: 'all 0.2s',
-                                '&:hover': {
-                                    boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
+                                transition: "all 0.2s",
+                                "&:hover": {
+                                    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
                                 },
-                                '&.Mui-focused': {
-                                    boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
-                                }
-                            }
+                                "&.Mui-focused": {
+                                    boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
+                                },
+                            },
                         }}
                         sx={{
                             flexGrow: 1,
-                            maxWidth: { sm: '60%', md: '70%' },
+                            maxWidth: { sm: "60%", md: "70%" },
                         }}
                     />
 
                     <Box
                         sx={{
-                            display: 'flex',
+                            display: "flex",
                             gap: 1,
-                            flexDirection: { xs: 'row', sm: 'row' },
-                            justifyContent: { xs: 'center', sm: 'flex-start' },
-                            width: { xs: '100%', sm: 'auto' }
+                            flexDirection: { xs: "row", sm: "row" },
+                            justifyContent: { xs: "center", sm: "flex-start" },
+                            width: { xs: "100%", sm: "auto" },
                         }}
                     >
                         <Button
@@ -276,19 +271,25 @@ const AddOrderByBarcode = () => {
                             variant="contained"
                             color="primary"
                             disabled={processing || loading}
-                            startIcon={processing || loading ? <CircularProgress size={20} /> : <SearchIcon />}
+                            startIcon={
+                                processing || loading ? (
+                                    <CircularProgress size={20} />
+                                ) : (
+                                    <SearchIcon />
+                                )
+                            }
                             sx={{
                                 borderRadius: 2,
                                 height: 56,
                                 px: 3,
-                                boxShadow: 'none',
+                                boxShadow: "none",
                                 fontWeight: 600,
-                                transition: 'all 0.2s',
+                                transition: "all 0.2s",
                                 flexGrow: { xs: 1, sm: 0 },
-                                '&:hover': {
-                                    boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
-                                    transform: 'translateY(-2px)'
-                                }
+                                "&:hover": {
+                                    boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+                                    transform: "translateY(-2px)",
+                                },
                             }}
                         >
                             Find Tests
@@ -301,7 +302,7 @@ const AddOrderByBarcode = () => {
                                 sx={{
                                     height: 56,
                                     width: 56,
-                                    border: '1px solid',
+                                    border: "1px solid",
                                     borderColor: theme.palette.divider,
                                     borderRadius: 2,
                                     color: theme.palette.text.secondary,
@@ -318,7 +319,7 @@ const AddOrderByBarcode = () => {
                     {data.test && (
                         <motion.div
                             initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
+                            animate={{ opacity: 1, height: "auto" }}
                             exit={{ opacity: 0, height: 0 }}
                             transition={{ duration: 0.3 }}
                         >
@@ -326,16 +327,16 @@ const AddOrderByBarcode = () => {
                                 sx={{
                                     mt: 2,
                                     p: 2,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'space-between',
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "space-between",
                                     borderRadius: 2,
                                     backgroundColor: alpha(theme.palette.success.main, 0.1),
-                                    border: '1px solid',
+                                    border: "1px solid",
                                     borderColor: alpha(theme.palette.success.main, 0.2),
                                 }}
                             >
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                                     <ScienceIcon color="success" />
                                     <Typography variant="body2" fontWeight={500}>
                                         Selected Test: <strong>{data.test.name}</strong>
@@ -349,8 +350,8 @@ const AddOrderByBarcode = () => {
                                     startIcon={<DescriptionIcon />}
                                     onClick={handleAddOrder}
                                     sx={{
-                                        borderRadius: '8px',
-                                        textTransform: 'none',
+                                        borderRadius: "8px",
+                                        textTransform: "none",
                                         fontWeight: 500,
                                     }}
                                 >
@@ -365,9 +366,9 @@ const AddOrderByBarcode = () => {
             {/* Loading backdrop */}
             <Backdrop
                 sx={{
-                    color: '#fff',
+                    color: "#fff",
                     zIndex: (theme) => theme.zIndex.drawer + 1,
-                    backdropFilter: 'blur(5px)'
+                    backdropFilter: "blur(5px)",
                 }}
                 open={loading}
             >
@@ -386,30 +387,25 @@ const AddOrderByBarcode = () => {
                     elevation: 5,
                     sx: {
                         borderRadius: 2,
-                        overflow: 'hidden'
-                    }
+                        overflow: "hidden",
+                    },
                 }}
             >
                 <DialogTitle
                     sx={{
                         bgcolor: theme.palette.primary.main,
                         color: theme.palette.primary.contrastText,
-                        display: 'flex',
-                        alignItems: 'center',
+                        display: "flex",
+                        alignItems: "center",
                         gap: 1,
-                        p: 2
+                        p: 2,
                     }}
                 >
                     <ScienceIcon />
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                         Select Test for Barcode {barcode}
                     </Typography>
-                    <IconButton
-                        edge="end"
-                        color="inherit"
-                        onClick={handleClose}
-                        aria-label="close"
-                    >
+                    <IconButton edge="end" color="inherit" onClick={handleClose} aria-label="close">
                         <CancelIcon />
                     </IconButton>
                 </DialogTitle>
@@ -440,7 +436,7 @@ const AddOrderByBarcode = () => {
                                     </IconButton>
                                 </InputAdornment>
                             ),
-                            sx: { borderRadius: 1.5 }
+                            sx: { borderRadius: 1.5 },
                         }}
                     />
                 </Box>
@@ -449,20 +445,23 @@ const AddOrderByBarcode = () => {
                     {tests.length === 0 ? (
                         <Box
                             sx={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                justifyContent: 'center',
+                                display: "flex",
+                                flexDirection: "column",
+                                alignItems: "center",
+                                justifyContent: "center",
                                 py: 4,
                                 px: 2,
-                                textAlign: 'center'
+                                textAlign: "center",
                             }}
                         >
                             {loading ? (
                                 <CircularProgress size={40} sx={{ mb: 2 }} />
                             ) : (
                                 <>
-                                    <Typography variant="body1" sx={{ mb: 1, color: theme.palette.text.secondary }}>
+                                    <Typography
+                                        variant="body1"
+                                        sx={{ mb: 1, color: theme.palette.text.secondary }}
+                                    >
                                         No tests found for this barcode.
                                     </Typography>
                                     <Typography variant="body2" color="text.secondary">
@@ -474,16 +473,19 @@ const AddOrderByBarcode = () => {
                     ) : filteredTests.length === 0 ? (
                         <Box
                             sx={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                justifyContent: 'center',
+                                display: "flex",
+                                flexDirection: "column",
+                                alignItems: "center",
+                                justifyContent: "center",
                                 py: 4,
                                 px: 2,
-                                textAlign: 'center'
+                                textAlign: "center",
                             }}
                         >
-                            <Typography variant="body1" sx={{ mb: 1, color: theme.palette.text.secondary }}>
+                            <Typography
+                                variant="body1"
+                                sx={{ mb: 1, color: theme.palette.text.secondary }}
+                            >
                                 No matching tests found.
                             </Typography>
                             <Button
@@ -505,26 +507,49 @@ const AddOrderByBarcode = () => {
                                         onClick={handleTestSelect(test)}
                                         sx={{
                                             py: 2,
-                                            borderLeft: '5px solid',
-                                            borderLeftColor: data?.test?.id === test.id
-                                                ? theme.palette.primary.main
-                                                : 'transparent',
-                                            transition: 'all 0.2s',
-                                            '&.Mui-selected': {
-                                                backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                                            borderLeft: "5px solid",
+                                            borderLeftColor:
+                                                data?.test?.id === test.id
+                                                    ? theme.palette.primary.main
+                                                    : "transparent",
+                                            transition: "all 0.2s",
+                                            "&.Mui-selected": {
+                                                backgroundColor: alpha(
+                                                    theme.palette.primary.main,
+                                                    0.1
+                                                ),
                                             },
-                                            '&:hover': {
-                                                backgroundColor: alpha(theme.palette.primary.main, 0.05),
-                                            }
+                                            "&:hover": {
+                                                backgroundColor: alpha(
+                                                    theme.palette.primary.main,
+                                                    0.05
+                                                ),
+                                            },
                                         }}
                                     >
-                                        <ListItemIcon sx={{ color: data?.test?.id === test.id ? theme.palette.primary.main : 'inherit' }}>
-                                            {data?.test?.id === test.id ? <CheckIcon /> : <ScienceIcon />}
+                                        <ListItemIcon
+                                            sx={{
+                                                color:
+                                                    data?.test?.id === test.id
+                                                        ? theme.palette.primary.main
+                                                        : "inherit",
+                                            }}
+                                        >
+                                            {data?.test?.id === test.id ? (
+                                                <CheckIcon />
+                                            ) : (
+                                                <ScienceIcon />
+                                            )}
                                         </ListItemIcon>
 
                                         <ListItemText
                                             primary={
-                                                <Typography variant="body1" fontWeight={data?.test?.id === test.id ? 600 : 400}>
+                                                <Typography
+                                                    variant="body1"
+                                                    fontWeight={
+                                                        data?.test?.id === test.id ? 600 : 400
+                                                    }
+                                                >
                                                     {test.name}
                                                 </Typography>
                                             }
@@ -538,7 +563,7 @@ const AddOrderByBarcode = () => {
                     )}
                 </DialogContent>
 
-                <DialogActions sx={{ p: 2, justifyContent: 'space-between' }}>
+                <DialogActions sx={{ p: 2, justifyContent: "space-between" }}>
                     <Button
                         onClick={handleClose}
                         variant="outlined"
@@ -557,10 +582,10 @@ const AddOrderByBarcode = () => {
                         sx={{
                             borderRadius: 1.5,
                             px: 3,
-                            boxShadow: 'none',
-                            '&:hover': {
-                                boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
-                            }
+                            boxShadow: "none",
+                            "&:hover": {
+                                boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+                            },
                         }}
                     >
                         Create Order

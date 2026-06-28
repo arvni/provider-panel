@@ -38,45 +38,47 @@ const OrderHeader = ({ order }) => {
             component={motion.div}
             variants={itemVariants}
             sx={{
-                display: 'flex',
-                flexDirection: { xs: 'column', sm: 'row' },
-                justifyContent: 'space-between',
-                alignItems: { xs: 'flex-start', sm: 'center' },
+                display: "flex",
+                flexDirection: { xs: "column", sm: "row" },
+                justifyContent: "space-between",
+                alignItems: { xs: "flex-start", sm: "center" },
                 gap: 2,
                 mb: 3,
                 pb: 2,
-                borderBottom: '1px solid',
+                borderBottom: "1px solid",
                 borderColor: theme.palette.divider,
-                '@media print': {
-                    display: 'block !important',
-                    marginBottom: '3mm !important',
-                    paddingBottom: '2mm !important',
-                    borderBottom: '1px solid #000 !important',
-                    pageBreakInside: 'avoid'
-                }
+                "@media print": {
+                    display: "block !important",
+                    marginBottom: "3mm !important",
+                    paddingBottom: "2mm !important",
+                    borderBottom: "1px solid #000 !important",
+                    pageBreakInside: "avoid",
+                },
             }}
         >
-            <Box sx={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 1,
-                '@media print': {
-                    gap: '1mm'
-                }
-            }}>
+            <Box
+                sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    "@media print": {
+                        gap: "1mm",
+                    },
+                }}
+            >
                 <Box
                     sx={{
                         width: 36,
                         height: 36,
-                        borderRadius: '50%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
+                        borderRadius: "50%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
                         backgroundColor: alpha(theme.palette.primary.main, 0.1),
                         color: theme.palette.primary.main,
-                        '@media print': {
-                            display: 'none !important'
-                        }
+                        "@media print": {
+                            display: "none !important",
+                        },
                     }}
                 >
                     <AssignmentIcon />
@@ -88,13 +90,13 @@ const OrderHeader = ({ order }) => {
                             variant="h5"
                             fontWeight={700}
                             sx={{
-                                fontSize: { xs: '1.25rem', sm: '1.5rem' },
-                                '@media print': {
-                                    fontSize: '12px !important',
-                                    fontWeight: 'bold !important',
-                                    margin: '0 !important',
-                                    color: '#000 !important'
-                                }
+                                fontSize: { xs: "1.25rem", sm: "1.5rem" },
+                                "@media print": {
+                                    fontSize: "12px !important",
+                                    fontWeight: "bold !important",
+                                    margin: "0 !important",
+                                    color: "#000 !important",
+                                },
                             }}
                         >
                             Order #{order.id}
@@ -104,9 +106,9 @@ const OrderHeader = ({ order }) => {
                                 size="small"
                                 onClick={copyOrderId}
                                 sx={{
-                                    '@media print': {
-                                        display: 'none !important'
-                                    }
+                                    "@media print": {
+                                        display: "none !important",
+                                    },
                                 }}
                             >
                                 <ContentCopyIcon fontSize="small" />
@@ -117,11 +119,11 @@ const OrderHeader = ({ order }) => {
                         variant="body2"
                         color="text.secondary"
                         sx={{
-                            '@media print': {
-                                fontSize: '8px !important',
-                                color: '#666 !important',
-                                margin: '0 !important'
-                            }
+                            "@media print": {
+                                fontSize: "8px !important",
+                                color: "#666 !important",
+                                margin: "0 !important",
+                            },
                         }}
                     >
                         Created: {formatShortDate(order.created_at || order.createdAt)}
@@ -133,18 +135,18 @@ const OrderHeader = ({ order }) => {
                 direction="row"
                 spacing={1}
                 sx={{
-                    '@media print': {
-                        display: 'none !important'
-                    }
+                    "@media print": {
+                        display: "none !important",
+                    },
                 }}
             >
                 <Tooltip title="Print Order">
                     <IconButton
                         onClick={handlePrint}
                         sx={{
-                            border: '1px solid',
+                            border: "1px solid",
                             borderColor: theme.palette.divider,
-                            borderRadius: 1
+                            borderRadius: 1,
                         }}
                     >
                         <PrintIcon />
@@ -158,11 +160,11 @@ const OrderHeader = ({ order }) => {
                     startIcon={<DownloadIcon />}
                     sx={{
                         borderRadius: 1,
-                        textTransform: 'none',
-                        boxShadow: 'none',
-                        '&:hover': {
-                            boxShadow: theme.shadows[2]
-                        }
+                        textTransform: "none",
+                        boxShadow: "none",
+                        "&:hover": {
+                            boxShadow: theme.shadows[2],
+                        },
                     }}
                 >
                     Download Summary
