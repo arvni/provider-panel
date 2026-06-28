@@ -25,7 +25,15 @@ import EditSectionButton from "@/Pages/Order/Components/Finalize/EditSectionButt
  * Clinical-details review section on the Finalize page: the order-form
  * field/value pairs plus any uploaded clinical files.
  */
-const ClinicalDetailsSection = ({ data, errors, expanded, onToggle, status, hasError, orderId }) => {
+const ClinicalDetailsSection = ({
+    data,
+    errors,
+    expanded,
+    onToggle,
+    status,
+    hasError,
+    orderId,
+}) => {
     const theme = useTheme();
 
     return (
@@ -53,19 +61,23 @@ const ClinicalDetailsSection = ({ data, errors, expanded, onToggle, status, hasE
                                 variant="outlined"
                                 sx={{
                                     p: 2,
-                                    height: '100%',
+                                    height: "100%",
                                     borderRadius: 1,
                                     bgcolor: errors[`orderForms[${formIndex}].hasErrors`]
                                         ? alpha(theme.palette.error.main, 0.05)
-                                        : 'transparent',
+                                        : "transparent",
                                     borderColor: errors[`orderForms[${formIndex}].hasErrors`]
                                         ? theme.palette.error.main
-                                        : theme.palette.divider
+                                        : theme.palette.divider,
                                 }}
                             >
                                 <Typography
                                     variant="subtitle2"
-                                    color={errors[`orderForms[${formIndex}].hasErrors`] ? "error" : "text.secondary"}
+                                    color={
+                                        errors[`orderForms[${formIndex}].hasErrors`]
+                                            ? "error"
+                                            : "text.secondary"
+                                    }
                                     gutterBottom
                                     fontWeight={600}
                                 >
@@ -73,42 +85,61 @@ const ClinicalDetailsSection = ({ data, errors, expanded, onToggle, status, hasE
                                 </Typography>
 
                                 {errors[`orderForms[${formIndex}].hasErrors`] && (
-                                    <Typography variant="caption" color="error"
-                                                sx={{ display: 'block', mb: 1 }}>
+                                    <Typography
+                                        variant="caption"
+                                        color="error"
+                                        sx={{ display: "block", mb: 1 }}
+                                    >
                                         {errors[`orderForms[${formIndex}].hasErrors`]}
                                     </Typography>
                                 )}
 
                                 <List dense>
-                                    {orderForm.formData && orderForm.formData.map((item, itemIndex) => (
-                                        <React.Fragment key={`form-${formIndex}-item-${itemIndex}`}>
-                                            {itemIndex > 0 && <Divider component="li" />}
-                                            <ListItem>
-                                                <ListItemText
-                                                    primary={item.label}
-                                                    secondary={item.value || "Not specified"}
-                                                    primaryTypographyProps={{
-                                                        variant: 'body2',
-                                                        color: errors[`orderForms[${formIndex}].formData[${itemIndex}].value`]
-                                                            ? 'error.main'
-                                                            : 'text.secondary'
-                                                    }}
-                                                    secondaryTypographyProps={{
-                                                        variant: 'body1',
-                                                        color: errors[`orderForms[${formIndex}].formData[${itemIndex}].value`]
-                                                            ? 'error.main'
-                                                            : 'text.primary'
-                                                    }}
-                                                />
-                                            </ListItem>
-                                            {errors[`orderForms[${formIndex}].formData[${itemIndex}].value`] && (
-                                                <Typography variant="caption" color="error"
-                                                            sx={{ ml: 2 }}>
-                                                    {errors[`orderForms[${formIndex}].formData[${itemIndex}].value`]}
-                                                </Typography>
-                                            )}
-                                        </React.Fragment>
-                                    ))}
+                                    {orderForm.formData &&
+                                        orderForm.formData.map((item, itemIndex) => (
+                                            <React.Fragment
+                                                key={`form-${formIndex}-item-${itemIndex}`}
+                                            >
+                                                {itemIndex > 0 && <Divider component="li" />}
+                                                <ListItem>
+                                                    <ListItemText
+                                                        primary={item.label}
+                                                        secondary={item.value || "Not specified"}
+                                                        primaryTypographyProps={{
+                                                            variant: "body2",
+                                                            color: errors[
+                                                                `orderForms[${formIndex}].formData[${itemIndex}].value`
+                                                            ]
+                                                                ? "error.main"
+                                                                : "text.secondary",
+                                                        }}
+                                                        secondaryTypographyProps={{
+                                                            variant: "body1",
+                                                            color: errors[
+                                                                `orderForms[${formIndex}].formData[${itemIndex}].value`
+                                                            ]
+                                                                ? "error.main"
+                                                                : "text.primary",
+                                                        }}
+                                                    />
+                                                </ListItem>
+                                                {errors[
+                                                    `orderForms[${formIndex}].formData[${itemIndex}].value`
+                                                ] && (
+                                                    <Typography
+                                                        variant="caption"
+                                                        color="error"
+                                                        sx={{ ml: 2 }}
+                                                    >
+                                                        {
+                                                            errors[
+                                                                `orderForms[${formIndex}].formData[${itemIndex}].value`
+                                                            ]
+                                                        }
+                                                    </Typography>
+                                                )}
+                                            </React.Fragment>
+                                        ))}
                                 </List>
                             </Paper>
                         </Grid>
@@ -126,7 +157,7 @@ const ClinicalDetailsSection = ({ data, errors, expanded, onToggle, status, hasE
                     <Typography
                         variant="subtitle2"
                         fontWeight={600}
-                        sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}
+                        sx={{ mb: 2, display: "flex", alignItems: "center", gap: 1 }}
                     >
                         <FileCopyIcon fontSize="small" color="primary" />
                         Uploaded Files ({data.files.length})
@@ -135,21 +166,26 @@ const ClinicalDetailsSection = ({ data, errors, expanded, onToggle, status, hasE
                     <Grid container spacing={2}>
                         {data.files.map((file, index) => (
                             <Grid size={{ xs: 12, sm: 6, md: 4 }} key={index}>
-                                <Box sx={{
-                                    p: 2,
-                                    borderRadius: 1,
-                                    border: '1px solid',
-                                    borderColor: alpha(theme.palette.primary.main, 0.2),
-                                    backgroundColor: alpha(theme.palette.primary.main, 0.03),
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 1.5,
-                                    transition: 'all 0.2s',
-                                    '&:hover': {
-                                        borderColor: theme.palette.primary.main,
-                                        backgroundColor: alpha(theme.palette.primary.main, 0.08),
-                                    }
-                                }}>
+                                <Box
+                                    sx={{
+                                        p: 2,
+                                        borderRadius: 1,
+                                        border: "1px solid",
+                                        borderColor: alpha(theme.palette.primary.main, 0.2),
+                                        backgroundColor: alpha(theme.palette.primary.main, 0.03),
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: 1.5,
+                                        transition: "all 0.2s",
+                                        "&:hover": {
+                                            borderColor: theme.palette.primary.main,
+                                            backgroundColor: alpha(
+                                                theme.palette.primary.main,
+                                                0.08
+                                            ),
+                                        },
+                                    }}
+                                >
                                     <FileCopyIcon color="primary" sx={{ fontSize: 28 }} />
                                     <Box sx={{ flex: 1, minWidth: 0 }}>
                                         <Typography
@@ -157,9 +193,9 @@ const ClinicalDetailsSection = ({ data, errors, expanded, onToggle, status, hasE
                                             fontWeight={500}
                                             sx={{
                                                 mb: 0.5,
-                                                overflow: 'hidden',
-                                                textOverflow: 'ellipsis',
-                                                whiteSpace: 'nowrap'
+                                                overflow: "hidden",
+                                                textOverflow: "ellipsis",
+                                                whiteSpace: "nowrap",
                                             }}
                                         >
                                             File {index + 1}
@@ -171,20 +207,22 @@ const ClinicalDetailsSection = ({ data, errors, expanded, onToggle, status, hasE
                                             size="small"
                                             startIcon={<DownloadIcon />}
                                             sx={{
-                                                textTransform: 'none',
-                                                fontSize: '0.75rem',
+                                                textTransform: "none",
+                                                fontSize: "0.75rem",
                                                 p: 0,
-                                                minWidth: 0
+                                                minWidth: 0,
                                             }}
                                         >
-                                            <span style={{
-                                                overflow: 'hidden',
-                                                textOverflow: 'ellipsis',
-                                                whiteSpace: 'nowrap',
-                                                display: 'block',
-                                                maxWidth: '180px'
-                                            }}>
-                                                {file.split('/').pop()}
+                                            <span
+                                                style={{
+                                                    overflow: "hidden",
+                                                    textOverflow: "ellipsis",
+                                                    whiteSpace: "nowrap",
+                                                    display: "block",
+                                                    maxWidth: "180px",
+                                                }}
+                                            >
+                                                {file.split("/").pop()}
                                             </span>
                                         </Button>
                                     </Box>
@@ -195,7 +233,11 @@ const ClinicalDetailsSection = ({ data, errors, expanded, onToggle, status, hasE
                 </Box>
             )}
 
-            <EditSectionButton orderId={orderId} step="clinical details" label="Edit Clinical Details" />
+            <EditSectionButton
+                orderId={orderId}
+                step="clinical details"
+                label="Edit Clinical Details"
+            />
         </CollapsibleSection>
     );
 };

@@ -5,7 +5,6 @@ import {
     Alert,
     Avatar,
     Box,
-    Button,
     Checkbox,
     Chip,
     Collapse,
@@ -17,7 +16,7 @@ import {
     Tooltip,
     Typography,
     useTheme,
-    alpha
+    alpha,
 } from "@mui/material";
 import {
     Check,
@@ -25,11 +24,22 @@ import {
     ExpandLess,
     InfoOutlined,
     Help as HelpIcon,
-    Description as DescriptionIcon
+    Description as DescriptionIcon,
 } from "@mui/icons-material";
 import FileUploader from "@/Components/FileUploader.jsx";
 import { motion, AnimatePresence } from "framer-motion";
-import { consentFormValidate, formatConsentData, resetConsentFormErrors } from "@/Services/validate";
+import { consentFormValidate, resetConsentFormErrors } from "@/Services/validate";
+
+/**
+ * Enhanced ConsentForm component with improved validation and UI
+ *
+ * @param {Object} props Component props
+ * @param {Object} props.auth Authentication information
+ * @param {Object} props.order Order data containing consent information
+ * @param {string|number} props.step Current step in the process
+ * @param {Array} props.consents Available consent options
+ * @returns {JSX.Element} Rendered component
+ */
 
 /**
  * Enhanced ConsentForm component with improved validation and UI
@@ -42,14 +52,14 @@ import { consentFormValidate, formatConsentData, resetConsentFormErrors } from "
  * @returns {JSX.Element} Rendered component
  */
 const ConsentForm = ({
-                         auth,
-                         order: {
-                             consents: { consentForm, ...restConsents },
-                             ...restOrder
-                         },
-                         step,
-                         consents
-                     }) => {
+    auth,
+    order: {
+        consents: { consentForm, ...restConsents },
+        ...restOrder
+    },
+    step,
+    consents,
+}) => {
     const theme = useTheme();
 
     // State for expanded sections
@@ -58,20 +68,18 @@ const ConsentForm = ({
     const [showSuccess, setShowSuccess] = useState(false);
 
     // Setup form with existing data or defaults
-    const {
-        data,
-        setData,
-        submit,
-        processing,
-        errors,
-        setError,
-        clearErrors,
-    } = useSubmitForm({
-        ...restOrder,
-        consents: [...(!Object.keys(restConsents).length ? (consents) : []), ...(Object.values(restConsents))],
-        _method: "put",
-        consentForm
-    }, route("orders.update", { order: restOrder.id, step }));
+    const { data, setData, submit, processing, errors, setError, clearErrors } = useSubmitForm(
+        {
+            ...restOrder,
+            consents: [
+                ...(!Object.keys(restConsents).length ? consents : []),
+                ...Object.values(restConsents),
+            ],
+            _method: "put",
+            consentForm,
+        },
+        route("orders.update", { order: restOrder.id, step })
+    );
 
     /**
      * Update form data for a specific field
@@ -80,7 +88,7 @@ const ConsentForm = ({
      * @param {any} value Field value
      */
     const handleChange = (key, value) => {
-        setData(previousData => ({ ...previousData, [key]: value }));
+        setData((previousData) => ({ ...previousData, [key]: value }));
 
         // Clear error for this field if it exists
         if (errors[key]) {
@@ -120,7 +128,7 @@ const ConsentForm = ({
                     setTimeout(() => {
                         setShowSuccess(false);
                     }, 3000);
-                }
+                },
             });
         }
     };
@@ -155,7 +163,7 @@ const ConsentForm = ({
         const consents = [...data.consents];
         consents[index] = {
             ...consents[index],
-            value: value
+            value: value,
         };
         handleChange("consents", consents);
 
@@ -170,7 +178,7 @@ const ConsentForm = ({
      * @returns {boolean} True if all consents are checked
      */
     const allConsentsChecked = () => {
-        return data.consents.every(consent => consent.value === true);
+        return data.consents.every((consent) => consent.value === true);
     };
 
     /**
@@ -188,9 +196,10 @@ const ConsentForm = ({
     };
 
     // Count how many consents are checked
-    const checkedConsentsCount = data.consents.filter(consent => consent.value).length;
+    const checkedConsentsCount = data.consents.filter((consent) => consent.value).length;
     const totalConsentsCount = data.consents.length;
-    const consentProgress = totalConsentsCount > 0 ? (checkedConsentsCount / totalConsentsCount) * 100 : 0;
+    const consentProgress =
+        totalConsentsCount > 0 ? (checkedConsentsCount / totalConsentsCount) * 100 : 0;
 
     // Animation variants
     const containerVariants = {
@@ -200,8 +209,8 @@ const ConsentForm = ({
             transition: {
                 when: "beforeChildren",
                 staggerChildren: 0.1,
-            }
-        }
+            },
+        },
     };
 
     const itemVariants = {
@@ -209,8 +218,8 @@ const ConsentForm = ({
         visible: {
             y: 0,
             opacity: 1,
-            transition: { duration: 0.4 }
-        }
+            transition: { duration: 0.4 },
+        },
     };
 
     return (
@@ -226,14 +235,14 @@ const ConsentForm = ({
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
-                sx={{ width: '100%' }}
+                sx={{ width: "100%" }}
             >
                 {/* Help section */}
                 <AnimatePresence>
                     {showHelp && (
                         <motion.div
                             initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
+                            animate={{ opacity: 1, height: "auto" }}
                             exit={{ opacity: 0, height: 0 }}
                             transition={{ duration: 0.3 }}
                         >
@@ -243,9 +252,9 @@ const ConsentForm = ({
                                 sx={{
                                     mb: 3,
                                     borderRadius: 2,
-                                    '& .MuiAlert-icon': {
-                                        alignItems: 'center'
-                                    }
+                                    "& .MuiAlert-icon": {
+                                        alignItems: "center",
+                                    },
                                 }}
                                 onClose={toggleHelp}
                             >
@@ -258,17 +267,20 @@ const ConsentForm = ({
                                 <Box component="ul" sx={{ m: 0, pl: 2, mb: 0 }}>
                                     <Box component="li" sx={{ mb: 0.5 }}>
                                         <Typography variant="body2">
-                                            <strong>Required items:</strong> All consent items must be checked to proceed
+                                            <strong>Required items:</strong> All consent items must
+                                            be checked to proceed
                                         </Typography>
                                     </Box>
                                     <Box component="li" sx={{ mb: 0.5 }}>
                                         <Typography variant="body2">
-                                            <strong>Uploads:</strong> You may upload a signed physical consent form if required
+                                            <strong>Uploads:</strong> You may upload a signed
+                                            physical consent form if required
                                         </Typography>
                                     </Box>
                                     <Box component="li">
                                         <Typography variant="body2">
-                                            <strong>Questions:</strong> Contact our support team if you have any questions
+                                            <strong>Questions:</strong> Contact our support team if
+                                            you have any questions
                                         </Typography>
                                     </Box>
                                 </Box>
@@ -291,9 +303,9 @@ const ConsentForm = ({
                                 sx={{
                                     mb: 3,
                                     borderRadius: 2,
-                                    '& .MuiAlert-icon': {
-                                        alignItems: 'center'
-                                    }
+                                    "& .MuiAlert-icon": {
+                                        alignItems: "center",
+                                    },
                                 }}
                                 onClose={() => setShowSuccess(false)}
                             >
@@ -317,11 +329,11 @@ const ConsentForm = ({
                                 sx={{
                                     mb: 3,
                                     borderRadius: 2,
-                                    '& .MuiAlert-icon': {
-                                        alignItems: 'center'
-                                    }
+                                    "& .MuiAlert-icon": {
+                                        alignItems: "center",
+                                    },
                                 }}
-                                onClose={() => clearErrors('consents')}
+                                onClose={() => clearErrors("consents")}
                             >
                                 <Typography variant="subtitle2" fontWeight={600}>
                                     {errors.consents}
@@ -336,13 +348,13 @@ const ConsentForm = ({
                     component={motion.div}
                     variants={itemVariants}
                     sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        mb: 3
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        mb: 3,
                     }}
                 >
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                         <DescriptionIcon color="primary" />
                         <Typography variant="h5" fontWeight={600}>
                             Consent Form
@@ -359,37 +371,27 @@ const ConsentForm = ({
                         </Tooltip>
                     </Box>
 
-                    <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{ fontStyle: 'italic' }}
-                    >
+                    <Typography variant="body2" color="text.secondary" sx={{ fontStyle: "italic" }}>
                         Order ID: {restOrder.id}
                     </Typography>
                 </Box>
 
                 {/* Progress indicator */}
-                <Box
-                    component={motion.div}
-                    variants={itemVariants}
-                    sx={{ mb: 3 }}
-                >
+                <Box component={motion.div} variants={itemVariants} sx={{ mb: 3 }}>
                     <Paper
                         elevation={0}
                         sx={{
                             p: 2,
                             borderRadius: 2,
-                            border: '1px solid',
+                            border: "1px solid",
                             borderColor: theme.palette.divider,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between'
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
                         }}
                     >
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                            <Typography variant="body2">
-                                Consent progress:
-                            </Typography>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                            <Typography variant="body2">Consent progress:</Typography>
                             <Chip
                                 label={`${checkedConsentsCount} of ${totalConsentsCount} consents`}
                                 color={allConsentsChecked() ? "success" : "primary"}
@@ -399,10 +401,10 @@ const ConsentForm = ({
                             />
                         </Box>
 
-                        <Box sx={{ width: '50%' }}>
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                        <Box sx={{ width: "50%" }}>
+                            <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
                                 <Typography variant="body2" color="text.secondary">
-                                    {consentProgress < 100 ? 'In progress' : 'Complete'}
+                                    {consentProgress < 100 ? "In progress" : "Complete"}
                                 </Typography>
                                 <Typography variant="body2" fontWeight={600}>
                                     {Math.round(consentProgress)}%
@@ -411,18 +413,21 @@ const ConsentForm = ({
                             <Box
                                 sx={{
                                     height: 8,
-                                    width: '100%',
+                                    width: "100%",
                                     bgcolor: alpha(theme.palette.primary.main, 0.1),
                                     borderRadius: 4,
-                                    overflow: 'hidden'
+                                    overflow: "hidden",
                                 }}
                             >
                                 <Box
                                     sx={{
-                                        height: '100%',
+                                        height: "100%",
                                         width: `${consentProgress}%`,
-                                        bgcolor: allConsentsChecked() ? "success.main" : "primary.main",
-                                        transition: 'width 0.5s ease-in-out, background-color 0.5s ease-in-out'
+                                        bgcolor: allConsentsChecked()
+                                            ? "success.main"
+                                            : "primary.main",
+                                        transition:
+                                            "width 0.5s ease-in-out, background-color 0.5s ease-in-out",
                                     }}
                                 />
                             </Box>
@@ -431,35 +436,32 @@ const ConsentForm = ({
                 </Box>
 
                 {/* Info section */}
-                <Box
-                    component={motion.div}
-                    variants={itemVariants}
-                    sx={{ mb: 3 }}
-                >
+                <Box component={motion.div} variants={itemVariants} sx={{ mb: 3 }}>
                     <Paper
                         elevation={0}
                         sx={{
-                            overflow: 'hidden',
+                            overflow: "hidden",
                             borderRadius: 2,
-                            border: '1px solid',
-                            borderColor: theme.palette.primary.lighter || theme.palette.primary.light,
+                            border: "1px solid",
+                            borderColor:
+                                theme.palette.primary.lighter || theme.palette.primary.light,
                             bgcolor: alpha(theme.palette.primary.main, 0.05),
-                            transition: 'all 0.3s ease'
+                            transition: "all 0.3s ease",
                         }}
                     >
                         <Box
                             sx={{
                                 p: 2,
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
                                 bgcolor: alpha(theme.palette.primary.main, 0.8),
                                 color: theme.palette.primary.contrastText,
-                                cursor: 'pointer'
+                                cursor: "pointer",
                             }}
                             onClick={toggleInfo}
                         >
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                                 <InfoOutlined />
                                 <Typography variant="subtitle1" fontWeight={600}>
                                     Important Information
@@ -472,11 +474,15 @@ const ConsentForm = ({
                         <Collapse in={expandedInfo}>
                             <Box sx={{ p: 3 }}>
                                 <Typography variant="body1" paragraph>
-                                    Please read each consent item carefully before checking the box. By checking a box, you indicate that you understand and agree to the stated terms.
+                                    Please read each consent item carefully before checking the box.
+                                    By checking a box, you indicate that you understand and agree to
+                                    the stated terms.
                                 </Typography>
 
                                 <Typography variant="body1" paragraph>
-                                    All items must be agreed to before proceeding to the next step. If you have any questions about any consent item, please contact our support team.
+                                    All items must be agreed to before proceeding to the next step.
+                                    If you have any questions about any consent item, please contact
+                                    our support team.
                                 </Typography>
                             </Box>
                         </Collapse>
@@ -484,31 +490,28 @@ const ConsentForm = ({
                 </Box>
 
                 {/* Consent checkboxes */}
-                <Grid
-                    container
-                    spacing={3}
-                    component={motion.div}
-                    variants={itemVariants}
-                >
+                <Grid container spacing={3} component={motion.div} variants={itemVariants}>
                     <Grid size={12}>
                         <Paper
                             elevation={0}
                             sx={{
                                 borderRadius: 2,
-                                overflow: 'hidden',
-                                border: '1px solid',
-                                borderColor: errors.consents ? theme.palette.error.main : theme.palette.divider,
+                                overflow: "hidden",
+                                border: "1px solid",
+                                borderColor: errors.consents
+                                    ? theme.palette.error.main
+                                    : theme.palette.divider,
                                 ...(errors.consents && {
-                                    boxShadow: `0 0 0 1px ${theme.palette.error.main}`
-                                })
+                                    boxShadow: `0 0 0 1px ${theme.palette.error.main}`,
+                                }),
                             }}
                         >
                             <Box
                                 sx={{
                                     p: 2,
                                     bgcolor: alpha(theme.palette.primary.main, 0.05),
-                                    borderBottom: '1px solid',
-                                    borderColor: theme.palette.divider
+                                    borderBottom: "1px solid",
+                                    borderColor: theme.palette.divider,
                                 }}
                             >
                                 <Typography variant="h6" fontWeight={600}>
@@ -519,7 +522,7 @@ const ConsentForm = ({
                                 </Typography>
                             </Box>
 
-                            <Box component="ul" sx={{ p: 0, m: 0, listStyle: 'none' }}>
+                            <Box component="ul" sx={{ p: 0, m: 0, listStyle: "none" }}>
                                 {data.consents.map((consent, index) => (
                                     <React.Fragment key={`consent-${index}`}>
                                         {index > 0 && <Divider component="li" />}
@@ -528,25 +531,38 @@ const ConsentForm = ({
                                             sx={{
                                                 py: 2,
                                                 px: 3,
-                                                '&:hover': {
-                                                    bgcolor: alpha(theme.palette.action.hover, 0.5)
+                                                "&:hover": {
+                                                    bgcolor: alpha(theme.palette.action.hover, 0.5),
                                                 },
-                                                transition: 'background-color 0.2s',
+                                                transition: "background-color 0.2s",
                                                 ...(errors[`consents[${index}].value`] && {
                                                     bgcolor: alpha(theme.palette.error.main, 0.05),
-                                                    '&:hover': {
-                                                        bgcolor: alpha(theme.palette.error.main, 0.08)
-                                                    }
-                                                })
+                                                    "&:hover": {
+                                                        bgcolor: alpha(
+                                                            theme.palette.error.main,
+                                                            0.08
+                                                        ),
+                                                    },
+                                                }),
                                             }}
                                         >
-                                            <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
+                                            <Box
+                                                sx={{
+                                                    display: "flex",
+                                                    alignItems: "flex-start",
+                                                    gap: 2,
+                                                }}
+                                            >
                                                 <Avatar
                                                     sx={{
-                                                        bgcolor: consent.value ? 'success.main' : errors[`consents[${index}].value`] ? 'error.main' : 'grey.400',
-                                                        transition: 'background-color 0.3s ease',
+                                                        bgcolor: consent.value
+                                                            ? "success.main"
+                                                            : errors[`consents[${index}].value`]
+                                                              ? "error.main"
+                                                              : "grey.400",
+                                                        transition: "background-color 0.3s ease",
                                                         width: 40,
-                                                        height: 40
+                                                        height: 40,
                                                     }}
                                                 >
                                                     {consent.value ? <Check /> : index + 1}
@@ -556,13 +572,21 @@ const ConsentForm = ({
                                                     <Typography
                                                         variant="body1"
                                                         fontWeight={500}
-                                                        color={errors[`consents[${index}].value`] ? 'error.main' : 'text.primary'}
+                                                        color={
+                                                            errors[`consents[${index}].value`]
+                                                                ? "error.main"
+                                                                : "text.primary"
+                                                        }
                                                     >
                                                         {consent.title}
                                                     </Typography>
                                                     <Typography
                                                         variant="body2"
-                                                        color={errors[`consents[${index}].value`] ? 'error.main' : 'text.secondary'}
+                                                        color={
+                                                            errors[`consents[${index}].value`]
+                                                                ? "error.main"
+                                                                : "text.secondary"
+                                                        }
                                                         sx={{ mt: 0.5 }}
                                                     >
                                                         {consent.description}
@@ -574,8 +598,8 @@ const ConsentForm = ({
                                                             variant="caption"
                                                             color="error.main"
                                                             sx={{
-                                                                display: 'block',
-                                                                mt: 1
+                                                                display: "block",
+                                                                mt: 1,
                                                             }}
                                                         >
                                                             {errors[`consents[${index}].value`]}
@@ -589,7 +613,11 @@ const ConsentForm = ({
                                                             checked={consent.value || false}
                                                             onChange={handleConsentChange(index)}
                                                             disabled={processing}
-                                                            color={errors[`consents[${index}].value`] ? "error" : "primary"}
+                                                            color={
+                                                                errors[`consents[${index}].value`]
+                                                                    ? "error"
+                                                                    : "primary"
+                                                            }
                                                             required
                                                         />
                                                     }
@@ -611,11 +639,13 @@ const ConsentForm = ({
                             sx={{
                                 p: 3,
                                 borderRadius: 2,
-                                border: '1px solid',
-                                borderColor: errors.consentForm ? theme.palette.error.main : theme.palette.divider,
+                                border: "1px solid",
+                                borderColor: errors.consentForm
+                                    ? theme.palette.error.main
+                                    : theme.palette.divider,
                                 ...(errors.consentForm && {
-                                    boxShadow: `0 0 0 1px ${theme.palette.error.main}`
-                                })
+                                    boxShadow: `0 0 0 1px ${theme.palette.error.main}`,
+                                }),
                             }}
                         >
                             <Typography variant="h6" fontWeight={600} sx={{ mb: 1 }}>
@@ -623,7 +653,8 @@ const ConsentForm = ({
                             </Typography>
 
                             <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                                If you have a physically signed consent form, please upload it here. Acceptable formats include PDF, JPG, and PNG.
+                                If you have a physically signed consent form, please upload it here.
+                                Acceptable formats include PDF, JPG, and PNG.
                             </Typography>
 
                             <FileUploader

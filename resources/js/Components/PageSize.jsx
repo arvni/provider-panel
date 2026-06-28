@@ -10,10 +10,8 @@ import {
     alpha,
     Stack,
     Chip,
-    ButtonGroup,
-    Button
 } from "@mui/material";
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { motion } from "framer-motion";
 
 /**
@@ -28,14 +26,14 @@ import { motion } from "framer-motion";
  * @param {object} sx - Additional styles
  */
 const PageSize = ({
-                      defaultValue = 10,
-                      onChange,
-                      total,
-                      options = [10, 20, 50, 100],
-                      size = "small",
-                      showLabel = true,
-                      sx = {}
-                  }) => {
+    defaultValue = 10,
+    onChange,
+    total,
+    options = [10, 20, 50, 100],
+    size = "small",
+    showLabel = true,
+    sx = {},
+}) => {
     const theme = useTheme();
     const [value, setValue] = useState(defaultValue);
 
@@ -47,14 +45,6 @@ const PageSize = ({
     // Handle change of page size
     const handleChange = (e) => {
         const newValue = e.target.value;
-        setValue(newValue);
-        if (onChange) {
-            onChange(newValue);
-        }
-    };
-
-    // Handle direct button selection
-    const handleButtonSelect = (newValue) => () => {
         setValue(newValue);
         if (onChange) {
             onChange(newValue);
@@ -76,8 +66,8 @@ const PageSize = ({
 
     // For compact/mobile view
     const CompactView = () => (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: 'nowrap' }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: "nowrap" }}>
                 Show:
             </Typography>
 
@@ -86,11 +76,11 @@ const PageSize = ({
                 variant="outlined"
                 sx={{
                     minWidth: 90,
-                    '& .MuiOutlinedInput-root': {
+                    "& .MuiOutlinedInput-root": {
                         borderRadius: 1.5,
                         backgroundColor: theme.palette.background.paper,
                     },
-                    ...sx
+                    ...sx,
                 }}
             >
                 <Select
@@ -101,26 +91,26 @@ const PageSize = ({
                     IconComponent={KeyboardArrowDownIcon}
                     MenuProps={{
                         anchorOrigin: {
-                            vertical: 'bottom',
-                            horizontal: 'right',
+                            vertical: "bottom",
+                            horizontal: "right",
                         },
                         transformOrigin: {
-                            vertical: 'top',
-                            horizontal: 'right',
+                            vertical: "top",
+                            horizontal: "right",
                         },
                         PaperProps: {
                             elevation: 3,
                             sx: {
                                 borderRadius: 2,
                                 mt: 0.5,
-                                '& .MuiMenuItem-root': {
+                                "& .MuiMenuItem-root": {
                                     px: 2,
-                                }
-                            }
-                        }
+                                },
+                            },
+                        },
                     }}
                 >
-                    {options.map(option => (
+                    {options.map((option) => (
                         <MenuItem
                             key={option}
                             value={option}
@@ -128,12 +118,12 @@ const PageSize = ({
                             sx={{
                                 fontWeight: value === option ? 600 : 400,
                                 py: 1,
-                                '&.Mui-selected': {
+                                "&.Mui-selected": {
                                     backgroundColor: alpha(theme.palette.primary.main, 0.1),
-                                    '&:hover': {
+                                    "&:hover": {
                                         backgroundColor: alpha(theme.palette.primary.main, 0.15),
-                                    }
-                                }
+                                    },
+                                },
                             }}
                         >
                             <Stack direction="row" alignItems="center" spacing={1}>
@@ -146,10 +136,10 @@ const PageSize = ({
                                         variant="outlined"
                                         sx={{
                                             height: 20,
-                                            fontSize: '0.6875rem',
-                                            '& .MuiChip-label': {
-                                                px: 0.5
-                                            }
+                                            fontSize: "0.6875rem",
+                                            "& .MuiChip-label": {
+                                                px: 0.5,
+                                            },
                                         }}
                                     />
                                 )}
@@ -168,10 +158,10 @@ const PageSize = ({
             variant={showLabel ? "outlined" : "standard"}
             sx={{
                 minWidth: 150,
-                '& .MuiOutlinedInput-root': {
+                "& .MuiOutlinedInput-root": {
                     borderRadius: 1.5,
                 },
-                ...sx
+                ...sx,
             }}
         >
             {showLabel && <InputLabel id="page-size-label">Items per page</InputLabel>}
@@ -184,26 +174,26 @@ const PageSize = ({
                 onChange={handleChange}
                 MenuProps={{
                     anchorOrigin: {
-                        vertical: 'bottom',
-                        horizontal: 'center',
+                        vertical: "bottom",
+                        horizontal: "center",
                     },
                     transformOrigin: {
-                        vertical: 'top',
-                        horizontal: 'center',
+                        vertical: "top",
+                        horizontal: "center",
                     },
                     PaperProps: {
                         elevation: 3,
                         sx: {
                             borderRadius: 2,
                             mt: 0.5,
-                            '& .MuiMenuItem-root': {
+                            "& .MuiMenuItem-root": {
                                 px: 2,
-                            }
-                        }
-                    }
+                            },
+                        },
+                    },
                 }}
             >
-                {options.map(option => (
+                {options.map((option) => (
                     <MenuItem
                         key={option}
                         value={option}
@@ -211,12 +201,12 @@ const PageSize = ({
                         sx={{
                             fontWeight: value === option ? 600 : 400,
                             py: 1.5,
-                            '&.Mui-selected': {
+                            "&.Mui-selected": {
                                 backgroundColor: alpha(theme.palette.primary.main, 0.1),
-                                '&:hover': {
+                                "&:hover": {
                                     backgroundColor: alpha(theme.palette.primary.main, 0.15),
-                                }
-                            }
+                                },
+                            },
                         }}
                     >
                         <Stack direction="row" alignItems="center" spacing={1}>
@@ -229,7 +219,7 @@ const PageSize = ({
                                     variant="outlined"
                                     sx={{
                                         height: 20,
-                                        fontSize: '0.6875rem'
+                                        fontSize: "0.6875rem",
                                     }}
                                 />
                             )}
@@ -244,64 +234,14 @@ const PageSize = ({
                     color="text.secondary"
                     sx={{
                         mt: 0.5,
-                        display: 'block',
-                        textAlign: 'center'
+                        display: "block",
+                        textAlign: "center",
                     }}
                 >
                     {Math.ceil(total / value)} pages total
                 </Typography>
             )}
         </FormControl>
-    );
-
-    // Alternative button group view
-    const ButtonGroupView = () => (
-        <Box
-            sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: 0.5
-            }}
-        >
-            {showLabel && (
-                <Typography variant="caption" color="text.secondary">
-                    Items per page
-                </Typography>
-            )}
-
-            <ButtonGroup
-                variant="outlined"
-                size={size}
-                aria-label="page size options"
-                sx={{
-                    '& .MuiButton-root': {
-                        minWidth: 48,
-                        fontWeight: 500,
-                    }
-                }}
-            >
-                {options.slice(0, 4).map(option => (
-                    <Button
-                        key={option}
-                        onClick={handleButtonSelect(option)}
-                        variant={value === option ? "contained" : "outlined"}
-                        sx={{
-                            borderColor: value === option
-                                ? theme.palette.primary.main
-                                : theme.palette.divider,
-                            '&:hover': {
-                                backgroundColor: value === option
-                                    ? theme.palette.primary.main
-                                    : alpha(theme.palette.primary.main, 0.1),
-                            }
-                        }}
-                    >
-                        {option}
-                    </Button>
-                ))}
-            </ButtonGroup>
-        </Box>
     );
 
     // Choose which view to display

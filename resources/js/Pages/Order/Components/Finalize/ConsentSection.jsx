@@ -13,12 +13,7 @@ import {
     useTheme,
     alpha,
 } from "@mui/material";
-import {
-    Assignment,
-    CheckCircle,
-    Error as ErrorIcon,
-    Download,
-} from "@mui/icons-material";
+import { Assignment, CheckCircle, Error as ErrorIcon, Download } from "@mui/icons-material";
 import CollapsibleSection from "@/Pages/Order/Components/Finalize/CollapsibleSection";
 import EditSectionButton from "@/Pages/Order/Components/Finalize/EditSectionButton";
 
@@ -26,7 +21,16 @@ import EditSectionButton from "@/Pages/Order/Components/Finalize/EditSectionButt
  * Consent review section on the Finalize page: each consent item's agreed state
  * plus any uploaded consent form files.
  */
-const ConsentSection = ({ restConsents, consentForm, errors, expanded, onToggle, status, hasError, orderId }) => {
+const ConsentSection = ({
+    restConsents,
+    consentForm,
+    errors,
+    expanded,
+    onToggle,
+    status,
+    hasError,
+    orderId,
+}) => {
     const theme = useTheme();
 
     return (
@@ -58,7 +62,7 @@ const ConsentSection = ({ restConsents, consentForm, errors, expanded, onToggle,
                                     py: 2,
                                     bgcolor: errors[`consents[${index}].value`]
                                         ? alpha(theme.palette.error.main, 0.05)
-                                        : 'transparent'
+                                        : "transparent",
                                 }}
                             >
                                 <ListItemIcon>
@@ -72,13 +76,17 @@ const ConsentSection = ({ restConsents, consentForm, errors, expanded, onToggle,
                                     primary={consent.title}
                                     secondary={consent.description}
                                     primaryTypographyProps={{
-                                        variant: 'body1',
+                                        variant: "body1",
                                         fontWeight: 500,
-                                        color: errors[`consents[${index}].value`] ? 'error.main' : 'text.primary'
+                                        color: errors[`consents[${index}].value`]
+                                            ? "error.main"
+                                            : "text.primary",
                                     }}
                                     secondaryTypographyProps={{
-                                        variant: 'body2',
-                                        color: errors[`consents[${index}].value`] ? 'error.main' : 'text.secondary'
+                                        variant: "body2",
+                                        color: errors[`consents[${index}].value`]
+                                            ? "error.main"
+                                            : "text.secondary",
                                     }}
                                 />
 
@@ -90,8 +98,11 @@ const ConsentSection = ({ restConsents, consentForm, errors, expanded, onToggle,
                                 />
                             </ListItem>
                             {errors[`consents[${index}].value`] && (
-                                <Typography variant="caption" color="error"
-                                            sx={{ ml: 9, display: 'block', mt: -1, mb: 1 }}>
+                                <Typography
+                                    variant="caption"
+                                    color="error"
+                                    sx={{ ml: 9, display: "block", mt: -1, mb: 1 }}
+                                >
                                     {errors[`consents[${index}].value`]}
                                 </Typography>
                             )}
@@ -110,7 +121,7 @@ const ConsentSection = ({ restConsents, consentForm, errors, expanded, onToggle,
                     <Typography variant="subtitle2" fontWeight={600} gutterBottom>
                         Consent Form Files
                     </Typography>
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
                         {consentForm.map((file, index) => (
                             <Button
                                 key={index}
@@ -121,7 +132,7 @@ const ConsentSection = ({ restConsents, consentForm, errors, expanded, onToggle,
                                 startIcon={<Download />}
                                 sx={{
                                     borderRadius: 1,
-                                    textTransform: 'none'
+                                    textTransform: "none",
                                 }}
                             >
                                 Form {index + 1}

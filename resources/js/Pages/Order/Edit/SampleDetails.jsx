@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useSubmitForm } from "@/Services/api";
 import EditLayout from "../EditLayout";
 import SampleDetailsForm from "../Components/SampleDetailsForm";
-import { Box, Alert, Typography } from "@mui/material";
-import { sampleDetailsValidate, formatSampleData, resetSampleFormErrors } from "@/Services/validate";
+import { Alert } from "@mui/material";
+import { sampleDetailsValidate, resetSampleFormErrors } from "@/Services/validate";
 import { motion, AnimatePresence } from "framer-motion";
 
 /**
@@ -22,30 +22,24 @@ const SampleDetails = ({ auth, order, step, sampleTypes, patients = [], orderIte
     // Initialize form with existing samples or an empty sample
     const initialData = {
         ...order,
-        samples: order.samples.length ? order.samples : [
-            {
-                sample_type: null,
-                sampleId: "",
-                collectionDate: "",
-                notes: ""
-            }
-        ],
-        _method: "put"
+        samples: order.samples.length
+            ? order.samples
+            : [
+                  {
+                      sample_type: null,
+                      sampleId: "",
+                      collectionDate: "",
+                      notes: "",
+                  },
+              ],
+        _method: "put",
     };
 
     // State for success message
     const [showSuccess, setShowSuccess] = useState(false);
 
     // Use the form submission hook
-    const {
-        data,
-        setData,
-        submit,
-        errors,
-        setError,
-        clearErrors,
-        processing,
-    } = useSubmitForm(
+    const { data, setData, submit, errors, setError, clearErrors, processing } = useSubmitForm(
         initialData,
         route("orders.update", { order: order.id, step })
     );
@@ -57,22 +51,22 @@ const SampleDetails = ({ auth, order, step, sampleTypes, patients = [], orderIte
             let elementId;
 
             // Handle different error formats
-            if (firstErrorKey.includes('[')) {
+            if (firstErrorKey.includes("[")) {
                 // Handle bracket notation format like samples[0].type
                 const match = firstErrorKey.match(/^([^[]+)\[(\d+)\]\.(.+)$/);
                 if (match) {
                     elementId = `field-${match[1]}.${match[2]}`;
                 }
-            } else if (firstErrorKey.includes('.')) {
+            } else if (firstErrorKey.includes(".")) {
                 // Handle dot notation format like samples.0.type
-                elementId = `field-${firstErrorKey.split('.')[0]}.${firstErrorKey.split('.')[1]}`;
+                elementId = `field-${firstErrorKey.split(".")[0]}.${firstErrorKey.split(".")[1]}`;
             } else {
                 elementId = `field-${firstErrorKey}`;
             }
 
             const element = document.getElementById(elementId);
             if (element) {
-                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                element.scrollIntoView({ behavior: "smooth", block: "center" });
             }
         }
     }, [errors]);
@@ -83,7 +77,7 @@ const SampleDetails = ({ auth, order, step, sampleTypes, patients = [], orderIte
      * @param {any} value Field value
      */
     const handleChange = (key, value) => {
-        setData(previousData => ({ ...previousData, [key]: value }));
+        setData((previousData) => ({ ...previousData, [key]: value }));
 
         // Clear the specific error when the field is changed
         if (errors[key]) {
@@ -91,10 +85,10 @@ const SampleDetails = ({ auth, order, step, sampleTypes, patients = [], orderIte
         }
 
         // For nested fields in samples array, clear those errors too
-        if (key === 'samples') {
+        if (key === "samples") {
             // Clear all sample-related errors
-            Object.keys(errors).forEach(errorKey => {
-                if (errorKey.startsWith('samples[') || errorKey.startsWith('samples.')) {
+            Object.keys(errors).forEach((errorKey) => {
+                if (errorKey.startsWith("samples[") || errorKey.startsWith("samples.")) {
                     clearErrors(errorKey);
                 }
             });
@@ -120,7 +114,6 @@ const SampleDetails = ({ auth, order, step, sampleTypes, patients = [], orderIte
 
         // Validate the sample data
         if (sampleDetailsValidate(data, setError)) {
-
             // Submit form
             submit({
                 onSuccess: () => {
@@ -131,7 +124,7 @@ const SampleDetails = ({ auth, order, step, sampleTypes, patients = [], orderIte
                     setTimeout(() => {
                         setShowSuccess(false);
                     }, 3000);
-                }
+                },
             });
         }
     };
@@ -158,9 +151,9 @@ const SampleDetails = ({ auth, order, step, sampleTypes, patients = [], orderIte
                             sx={{
                                 mb: 3,
                                 borderRadius: 2,
-                                '& .MuiAlert-icon': {
-                                    alignItems: 'center'
-                                }
+                                "& .MuiAlert-icon": {
+                                    alignItems: "center",
+                                },
                             }}
                             onClose={() => setShowSuccess(false)}
                         >
@@ -173,8 +166,8 @@ const SampleDetails = ({ auth, order, step, sampleTypes, patients = [], orderIte
             {/* Info about patient-test assignment */}
             {patients.length > 0 && orderItems.length > 0 && (
                 <Alert severity="info" sx={{ mb: 3 }}>
-                    You can now assign each sample to a specific patient and test.
-                    This helps organize which samples are for which patient's tests.
+                    You can now assign each sample to a specific patient and test. This helps
+                    organize which samples are for which patient&apos;s tests.
                 </Alert>
             )}
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
     Button,
     Divider,
@@ -16,7 +16,7 @@ import {
     alpha,
     Collapse,
     Paper,
-    Grid
+    Grid,
 } from "@mui/material";
 import {
     Search as SearchIcon,
@@ -26,7 +26,7 @@ import {
     BiotechOutlined as GeneIcon,
     MedicalServices as DiseaseIcon,
     ExpandMore as ExpandMoreIcon,
-    History as HistoryIcon
+    History as HistoryIcon,
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
 
@@ -43,10 +43,12 @@ import { motion } from "framer-motion";
  */
 const TestSearchForm = (props) => {
     const theme = useTheme();
-    const [values, setValues] = useState(props.defaultValues ?? {
-        search: "",
-        type: "test"
-    });
+    const [values, setValues] = useState(
+        props.defaultValues ?? {
+            search: "",
+            type: "test",
+        }
+    );
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [recentSearches, setRecentSearches] = useState(props.recentSearches || []);
     const [expanded, setExpanded] = useState(false);
@@ -54,11 +56,11 @@ const TestSearchForm = (props) => {
 
     // Keep track of local storage for recent searches
     useEffect(() => {
-        const storedSearches = localStorage.getItem('recentTestSearches');
+        const storedSearches = localStorage.getItem("recentTestSearches");
         if (storedSearches) {
             try {
                 setRecentSearches(JSON.parse(storedSearches).slice(0, 5));
-            } catch (e) {
+            } catch {
                 // Handle parsing error
                 setRecentSearches([]);
             }
@@ -71,11 +73,11 @@ const TestSearchForm = (props) => {
 
         const updatedSearches = [
             searchTerm,
-            ...recentSearches.filter(term => term !== searchTerm)
+            ...recentSearches.filter((term) => term !== searchTerm),
         ].slice(0, 5);
 
         setRecentSearches(updatedSearches);
-        localStorage.setItem('recentTestSearches', JSON.stringify(updatedSearches));
+        localStorage.setItem("recentTestSearches", JSON.stringify(updatedSearches));
 
         if (props.onSaveSearch) {
             props.onSaveSearch(updatedSearches);
@@ -95,12 +97,12 @@ const TestSearchForm = (props) => {
     // Input change handler with debounced auto-search
     const changeHandler = (e) => {
         const { name, value } = e.target;
-        setValues(prevState => ({
+        setValues((prevState) => ({
             ...prevState,
-            [name]: value
+            [name]: value,
         }));
 
-        if (name === 'search') {
+        if (name === "search") {
             setShowSuggestions(value.length > 0);
             // Debounce auto-search: trigger after 400ms of inactivity
             if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -114,25 +116,25 @@ const TestSearchForm = (props) => {
 
     // Clear search input
     const clearSearch = () => {
-        setValues(prevState => ({
+        setValues((prevState) => ({
             ...prevState,
-            search: ""
+            search: "",
         }));
         setShowSuggestions(false);
     };
 
     // Apply a suggestion (handler factory — not a hook, despite the old name)
     const applySuggestion = (suggestion) => () => {
-        setValues(prevState => ({
+        setValues((prevState) => ({
             ...prevState,
-            search: suggestion
+            search: suggestion,
         }));
         setShowSuggestions(false);
 
         // Submit the form with the selected suggestion
         props.onSearch({
             ...values,
-            search: suggestion
+            search: suggestion,
         });
     };
 
@@ -146,22 +148,18 @@ const TestSearchForm = (props) => {
         hidden: { opacity: 0 },
         visible: {
             opacity: 1,
-            transition: { duration: 0.3 }
-        }
+            transition: { duration: 0.3 },
+        },
     };
 
     return (
-        <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-        >
+        <motion.div variants={containerVariants} initial="hidden" animate="visible">
             <Box
                 component="form"
                 onSubmit={submitHandler}
                 sx={{
-                    position: 'relative',
-                    mb: expanded ? 3 : 0
+                    position: "relative",
+                    mb: expanded ? 3 : 0,
                 }}
             >
                 <TextField
@@ -191,13 +189,13 @@ const TestSearchForm = (props) => {
                             pl: 2,
                             py: 0.5,
                             backgroundColor: theme.palette.background.paper,
-                            transition: 'all 0.3s ease',
-                            '&:hover': {
-                                boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+                            transition: "all 0.3s ease",
+                            "&:hover": {
+                                boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
                             },
-                            '&.Mui-focused': {
-                                boxShadow: '0 4px 15px rgba(0,0,0,0.15)',
-                            }
+                            "&.Mui-focused": {
+                                boxShadow: "0 4px 15px rgba(0,0,0,0.15)",
+                            },
                         },
                         startAdornment: (
                             <InputAdornment position="start">
@@ -210,7 +208,7 @@ const TestSearchForm = (props) => {
                                     spacing={1}
                                     direction="row"
                                     alignItems="center"
-                                    sx={{ height: '100%' }}
+                                    sx={{ height: "100%" }}
                                 >
                                     {values.search && (
                                         <IconButton
@@ -230,12 +228,12 @@ const TestSearchForm = (props) => {
                                         sx={{
                                             width: "100px",
                                             mr: 1,
-                                            '& .MuiSelect-select': {
+                                            "& .MuiSelect-select": {
                                                 py: 1.5,
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                gap: 0.5
-                                            }
+                                                display: "flex",
+                                                alignItems: "center",
+                                                gap: 0.5,
+                                            },
                                         }}
                                     >
                                         <Select
@@ -244,25 +242,43 @@ const TestSearchForm = (props) => {
                                             name="type"
                                             disableUnderline
                                             sx={{
-                                                '& .MuiSelect-icon': {
-                                                    color: theme.palette.text.secondary
-                                                }
+                                                "& .MuiSelect-icon": {
+                                                    color: theme.palette.text.secondary,
+                                                },
                                             }}
                                         >
                                             <MenuItem value="test">
-                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                <Box
+                                                    sx={{
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        gap: 1,
+                                                    }}
+                                                >
                                                     <ScienceIcon fontSize="small" />
                                                     <Typography variant="body2">Test</Typography>
                                                 </Box>
                                             </MenuItem>
                                             <MenuItem value="gene">
-                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                <Box
+                                                    sx={{
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        gap: 1,
+                                                    }}
+                                                >
                                                     <GeneIcon fontSize="small" />
                                                     <Typography variant="body2">Gene</Typography>
                                                 </Box>
                                             </MenuItem>
                                             <MenuItem value="disease">
-                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                <Box
+                                                    sx={{
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        gap: 1,
+                                                    }}
+                                                >
                                                     <DiseaseIcon fontSize="small" />
                                                     <Typography variant="body2">Disease</Typography>
                                                 </Box>
@@ -278,17 +294,18 @@ const TestSearchForm = (props) => {
                                             borderRadius: "24px",
                                             px: 3,
                                             py: 1,
-                                            textTransform: 'none',
-                                            boxShadow: 'none',
-                                            '&:hover': {
-                                                boxShadow: theme.shadows[2]
-                                            }
+                                            textTransform: "none",
+                                            boxShadow: "none",
+                                            "&:hover": {
+                                                boxShadow: theme.shadows[2],
+                                            },
                                         }}
                                     >
                                         Search
                                     </Button>
                                 </Stack>
-                            </InputAdornment>)
+                            </InputAdornment>
+                        ),
                     }}
                 />
 
@@ -297,27 +314,27 @@ const TestSearchForm = (props) => {
                     <Paper
                         elevation={4}
                         sx={{
-                            position: 'absolute',
-                            top: '100%',
+                            position: "absolute",
+                            top: "100%",
                             left: 0,
                             right: 0,
                             mt: 0.5,
                             zIndex: 10,
                             borderRadius: 2,
-                            overflow: 'hidden',
-                            py: 1
+                            overflow: "hidden",
+                            py: 1,
                         }}
                     >
                         <Typography
                             variant="caption"
                             color="text.secondary"
                             sx={{
-                                display: 'flex',
-                                alignItems: 'center',
+                                display: "flex",
+                                alignItems: "center",
                                 px: 2,
                                 py: 0.5,
                                 gap: 0.5,
-                                fontWeight: 500
+                                fontWeight: 500,
                             }}
                         >
                             <HistoryIcon fontSize="small" />
@@ -333,9 +350,9 @@ const TestSearchForm = (props) => {
                                 sx={{
                                     py: 1,
                                     px: 2,
-                                    '&:hover': {
-                                        backgroundColor: alpha(theme.palette.primary.main, 0.08)
-                                    }
+                                    "&:hover": {
+                                        backgroundColor: alpha(theme.palette.primary.main, 0.08),
+                                    },
                                 }}
                             >
                                 <Typography variant="body2">
@@ -352,9 +369,9 @@ const TestSearchForm = (props) => {
                 {/* Advanced search toggle */}
                 <Box
                     sx={{
-                        display: 'flex',
-                        justifyContent: 'flex-end',
-                        mt: 1
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        mt: 1,
                     }}
                 >
                     <Button
@@ -364,14 +381,14 @@ const TestSearchForm = (props) => {
                         endIcon={
                             <ExpandMoreIcon
                                 sx={{
-                                    transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                                    transition: 'transform 0.3s'
+                                    transform: expanded ? "rotate(180deg)" : "rotate(0deg)",
+                                    transition: "transform 0.3s",
                                 }}
                             />
                         }
                         sx={{
-                            textTransform: 'none',
-                            color: theme.palette.text.secondary
+                            textTransform: "none",
+                            color: theme.palette.text.secondary,
                         }}
                     >
                         Advanced Search
@@ -386,8 +403,8 @@ const TestSearchForm = (props) => {
                             mt: 2,
                             p: 2,
                             borderRadius: 2,
-                            border: '1px solid',
-                            borderColor: theme.palette.divider
+                            border: "1px solid",
+                            borderColor: theme.palette.divider,
                         }}
                     >
                         <Grid container spacing={2}>
@@ -397,7 +414,7 @@ const TestSearchForm = (props) => {
                                     label="Test ID"
                                     name="test_id"
                                     size="small"
-                                    value={values.test_id || ''}
+                                    value={values.test_id || ""}
                                     onChange={changeHandler}
                                     variant="outlined"
                                     placeholder="E.g. T1234"
@@ -411,7 +428,7 @@ const TestSearchForm = (props) => {
                                         labelId="category-label"
                                         id="category-select"
                                         name="category"
-                                        value={values.category || ''}
+                                        value={values.category || ""}
                                         label="Category"
                                         onChange={changeHandler}
                                     >
@@ -431,7 +448,7 @@ const TestSearchForm = (props) => {
                                         labelId="method-label"
                                         id="method-select"
                                         name="method"
-                                        value={values.method || ''}
+                                        value={values.method || ""}
                                         label="Method"
                                         onChange={changeHandler}
                                     >
@@ -451,7 +468,7 @@ const TestSearchForm = (props) => {
                                         labelId="turnaround-label"
                                         id="turnaround-select"
                                         name="turnaround"
-                                        value={values.turnaround || ''}
+                                        value={values.turnaround || ""}
                                         label="Turnaround Time"
                                         onChange={changeHandler}
                                     >
@@ -465,20 +482,20 @@ const TestSearchForm = (props) => {
                             </Grid>
                         </Grid>
 
-                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                        <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
                             <Button
                                 variant="outlined"
                                 size="small"
                                 onClick={() => {
                                     setValues({
                                         search: values.search,
-                                        type: values.type
+                                        type: values.type,
                                     });
                                 }}
                                 sx={{
                                     mr: 1,
                                     borderRadius: 1.5,
-                                    textTransform: 'none'
+                                    textTransform: "none",
                                 }}
                             >
                                 Clear Filters
@@ -491,11 +508,11 @@ const TestSearchForm = (props) => {
                                 startIcon={<FilterIcon />}
                                 sx={{
                                     borderRadius: 1.5,
-                                    textTransform: 'none',
-                                    boxShadow: 'none',
-                                    '&:hover': {
-                                        boxShadow: theme.shadows[2]
-                                    }
+                                    textTransform: "none",
+                                    boxShadow: "none",
+                                    "&:hover": {
+                                        boxShadow: theme.shadows[2],
+                                    },
                                 }}
                             >
                                 Apply Filters

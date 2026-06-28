@@ -21,7 +21,7 @@ import {
     TextField,
     Typography,
     Alert,
-    Chip
+    Chip,
 } from "@mui/material";
 import {
     Save,
@@ -34,7 +34,7 @@ import {
     AccessTime,
     Receipt,
     CheckCircle,
-    Event
+    Event,
 } from "@mui/icons-material";
 
 /**
@@ -53,28 +53,28 @@ const collectRequestStatuses = [
         value: "requested",
         color: "warning",
         icon: <Receipt fontSize="small" />,
-        description: "Collection has been requested but not yet scheduled"
+        description: "Collection has been requested but not yet scheduled",
     },
     {
         label: "Scheduled",
         value: "scheduled",
         color: "info",
         icon: <Schedule fontSize="small" />,
-        description: "Collection has been scheduled for pickup"
+        description: "Collection has been scheduled for pickup",
     },
     {
         label: "Picked up",
         value: "picked up",
         color: "secondary",
         icon: <LocalShipping fontSize="small" />,
-        description: "Samples have been picked up and are in transit"
+        description: "Samples have been picked up and are in transit",
     },
     {
         label: "Received",
         value: "received",
         color: "success",
         icon: <CheckCircle fontSize="small" />,
-        description: "Samples have been received at the lab"
+        description: "Samples have been received at the lab",
     },
 ];
 
@@ -94,15 +94,15 @@ const collectRequestStatuses = [
  * @returns {JSX.Element} Rendered component
  */
 const Form = ({
-                  values,
-                  setValues,
-                  cancel,
-                  submit,
-                  errors = {},
-                  open,
-                  defaultValue,
-                  processing = false
-              }) => {
+    values,
+    setValues,
+    cancel,
+    submit,
+    errors = {},
+    open,
+    defaultValue,
+    processing = false,
+}) => {
     // State for status description
     const [statusDescription, setStatusDescription] = useState("");
 
@@ -113,10 +113,10 @@ const Form = ({
      */
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setValues(prevValues => ({ ...prevValues, [name]: value }));
+        setValues((prevValues) => ({ ...prevValues, [name]: value }));
 
         // Update status description when status changes
-        if (name === 'status') {
+        if (name === "status") {
             updateStatusDescription(value);
         }
     };
@@ -127,7 +127,7 @@ const Form = ({
      * @param {string} status Status value
      */
     const updateStatusDescription = (status) => {
-        const statusObject = collectRequestStatuses.find(s => s.value === status);
+        const statusObject = collectRequestStatuses.find((s) => s.value === status);
         setStatusDescription(statusObject?.description || "");
     };
 
@@ -138,7 +138,7 @@ const Form = ({
      * @returns {string} Color name
      */
     const getStatusColor = (status) => {
-        const statusObject = collectRequestStatuses.find(s => s.value === status);
+        const statusObject = collectRequestStatuses.find((s) => s.value === status);
         return statusObject?.color || "default";
     };
 
@@ -149,7 +149,7 @@ const Form = ({
      * @returns {JSX.Element} Icon element
      */
     const getStatusIcon = (status) => {
-        const statusObject = collectRequestStatuses.find(s => s.value === status);
+        const statusObject = collectRequestStatuses.find((s) => s.value === status);
         return statusObject?.icon || <MoreVert fontSize="small" />;
     };
 
@@ -179,7 +179,9 @@ const Form = ({
     const handleClose = () => {
         // Confirm before closing if changes were made
         if (JSON.stringify(values) !== JSON.stringify(defaultValue)) {
-            if (window.confirm("Are you sure you want to cancel? Any unsaved changes will be lost.")) {
+            if (
+                window.confirm("Are you sure you want to cancel? Any unsaved changes will be lost.")
+            ) {
                 cancel();
             }
         } else {
@@ -203,21 +205,21 @@ const Form = ({
             slots={{ transition: SlideTransition }}
             PaperProps={{
                 elevation: 5,
-                sx: { borderRadius: 2 }
+                sx: { borderRadius: 2 },
             }}
         >
             {/* Dialog title */}
-            <DialogTitle sx={{
-                pb: 1,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between'
-            }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <DialogTitle
+                sx={{
+                    pb: 1,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                }}
+            >
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     <LocalShipping color="primary" />
-                    <Typography variant="h6">
-                        Edit Collection Details
-                    </Typography>
+                    <Typography variant="h6">Edit Collection Details</Typography>
                 </Box>
 
                 <IconButton
@@ -237,10 +239,7 @@ const Form = ({
             <DialogContent sx={{ pt: 3 }}>
                 {/* Disable editing message */}
                 {defaultValue.status === "received" && (
-                    <Alert
-                        severity="info"
-                        sx={{ mb: 3 }}
-                    >
+                    <Alert severity="info" sx={{ mb: 3 }}>
                         This collection request has been marked as received and cannot be modified.
                     </Alert>
                 )}
@@ -266,20 +265,22 @@ const Form = ({
                                         labelId="status-label"
                                         id="status"
                                         name="status"
-                                        value={values.status || ''}
+                                        value={values.status || ""}
                                         onChange={handleChange}
                                         label="Status"
                                         renderValue={(selected) => (
                                             <Stack direction="row" spacing={1} alignItems="center">
                                                 {getStatusIcon(selected)}
                                                 <Typography>
-                                                    {collectRequestStatuses.find(s => s.value === selected)?.label || selected}
+                                                    {collectRequestStatuses.find(
+                                                        (s) => s.value === selected
+                                                    )?.label || selected}
                                                 </Typography>
                                                 <Chip
                                                     label={selected}
                                                     size="small"
                                                     color={getStatusColor(selected)}
-                                                    sx={{ ml: 1, textTransform: 'capitalize' }}
+                                                    sx={{ ml: 1, textTransform: "capitalize" }}
                                                 />
                                             </Stack>
                                         )}
@@ -291,7 +292,11 @@ const Form = ({
                                     >
                                         {collectRequestStatuses.map((option) => (
                                             <MenuItem key={option.value} value={option.value}>
-                                                <Stack direction="row" spacing={1} alignItems="center">
+                                                <Stack
+                                                    direction="row"
+                                                    spacing={1}
+                                                    alignItems="center"
+                                                >
                                                     {option.icon}
                                                     <Typography>{option.label}</Typography>
                                                 </Stack>
@@ -300,9 +305,7 @@ const Form = ({
                                     </Select>
 
                                     {statusDescription && (
-                                        <FormHelperText>
-                                            {statusDescription}
-                                        </FormHelperText>
+                                        <FormHelperText>{statusDescription}</FormHelperText>
                                     )}
                                 </FormControl>
                             </Stack>
@@ -313,13 +316,16 @@ const Form = ({
                     {values.status === "scheduled" && (
                         <Grid size={{ xs: 12, md: 6 }}>
                             <TextField
-                                error={hasError('scheduleDate')}
-                                helperText={getErrorMessage('scheduleDate') || "Select the scheduled collection date and time"}
+                                error={hasError("scheduleDate")}
+                                helperText={
+                                    getErrorMessage("scheduleDate") ||
+                                    "Select the scheduled collection date and time"
+                                }
                                 fullWidth
                                 type="datetime-local"
                                 label="Schedule Date & Time"
                                 name="scheduleDate"
-                                value={values.scheduleDate || ''}
+                                value={values.scheduleDate || ""}
                                 onChange={handleChange}
                                 disabled={processing}
                                 required
@@ -341,13 +347,16 @@ const Form = ({
                     {values.status === "picked up" && (
                         <Grid size={{ xs: 12, md: 6 }}>
                             <TextField
-                                error={hasError('pickupDate')}
-                                helperText={getErrorMessage('pickupDate') || "Select the actual pickup date and time"}
+                                error={hasError("pickupDate")}
+                                helperText={
+                                    getErrorMessage("pickupDate") ||
+                                    "Select the actual pickup date and time"
+                                }
                                 fullWidth
                                 type="datetime-local"
                                 label="Pickup Date & Time"
                                 name="pickupDate"
-                                value={values.pickupDate || ''}
+                                value={values.pickupDate || ""}
                                 onChange={handleChange}
                                 disabled={processing}
                                 required
@@ -377,15 +386,18 @@ const Form = ({
                                 fullWidth
                                 multiline
                                 rows={4}
-                                label={`${collectRequestStatuses.find(s => s.value === values.status)?.label || ''} Details`}
+                                label={`${collectRequestStatuses.find((s) => s.value === values.status)?.label || ""} Details`}
                                 name={`${values.status}Details`}
-                                value={values[`${values.status}Details`] || ''}
+                                value={values[`${values.status}Details`] || ""}
                                 onChange={handleChange}
                                 disabled={processing}
                                 placeholder={`Enter any relevant information about this ${values.status} status...`}
                                 InputProps={{
                                     startAdornment: (
-                                        <InputAdornment position="start" sx={{ alignSelf: 'flex-start', mt: 1.5 }}>
+                                        <InputAdornment
+                                            position="start"
+                                            sx={{ alignSelf: "flex-start", mt: 1.5 }}
+                                        >
                                             <Notes color={getStatusColor(values.status)} />
                                         </InputAdornment>
                                     ),
@@ -400,11 +412,7 @@ const Form = ({
 
             {/* Dialog actions */}
             <DialogActions sx={{ px: 3, py: 2 }}>
-                <Button
-                    onClick={handleClose}
-                    startIcon={<Cancel />}
-                    disabled={processing}
-                >
+                <Button onClick={handleClose} startIcon={<Cancel />} disabled={processing}>
                     Cancel
                 </Button>
 

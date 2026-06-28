@@ -10,7 +10,7 @@ import {
     Typography,
     Tooltip,
     useTheme,
-    Fade
+    Fade,
 } from "@mui/material";
 import { Visibility, VisibilityOff, LockOutlined } from "@mui/icons-material";
 
@@ -29,17 +29,17 @@ import { Visibility, VisibilityOff, LockOutlined } from "@mui/icons-material";
  * @param {Object} props - Additional props to pass to OutlinedInput
  */
 const PasswordField = ({
-                           name,
-                           helperText,
-                           label = "",
-                           error = false,
-                           fullWidth = true,
-                           required = false,
-                           startAdornment,
-                           showStrength = false,
-                           value,
-                           ...props
-                       }) => {
+    name,
+    helperText,
+    label = "",
+    error = false,
+    fullWidth = true,
+    required = false,
+    startAdornment,
+    showStrength = false,
+    value,
+    ...props
+}) => {
     const theme = useTheme();
     const [showPassword, setShowPassword] = useState(false);
     const [focused, setFocused] = useState(false);
@@ -100,9 +100,9 @@ const PasswordField = ({
                 htmlFor={`${name}-field-id`}
                 error={error}
                 sx={{
-                    '&.Mui-focused': {
-                        color: error ? theme.palette.error.main : theme.palette.primary.main
-                    }
+                    "&.Mui-focused": {
+                        color: error ? theme.palette.error.main : theme.palette.primary.main,
+                    },
                 }}
             >
                 {label}
@@ -114,14 +114,13 @@ const PasswordField = ({
                 label={label}
                 value={value}
                 error={error}
-                startAdornment={startAdornment || (
-                    <InputAdornment position="start">
-                        <LockOutlined
-                            fontSize="small"
-                            color={error ? "error" : "action"}
-                        />
-                    </InputAdornment>
-                )}
+                startAdornment={
+                    startAdornment || (
+                        <InputAdornment position="start">
+                            <LockOutlined fontSize="small" color={error ? "error" : "action"} />
+                        </InputAdornment>
+                    )
+                }
                 endAdornment={
                     <InputAdornment position="end">
                         <Tooltip
@@ -135,9 +134,9 @@ const PasswordField = ({
                                 edge="end"
                                 sx={{
                                     color: theme.palette.text.secondary,
-                                    '&:hover': {
-                                        backgroundColor: 'rgba(0, 0, 0, 0.04)'
-                                    }
+                                    "&:hover": {
+                                        backgroundColor: "rgba(0, 0, 0, 0.04)",
+                                    },
                                 }}
                             >
                                 {showPassword ? <VisibilityOff /> : <Visibility />}
@@ -145,19 +144,19 @@ const PasswordField = ({
                         </Tooltip>
                     </InputAdornment>
                 }
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 required={required}
                 onFocus={() => setFocused(true)}
                 onBlur={() => setFocused(false)}
                 sx={{
                     borderRadius: 1.5,
-                    transition: 'all 0.2s ease-in-out',
-                    '&:hover': {
-                        boxShadow: error ? 'none' : '0 2px 8px rgba(0,0,0,0.08)'
+                    transition: "all 0.2s ease-in-out",
+                    "&:hover": {
+                        boxShadow: error ? "none" : "0 2px 8px rgba(0,0,0,0.08)",
                     },
-                    '&.Mui-focused': {
-                        boxShadow: error ? 'none' : '0 2px 10px rgba(0,0,0,0.1)'
-                    }
+                    "&.Mui-focused": {
+                        boxShadow: error ? "none" : "0 2px 10px rgba(0,0,0,0.1)",
+                    },
                 }}
                 {...props}
             />
@@ -165,8 +164,8 @@ const PasswordField = ({
             {showStrength && value && focused ? (
                 <Box sx={{ mt: 1, mb: helperText ? 0 : 1 }}>
                     <Fade in={true}>
-                        <Box sx={{ width: '100%', display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <Box sx={{ display: 'flex', flex: 1, gap: 0.5 }}>
+                        <Box sx={{ width: "100%", display: "flex", alignItems: "center", gap: 1 }}>
+                            <Box sx={{ display: "flex", flex: 1, gap: 0.5 }}>
                                 {[1, 2, 3, 4, 5].map((level) => (
                                     <Box
                                         key={level}
@@ -174,8 +173,11 @@ const PasswordField = ({
                                             height: 4,
                                             flex: 1,
                                             borderRadius: 1,
-                                            bgcolor: level <= passwordStrength ? strengthInfo.color : 'rgba(0, 0, 0, 0.1)',
-                                            transition: 'background-color 0.3s ease'
+                                            bgcolor:
+                                                level <= passwordStrength
+                                                    ? strengthInfo.color
+                                                    : "rgba(0, 0, 0, 0.1)",
+                                            transition: "background-color 0.3s ease",
                                         }}
                                     />
                                 ))}
@@ -186,7 +188,7 @@ const PasswordField = ({
                                     color: strengthInfo.color,
                                     fontWeight: 500,
                                     minWidth: 80,
-                                    textAlign: 'right'
+                                    textAlign: "right",
                                 }}
                             >
                                 {strengthInfo.text}
@@ -201,9 +203,9 @@ const PasswordField = ({
                     error={error}
                     sx={{
                         mt: 0.5,
-                        fontSize: '0.75rem',
+                        fontSize: "0.75rem",
                         lineHeight: 1.2,
-                        transition: 'color 0.3s ease'
+                        transition: "color 0.3s ease",
                     }}
                 >
                     {helperText}

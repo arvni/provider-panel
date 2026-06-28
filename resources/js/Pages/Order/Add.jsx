@@ -23,7 +23,7 @@ import {
     Add as AddIcon,
     Save as SaveIcon,
     Cancel as CancelIcon,
-    Help as HelpIcon
+    Help as HelpIcon,
 } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -36,23 +36,18 @@ const Add = ({ auth, tests = [] }) => {
     const [showHelp, setShowHelp] = useState(false);
 
     // Form state management
-    const {
-        data,
-        setData,
-        submit,
-        errors,
-        setError,
-        clearErrors,
-        processing
-    } = useSubmitForm({
-        patient: undefined,
-        status: undefined,
-        step: undefined,
-        tests: tests,
-        files: [],
-        orderForms: [],
-        samples: [{}]
-    }, route("orders.store"));
+    const { data, setData, submit, errors, setError, clearErrors, processing } = useSubmitForm(
+        {
+            patient: undefined,
+            status: undefined,
+            step: undefined,
+            tests: tests,
+            files: [],
+            orderForms: [],
+            samples: [{}],
+        },
+        route("orders.store")
+    );
 
     // Handle form field changes
     const handleChange = (key, value) => {
@@ -77,7 +72,7 @@ const Add = ({ auth, tests = [] }) => {
                 },
                 onError: () => {
                     setIsSubmitting(false);
-                }
+                },
             });
         } else {
             setIsSubmitting(false);
@@ -102,8 +97,8 @@ const Add = ({ auth, tests = [] }) => {
             transition: {
                 when: "beforeChildren",
                 staggerChildren: 0.1,
-            }
-        }
+            },
+        },
     };
 
     const itemVariants = {
@@ -111,8 +106,8 @@ const Add = ({ auth, tests = [] }) => {
         visible: {
             y: 0,
             opacity: 1,
-            transition: { duration: 0.4 }
-        }
+            transition: { duration: 0.4 },
+        },
     };
 
     return (
@@ -122,13 +117,13 @@ const Add = ({ auth, tests = [] }) => {
                 {
                     title: "Orders",
                     link: route("orders.index"),
-                    icon: null
+                    icon: null,
                 },
                 {
                     title: "New Order",
                     link: "",
-                    icon: null
-                }
+                    icon: null,
+                },
             ]}
         >
             <Box
@@ -145,7 +140,7 @@ const Add = ({ auth, tests = [] }) => {
                         mt: 2,
                         mb: 4,
                         borderRadius: 2,
-                        border: '1px solid',
+                        border: "1px solid",
                         borderColor: theme.palette.divider,
                     }}
                 >
@@ -155,11 +150,11 @@ const Add = ({ auth, tests = [] }) => {
                         variants={itemVariants}
                         sx={{
                             mb: 4,
-                            display: 'flex',
-                            flexDirection: { xs: 'column', sm: 'row' },
-                            justifyContent: 'space-between',
-                            alignItems: { xs: 'flex-start', sm: 'center' },
-                            gap: 2
+                            display: "flex",
+                            flexDirection: { xs: "column", sm: "row" },
+                            justifyContent: "space-between",
+                            alignItems: { xs: "flex-start", sm: "center" },
+                            gap: 2,
                         }}
                     >
                         <Box>
@@ -167,10 +162,10 @@ const Add = ({ auth, tests = [] }) => {
                                 variant="h5"
                                 fontWeight={700}
                                 sx={{
-                                    display: 'flex',
-                                    alignItems: 'center',
+                                    display: "flex",
+                                    alignItems: "center",
                                     gap: 1,
-                                    mb: 0.5
+                                    mb: 0.5,
                                 }}
                             >
                                 <AddIcon color="primary" />
@@ -188,8 +183,10 @@ const Add = ({ auth, tests = [] }) => {
                                     color={showHelp ? "primary" : "default"}
                                     sx={{
                                         mr: 1,
-                                        border: '1px solid',
-                                        borderColor: showHelp ? theme.palette.primary.main : theme.palette.divider
+                                        border: "1px solid",
+                                        borderColor: showHelp
+                                            ? theme.palette.primary.main
+                                            : theme.palette.divider,
                                     }}
                                 >
                                     <HelpIcon />
@@ -204,7 +201,7 @@ const Add = ({ auth, tests = [] }) => {
                                 sx={{
                                     mr: 1,
                                     borderRadius: 1,
-                                    textTransform: 'none'
+                                    textTransform: "none",
                                 }}
                             >
                                 Cancel
@@ -219,7 +216,7 @@ const Add = ({ auth, tests = [] }) => {
                         {showHelp && (
                             <motion.div
                                 initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: 'auto' }}
+                                animate={{ opacity: 1, height: "auto" }}
                                 exit={{ opacity: 0, height: 0 }}
                                 transition={{ duration: 0.3 }}
                             >
@@ -228,7 +225,7 @@ const Add = ({ auth, tests = [] }) => {
                                     sx={{
                                         mb: 3,
                                         borderColor: alpha(theme.palette.info.main, 0.5),
-                                        backgroundColor: alpha(theme.palette.info.main, 0.05)
+                                        backgroundColor: alpha(theme.palette.info.main, 0.05),
                                     }}
                                 >
                                     <CardContent>
@@ -246,17 +243,22 @@ const Add = ({ auth, tests = [] }) => {
                                         <Box component="ol" sx={{ ml: 2, mb: 0 }}>
                                             <Box component="li" sx={{ mb: 1 }}>
                                                 <Typography variant="body2">
-                                                    <strong>Select Test Method(s)</strong> - Choose one or more tests from the available options.
+                                                    <strong>Select Test Method(s)</strong> - Choose
+                                                    one or more tests from the available options.
                                                 </Typography>
                                             </Box>
                                             <Box component="li" sx={{ mb: 1 }}>
                                                 <Typography variant="body2">
-                                                    <strong>Enter Patient Information</strong> - Provide the patient's details needed for the tests.
+                                                    <strong>Enter Patient Information</strong> -
+                                                    Provide the patient&apos;s details needed for
+                                                    the tests.
                                                 </Typography>
                                             </Box>
                                             <Box component="li">
                                                 <Typography variant="body2">
-                                                    <strong>Add Sample Information</strong> - Specify details about the sample(s) being sent for testing.
+                                                    <strong>Add Sample Information</strong> -
+                                                    Specify details about the sample(s) being sent
+                                                    for testing.
                                                 </Typography>
                                             </Box>
                                         </Box>
@@ -280,11 +282,11 @@ const Add = ({ auth, tests = [] }) => {
                                     sx={{
                                         mb: 3,
                                         borderRadius: 1,
-                                        '& .MuiAlert-icon': {
-                                            alignItems: 'center'
-                                        }
+                                        "& .MuiAlert-icon": {
+                                            alignItems: "center",
+                                        },
                                     }}
-                                    onClose={() => clearErrors('tests')}
+                                    onClose={() => clearErrors("tests")}
                                 >
                                     {errors.test_method || "Please select at least one test method"}
                                 </Alert>
@@ -293,11 +295,7 @@ const Add = ({ auth, tests = [] }) => {
                     </AnimatePresence>
 
                     {/* Form Content */}
-                    <Box
-                        component={motion.div}
-                        variants={itemVariants}
-                        sx={{ mb: 3 }}
-                    >
+                    <Box component={motion.div} variants={itemVariants} sx={{ mb: 3 }}>
                         <TestMethodForm
                             tests={data.tests}
                             onChange={handleChange}
@@ -312,11 +310,11 @@ const Add = ({ auth, tests = [] }) => {
                         sx={{
                             mt: 4,
                             pt: 3,
-                            borderTop: '1px solid',
+                            borderTop: "1px solid",
                             borderColor: theme.palette.divider,
-                            display: 'flex',
-                            justifyContent: 'flex-end',
-                            gap: 2
+                            display: "flex",
+                            justifyContent: "flex-end",
+                            gap: 2,
                         }}
                     >
                         <Button
@@ -327,7 +325,7 @@ const Add = ({ auth, tests = [] }) => {
                             disabled={isSubmitting || processing}
                             sx={{
                                 borderRadius: 1,
-                                textTransform: 'none'
+                                textTransform: "none",
                             }}
                         >
                             Cancel
@@ -336,19 +334,27 @@ const Add = ({ auth, tests = [] }) => {
                         <Button
                             variant="contained"
                             color="primary"
-                            startIcon={isSubmitting || processing ? <CircularProgress size={20} color="inherit" /> : <SaveIcon />}
+                            startIcon={
+                                isSubmitting || processing ? (
+                                    <CircularProgress size={20} color="inherit" />
+                                ) : (
+                                    <SaveIcon />
+                                )
+                            }
                             onClick={handleSubmit}
                             disabled={isSubmitting || processing}
                             sx={{
                                 borderRadius: 1,
-                                textTransform: 'none',
-                                boxShadow: 'none',
-                                '&:hover': {
-                                    boxShadow: theme.shadows[2]
-                                }
+                                textTransform: "none",
+                                boxShadow: "none",
+                                "&:hover": {
+                                    boxShadow: theme.shadows[2],
+                                },
                             }}
                         >
-                            {isSubmitting || processing ? 'Saving...' : 'Continue to Patient Information'}
+                            {isSubmitting || processing
+                                ? "Saving..."
+                                : "Continue to Patient Information"}
                         </Button>
                     </Box>
                 </Paper>
@@ -357,9 +363,9 @@ const Add = ({ auth, tests = [] }) => {
             {/* Loading Backdrop */}
             <Backdrop
                 sx={{
-                    color: '#fff',
+                    color: "#fff",
                     zIndex: theme.zIndex.drawer + 1,
-                    backdropFilter: 'blur(4px)'
+                    backdropFilter: "blur(4px)",
                 }}
                 open={isSubmitting || processing}
             >

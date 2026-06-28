@@ -3,26 +3,20 @@ import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 
 export const useSubmitForm = (defaultValues, route) => {
-    const {
-        data,
-        setData,
-        post,
-        processing,
-        setError,
-        errors,
-        clearErrors,
-        reset,
-        wasSuccessful,
-    } = useForm(defaultValues);
+    const { data, setData, post, processing, setError, errors, clearErrors, reset, wasSuccessful } =
+        useForm(defaultValues);
     const submit = (options) => {
         if (typeof route === "string") {
             post(route, options);
         }
-    }
+    };
     const handleChange = (e) => {
         if (e && typeof e !== "string")
-            setData(e.target.name, e.target.type === "checkbox" ? e.target.checked : e.target.value);
-    }
+            setData(
+                e.target.name,
+                e.target.type === "checkbox" ? e.target.checked : e.target.value
+            );
+    };
 
     return {
         data,
@@ -35,9 +29,9 @@ export const useSubmitForm = (defaultValues, route) => {
         clearErrors,
         handleChange,
         reset,
-        wasSuccessful
+        wasSuccessful,
     };
-}
+};
 
 export const useUploadFiles = (url) => {
     const [progress, setProgress] = useState(0);
@@ -46,34 +40,35 @@ export const useUploadFiles = (url) => {
         formData.set("file", file);
         return axios.post(url, formData, {
             headers: {
-                'Content-Type': 'multipart/form-data'
+                "Content-Type": "multipart/form-data",
             },
-            onUploadProgress: (e) => setProgress(e.progress ?? 0)
-        })
-    }
+            onUploadProgress: (e) => setProgress(e.progress ?? 0),
+        });
+    };
     const resetProgress = () => setProgress(0);
-    return { progress, upload, resetProgress }
-}
+    return { progress, upload, resetProgress };
+};
 
 export const useChangePage = () => {
     const { processing, get: goto } = useForm();
     const get = (url) => goto(url);
     return {
-        processing, get
-    }
-}
-
+        processing,
+        get,
+    };
+};
 
 export const usePageReload = (request, only = []) => {
     const [data, setData] = useState(request);
     const firstUpdate = useRef(true);
     const [processing, setProcessing] = useState(false);
-    const reload = () => router.reload({
-        only,
-        data,
-        onStart: activateProcessing,
-        onFinish: deactivateProcessing
-    });
+    const reload = () =>
+        router.reload({
+            only,
+            data,
+            onStart: activateProcessing,
+            onFinish: deactivateProcessing,
+        });
     useEffect(() => {
         if (firstUpdate.current) {
             firstUpdate.current = false;
@@ -99,7 +94,7 @@ export const usePageReload = (request, only = []) => {
             setData((prevData) => ({
                 ...prevData,
                 page: 1,
-                filters
+                filters,
             }));
         }
     };
@@ -110,20 +105,31 @@ export const usePageReload = (request, only = []) => {
         router.visit(url, {
             onStart: activateProcessing,
             onFinish: deactivateProcessing,
-        })
-    }
+        });
+    };
     const activateProcessing = () => {
         setProcessing(true);
-    }
+    };
     const deactivateProcessing = () => {
         setProcessing(false);
-    }
+    };
 
-    return { processing, reload, get, data, setData, onPageChange, onPageSizeChange, onFilterChange, onOrderByChange }
-}
+    return {
+        processing,
+        reload,
+        get,
+        data,
+        setData,
+        onPageChange,
+        onPageSizeChange,
+        onFilterChange,
+        onOrderByChange,
+    };
+};
 
 function changeObjectWithNestedName(name, value, prevValues) {
-    const output = { ...prevValues }, nestedProperties = name.split("."),
+    const output = { ...prevValues },
+        nestedProperties = name.split("."),
         lastPart = nestedProperties.pop();
     let currentObject = output;
     for (let i = 0; i < nestedProperties.length; i++) {
@@ -135,19 +141,18 @@ function changeObjectWithNestedName(name, value, prevValues) {
             currentObject = currentObject[property];
         }
     }
-    if (lastPart)
-        currentObject[lastPart] = value;
+    if (lastPart) currentObject[lastPart] = value;
     return output;
 }
 
 // Helper function to get nested value
 function getValueByPath(obj, path) {
     if (!obj) return undefined;
-    const parts = path.split('.');
+    const parts = path.split(".");
     let current = obj;
 
     for (const part of parts) {
-        if (current == null || typeof current !== 'object') {
+        if (current == null || typeof current !== "object") {
             return undefined;
         }
         current = current[part];
@@ -173,25 +178,25 @@ export const useGetData = () => {
     }
 
     return { getData, loading };
-}
+};
 
 export const useDelete = () => {
     const { post, processing } = useForm({ _method: "delete" });
-    return { submit: post, processing }
-}
+    return { submit: post, processing };
+};
 
 export async function fetcher(resource) {
     let result;
     try {
         result = await fetch(resource);
-    } catch (e) {
-        throw new Error('Network error');
+    } catch {
+        throw new Error("Network error");
     }
     if (result.ok) {
         try {
             return await result.json();
-        } catch (e) {
-            throw new Error('Invalid JSON response');
+        } catch {
+            throw new Error("Invalid JSON response");
         }
     } else {
         throw new Error(result.statusText || `HTTP ${result.status}`);

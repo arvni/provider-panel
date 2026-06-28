@@ -1,21 +1,22 @@
-import React, {useState, useMemo} from "react";
+import React, { useState, useMemo } from "react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import TableLayout from "@/Layouts/TableLayout";
 import AddForm from "@/Pages/OrderMaterial/Components/AddForm";
 import PageHeader from "@/Components/PageHeader";
-import {useForm, usePage} from "@inertiajs/react";
-import {usePageReload} from "@/Services/api";
+import { useForm, usePage } from "@inertiajs/react";
+import { usePageReload } from "@/Services/api";
 import {
     Box,
     Button,
-    Chip, Collapse,
+    Chip,
+    Collapse,
     IconButton,
     InputAdornment,
     Paper,
     Stack,
     TextField,
     Tooltip,
-    Typography
+    Typography,
 } from "@mui/material";
 import {
     Add as AddIcon,
@@ -23,9 +24,8 @@ import {
     FilterAlt as FilterIcon,
     Search as SearchIcon,
     Clear as ClearIcon,
-    Science as ScienceIcon
+    Science as ScienceIcon,
 } from "@mui/icons-material";
-import {format} from 'date-fns';
 
 /**
  * OrderMaterials Index component
@@ -36,10 +36,10 @@ import {format} from 'date-fns';
 const Index = () => {
     // Page props from Inertia
     const {
-        orderMaterials: {data: orderMaterialsData, ...pagination},
+        orderMaterials: { data: orderMaterialsData, ...pagination },
         request,
         sampleTypes,
-        auth
+        auth,
     } = usePage().props;
 
     // Whether the user may order new materials
@@ -49,7 +49,7 @@ const Index = () => {
     const [searchTerm, setSearchTerm] = useState("");
 
     // Form state for adding new order material
-    const {post, setData, data, reset, processing: submitting} = useForm({amount:1});
+    const { post, setData, data, reset, processing: submitting } = useForm({ amount: 1 });
 
     // Page reload state
     const {
@@ -59,7 +59,7 @@ const Index = () => {
         onPageSizeChange,
         onOrderByChange,
         onFilterChange,
-        onPageChange
+        onPageChange,
     } = usePageReload(request, ["orderMaterials", "request", "status"]);
 
     // State for form dialog
@@ -68,30 +68,20 @@ const Index = () => {
     // State for filter panel
     const [showFilters, setShowFilters] = useState(false);
 
-    // Format date function
-    const formatDate = (dateString) => {
-        if (!dateString) return "—";
-        try {
-            return format(new Date(dateString), 'MMM d, yyyy h:mm a');
-        } catch (e) {
-            return dateString;
-        }
-    };
-
     // Status chip component
-    const StatusChip = ({status}) => {
+    const StatusChip = ({ status }) => {
         const getStatusProps = () => {
             switch (status?.toLowerCase()) {
-                case 'ORDERED':
-                    return {color: 'warning', label: 'Ordered'};
-                case 'PROCESSED':
-                    return {color: 'success', label: 'Processed'};
+                case "ORDERED":
+                    return { color: "warning", label: "Ordered" };
+                case "PROCESSED":
+                    return { color: "success", label: "Processed" };
                 default:
-                    return {color: 'default', label: status || 'Unknown'};
+                    return { color: "default", label: status || "Unknown" };
             }
         };
 
-        const {color, label} = getStatusProps();
+        const { color, label } = getStatusProps();
 
         return (
             <Chip
@@ -99,59 +89,60 @@ const Index = () => {
                 color={color}
                 size="small"
                 variant="filled"
-                sx={{fontWeight: 500}}
+                sx={{ fontWeight: 500 }}
             />
         );
     };
 
     // Table columns definition
-    const columns = useMemo(() => [
-        {
-            field: "sample_type_name",
-            title: "Sample Type",
-            type: "text",
-            sortable: true,
-            render: (row) => (
-                <Stack direction="row" spacing={1} alignItems="center">
-                    <ScienceIcon color="primary" fontSize="small"/>
-                    <Typography variant="body2">
-                        {row?.sample_type_name || "—"}
+    const columns = useMemo(
+        () => [
+            {
+                field: "sample_type_name",
+                title: "Sample Type",
+                type: "text",
+                sortable: true,
+                render: (row) => (
+                    <Stack direction="row" spacing={1} alignItems="center">
+                        <ScienceIcon color="primary" fontSize="small" />
+                        <Typography variant="body2">{row?.sample_type_name || "—"}</Typography>
+                    </Stack>
+                ),
+            },
+            {
+                field: "amount",
+                title: "Amount",
+                type: "text",
+                sortable: true,
+                render: (row) => (
+                    <Typography variant="body2" fontWeight={500}>
+                        {row?.amount || "—"}
                     </Typography>
-                </Stack>
-            )
-        },
-        {
-            field: "amount",
-            title: "Amount",
-            type: "text",
-            sortable: true,
-            render: (row) => (
-                <Typography variant="body2" fontWeight={500}>
-                    {row?.amount || "—"}
-                </Typography>
-            )
-        },
-        {
-            field: "status",
-            title: "Status",
-            type: "text",
-            sortable: true,
-            render: (row) => <StatusChip status={row.status}/>
-        },
-        {
-            field: "created_at",
-            title: "Ordered At",
-            type: "datetime",
-            sortable: true,
-            valueGetter:(value)=>new Date(value),
-        }
-    ], []);
+                ),
+            },
+            {
+                field: "status",
+                title: "Status",
+                type: "text",
+                sortable: true,
+                render: (row) => <StatusChip status={row.status} />,
+            },
+            {
+                field: "created_at",
+                title: "Ordered At",
+                type: "datetime",
+                sortable: true,
+                valueGetter: (value) => new Date(value),
+            },
+        ],
+        []
+    );
 
     /**
      * Handle form submission
      */
     const handleSubmitForm = () => {
-        post(route('orderMaterials.store'), {
+        post(route("orderMaterials.store"), {
             onSuccess: () => {
                 setOpenAddForm(false);
                 reset();
@@ -185,11 +176,10 @@ const Index = () => {
      * Apply search filter
      */
     const applySearch = () => {
-        const filters = {...queryData.filters, search: searchTerm};
+        const filters = { ...queryData.filters, search: searchTerm };
         onFilterChange(filters);
         handlePage({
-            preventDefault: () => {
-            }
+            preventDefault: () => {},
         });
     };
 
@@ -200,8 +190,7 @@ const Index = () => {
         setSearchTerm("");
         onFilterChange({});
         handlePage({
-            preventDefault: () => {
-            }
+            preventDefault: () => {},
         });
     };
 
@@ -209,7 +198,7 @@ const Index = () => {
      * Handle search on Enter key
      */
     const handleSearchKeyDown = (e) => {
-        if (e.key === 'Enter') {
+        if (e.key === "Enter") {
             applySearch();
         }
     };
@@ -220,16 +209,18 @@ const Index = () => {
                 title="Order Materials"
                 subtitle="Request sample materials for diagnostic tests"
                 actions={[
-                    canCreate && <Button
-                        variant="contained"
-                        onClick={addNew}
-                        color="primary"
-                        startIcon={<AddIcon/>}
-                        disabled={submitting}
-                        key="add-button"
-                    >
-                        Order New Material
-                    </Button>
+                    canCreate && (
+                        <Button
+                            variant="contained"
+                            onClick={addNew}
+                            color="primary"
+                            startIcon={<AddIcon />}
+                            disabled={submitting}
+                            key="add-button"
+                        >
+                            Order New Material
+                        </Button>
+                    ),
                 ]}
             />
 
@@ -239,25 +230,25 @@ const Index = () => {
                 sx={{
                     mt: 2,
                     borderRadius: 2,
-                    overflow: 'hidden'
+                    overflow: "hidden",
                 }}
             >
                 {/* Table filters and controls */}
                 <Box
                     sx={{
                         p: 2,
-                        borderBottom: '1px solid',
-                        borderColor: 'divider',
-                        bgcolor: 'background.subtle'
+                        borderBottom: "1px solid",
+                        borderColor: "divider",
+                        bgcolor: "background.subtle",
                     }}
                 >
                     <Stack
-                        direction={{xs: 'column', sm: 'row'}}
+                        direction={{ xs: "column", sm: "row" }}
                         spacing={2}
-                        alignItems={{xs: 'stretch', sm: 'center'}}
+                        alignItems={{ xs: "stretch", sm: "center" }}
                         justifyContent="space-between"
                     >
-                        <Box sx={{display: 'flex', alignItems: 'center', gap: 2}}>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                             <TextField
                                 placeholder="Search orders..."
                                 variant="outlined"
@@ -268,7 +259,7 @@ const Index = () => {
                                 InputProps={{
                                     startAdornment: (
                                         <InputAdornment position="start">
-                                            <SearchIcon fontSize="small" color="action"/>
+                                            <SearchIcon fontSize="small" color="action" />
                                         </InputAdornment>
                                     ),
                                     endAdornment: searchTerm && (
@@ -283,20 +274,24 @@ const Index = () => {
                                                     }
                                                 }}
                                             >
-                                                <ClearIcon fontSize="small"/>
+                                                <ClearIcon fontSize="small" />
                                             </IconButton>
                                         </InputAdornment>
-                                    )
+                                    ),
                                 }}
-                                sx={{minWidth: 250}}
+                                sx={{ minWidth: 250 }}
                             />
 
                             <Button
                                 variant="outlined"
-                                startIcon={<FilterIcon/>}
+                                startIcon={<FilterIcon />}
                                 size="medium"
                                 onClick={() => setShowFilters(!showFilters)}
-                                color={Object.keys(queryData.filters || {}).length > 0 ? "primary" : "inherit"}
+                                color={
+                                    Object.keys(queryData.filters || {}).length > 0
+                                        ? "primary"
+                                        : "inherit"
+                                }
                             >
                                 Filters
                                 {Object.keys(queryData.filters || {}).length > 0 && (
@@ -304,7 +299,7 @@ const Index = () => {
                                         label={Object.keys(queryData.filters || {}).length}
                                         size="small"
                                         color="primary"
-                                        sx={{ml: 1}}
+                                        sx={{ ml: 1 }}
                                     />
                                 )}
                             </Button>
@@ -312,7 +307,7 @@ const Index = () => {
                             {Object.keys(queryData.filters || {}).length > 0 && (
                                 <Button
                                     variant="text"
-                                    startIcon={<ClearIcon/>}
+                                    startIcon={<ClearIcon />}
                                     size="medium"
                                     onClick={clearFilters}
                                 >
@@ -328,7 +323,7 @@ const Index = () => {
                                     disabled={loadingTable}
                                     color="inherit"
                                 >
-                                    <RefreshIcon/>
+                                    <RefreshIcon />
                                 </IconButton>
                             </Tooltip>
                         </Box>
@@ -340,10 +335,10 @@ const Index = () => {
                             sx={{
                                 mt: 2,
                                 p: 2,
-                                border: '1px solid',
-                                borderColor: 'divider',
+                                border: "1px solid",
+                                borderColor: "divider",
                                 borderRadius: 1,
-                                bgcolor: 'background.paper'
+                                bgcolor: "background.paper",
                             }}
                         >
                             <Typography variant="subtitle2" gutterBottom>
@@ -351,9 +346,9 @@ const Index = () => {
                             </Typography>
 
                             <Stack
-                                direction={{xs: 'column', md: 'row'}}
+                                direction={{ xs: "column", md: "row" }}
                                 spacing={2}
-                                sx={{mt: 1}}
+                                sx={{ mt: 1 }}
                             >
                                 {/* Add your filter components here */}
                                 <TextField
@@ -362,16 +357,16 @@ const Index = () => {
                                     size="small"
                                     fullWidth
                                     InputLabelProps={{
-                                        shrink: true
+                                        shrink: true,
                                     }}
                                     SelectProps={{
                                         native: true,
                                     }}
-                                    value={queryData.filters?.status || ''}
+                                    value={queryData.filters?.status || ""}
                                     onChange={(e) => {
                                         const filters = {
                                             ...queryData.filters,
-                                            status: e.target.value
+                                            status: e.target.value,
                                         };
                                         onFilterChange(filters);
                                     }}
@@ -390,13 +385,13 @@ const Index = () => {
                                         native: true,
                                     }}
                                     InputLabelProps={{
-                                        shrink: true
+                                        shrink: true,
                                     }}
-                                    value={queryData.filters?.sample_type_id || ''}
+                                    value={queryData.filters?.sample_type_id || ""}
                                     onChange={(e) => {
                                         const filters = {
                                             ...queryData.filters,
-                                            sample_type_id: e.target.value
+                                            sample_type_id: e.target.value,
                                         };
                                         onFilterChange(filters);
                                     }}
@@ -409,13 +404,14 @@ const Index = () => {
                                     ))}
                                 </TextField>
 
-                                <Box sx={{display: 'flex', gap: 1, alignItems: 'flex-end'}}>
+                                <Box sx={{ display: "flex", gap: 1, alignItems: "flex-end" }}>
                                     <Button
                                         variant="contained"
-                                        onClick={() => handlePage({
-                                            preventDefault: () => {
-                                            }
-                                        })}
+                                        onClick={() =>
+                                            handlePage({
+                                                preventDefault: () => {},
+                                            })
+                                        }
                                         disabled={loadingTable}
                                     >
                                         Apply Filters
@@ -435,7 +431,7 @@ const Index = () => {
                 </Box>
 
                 {/* Table container */}
-                <Box sx={{overflowX: "auto"}}>
+                <Box sx={{ overflowX: "auto" }}>
                     <TableLayout
                         columns={columns}
                         data={orderMaterialsData}
@@ -449,60 +445,72 @@ const Index = () => {
                         tableModel={{
                             orderBy: queryData.orderBy ?? {
                                 field: "id",
-                                type: "desc"
+                                type: "desc",
                             },
                             page: queryData.page,
-                            filter: queryData.filters
+                            filter: queryData.filters,
                         }}
                         pageSize={{
                             defaultValue: queryData.pageSize ?? 10,
-                            onChange: onPageSizeChange
+                            onChange: onPageSizeChange,
                         }}
                         emptyStateMessage={
                             <Box
                                 sx={{
                                     py: 8,
-                                    textAlign: 'center',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                    gap: 2
+                                    textAlign: "center",
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    alignItems: "center",
+                                    gap: 2,
                                 }}
                             >
-                                <ScienceIcon fontSize="large" color="disabled" sx={{fontSize: 64}}/>
+                                <ScienceIcon
+                                    fontSize="large"
+                                    color="disabled"
+                                    sx={{ fontSize: 64 }}
+                                />
                                 <Typography variant="h6" color="text.secondary">
                                     No Order Materials Found
                                 </Typography>
-                                <Typography variant="body2" color="text.secondary" sx={{maxWidth: 400, mx: 'auto'}}>
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    sx={{ maxWidth: 400, mx: "auto" }}
+                                >
                                     {queryData.filters && Object.keys(queryData.filters).length > 0
                                         ? "Try adjusting your filters or search terms to find what you're looking for."
                                         : "Get started by ordering new materials for your diagnostic tests."}
                                 </Typography>
-                                {canCreate && <Button
-                                    variant="contained"
-                                    startIcon={<AddIcon/>}
-                                    onClick={addNew}
-                                    sx={{mt: 2}}
-                                >
-                                    Order New Material
-                                </Button>}
+                                {canCreate && (
+                                    <Button
+                                        variant="contained"
+                                        startIcon={<AddIcon />}
+                                        onClick={addNew}
+                                        sx={{ mt: 2 }}
+                                    >
+                                        Order New Material
+                                    </Button>
+                                )}
                             </Box>
                         }
                     />
                 </Box>
 
                 {/* Add form dialog */}
-                {openAddForm&&<AddForm
-                    title="Order New Material"
-                    loading={submitting}
-                    open={openAddForm}
-                    values={data}
-                    reset={reset}
-                    setValues={setData}
-                    setOpen={setOpenAddForm}
-                    submit={handleSubmitForm}
-                    sampleTypes={sampleTypes}
-                />}
+                {openAddForm && (
+                    <AddForm
+                        title="Order New Material"
+                        loading={submitting}
+                        open={openAddForm}
+                        values={data}
+                        reset={reset}
+                        setValues={setData}
+                        setOpen={setOpenAddForm}
+                        submit={handleSubmitForm}
+                        sampleTypes={sampleTypes}
+                    />
+                )}
             </Paper>
         </>
     );
@@ -513,17 +521,15 @@ const breadCrumbs = [
     {
         title: "Order Materials",
         link: null,
-        icon: <ScienceIcon fontSize="small"/>
-    }
+        icon: <ScienceIcon fontSize="small" />,
+    },
 ];
 
 // Set layout wrapper
-Index.layout = page => (
-    <AuthenticatedLayout
-        auth={page.props.auth}
-        children={page}
-        breadcrumbs={breadCrumbs}
-    />
+Index.layout = (page) => (
+    <AuthenticatedLayout auth={page.props.auth} breadcrumbs={breadCrumbs}>
+        {page}
+    </AuthenticatedLayout>
 );
 
 export default Index;

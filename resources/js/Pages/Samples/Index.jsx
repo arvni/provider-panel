@@ -70,18 +70,14 @@ const SamplesIndex = ({ orders = [] }) => {
     const totalSamples = allSampleIds.length;
 
     const toggleSample = (id) => {
-        setSelected((prev) =>
-            prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
-        );
+        setSelected((prev) => (prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]));
     };
 
     const toggleOrder = (order) => {
         const ids = (order.samples || []).map((s) => s.id);
         const allSelected = ids.every((id) => selected.includes(id));
         setSelected((prev) =>
-            allSelected
-                ? prev.filter((id) => !ids.includes(id))
-                : [...new Set([...prev, ...ids])]
+            allSelected ? prev.filter((id) => !ids.includes(id)) : [...new Set([...prev, ...ids])]
         );
     };
 
@@ -117,8 +113,8 @@ const SamplesIndex = ({ orders = [] }) => {
                         Samples
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                        Samples not yet sent on a collect request, grouped by order. Select
-                        the samples you want collected and create a request.
+                        Samples not yet sent on a collect request, grouped by order. Select the
+                        samples you want collected and create a request.
                     </Typography>
                 </Box>
 
@@ -151,17 +147,18 @@ const SamplesIndex = ({ orders = [] }) => {
                         {orders.map((order) => {
                             const samples = order.samples || [];
                             const ids = samples.map((s) => s.id);
-                            const selectedCount = ids.filter((id) =>
-                                selected.includes(id)
-                            ).length;
-                            const allSelected =
-                                selectedCount > 0 && selectedCount === ids.length;
+                            const selectedCount = ids.filter((id) => selected.includes(id)).length;
+                            const allSelected = selectedCount > 0 && selectedCount === ids.length;
 
                             return (
                                 <Card
                                     key={order.id}
                                     elevation={0}
-                                    sx={{ borderRadius: 3, border: "1px solid", borderColor: "divider" }}
+                                    sx={{
+                                        borderRadius: 3,
+                                        border: "1px solid",
+                                        borderColor: "divider",
+                                    }}
                                 >
                                     <CardContent>
                                         {/* Order header */}
@@ -175,7 +172,13 @@ const SamplesIndex = ({ orders = [] }) => {
                                                 mb: 1,
                                             }}
                                         >
-                                            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                                            <Box
+                                                sx={{
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    gap: 1.5,
+                                                }}
+                                            >
                                                 <FormControlLabel
                                                     sx={{ m: 0 }}
                                                     control={
@@ -188,15 +191,30 @@ const SamplesIndex = ({ orders = [] }) => {
                                                         />
                                                     }
                                                     label={
-                                                        <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+                                                        <Typography
+                                                            variant="subtitle1"
+                                                            sx={{ fontWeight: 700 }}
+                                                        >
                                                             {order.orderId || `Order #${order.id}`}
                                                         </Typography>
                                                     }
                                                 />
                                                 {patientName(order.patient) && (
-                                                    <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                                                        <PersonIcon fontSize="small" color="action" />
-                                                        <Typography variant="body2" color="text.secondary">
+                                                    <Box
+                                                        sx={{
+                                                            display: "flex",
+                                                            alignItems: "center",
+                                                            gap: 0.5,
+                                                        }}
+                                                    >
+                                                        <PersonIcon
+                                                            fontSize="small"
+                                                            color="action"
+                                                        />
+                                                        <Typography
+                                                            variant="body2"
+                                                            color="text.secondary"
+                                                        >
                                                             {patientName(order.patient)}
                                                         </Typography>
                                                     </Box>
@@ -210,7 +228,14 @@ const SamplesIndex = ({ orders = [] }) => {
                                         </Box>
 
                                         {order.tests && order.tests.length > 0 && (
-                                            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, mb: 1.5 }}>
+                                            <Box
+                                                sx={{
+                                                    display: "flex",
+                                                    flexWrap: "wrap",
+                                                    gap: 0.5,
+                                                    mb: 1.5,
+                                                }}
+                                            >
                                                 {order.tests.map((test) => (
                                                     <Chip
                                                         key={test.id}
@@ -244,8 +269,12 @@ const SamplesIndex = ({ orders = [] }) => {
                                                     >
                                                         <TableCell padding="checkbox">
                                                             <Checkbox
-                                                                checked={selected.includes(sample.id)}
-                                                                onChange={() => toggleSample(sample.id)}
+                                                                checked={selected.includes(
+                                                                    sample.id
+                                                                )}
+                                                                onChange={() =>
+                                                                    toggleSample(sample.id)
+                                                                }
                                                                 onClick={(e) => e.stopPropagation()}
                                                             />
                                                         </TableCell>
@@ -257,7 +286,11 @@ const SamplesIndex = ({ orders = [] }) => {
                                                         </TableCell>
                                                         <TableCell>
                                                             {sample.pooling ? (
-                                                                <Chip size="small" color="info" label="Pooled" />
+                                                                <Chip
+                                                                    size="small"
+                                                                    color="info"
+                                                                    label="Pooled"
+                                                                />
                                                             ) : (
                                                                 "—"
                                                             )}
@@ -299,7 +332,13 @@ const SamplesIndex = ({ orders = [] }) => {
                     fullScreen={isMobile}
                 >
                     <DialogTitle>
-                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <Box
+                            sx={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                            }}
+                        >
                             <Typography variant="h6" sx={{ fontWeight: 600 }}>
                                 Create Collect Request
                             </Typography>

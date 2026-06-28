@@ -16,7 +16,7 @@ import {
     Switch,
     TextField,
     Tooltip,
-    Typography
+    Typography,
 } from "@mui/material";
 import {
     AccessTime,
@@ -30,7 +30,7 @@ import {
     Label,
     Save,
     Science,
-    Wc
+    Wc,
 } from "@mui/icons-material";
 import SelectSearch from "@/Components/SelectSearch";
 import SampleTypeForm from "./SampleTypeForm";
@@ -49,20 +49,13 @@ import Gender from "@/Enums/Gender.js";
  * @param {boolean} props.processing Loading state
  * @returns {JSX.Element} Rendered component
  */
-const Form = ({
-                  values,
-                  setValues,
-                  cancel,
-                  submit,
-                  errors = {},
-                  processing = false
-              }) => {
+const Form = ({ values, setValues, cancel, submit, errors = {}, processing = false }) => {
     // Track which sections are expanded
     const [expandedSections, setExpandedSections] = useState({
         basic: true,
         forms: true,
         samples: true,
-        description: true
+        description: true,
     });
 
     /**
@@ -99,9 +92,9 @@ const Form = ({
      * @param {string} section Section name
      */
     const toggleSection = (section) => {
-        setExpandedSections(prev => ({
+        setExpandedSections((prev) => ({
             ...prev,
-            [section]: !prev[section]
+            [section]: !prev[section],
         }));
     };
 
@@ -126,7 +119,7 @@ const Form = ({
     };
 
     return (
-        <Box sx={{ maxWidth: 1200, mx: 'auto' }}>
+        <Box sx={{ maxWidth: 1200, mx: "auto" }}>
             {/* Basic Information Section */}
             <Paper
                 variant="outlined"
@@ -134,32 +127,33 @@ const Form = ({
                     p: 0,
                     mb: 3,
                     borderRadius: 2,
-                    overflow: 'hidden'
+                    overflow: "hidden",
                 }}
             >
                 <Box
                     sx={{
                         p: 2,
-                        bgcolor: 'primary.main',
-                        color: 'primary.contrastText',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        cursor: 'pointer'
+                        bgcolor: "primary.main",
+                        color: "primary.contrastText",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        cursor: "pointer",
                     }}
-                    onClick={() => toggleSection('basic')}
+                    onClick={() => toggleSection("basic")}
                 >
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                         <Info />
                         <Typography variant="subtitle1" fontWeight="500">
                             Basic Information
                         </Typography>
                     </Box>
 
-                    {expandedSections.basic ?
-                        <CheckCircle fontSize="small" /> :
+                    {expandedSections.basic ? (
+                        <CheckCircle fontSize="small" />
+                    ) : (
                         <Edit fontSize="small" />
-                    }
+                    )}
                 </Box>
 
                 {expandedSections.basic && (
@@ -167,13 +161,13 @@ const Form = ({
                         <Grid container spacing={3}>
                             <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                                 <TextField
-                                    error={hasError('name')}
-                                    helperText={getErrorMessage('name')}
+                                    error={hasError("name")}
+                                    helperText={getErrorMessage("name")}
                                     fullWidth
                                     label="Test Name"
                                     name="name"
                                     required
-                                    value={values.name || ''}
+                                    value={values.name || ""}
                                     onChange={handleChange}
                                     disabled={processing}
                                     InputProps={{
@@ -188,12 +182,12 @@ const Form = ({
 
                             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                                 <TextField
-                                    error={hasError('code')}
-                                    helperText={getErrorMessage('code')}
+                                    error={hasError("code")}
+                                    helperText={getErrorMessage("code")}
                                     fullWidth
                                     label="Test Code"
                                     name="code"
-                                    value={values.code || ''}
+                                    value={values.code || ""}
                                     onChange={handleChange}
                                     disabled={processing}
                                     InputProps={{
@@ -208,13 +202,13 @@ const Form = ({
 
                             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                                 <TextField
-                                    error={hasError('shortName')}
-                                    helperText={getErrorMessage('shortName')}
+                                    error={hasError("shortName")}
+                                    helperText={getErrorMessage("shortName")}
                                     fullWidth
                                     label="Short Name"
                                     required
                                     name="shortName"
-                                    value={values.shortName || ''}
+                                    value={values.shortName || ""}
                                     onChange={handleChange}
                                     disabled={processing}
                                     InputProps={{
@@ -228,7 +222,7 @@ const Form = ({
                             </Grid>
 
                             <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-                                <Box sx={{ height: '100%', display: 'flex', alignItems: 'center' }}>
+                                <Box sx={{ height: "100%", display: "flex", alignItems: "center" }}>
                                     <FormControlLabel
                                         control={
                                             <Switch
@@ -242,7 +236,11 @@ const Form = ({
                                         label={
                                             <Typography
                                                 variant="body2"
-                                                color={values.is_active ? 'success.main' : 'text.secondary'}
+                                                color={
+                                                    values.is_active
+                                                        ? "success.main"
+                                                        : "text.secondary"
+                                                }
                                                 fontWeight={500}
                                             >
                                                 {values.is_active ? "Active" : "Inactive"}
@@ -260,8 +258,11 @@ const Form = ({
 
                             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                                 <TextField
-                                    error={hasError('turnaroundTime')}
-                                    helperText={getErrorMessage('turnaroundTime') || "Number of days to process this test"}
+                                    error={hasError("turnaroundTime")}
+                                    helperText={
+                                        getErrorMessage("turnaroundTime") ||
+                                        "Number of days to process this test"
+                                    }
                                     fullWidth
                                     required
                                     type="number"
@@ -269,7 +270,7 @@ const Form = ({
                                     inputMode="numeric"
                                     label="Turnaround Time (days)"
                                     name="turnaroundTime"
-                                    value={values.turnaroundTime || ''}
+                                    value={values.turnaroundTime || ""}
                                     onChange={handleChange}
                                     disabled={processing}
                                     InputProps={{
@@ -286,10 +287,12 @@ const Form = ({
                                 <FormControl
                                     fullWidth
                                     required
-                                    error={hasError('gender')}
+                                    error={hasError("gender")}
                                     disabled={processing}
                                 >
-                                    <InputLabel id="test-gender-label">Gender Applicability</InputLabel>
+                                    <InputLabel id="test-gender-label">
+                                        Gender Applicability
+                                    </InputLabel>
                                     <Select
                                         labelId="test-gender-label"
                                         id="test-gender"
@@ -308,16 +311,20 @@ const Form = ({
                                             />
                                         }
                                         renderValue={(selected) => (
-                                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                            <Box
+                                                sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}
+                                            >
                                                 {selected.map((value) => (
                                                     <Chip
                                                         key={value}
                                                         label={Gender.get(value)}
                                                         size="small"
                                                         color={
-                                                            value === "0" ? "secondary" :
-                                                                value === "1" ? "primary" :
-                                                                    "default"
+                                                            value === "0"
+                                                                ? "secondary"
+                                                                : value === "1"
+                                                                  ? "primary"
+                                                                  : "default"
                                                         }
                                                     />
                                                 ))}
@@ -329,10 +336,14 @@ const Form = ({
                                         <MenuItem value="-1">Unknown</MenuItem>
                                     </Select>
 
-                                    {hasError('gender') ? (
-                                        <FormHelperText error>{getErrorMessage('gender')}</FormHelperText>
+                                    {hasError("gender") ? (
+                                        <FormHelperText error>
+                                            {getErrorMessage("gender")}
+                                        </FormHelperText>
                                     ) : (
-                                        <FormHelperText>Select which genders this test is applicable to</FormHelperText>
+                                        <FormHelperText>
+                                            Select which genders this test is applicable to
+                                        </FormHelperText>
                                     )}
                                 </FormControl>
                             </Grid>
@@ -348,38 +359,40 @@ const Form = ({
                     p: 0,
                     mb: 3,
                     borderRadius: 2,
-                    overflow: 'hidden'
+                    overflow: "hidden",
                 }}
             >
                 <Box
                     sx={{
                         p: 2,
-                        bgcolor: 'secondary.main',
-                        color: 'secondary.contrastText',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        cursor: 'pointer'
+                        bgcolor: "secondary.main",
+                        color: "secondary.contrastText",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        cursor: "pointer",
                     }}
-                    onClick={() => toggleSection('forms')}
+                    onClick={() => toggleSection("forms")}
                 >
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                         <Description />
                         <Typography variant="subtitle1" fontWeight="500">
                             Required Forms
                         </Typography>
                     </Box>
 
-                    {expandedSections.forms ?
-                        <CheckCircle fontSize="small" /> :
+                    {expandedSections.forms ? (
+                        <CheckCircle fontSize="small" />
+                    ) : (
                         <Edit fontSize="small" />
-                    }
+                    )}
                 </Box>
 
                 {expandedSections.forms && (
                     <Box sx={{ p: 3 }}>
                         <Typography variant="body2" color="text.secondary" paragraph>
-                            Select the forms that will be required for this test. These forms will need to be completed during the ordering process.
+                            Select the forms that will be required for this test. These forms will
+                            need to be completed during the ordering process.
                         </Typography>
 
                         <Grid container spacing={3}>
@@ -389,8 +402,8 @@ const Form = ({
                                     label="Consent Form"
                                     required
                                     value={values.consent}
-                                    error={hasError('consent')}
-                                    helperText={getErrorMessage('consent')}
+                                    error={hasError("consent")}
+                                    helperText={getErrorMessage("consent")}
                                     url={route("api.consents.list")}
                                     onchange={handleChange}
                                     disabled={processing}
@@ -404,8 +417,8 @@ const Form = ({
                                     label="Order Form"
                                     required
                                     value={values.order_form}
-                                    error={hasError('order_form')}
-                                    helperText={getErrorMessage('order_form')}
+                                    error={hasError("order_form")}
+                                    helperText={getErrorMessage("order_form")}
                                     url={route("api.orderForms.list")}
                                     onchange={handleChange}
                                     disabled={processing}
@@ -419,8 +432,8 @@ const Form = ({
                                     label="Instruction"
                                     required
                                     value={values.instruction}
-                                    error={hasError('instruction')}
-                                    helperText={getErrorMessage('instruction')}
+                                    error={hasError("instruction")}
+                                    helperText={getErrorMessage("instruction")}
                                     url={route("api.instructions.list")}
                                     onchange={handleChange}
                                     disabled={processing}
@@ -439,38 +452,40 @@ const Form = ({
                     p: 0,
                     mb: 3,
                     borderRadius: 2,
-                    overflow: 'hidden'
+                    overflow: "hidden",
                 }}
             >
                 <Box
                     sx={{
                         p: 2,
-                        bgcolor: 'success.main',
-                        color: 'success.contrastText',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        cursor: 'pointer'
+                        bgcolor: "success.main",
+                        color: "success.contrastText",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        cursor: "pointer",
                     }}
-                    onClick={() => toggleSection('samples')}
+                    onClick={() => toggleSection("samples")}
                 >
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                         <Science />
                         <Typography variant="subtitle1" fontWeight="500">
                             Sample Types
                         </Typography>
                     </Box>
 
-                    {expandedSections.samples ?
-                        <CheckCircle fontSize="small" /> :
+                    {expandedSections.samples ? (
+                        <CheckCircle fontSize="small" />
+                    ) : (
                         <Edit fontSize="small" />
-                    }
+                    )}
                 </Box>
 
                 {expandedSections.samples && (
                     <Box sx={{ p: 3 }}>
                         <Typography variant="body2" color="text.secondary" paragraph>
-                            Define which sample types are accepted for this test and specify the default type.
+                            Define which sample types are accepted for this test and specify the
+                            default type.
                         </Typography>
 
                         <SampleTypeForm
@@ -490,32 +505,33 @@ const Form = ({
                     p: 0,
                     mb: 4,
                     borderRadius: 2,
-                    overflow: 'hidden'
+                    overflow: "hidden",
                 }}
             >
                 <Box
                     sx={{
                         p: 2,
-                        bgcolor: 'info.main',
-                        color: 'info.contrastText',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        cursor: 'pointer'
+                        bgcolor: "info.main",
+                        color: "info.contrastText",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        cursor: "pointer",
                     }}
-                    onClick={() => toggleSection('description')}
+                    onClick={() => toggleSection("description")}
                 >
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                         <Info />
                         <Typography variant="subtitle1" fontWeight="500">
                             Description
                         </Typography>
                     </Box>
 
-                    {expandedSections.description ?
-                        <CheckCircle fontSize="small" /> :
+                    {expandedSections.description ? (
+                        <CheckCircle fontSize="small" />
+                    ) : (
                         <Edit fontSize="small" />
-                    }
+                    )}
                 </Box>
 
                 {expandedSections.description && (
@@ -523,17 +539,23 @@ const Form = ({
                         <TextField
                             multiline
                             rows={5}
-                            error={hasError('description')}
-                            helperText={getErrorMessage('description') || "Provide detailed information about this test, including purpose, methodology, and any special requirements"}
+                            error={hasError("description")}
+                            helperText={
+                                getErrorMessage("description") ||
+                                "Provide detailed information about this test, including purpose, methodology, and any special requirements"
+                            }
                             fullWidth
                             label="Test Description"
                             name="description"
-                            value={values.description || ''}
+                            value={values.description || ""}
                             onChange={handleChange}
                             disabled={processing}
                             InputProps={{
                                 startAdornment: (
-                                    <InputAdornment position="start" sx={{ alignSelf: 'flex-start', mt: 1.5 }}>
+                                    <InputAdornment
+                                        position="start"
+                                        sx={{ alignSelf: "flex-start", mt: 1.5 }}
+                                    >
                                         <Description color="info" />
                                     </InputAdornment>
                                 ),
@@ -546,13 +568,13 @@ const Form = ({
             {/* Form Actions */}
             <Box
                 sx={{
-                    display: 'flex',
-                    justifyContent: 'flex-end',
+                    display: "flex",
+                    justifyContent: "flex-end",
                     gap: 2,
                     mt: 3,
                     pt: 3,
-                    borderTop: '1px solid',
-                    borderColor: 'divider'
+                    borderTop: "1px solid",
+                    borderColor: "divider",
                 }}
             >
                 <Button

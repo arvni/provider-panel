@@ -22,7 +22,7 @@ import {
     Slide,
     Stack,
     TextField,
-    Typography
+    Typography,
 } from "@mui/material";
 import {
     Close as CloseIcon,
@@ -30,7 +30,7 @@ import {
     Science as ScienceIcon,
     ShoppingCart as ShoppingCartIcon,
     Add as AddIcon,
-    Remove as RemoveIcon
+    Remove as RemoveIcon,
 } from "@mui/icons-material";
 
 /**
@@ -56,17 +56,16 @@ const Transition = React.forwardRef(function Transition(props, ref) {
  * @returns {JSX.Element} Rendered component
  */
 const AddForm = ({
-                     values,
-                     setValues,
-                     submit,
-                     open,
-                     setOpen,
-                     title,
-                     loading,
-                     reset,
-                     sampleTypes,
-                     errors = {}
-                 }) => {
+    values,
+    setValues,
+    submit,
+    open,
+    setOpen,
+    title,
+    loading,
+    reset,
+    sampleTypes,
+}) => {
     // Local form validation state
     const [validationErrors, setValidationErrors] = useState({});
 
@@ -80,15 +79,15 @@ const AddForm = ({
 
         // Clear validation error when field changes
         if (validationErrors[name]) {
-            setValidationErrors(prev => ({
+            setValidationErrors((prev) => ({
                 ...prev,
-                [name]: null
+                [name]: null,
             }));
         }
 
-        setValues(prevState => ({
+        setValues((prevState) => ({
             ...prevState,
-            [name]: name === "amount" ? (parseInt(value) || 0) : value
+            [name]: name === "amount" ? parseInt(value) || 0 : value,
         }));
     };
 
@@ -101,9 +100,9 @@ const AddForm = ({
         const currentValue = parseInt(values?.amount) || 0;
         const newValue = Math.max(1, Math.min(100, currentValue + amount));
 
-        setValues(prevState => ({
+        setValues((prevState) => ({
             ...prevState,
-            amount: newValue
+            amount: newValue,
         }));
     };
 
@@ -159,30 +158,25 @@ const AddForm = ({
             slots={{ transition: Transition }}
             PaperProps={{
                 elevation: 5,
-                sx: { borderRadius: 2 }
+                sx: { borderRadius: 2 },
             }}
         >
             {/* Dialog title with close button */}
             <DialogTitle
                 sx={{
                     pb: 1,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between'
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
                 }}
             >
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     <ShoppingCartIcon color="primary" />
                     <Typography variant="h6">{title}</Typography>
                 </Box>
 
                 {!loading && (
-                    <IconButton
-                        edge="end"
-                        color="inherit"
-                        onClick={handleClose}
-                        aria-label="close"
-                    >
+                    <IconButton edge="end" color="inherit" onClick={handleClose} aria-label="close">
                         <CloseIcon />
                     </IconButton>
                 )}
@@ -193,12 +187,9 @@ const AddForm = ({
             {/* Dialog content */}
             <DialogContent sx={{ pt: 3, pb: 2 }}>
                 {/* Info message */}
-                <Alert
-                    severity="info"
-                    icon={<InfoIcon />}
-                    sx={{ mb: 3 }}
-                >
-                    Order the materials you need for diagnostic tests. Please specify the sample type and quantity required.
+                <Alert severity="info" icon={<InfoIcon />} sx={{ mb: 3 }}>
+                    Order the materials you need for diagnostic tests. Please specify the sample
+                    type and quantity required.
                 </Alert>
 
                 <Grid container spacing={3}>
@@ -224,7 +215,7 @@ const AddForm = ({
                                     </InputAdornment>
                                 }
                             >
-                                {sampleTypes?.map(sampleType => (
+                                {sampleTypes?.map((sampleType) => (
                                     <MenuItem value={sampleType.id} key={sampleType?.id}>
                                         {sampleType?.name}
                                     </MenuItem>
@@ -258,7 +249,7 @@ const AddForm = ({
                                 inputProps={{
                                     min: 1,
                                     max: 100,
-                                    step: 1
+                                    step: 1,
                                 }}
                                 startAdornment={
                                     <InputAdornment position="start">
@@ -287,13 +278,9 @@ const AddForm = ({
                             />
 
                             {validationErrors.amount ? (
-                                <FormHelperText error>
-                                    {validationErrors.amount}
-                                </FormHelperText>
+                                <FormHelperText error>{validationErrors.amount}</FormHelperText>
                             ) : (
-                                <FormHelperText>
-                                    Enter the quantity needed (1-100)
-                                </FormHelperText>
+                                <FormHelperText>Enter the quantity needed (1-100)</FormHelperText>
                             )}
                         </FormControl>
                     </Grid>
@@ -319,12 +306,12 @@ const AddForm = ({
 
             {/* Dialog actions */}
             <DialogActions sx={{ px: 3, py: 2 }}>
-                <Stack direction="row" spacing={2} sx={{ width: '100%', justifyContent: 'flex-end' }}>
-                    <Button
-                        onClick={handleClose}
-                        variant="outlined"
-                        disabled={loading}
-                    >
+                <Stack
+                    direction="row"
+                    spacing={2}
+                    sx={{ width: "100%", justifyContent: "flex-end" }}
+                >
+                    <Button onClick={handleClose} variant="outlined" disabled={loading}>
                         Cancel
                     </Button>
 

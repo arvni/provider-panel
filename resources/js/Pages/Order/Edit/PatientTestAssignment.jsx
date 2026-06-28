@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
     Box,
     Typography,
@@ -9,7 +9,7 @@ import {
     FormGroup,
     Chip,
     Alert,
-    Paper
+    Paper,
 } from "@mui/material";
 import { useSubmitForm } from "@/Services/api";
 import EditLayout from "../EditLayout";
@@ -23,24 +23,25 @@ const PatientTestAssignment = ({ auth, order, step, patients }) => {
     const [assignments, setAssignments] = useState(() => {
         // If order already has assignments, load them
         if (order.order_items && order.order_items.length > 0) {
-            return order.order_items.map(item => {
-                const assignedPatients = item.patients && item.patients.length > 0
-                    ? item.patients.map(p => p.id)
-                    : [order.main_patient_id];
+            return order.order_items.map((item) => {
+                const assignedPatients =
+                    item.patients && item.patients.length > 0
+                        ? item.patients.map((p) => p.id)
+                        : [order.main_patient_id];
 
                 return {
                     test_id: item.test_id,
-                    test_name: item.test?.name || 'Unknown Test',
-                    patient_ids: assignedPatients
+                    test_name: item.test?.name || "Unknown Test",
+                    patient_ids: assignedPatients,
                 };
             });
         }
 
         // Default: assign all tests to main patient
-        return (order.tests || []).map(test => ({
+        return (order.tests || []).map((test) => ({
             test_id: test.id,
             test_name: test.name,
-            patient_ids: [order.main_patient_id]
+            patient_ids: [order.main_patient_id],
         }));
     });
 
@@ -57,7 +58,7 @@ const PatientTestAssignment = ({ auth, order, step, patients }) => {
         if (assignment.patient_ids.includes(patientId)) {
             // Remove patient (must keep at least one)
             if (assignment.patient_ids.length > 1) {
-                assignment.patient_ids = assignment.patient_ids.filter(id => id !== patientId);
+                assignment.patient_ids = assignment.patient_ids.filter((id) => id !== patientId);
             }
         } else {
             // Add patient
@@ -69,11 +70,6 @@ const PatientTestAssignment = ({ auth, order, step, patients }) => {
 
     const handleSubmit = () => {
         submit();
-    };
-
-    // Get patient details
-    const getPatientById = (id) => {
-        return patients.find(p => p.id === id);
     };
 
     const isMainPatient = (patientId) => {
@@ -90,8 +86,8 @@ const PatientTestAssignment = ({ auth, order, step, patients }) => {
         >
             <Box>
                 <Alert severity="info" sx={{ mb: 3 }}>
-                    Select which patient(s) each test is for. By default, all tests are assigned to the main patient.
-                    You can assign multiple patients to a single test if needed.
+                    Select which patient(s) each test is for. By default, all tests are assigned to
+                    the main patient. You can assign multiple patients to a single test if needed.
                 </Alert>
 
                 {errors && Object.keys(errors).length > 0 && (
@@ -119,9 +115,12 @@ const PatientTestAssignment = ({ auth, order, step, patients }) => {
                                 <FormGroup>
                                     {patients && patients.length > 0 ? (
                                         patients.map((patient) => {
-                                            const isChecked = assignment.patient_ids.includes(patient.id);
+                                            const isChecked = assignment.patient_ids.includes(
+                                                patient.id
+                                            );
                                             const isMain = isMainPatient(patient.id);
-                                            const isOnlyPatient = assignment.patient_ids.length === 1 && isChecked;
+                                            const isOnlyPatient =
+                                                assignment.patient_ids.length === 1 && isChecked;
 
                                             return (
                                                 <Paper
@@ -129,23 +128,41 @@ const PatientTestAssignment = ({ auth, order, step, patients }) => {
                                                     sx={{
                                                         p: 1,
                                                         mb: 1,
-                                                        backgroundColor: isChecked ? 'action.selected' : 'background.paper',
+                                                        backgroundColor: isChecked
+                                                            ? "action.selected"
+                                                            : "background.paper",
                                                         border: isChecked ? 2 : 1,
-                                                        borderColor: isChecked ? 'primary.main' : 'divider'
+                                                        borderColor: isChecked
+                                                            ? "primary.main"
+                                                            : "divider",
                                                     }}
                                                 >
                                                     <FormControlLabel
                                                         control={
                                                             <Checkbox
                                                                 checked={isChecked}
-                                                                onChange={() => handleTogglePatient(testIndex, patient.id)}
+                                                                onChange={() =>
+                                                                    handleTogglePatient(
+                                                                        testIndex,
+                                                                        patient.id
+                                                                    )
+                                                                }
                                                                 disabled={isOnlyPatient}
                                                             />
                                                         }
                                                         label={
-                                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                                                            <Box
+                                                                sx={{
+                                                                    display: "flex",
+                                                                    alignItems: "center",
+                                                                    gap: 1,
+                                                                    flexWrap: "wrap",
+                                                                }}
+                                                            >
                                                                 <Typography variant="body1">
-                                                                    {patient.fullName || patient.full_name || 'Unknown Patient'}
+                                                                    {patient.fullName ||
+                                                                        patient.full_name ||
+                                                                        "Unknown Patient"}
                                                                 </Typography>
                                                                 {isMain && (
                                                                     <Chip
@@ -177,7 +194,8 @@ const PatientTestAssignment = ({ auth, order, step, patients }) => {
                                         })
                                     ) : (
                                         <Alert severity="warning">
-                                            No patients found. Please go back and add patient details first.
+                                            No patients found. Please go back and add patient
+                                            details first.
                                         </Alert>
                                     )}
                                 </FormGroup>

@@ -17,7 +17,7 @@ import {
     RadioGroup,
     FormLabel,
     useTheme,
-    alpha
+    alpha,
 } from "@mui/material";
 import {
     Description as DescriptionIcon,
@@ -26,7 +26,7 @@ import {
     CalendarToday as CalendarIcon,
     Email as EmailIcon,
     Info as InfoIcon,
-    Help as HelpIcon
+    Help as HelpIcon,
 } from "@mui/icons-material";
 import PasswordField from "./PasswordField";
 import SelectSearch from "./SelectSearch";
@@ -43,14 +43,14 @@ import SelectSearch from "./SelectSearch";
  * @returns {JSX.Element}
  */
 const FormField = ({
-                       field: { type, ...rest },
-                       size = "medium",
-                       onchange,
-                       errors = {},
-                       errorPath
-                   }) => {
+    field: { type, ...rest },
+    size = "medium",
+    onchange,
+    errors = {},
+    errorPath,
+}) => {
     const theme = useTheme();
-    const [focused, setFocused] = React.useState(false);
+    const [_focused, setFocused] = React.useState(false);
 
     // Determine the error path for this field
     const fieldErrorPath = errorPath || rest.name;
@@ -63,19 +63,19 @@ const FormField = ({
         if (errors[path]) return errors[path];
 
         // Handle complex path with brackets
-        if (path.includes('[')) {
+        if (path.includes("[")) {
             try {
                 // Create a function to access nested property using bracket notation
                 const getNestedValue = (obj, path) => {
                     // Convert path with brackets to an array of keys
                     // e.g. 'orderForms[0].formData[2].value' becomes ['orderForms', '0', 'formData', '2', 'value']
-                    const keys = path.replace(/\[/g, '.').replace(/]/g, '').split('.');
+                    const keys = path.replace(/\[/g, ".").replace(/]/g, "").split(".");
                     return keys.reduce((o, k) => (o || {})[k], obj);
                 };
 
                 return getNestedValue(errors, path);
             } catch (e) {
-                console.error('Error parsing error path:', e);
+                console.error("Error parsing error path:", e);
                 return null;
             }
         }
@@ -123,35 +123,38 @@ const FormField = ({
         required: isRequired,
         InputProps: {
             ...rest.InputProps,
-            startAdornment: rest.startAdornment || getFieldIcon() ? (
-                <InputAdornment position="start">
-                    {rest.startAdornment || getFieldIcon()}
-                </InputAdornment>
-            ) : undefined,
+            startAdornment:
+                rest.startAdornment || getFieldIcon() ? (
+                    <InputAdornment position="start">
+                        {rest.startAdornment || getFieldIcon()}
+                    </InputAdornment>
+                ) : undefined,
             endAdornment: rest.helpText ? (
                 <InputAdornment position="end">
                     <Tooltip title={rest.helpText}>
                         <HelpIcon color="action" fontSize="small" />
                     </Tooltip>
                 </InputAdornment>
-            ) : rest.endAdornment,
+            ) : (
+                rest.endAdornment
+            ),
             sx: {
                 borderRadius: 1.5,
-                transition: 'all 0.2s ease-in-out',
-                '&:hover': {
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+                transition: "all 0.2s ease-in-out",
+                "&:hover": {
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
                 },
-                '&.Mui-focused': {
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                }
-            }
+                "&.Mui-focused": {
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                },
+            },
         },
         sx: {
             mb: rest.noMargin ? 0 : 1,
-            ...rest.sx
+            ...rest.sx,
         },
         onFocus: handleFocus,
-        onBlur: handleBlur
+        onBlur: handleBlur,
     };
 
     // Render different field types
@@ -168,10 +171,10 @@ const FormField = ({
                         sx: {
                             ...commonTextFieldProps.InputProps.sx,
                             fontFamily: "'Roboto', sans-serif",
-                            '& .MuiOutlinedInput-notchedOutline': {
-                                borderColor: hasError ? theme.palette.error.main : undefined
-                            }
-                        }
+                            "& .MuiOutlinedInput-notchedOutline": {
+                                borderColor: hasError ? theme.palette.error.main : undefined,
+                            },
+                        },
                     }}
                 />
             );
@@ -191,8 +194,8 @@ const FormField = ({
                             type,
                             min: type === "number" ? rest.min : undefined,
                             max: type === "number" ? rest.max : undefined,
-                            step: type === "number" ? rest.step : undefined
-                        }
+                            step: type === "number" ? rest.step : undefined,
+                        },
                     }}
                 />
             );
@@ -211,7 +214,7 @@ const FormField = ({
                     }}
                     sx={{
                         ...commonTextFieldProps.sx,
-                        width: rest.width || "100%"
+                        width: rest.width || "100%",
                     }}
                 />
             );
@@ -228,7 +231,7 @@ const FormField = ({
                     required={isRequired}
                     sx={{
                         mb: rest.noMargin ? 0 : 1,
-                        ...rest.sx
+                        ...rest.sx,
                     }}
                 />
             );
@@ -241,18 +244,14 @@ const FormField = ({
                         mb: rest.noMargin ? 0 : 2,
                         borderRadius: 1.5,
                         backgroundColor: alpha(theme.palette.info.main, 0.05),
-                        border: '1px solid',
+                        border: "1px solid",
                         borderColor: alpha(theme.palette.info.main, 0.1),
-                        display: 'flex',
-                        alignItems: 'flex-start',
-                        gap: 1
+                        display: "flex",
+                        alignItems: "flex-start",
+                        gap: 1,
                     }}
                 >
-                    <InfoIcon
-                        color="info"
-                        fontSize="small"
-                        sx={{ mt: 0.3 }}
-                    />
+                    <InfoIcon color="info" fontSize="small" sx={{ mt: 0.3 }} />
                     <Typography variant="body2" color="text.primary">
                         {rest.value || rest.label}
                     </Typography>
@@ -273,20 +272,15 @@ const FormField = ({
                             />
                         }
                         label={
-                            <Typography
-                                variant="body2"
-                                color={hasError ? "error" : "text.primary"}
-                            >
+                            <Typography variant="body2" color={hasError ? "error" : "text.primary"}>
                                 {rest.label}
-                                {isRequired && <span style={{ color: theme.palette.error.main }}> *</span>}
+                                {isRequired && (
+                                    <span style={{ color: theme.palette.error.main }}> *</span>
+                                )}
                             </Typography>
                         }
                     />
-                    {hasError && (
-                        <FormHelperText error>
-                            {errorMessage}
-                        </FormHelperText>
-                    )}
+                    {hasError && <FormHelperText error>{errorMessage}</FormHelperText>}
                 </Box>
             );
 
@@ -301,11 +295,7 @@ const FormField = ({
                         error={hasError}
                         helpText={errorMessage}
                     />
-                    {hasError && (
-                        <FormHelperText error>
-                            {errorMessage}
-                        </FormHelperText>
-                    )}
+                    {hasError && <FormHelperText error>{errorMessage}</FormHelperText>}
                 </Box>
             );
 
@@ -317,13 +307,11 @@ const FormField = ({
                     error={hasError}
                     sx={{
                         mb: rest.noMargin ? 0 : 1,
-                        ...rest.sx
+                        ...rest.sx,
                     }}
                     required={isRequired}
                 >
-                    <InputLabel id={`${rest.name}-select-label`}>
-                        {rest.label}
-                    </InputLabel>
+                    <InputLabel id={`${rest.name}-select-label`}>{rest.label}</InputLabel>
                     <Select
                         labelId={`${rest.name}-select-label`}
                         id={`${rest.name}-select`}
@@ -332,50 +320,55 @@ const FormField = ({
                         size={size}
                         sx={{
                             borderRadius: 1.5,
-                            '& .MuiSelect-select': {
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 1
-                            }
+                            "& .MuiSelect-select": {
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 1,
+                            },
                         }}
-                        startAdornment={rest.startAdornment && (
-                            <InputAdornment position="start">
-                                {rest.startAdornment}
-                            </InputAdornment>
-                        )}
+                        startAdornment={
+                            rest.startAdornment && (
+                                <InputAdornment position="start">
+                                    {rest.startAdornment}
+                                </InputAdornment>
+                            )
+                        }
                     >
                         {rest.placeholder && (
                             <MenuItem value="" disabled>
-                                <Typography color="text.secondary">
-                                    {rest.placeholder}
-                                </Typography>
+                                <Typography color="text.secondary">{rest.placeholder}</Typography>
                             </MenuItem>
                         )}
-                        {rest.options ? rest.options.map((option, index) => (
-                            <MenuItem
-                                value={typeof option === "string" ? option : option.value}
-                                key={index}
-                                sx={{
-                                    minHeight: 'auto',
-                                    py: 1.5
-                                }}
-                            >
-                                {typeof option === "string" ? (
-                                    option
-                                ) : (
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                        {option.icon && (
-                                            <Box component="span" sx={{ display: 'inline-flex' }}>
-                                                {option.icon}
-                                            </Box>
-                                        )}
-                                        <Typography>
-                                            {option.label}
-                                        </Typography>
-                                    </Box>
-                                )}
-                            </MenuItem>
-                        )) : null}
+                        {rest.options
+                            ? rest.options.map((option, index) => (
+                                  <MenuItem
+                                      value={typeof option === "string" ? option : option.value}
+                                      key={index}
+                                      sx={{
+                                          minHeight: "auto",
+                                          py: 1.5,
+                                      }}
+                                  >
+                                      {typeof option === "string" ? (
+                                          option
+                                      ) : (
+                                          <Box
+                                              sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                                          >
+                                              {option.icon && (
+                                                  <Box
+                                                      component="span"
+                                                      sx={{ display: "inline-flex" }}
+                                                  >
+                                                      {option.icon}
+                                                  </Box>
+                                              )}
+                                              <Typography>{option.label}</Typography>
+                                          </Box>
+                                      )}
+                                  </MenuItem>
+                              ))
+                            : null}
                     </Select>
                     {(errorMessage || rest.helperText) && (
                         <FormHelperText error={hasError}>
@@ -393,7 +386,7 @@ const FormField = ({
                     required={isRequired}
                     sx={{
                         mb: rest.noMargin ? 0 : 1,
-                        ...rest.sx
+                        ...rest.sx,
                     }}
                 >
                     <FormLabel component="legend">
@@ -420,11 +413,7 @@ const FormField = ({
                             />
                         ))}
                     </RadioGroup>
-                    {hasError && (
-                        <FormHelperText error>
-                            {errorMessage}
-                        </FormHelperText>
-                    )}
+                    {hasError && <FormHelperText error>{errorMessage}</FormHelperText>}
                 </FormControl>
             );
 
@@ -442,29 +431,20 @@ const FormField = ({
                             />
                         }
                         label={
-                            <Typography
-                                variant="body2"
-                                color={hasError ? "error" : "text.primary"}
-                            >
+                            <Typography variant="body2" color={hasError ? "error" : "text.primary"}>
                                 {rest.label}
-                                {isRequired && <span style={{ color: theme.palette.error.main }}> *</span>}
+                                {isRequired && (
+                                    <span style={{ color: theme.palette.error.main }}> *</span>
+                                )}
                             </Typography>
                         }
                     />
-                    {hasError && (
-                        <FormHelperText error>
-                            {errorMessage}
-                        </FormHelperText>
-                    )}
+                    {hasError && <FormHelperText error>{errorMessage}</FormHelperText>}
                 </Box>
             );
 
         default:
-            return (
-                <Typography color="error">
-                    Unknown field type: {type}
-                </Typography>
-            );
+            return <Typography color="error">Unknown field type: {type}</Typography>;
     }
 };
 

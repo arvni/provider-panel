@@ -14,7 +14,7 @@ import {
     Stack,
     useTheme,
     Checkbox,
-    FormControlLabel
+    FormControlLabel,
 } from "@mui/material";
 import MenuItem from "@mui/material/MenuItem";
 import {
@@ -26,7 +26,7 @@ import {
     Error as ErrorIcon,
     ExpandMore,
     ExpandLess,
-    NoteAlt
+    NoteAlt,
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
 
@@ -62,7 +62,7 @@ const SampleRow = ({
     toggleExpand,
     disabled = false,
     patients = [],
-    orderItems = []
+    orderItems = [],
 }) => {
     const theme = useTheme();
 
@@ -89,7 +89,7 @@ const SampleRow = ({
     const getErrorMessage = (field) => {
         const bracketErrorKey = `samples[${index}].${field}`;
         const dotErrorKey = `samples.${index}.${field}`;
-        return errors[bracketErrorKey] || errors[dotErrorKey] || '';
+        return errors[bracketErrorKey] || errors[dotErrorKey] || "";
     };
 
     /**
@@ -103,15 +103,15 @@ const SampleRow = ({
     };
 
     // Determine if the sample has any errors
-    const hasErrors = hasError('sample_type') || hasError('sampleId') || hasError('collectionDate');
+    const hasErrors = hasError("sample_type") || hasError("sampleId") || hasError("collectionDate");
 
     // Animation for content appearance
     const contentVariants = {
         hidden: { opacity: 0 },
         visible: {
             opacity: 1,
-            transition: { duration: 0.3 }
-        }
+            transition: { duration: 0.3 },
+        },
     };
 
     return (
@@ -120,12 +120,12 @@ const SampleRow = ({
             sx={{
                 mb: 2,
                 borderRadius: 2,
-                overflow: 'hidden',
-                borderColor: hasErrors ? 'error.main' : 'divider',
-                transition: 'all 0.2s ease',
+                overflow: "hidden",
+                borderColor: hasErrors ? "error.main" : "divider",
+                transition: "all 0.2s ease",
                 ...(hasErrors && {
-                    boxShadow: `0 0 0 1px ${theme.palette.error.main}`
-                })
+                    boxShadow: `0 0 0 1px ${theme.palette.error.main}`,
+                }),
             }}
             id={`field-samples.${index}`}
             component={motion.div}
@@ -142,27 +142,27 @@ const SampleRow = ({
                             ? theme.palette.error.light
                             : theme.palette.primary.light
                         : hasErrors
-                            ? theme.palette.error.lighter || '#FFEBEE'
-                            : 'grey.100',
-                    color: isExpanded ? 'primary.contrastText' : 'text.primary',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    cursor: 'pointer',
-                    '&:hover': {
+                          ? theme.palette.error.lighter || "#FFEBEE"
+                          : "grey.100",
+                    color: isExpanded ? "primary.contrastText" : "text.primary",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    cursor: "pointer",
+                    "&:hover": {
                         bgcolor: isExpanded
                             ? hasErrors
                                 ? theme.palette.error.main
                                 : theme.palette.primary.main
                             : hasErrors
-                                ? theme.palette.error.light
-                                : 'grey.200',
+                              ? theme.palette.error.light
+                              : "grey.200",
                     },
-                    transition: 'background-color 0.2s'
+                    transition: "background-color 0.2s",
                 }}
                 onClick={toggleExpand}
             >
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     {isExpanded ? <ExpandLess /> : <ExpandMore />}
                     <Typography variant="subtitle1" fontWeight="500">
                         Sample #{index + 1}
@@ -171,7 +171,7 @@ const SampleRow = ({
 
                     {hasErrors && (
                         <Tooltip title="This sample has errors that need attention">
-                            <Box component="span" sx={{ display: 'flex', alignItems: 'center' }}>
+                            <Box component="span" sx={{ display: "flex", alignItems: "center" }}>
                                 <ErrorIcon color="error" fontSize="small" />
                             </Box>
                         </Tooltip>
@@ -195,7 +195,7 @@ const SampleRow = ({
             {/* Sample fields - expandable */}
             <Collapse in={isExpanded} timeout="auto">
                 <Box
-                    sx={{ p: 3, bgcolor: 'background.paper' }}
+                    sx={{ p: 3, bgcolor: "background.paper" }}
                     component={motion.div}
                     variants={contentVariants}
                     initial="hidden"
@@ -209,11 +209,11 @@ const SampleRow = ({
                                 fullWidth
                                 onChange={(e) => handleChange(index)(e)}
                                 name="sample_type"
-                                value={sample?.sample_type?.id || ''}
+                                value={sample?.sample_type?.id || ""}
                                 label="Sample Type"
                                 required
-                                error={hasError('sample_type')}
-                                helperText={getErrorMessage('sample_type')}
+                                error={hasError("sample_type")}
+                                helperText={getErrorMessage("sample_type")}
                                 disabled={disabled}
                                 id={`field-samples.${index}.sample_type`}
                                 InputProps={{
@@ -224,19 +224,19 @@ const SampleRow = ({
                                     ),
                                 }}
                                 sx={{
-                                    '& .MuiOutlinedInput-root': {
+                                    "& .MuiOutlinedInput-root": {
                                         borderRadius: 1.5,
-                                        transition: 'all 0.2s ease-in-out',
-                                        '&:hover': {
-                                            boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+                                        transition: "all 0.2s ease-in-out",
+                                        "&:hover": {
+                                            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
                                         },
-                                        '&.Mui-focused': {
-                                            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                                        }
-                                    }
+                                        "&.Mui-focused": {
+                                            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                                        },
+                                    },
                                 }}
                             >
-                                {sampleTypes?.map(sampleType => (
+                                {sampleTypes?.map((sampleType) => (
                                     <MenuItem value={sampleType.id} key={sampleType.id}>
                                         {sampleType.name}
                                     </MenuItem>
@@ -249,12 +249,12 @@ const SampleRow = ({
                             <TextField
                                 fullWidth
                                 onChange={(e) => handleChange(index)(e)}
-                                value={sample?.sampleId || ''}
+                                value={sample?.sampleId || ""}
                                 name="sampleId"
                                 label="Sample ID"
                                 onBlur={(e) => checkSampleId(sample.id, index)(e)}
-                                error={hasError('sampleId')}
-                                helperText={getErrorMessage('sampleId')}
+                                error={hasError("sampleId")}
+                                helperText={getErrorMessage("sampleId")}
                                 required={sample?.sample_type?.sampleIdRequired}
                                 disabled={disabled || validatingIds[index]}
                                 id={`field-samples.${index}.sampleId`}
@@ -268,7 +268,7 @@ const SampleRow = ({
                                         <InputAdornment position="end">
                                             <CircularProgress size={20} />
                                         </InputAdornment>
-                                    ) : sample?.sampleId && !hasError('sampleId') ? (
+                                    ) : sample?.sampleId && !hasError("sampleId") ? (
                                         <InputAdornment position="end">
                                             <Fade in={true}>
                                                 <CheckCircle color="success" fontSize="small" />
@@ -277,19 +277,19 @@ const SampleRow = ({
                                     ) : null,
                                     sx: {
                                         borderRadius: 1.5,
-                                        transition: 'all 0.2s ease-in-out',
-                                        '&:hover': {
-                                            boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+                                        transition: "all 0.2s ease-in-out",
+                                        "&:hover": {
+                                            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
                                         },
-                                        '&.Mui-focused': {
-                                            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                                        }
-                                    }
+                                        "&.Mui-focused": {
+                                            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                                        },
+                                    },
                                 }}
                                 sx={{
-                                    '& .MuiOutlinedInput-root': {
+                                    "& .MuiOutlinedInput-root": {
                                         borderRadius: 1.5,
-                                    }
+                                    },
                                 }}
                             />
                         </Grid>
@@ -301,11 +301,11 @@ const SampleRow = ({
                                 onChange={(e) => handleChange(index)(e)}
                                 type="date"
                                 name="collectionDate"
-                                value={sample?.collectionDate || ''}
+                                value={sample?.collectionDate || ""}
                                 label="Collection Date"
                                 required
-                                error={hasError('collectionDate')}
-                                helperText={getErrorMessage('collectionDate')}
+                                error={hasError("collectionDate")}
+                                helperText={getErrorMessage("collectionDate")}
                                 disabled={disabled}
                                 id={`field-samples.${index}.collectionDate`}
                                 InputProps={{
@@ -316,22 +316,22 @@ const SampleRow = ({
                                     ),
                                     sx: {
                                         borderRadius: 1.5,
-                                        transition: 'all 0.2s ease-in-out',
-                                        '&:hover': {
-                                            boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+                                        transition: "all 0.2s ease-in-out",
+                                        "&:hover": {
+                                            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
                                         },
-                                        '&.Mui-focused': {
-                                            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                                        }
-                                    }
+                                        "&.Mui-focused": {
+                                            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                                        },
+                                    },
                                 }}
                                 InputLabelProps={{
                                     shrink: true,
                                 }}
                                 sx={{
-                                    '& .MuiOutlinedInput-root': {
+                                    "& .MuiOutlinedInput-root": {
                                         borderRadius: 1.5,
-                                    }
+                                    },
                                 }}
                             />
                         </Grid>
@@ -344,7 +344,7 @@ const SampleRow = ({
                                     fullWidth
                                     onChange={(e) => handleChange(index)(e)}
                                     name="order_item_id"
-                                    value={sample?.order_item_id || ''}
+                                    value={sample?.order_item_id || ""}
                                     label="Test (Optional)"
                                     disabled={disabled}
                                     helperText="Select which test this sample is for"
@@ -356,17 +356,19 @@ const SampleRow = ({
                                         ),
                                     }}
                                     sx={{
-                                        '& .MuiOutlinedInput-root': {
+                                        "& .MuiOutlinedInput-root": {
                                             borderRadius: 1.5,
-                                        }
+                                        },
                                     }}
                                 >
                                     <MenuItem value="">
                                         <em>None</em>
                                     </MenuItem>
-                                    {orderItems.map(orderItem => (
+                                    {orderItems.map((orderItem) => (
                                         <MenuItem value={orderItem.id} key={orderItem.id}>
-                                            {orderItem.test?.name || orderItem.Test?.name || 'Unknown Test'}
+                                            {orderItem.test?.name ||
+                                                orderItem.Test?.name ||
+                                                "Unknown Test"}
                                         </MenuItem>
                                     ))}
                                 </TextField>
@@ -381,7 +383,7 @@ const SampleRow = ({
                                     fullWidth
                                     onChange={(e) => handleChange(index)(e)}
                                     name="patient_id"
-                                    value={sample?.patient_id || ''}
+                                    value={sample?.patient_id || ""}
                                     label="Patient (Optional)"
                                     disabled={disabled || !sample?.order_item_id}
                                     helperText={
@@ -397,9 +399,9 @@ const SampleRow = ({
                                         ),
                                     }}
                                     sx={{
-                                        '& .MuiOutlinedInput-root': {
+                                        "& .MuiOutlinedInput-root": {
                                             borderRadius: 1.5,
-                                        }
+                                        },
                                     }}
                                 >
                                     <MenuItem value="">
@@ -408,19 +410,29 @@ const SampleRow = ({
                                     {(() => {
                                         // Filter patients based on selected test
                                         if (sample?.order_item_id) {
-                                            const selectedOrderItem = orderItems.find(item => item.id === sample.order_item_id);
-                                            if (selectedOrderItem && selectedOrderItem.patients && selectedOrderItem.patients.length > 0) {
+                                            const selectedOrderItem = orderItems.find(
+                                                (item) => item.id === sample.order_item_id
+                                            );
+                                            if (
+                                                selectedOrderItem &&
+                                                selectedOrderItem.patients &&
+                                                selectedOrderItem.patients.length > 0
+                                            ) {
                                                 // Show only patients assigned to this test
-                                                return selectedOrderItem.patients.map(patient => (
+                                                return selectedOrderItem.patients.map((patient) => (
                                                     <MenuItem value={patient.id} key={patient.id}>
                                                         {patient.fullName || patient.full_name}
-                                                        {selectedOrderItem.patients.find(p => p.id === patient.id && p.pivot?.is_main) && ' (Main)'}
+                                                        {selectedOrderItem.patients.find(
+                                                            (p) =>
+                                                                p.id === patient.id &&
+                                                                p.pivot?.is_main
+                                                        ) && " (Main)"}
                                                     </MenuItem>
                                                 ));
                                             }
                                         }
                                         // If no test selected or no patients for that test, show all patients
-                                        return patients.map(patient => (
+                                        return patients.map((patient) => (
                                             <MenuItem value={patient.id} key={patient.id}>
                                                 {patient.fullName || patient.full_name}
                                             </MenuItem>
@@ -430,7 +442,6 @@ const SampleRow = ({
                             </Grid>
                         )}
 
-
                         {/* Pooling Checkbox */}
                         <Grid size={{ xs: 12, md: 4 }}>
                             <FormControlLabel
@@ -438,20 +449,20 @@ const SampleRow = ({
                                     <Checkbox
                                         checked={!!sample?.pooling}
                                         onChange={(e) => {
-                                            // Create a synthetic event or directly call change handler logic if needed, 
+                                            // Create a synthetic event or directly call change handler logic if needed,
                                             // but handleChange expects (index)(e) where e.target has name/value.
                                             // Checkbox uses 'checked' not 'value' usually, but handleChange implementation might need check.
-                                            // Let's verify handleChange in SampleDetailsForm. 
+                                            // Let's verify handleChange in SampleDetailsForm.
                                             // It uses: const {name, value} = e.target;
                                             // So for checkbox we need to ensure e.target.value is set or handle it differently.
-                                            // Actually, standard handleChange usually reads value. 
+                                            // Actually, standard handleChange usually reads value.
                                             // We should pass the checked state as value or modify handleChange.
                                             // Let's wrapping it to pass standard event structure.
                                             const event = {
                                                 target: {
-                                                    name: 'pooling',
-                                                    value: e.target.checked
-                                                }
+                                                    name: "pooling",
+                                                    value: e.target.checked,
+                                                },
                                             };
                                             handleChange(index)(event);
                                         }}
@@ -462,10 +473,10 @@ const SampleRow = ({
                                 }
                                 label="Pooling"
                                 sx={{
-                                    height: '100%',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    '& .MuiTypography-root': { fontWeight: 500 }
+                                    height: "100%",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    "& .MuiTypography-root": { fontWeight: 500 },
                                 }}
                             />
                         </Grid>
@@ -477,7 +488,7 @@ const SampleRow = ({
                                 multiline
                                 rows={2}
                                 onChange={(e) => handleChange(index)(e)}
-                                value={sample?.notes || ''}
+                                value={sample?.notes || ""}
                                 name="notes"
                                 label="Additional Notes"
                                 placeholder="Enter any additional information about this sample"
@@ -491,42 +502,46 @@ const SampleRow = ({
                                     sx: {
                                         borderRadius: 1.5,
                                         fontFamily: "'Roboto', sans-serif",
-                                        transition: 'all 0.2s ease-in-out',
-                                        '&:hover': {
-                                            boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+                                        transition: "all 0.2s ease-in-out",
+                                        "&:hover": {
+                                            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
                                         },
-                                        '&.Mui-focused': {
-                                            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                                        }
-                                    }
+                                        "&.Mui-focused": {
+                                            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                                        },
+                                    },
                                 }}
                                 sx={{
-                                    '& .MuiOutlinedInput-root': {
+                                    "& .MuiOutlinedInput-root": {
                                         borderRadius: 1.5,
-                                    }
+                                    },
                                 }}
                             />
                         </Grid>
                     </Grid>
 
                     {/* Sample-level errors (for errors that don't belong to a specific field) */}
-                    {(hasError('hasErrors') || errors[`samples[${index}]`] || errors[`samples.${index}`]) && (
+                    {(hasError("hasErrors") ||
+                        errors[`samples[${index}]`] ||
+                        errors[`samples.${index}`]) && (
                         <Fade in={true}>
                             <Box sx={{ mt: 2 }}>
                                 <Typography
                                     color="error"
                                     variant="body2"
                                     sx={{
-                                        display: 'flex',
-                                        alignItems: 'center',
+                                        display: "flex",
+                                        alignItems: "center",
                                         gap: 1,
                                         p: 1,
-                                        bgcolor: theme.palette.error.lighter || '#FFEBEE',
-                                        borderRadius: 1
+                                        bgcolor: theme.palette.error.lighter || "#FFEBEE",
+                                        borderRadius: 1,
                                     }}
                                 >
                                     <ErrorIcon fontSize="small" />
-                                    {getErrorMessage('hasErrors') || errors[`samples[${index}]`] || errors[`samples.${index}`]}
+                                    {getErrorMessage("hasErrors") ||
+                                        errors[`samples[${index}]`] ||
+                                        errors[`samples.${index}`]}
                                 </Typography>
                             </Box>
                         </Fade>

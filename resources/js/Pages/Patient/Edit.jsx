@@ -6,8 +6,6 @@ import {
     Box,
     Button,
     Typography,
-    Card,
-    CardContent,
     Paper,
     useTheme,
     Stack,
@@ -38,18 +36,10 @@ const Edit = ({ patient, canDelete, deleteReason, genders }) => {
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
     // Form state management
-    const {
-        data,
-        setData,
-        submit,
-        errors,
-        setError,
-        clearErrors,
-        processing
-    } = useSubmitForm(
+    const { data, setData, submit, errors, clearErrors, processing } = useSubmitForm(
         {
             ...patient,
-            _method: "put"
+            _method: "put",
         },
         route("patients.update", patient.id)
     );
@@ -70,7 +60,7 @@ const Edit = ({ patient, canDelete, deleteReason, genders }) => {
             onSuccess: () => {
                 setShowSuccess(true);
                 setTimeout(() => setShowSuccess(false), 3000);
-            }
+            },
         });
     };
 
@@ -84,7 +74,7 @@ const Edit = ({ patient, canDelete, deleteReason, genders }) => {
         router.delete(route("patients.destroy", patient.id), {
             onSuccess: () => {
                 router.get(route("patients.index"));
-            }
+            },
         });
     };
 
@@ -93,17 +83,13 @@ const Edit = ({ patient, canDelete, deleteReason, genders }) => {
             <PageHeader
                 title="Edit Patient"
                 action={
-                    <Button
-                        variant="outlined"
-                        startIcon={<BackIcon />}
-                        onClick={handleBack}
-                    >
+                    <Button variant="outlined" startIcon={<BackIcon />} onClick={handleBack}>
                         Back to Patients
                     </Button>
                 }
             />
 
-            <Box sx={{ maxWidth: 1200, mx: 'auto' }}>
+            <Box sx={{ maxWidth: 1200, mx: "auto" }}>
                 {showSuccess && (
                     <Alert severity="success" sx={{ mb: 2 }}>
                         Patient updated successfully!
@@ -140,7 +126,11 @@ const Edit = ({ patient, canDelete, deleteReason, genders }) => {
 
                             <Divider />
 
-                            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="space-between">
+                            <Stack
+                                direction={{ xs: "column", sm: "row" }}
+                                spacing={2}
+                                justifyContent="space-between"
+                            >
                                 <Box>
                                     {!canDelete && (
                                         <Chip
@@ -152,7 +142,7 @@ const Edit = ({ patient, canDelete, deleteReason, genders }) => {
                                     )}
                                 </Box>
 
-                                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                                <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
                                     {canDelete && (
                                         <Button
                                             variant="outlined"
@@ -174,7 +164,7 @@ const Edit = ({ patient, canDelete, deleteReason, genders }) => {
                                             background: `linear-gradient(45deg, ${theme.palette.primary.main} 30%, ${theme.palette.primary.dark} 90%)`,
                                         }}
                                     >
-                                        {processing ? 'Saving...' : 'Save Changes'}
+                                        {processing ? "Saving..." : "Save Changes"}
                                     </Button>
                                 </Stack>
                             </Stack>
@@ -201,7 +191,10 @@ const Edit = ({ patient, canDelete, deleteReason, genders }) => {
                             <Typography variant="body2" color="text.secondary">
                                 Orders as Main Patient
                             </Typography>
-                            <Typography variant="h4" sx={{ fontWeight: 600, color: theme.palette.primary.main }}>
+                            <Typography
+                                variant="h4"
+                                sx={{ fontWeight: 600, color: theme.palette.primary.main }}
+                            >
                                 {patient.orders?.length || 0}
                             </Typography>
                         </Box>
@@ -210,7 +203,10 @@ const Edit = ({ patient, canDelete, deleteReason, genders }) => {
                             <Typography variant="body2" color="text.secondary">
                                 Tests Involved
                             </Typography>
-                            <Typography variant="h4" sx={{ fontWeight: 600, color: theme.palette.info.main }}>
+                            <Typography
+                                variant="h4"
+                                sx={{ fontWeight: 600, color: theme.palette.info.main }}
+                            >
                                 {patient.order_items?.length || 0}
                             </Typography>
                         </Box>
@@ -219,7 +215,10 @@ const Edit = ({ patient, canDelete, deleteReason, genders }) => {
                             <Typography variant="body2" color="text.secondary">
                                 Related Patients
                             </Typography>
-                            <Typography variant="h4" sx={{ fontWeight: 600, color: theme.palette.secondary.main }}>
+                            <Typography
+                                variant="h4"
+                                sx={{ fontWeight: 600, color: theme.palette.secondary.main }}
+                            >
                                 {patient.related_patients?.length || 0}
                             </Typography>
                         </Box>
@@ -228,10 +227,7 @@ const Edit = ({ patient, canDelete, deleteReason, genders }) => {
             </Box>
 
             {/* Delete Confirmation Dialog */}
-            <Dialog
-                open={deleteDialogOpen}
-                onClose={() => setDeleteDialogOpen(false)}
-            >
+            <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
                 <DialogTitle>Delete Patient</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
@@ -239,15 +235,8 @@ const Edit = ({ patient, canDelete, deleteReason, genders }) => {
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setDeleteDialogOpen(false)}>
-                        Cancel
-                    </Button>
-                    <Button
-                        onClick={handleDelete}
-                        color="error"
-                        variant="contained"
-                        autoFocus
-                    >
+                    <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+                    <Button onClick={handleDelete} color="error" variant="contained" autoFocus>
                         Delete
                     </Button>
                 </DialogActions>

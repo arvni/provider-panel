@@ -1,18 +1,21 @@
 import TableLayout from "@/Layouts/TableLayout";
 import DeleteForm from "@/Components/DeleteForm";
-import React, {useState} from "react";
+import React, { useState } from "react";
 import AddForm from "./Components/AddForm";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import {useForm, usePage} from "@inertiajs/react";
-import {usePageReload} from "@/Services/api";
-import {Button, IconButton, Stack} from "@mui/material";
+import { useForm, usePage } from "@inertiajs/react";
+import { usePageReload } from "@/Services/api";
+import { Button, IconButton, Stack } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import PageHeader from "@/Components/PageHeader";
-import {Delete, Edit} from "@mui/icons-material";
+import { Delete, Edit } from "@mui/icons-material";
 
 const Index = () => {
-    const {sampleTypes: {data: sampleTypesData, ...pagination}, request} = usePage().props;
-    const {post, setData, data, reset} = useForm();
+    const {
+        sampleTypes: { data: sampleTypesData, ...pagination },
+        request,
+    } = usePage().props;
+    const { post, setData, data, reset } = useForm();
     const {
         data: queryData,
         processing,
@@ -20,8 +23,8 @@ const Index = () => {
         onPageSizeChange,
         onOrderByChange,
         onFilterChange,
-        onPageChange
-    } = usePageReload(request, ["sampleTypes","request","status"]);
+        onPageChange,
+    } = usePageReload(request, ["sampleTypes", "request", "status"]);
     const columns = [
         {
             field: "name",
@@ -31,7 +34,7 @@ const Index = () => {
                 name: "name",
                 label: "Name",
                 type: "text",
-                value: queryData?.filters?.name
+                value: queryData?.filters?.name,
             },
             sortable: true,
         },
@@ -39,11 +42,17 @@ const Index = () => {
             field: "id",
             title: "#",
             type: "actions",
-            width:"100px",
-            render: (row) => <Stack direction="row" spacing={1}>
-                <IconButton onClick={editSampleType(row.id)}><Edit/></IconButton>
-                <IconButton onClick={deleteSampleType(row)}><Delete/></IconButton>
-            </Stack>
+            width: "100px",
+            render: (row) => (
+                <Stack direction="row" spacing={1}>
+                    <IconButton onClick={editSampleType(row.id)}>
+                        <Edit />
+                    </IconButton>
+                    <IconButton onClick={deleteSampleType(row)}>
+                        <Delete />
+                    </IconButton>
+                </Stack>
+            ),
         },
     ];
     const [sampleType, setSampleType] = useState(null);
@@ -54,12 +63,12 @@ const Index = () => {
     const editSampleType = (id) => async () => {
         setEdit(true);
         const res = await axios.get(route("admin.sampleTypes.show", id));
-        setData({...res.data.data, _method: 'put'});
+        setData({ ...res.data.data, _method: "put" });
         setOpenAddForm(true);
     };
     const deleteSampleType = (params) => () => {
         setSampleType(params);
-        setData({_method: "delete"});
+        setData({ _method: "delete" });
         setOpenDeleteForm(true);
     };
     const handleCloseDeleteForm = () => {
@@ -68,33 +77,37 @@ const Index = () => {
         setOpenDeleteForm(false);
     };
     const handleDestroy = async () => {
-        post(route('admin.sampleTypes.destroy', sampleType.id), {
+        post(route("admin.sampleTypes.destroy", sampleType.id), {
             preserveState: true,
-            onSuccess: handleCloseDeleteForm
+            onSuccess: handleCloseDeleteForm,
         });
     };
-    const handleSubmitForm = () => post(edit ? route('admin.sampleTypes.update', data.id) : route('admin.sampleTypes.store'), {
-        onSuccess: (e) => {
-            setOpenAddForm(false);
-            reset();
-        },
-    });
+    const handleSubmitForm = () =>
+        post(edit ? route("admin.sampleTypes.update", data.id) : route("admin.sampleTypes.store"), {
+            onSuccess: () => {
+                setOpenAddForm(false);
+                reset();
+            },
+        });
     const addNew = () => {
         setEdit(false);
         setOpenAddForm(true);
-    }
+    };
     const handlePage = (e) => e.preventDefault() || reload();
     return (
         <>
             <PageHeader
                 title="Sample Types"
                 actions={[
-                    <Button key="add" variant="contained"
-                            onClick={addNew}
-                            color="success"
-                            startIcon={<AddIcon/>}>
+                    <Button
+                        key="add"
+                        variant="contained"
+                        onClick={addNew}
+                        color="success"
+                        startIcon={<AddIcon />}
+                    >
                         Add
-                    </Button>
+                    </Button>,
                 ]}
             />
             <TableLayout
@@ -110,30 +123,46 @@ const Index = () => {
                 tableModel={{
                     orderBy: queryData.orderBy ?? {
                         field: "id",
-                        type: "asc"
+                        type: "asc",
                     },
                     page: queryData.page,
-                    filter: queryData.filters
+                    filter: queryData.filters,
                 }}
                 pageSize={{
                     defaultValue: data.pageSize ?? 10,
-                    onChange: onPageSizeChange
+                    onChange: onPageSizeChange,
                 }}
             />
-            <DeleteForm title={`${sampleType?.name} SampleType`} agreeCB={handleDestroy}
-                        disAgreeCB={handleCloseDeleteForm} openDelete={openDeleteForm}/>
-            <AddForm title={`${!edit ? "Add New" : "Edit"} Sample Type`} loading={processing} open={openAddForm}
-                     values={data} reset={reset}
-                     setValues={setData} setOpen={setOpenAddForm} submit={handleSubmitForm}/>
-        </>);
-}
+            <DeleteForm
+                title={`${sampleType?.name} SampleType`}
+                agreeCB={handleDestroy}
+                disAgreeCB={handleCloseDeleteForm}
+                openDelete={openDeleteForm}
+            />
+            <AddForm
+                title={`${!edit ? "Add New" : "Edit"} Sample Type`}
+                loading={processing}
+                open={openAddForm}
+                values={data}
+                reset={reset}
+                setValues={setData}
+                setOpen={setOpenAddForm}
+                submit={handleSubmitForm}
+            />
+        </>
+    );
+};
 const breadCrumbs = [
     {
         title: "Sample Types",
         link: null,
-        icon: null
-    }
-]
-Index.layout = page => <AuthenticatedLayout auth={page.props.auth} children={page} breadcrumbs={breadCrumbs}/>
+        icon: null,
+    },
+];
+Index.layout = (page) => (
+    <AuthenticatedLayout auth={page.props.auth} breadcrumbs={breadCrumbs}>
+        {page}
+    </AuthenticatedLayout>
+);
 
 export default Index;

@@ -1,13 +1,6 @@
 import { useEffect, useState } from "react";
 import { router, useForm } from "@inertiajs/react";
-import {
-    Alert,
-    Box,
-    LinearProgress,
-    Paper,
-    Snackbar,
-    Typography
-} from "@mui/material";
+import { Alert, Box, LinearProgress, Paper, Snackbar, Typography } from "@mui/material";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import Form from "./Components/Form";
 import { Description, Edit as EditIcon } from "@mui/icons-material";
@@ -21,9 +14,9 @@ import { Description, Edit as EditIcon } from "@mui/icons-material";
  */
 const Edit = (props) => {
     // Initialize form with existing data
-    const { data, setData, post, processing, errors: formErrors } = useForm({
+    const { data, setData, post, processing } = useForm({
         ...props.orderForm,
-        _method: "put"
+        _method: "put",
     });
 
     // Local state for error handling and notifications
@@ -47,7 +40,7 @@ const Edit = (props) => {
         setIsSubmitting(true);
         setFormSubmitted(true);
 
-        post(route('admin.orderForms.update', props.orderForm.id), {
+        post(route("admin.orderForms.update", props.orderForm.id), {
             onSuccess: () => {
                 setSuccessMessage("Order form updated successfully");
                 setTimeout(() => {
@@ -57,7 +50,7 @@ const Edit = (props) => {
             },
             onError: () => {
                 setIsSubmitting(false);
-            }
+            },
         });
     };
 
@@ -69,11 +62,13 @@ const Edit = (props) => {
         const hasChanges = JSON.stringify(data) !== JSON.stringify(props.orderForm);
 
         if (hasChanges) {
-            if (window.confirm('Are you sure you want to cancel? Any unsaved changes will be lost.')) {
-                router.visit(route('admin.orderForms.index'));
+            if (
+                window.confirm("Are you sure you want to cancel? Any unsaved changes will be lost.")
+            ) {
+                router.visit(route("admin.orderForms.index"));
             }
         } else {
-            router.visit(route('admin.orderForms.index'));
+            router.visit(route("admin.orderForms.index"));
         }
     };
 
@@ -85,23 +80,25 @@ const Edit = (props) => {
     };
 
     return (
-        <Box sx={{
-            position: 'relative',
-            maxWidth: 1200,
-            mx: 'auto',
-            pt: 2
-        }}>
+        <Box
+            sx={{
+                position: "relative",
+                maxWidth: 1200,
+                mx: "auto",
+                pt: 2,
+            }}
+        >
             {/* Loading indicator */}
             {processing && (
                 <LinearProgress
                     sx={{
-                        position: 'absolute',
+                        position: "absolute",
                         top: 0,
                         left: 0,
                         right: 0,
                         borderTopLeftRadius: 4,
                         borderTopRightRadius: 4,
-                        zIndex: 1
+                        zIndex: 1,
                     }}
                 />
             )}
@@ -112,10 +109,17 @@ const Edit = (props) => {
                 sx={{
                     p: 3,
                     borderRadius: 2,
-                    mb: 4
+                    mb: 4,
                 }}
             >
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
+                <Box
+                    sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "flex-start",
+                        mb: 3,
+                    }}
+                >
                     <Box>
                         <Typography variant="h5" component="h1" gutterBottom fontWeight={500}>
                             Edit Order Form
@@ -126,14 +130,16 @@ const Edit = (props) => {
                         </Typography>
                     </Box>
 
-                    <Box sx={{
-                        px: 2,
-                        py: 1,
-                        bgcolor: 'info.lightest',
-                        borderRadius: 1,
-                        border: '1px solid',
-                        borderColor: 'info.light'
-                    }}>
+                    <Box
+                        sx={{
+                            px: 2,
+                            py: 1,
+                            bgcolor: "info.lightest",
+                            borderRadius: 1,
+                            border: "1px solid",
+                            borderColor: "info.light",
+                        }}
+                    >
                         <Typography variant="body2" fontWeight={500} color="info.dark">
                             Form ID: {props.orderForm.id}
                         </Typography>
@@ -164,7 +170,7 @@ const Edit = (props) => {
                 open={!!successMessage}
                 autoHideDuration={3000}
                 onClose={handleCloseSuccessMessage}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
             >
                 <Alert
                     onClose={handleCloseSuccessMessage}
@@ -184,22 +190,20 @@ const breadCrumbs = [
     {
         title: "Order Forms",
         link: "/admin/orderForms",
-        icon: <Description fontSize="small" />
+        icon: <Description fontSize="small" />,
     },
     {
         title: "Edit Form",
         link: null,
-        icon: <EditIcon fontSize="small" />
-    }
+        icon: <EditIcon fontSize="small" />,
+    },
 ];
 
 // Set layout wrapper
-Edit.layout = page => (
-    <AuthenticatedLayout
-        auth={page.props.auth}
-        children={page}
-        breadcrumbs={breadCrumbs}
-    />
+Edit.layout = (page) => (
+    <AuthenticatedLayout auth={page.props.auth} breadcrumbs={breadCrumbs}>
+        {page}
+    </AuthenticatedLayout>
 );
 
 export default Edit;

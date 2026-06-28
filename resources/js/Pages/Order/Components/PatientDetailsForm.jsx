@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import {
     Autocomplete,
     Box,
@@ -33,12 +33,12 @@ import {
     Phone as PhoneIcon,
     LocationOn as LocationIcon,
     MedicalInformation as MedicalIcon,
-    Info as InfoIcon
+    Info as InfoIcon,
 } from "@mui/icons-material";
 import countries from "@/Data/countries";
 import CountrySelector from "@/Components/CountrySelector";
 import Gender from "@/Enums/Gender.js";
-import {motion, AnimatePresence} from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 /**
  * Enhanced PatientDetailsForm with improved layout and UX
@@ -50,14 +50,15 @@ const PatientDetailsForm = (props) => {
 
     // Mark field as touched on blur (for inline validation)
     const handleBlur = (e) => {
-        setTouched(prev => ({ ...prev, [e.target.name]: true }));
+        setTouched((prev) => ({ ...prev, [e.target.name]: true }));
     };
 
     // Inline validation error for required fields (shown only after blur)
     const getBlurError = (field, value) => {
-        if (!touched[field]) return props.errors[field] || '';
-        if (!value && value !== 0) return `${field === 'fullName' ? 'Patient name' : field === 'dateOfBirth' ? 'Date of birth' : field === 'gender' ? 'Gender' : field} is required`;
-        return props.errors[field] || '';
+        if (!touched[field]) return props.errors[field] || "";
+        if (!value && value !== 0)
+            return `${field === "fullName" ? "Patient name" : field === "dateOfBirth" ? "Date of birth" : field === "gender" ? "Gender" : field} is required`;
+        return props.errors[field] || "";
     };
 
     // Handle patient field changes
@@ -67,7 +68,7 @@ const PatientDetailsForm = (props) => {
 
     // Handle contact field changes
     const handleContactChange = (e) => {
-        let contact = {...props.patient?.contact, [e.target.name]: e.target.value};
+        let contact = { ...props.patient?.contact, [e.target.name]: e.target.value };
         props.onChange("contact", contact);
     };
 
@@ -81,7 +82,7 @@ const PatientDetailsForm = (props) => {
         let contact = {
             ...props.patient?.contact,
             country: value,
-            phone: props.patient?.contact?.phone ?? ("+" + value?.phone)
+            phone: props.patient?.contact?.phone ?? "+" + value?.phone,
         };
         props.onChange("contact", contact);
     };
@@ -90,7 +91,7 @@ const PatientDetailsForm = (props) => {
     const handlePhoneCountryCodeChange = (phone) => {
         const contact = {
             ...props.patient?.contact,
-            phone: "+" + phone
+            phone: "+" + phone,
         };
         props.onChange("contact", contact);
     };
@@ -100,26 +101,25 @@ const PatientDetailsForm = (props) => {
         setShowHelp(!showHelp);
     };
 
-
     // Animations
     const containerVariants = {
-        hidden: {opacity: 0},
+        hidden: { opacity: 0 },
         visible: {
             opacity: 1,
             transition: {
                 when: "beforeChildren",
                 staggerChildren: 0.1,
-            }
-        }
+            },
+        },
     };
 
     const itemVariants = {
-        hidden: {y: 20, opacity: 0},
+        hidden: { y: 20, opacity: 0 },
         visible: {
             y: 0,
             opacity: 1,
-            transition: {duration: 0.4}
-        }
+            transition: { duration: 0.4 },
+        },
     };
 
     return (
@@ -128,26 +128,26 @@ const PatientDetailsForm = (props) => {
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            sx={{width: '100%'}}
+            sx={{ width: "100%" }}
         >
             {/* Help section */}
             <AnimatePresence>
                 {showHelp && (
                     <motion.div
-                        initial={{opacity: 0, height: 0}}
-                        animate={{opacity: 1, height: 'auto'}}
-                        exit={{opacity: 0, height: 0}}
-                        transition={{duration: 0.3}}
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3 }}
                     >
                         <Alert
                             severity="info"
-                            icon={<InfoIcon/>}
+                            icon={<InfoIcon />}
                             sx={{
                                 mb: 3,
                                 borderRadius: 2,
-                                '& .MuiAlert-icon': {
-                                    alignItems: 'center'
-                                }
+                                "& .MuiAlert-icon": {
+                                    alignItems: "center",
+                                },
                             }}
                             onClose={toggleHelp}
                         >
@@ -155,25 +155,27 @@ const PatientDetailsForm = (props) => {
                                 Patient Information Guidelines
                             </Typography>
                             <Typography variant="body2" paragraph>
-                                Please fill in all required fields marked with an asterisk (*). Accurate patient
-                                information ensures proper test processing and reporting.
+                                Please fill in all required fields marked with an asterisk (*).
+                                Accurate patient information ensures proper test processing and
+                                reporting.
                             </Typography>
-                            <Box component="ul" sx={{m: 0, pl: 2}}>
-                                <Box component="li" sx={{mb: 0.5}}>
+                            <Box component="ul" sx={{ m: 0, pl: 2 }}>
+                                <Box component="li" sx={{ mb: 0.5 }}>
                                     <Typography variant="body2">
-                                        <strong>Patient Name:</strong> Enter the full legal name as it appears on
-                                        official documents
+                                        <strong>Patient Name:</strong> Enter the full legal name as
+                                        it appears on official documents
                                     </Typography>
                                 </Box>
-                                <Box component="li" sx={{mb: 0.5}}>
+                                <Box component="li" sx={{ mb: 0.5 }}>
                                     <Typography variant="body2">
-                                        <strong>Date of Birth:</strong> Use the calendar picker for accurate date entry
+                                        <strong>Date of Birth:</strong> Use the calendar picker for
+                                        accurate date entry
                                     </Typography>
                                 </Box>
                                 <Box component="li">
                                     <Typography variant="body2">
-                                        <strong>Consanguineous Parents:</strong> Important for genetic test
-                                        interpretation
+                                        <strong>Consanguineous Parents:</strong> Important for
+                                        genetic test interpretation
                                     </Typography>
                                 </Box>
                             </Box>
@@ -182,22 +184,17 @@ const PatientDetailsForm = (props) => {
                 )}
             </AnimatePresence>
 
-            <Grid
-                container
-                spacing={3}
-                component={motion.div}
-                variants={itemVariants}
-            >
+            <Grid container spacing={3} component={motion.div} variants={itemVariants}>
                 {/* Left column - Patient information */}
                 <Grid size={{ xs: 12, md: 8 }}>
                     <Card
                         elevation={0}
                         sx={{
                             borderRadius: 2,
-                            border: '1px solid',
+                            border: "1px solid",
                             borderColor: theme.palette.divider,
-                            overflow: 'hidden',
-                            height: '100%'
+                            overflow: "hidden",
+                            height: "100%",
                         }}
                     >
                         {/* Patient information section */}
@@ -206,15 +203,15 @@ const PatientDetailsForm = (props) => {
                                 px: 3,
                                 py: 2,
                                 bgcolor: alpha(theme.palette.primary.main, 0.05),
-                                borderBottom: '1px solid',
+                                borderBottom: "1px solid",
                                 borderColor: theme.palette.divider,
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center'
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
                             }}
                         >
-                            <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
-                                <PersonIcon color="primary"/>
+                            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                                <PersonIcon color="primary" />
                                 <Typography variant="h6" fontWeight={600}>
                                     Patient Information
                                 </Typography>
@@ -226,12 +223,12 @@ const PatientDetailsForm = (props) => {
                                     onClick={toggleHelp}
                                     color={showHelp ? "primary" : "default"}
                                 >
-                                    <HelpIcon/>
+                                    <HelpIcon />
                                 </IconButton>
                             </Tooltip>
                         </Box>
 
-                        <CardContent sx={{p: 3}}>
+                        <CardContent sx={{ p: 3 }}>
                             {/* Required Patient Fields */}
                             <Grid container spacing={2} mb={3}>
                                 <Grid size={{ xs: 12, sm: 6 }}>
@@ -246,7 +243,7 @@ const PatientDetailsForm = (props) => {
                                         InputProps={{
                                             startAdornment: (
                                                 <InputAdornment position="start">
-                                                    <BadgeIcon color="action" fontSize="small"/>
+                                                    <BadgeIcon color="action" fontSize="small" />
                                                 </InputAdornment>
                                             ),
                                         }}
@@ -264,7 +261,7 @@ const PatientDetailsForm = (props) => {
                                         InputProps={{
                                             startAdornment: (
                                                 <InputAdornment position="start">
-                                                    <BadgeIcon color="action" fontSize="small"/>
+                                                    <BadgeIcon color="action" fontSize="small" />
                                                 </InputAdornment>
                                             ),
                                         }}
@@ -280,18 +277,26 @@ const PatientDetailsForm = (props) => {
                                         >
                                             <InputLabel>Relationship to Main Patient *</InputLabel>
                                             <Select
-                                                value={props.patient?.relations?.[0]?.relation_type || ""}
+                                                value={
+                                                    props.patient?.relations?.[0]?.relation_type ||
+                                                    ""
+                                                }
                                                 label="Relationship to Main Patient *"
                                                 onChange={(e) => {
-                                                    const relations = [{
-                                                        related_patient_id: 'main',
-                                                        relation_type: e.target.value
-                                                    }];
+                                                    const relations = [
+                                                        {
+                                                            related_patient_id: "main",
+                                                            relation_type: e.target.value,
+                                                        },
+                                                    ];
                                                     props.onChange("relations", relations);
                                                 }}
                                                 startAdornment={
                                                     <InputAdornment position="start">
-                                                        <PersonSearchIcon color="action" fontSize="small"/>
+                                                        <PersonSearchIcon
+                                                            color="action"
+                                                            fontSize="small"
+                                                        />
                                                     </InputAdornment>
                                                 }
                                             >
@@ -305,7 +310,9 @@ const PatientDetailsForm = (props) => {
                                                 <MenuItem value="Other">Other</MenuItem>
                                             </Select>
                                             {props.errors["relation_type"] && (
-                                                <FormHelperText>{props.errors["relation_type"]}</FormHelperText>
+                                                <FormHelperText>
+                                                    {props.errors["relation_type"]}
+                                                </FormHelperText>
                                             )}
                                         </FormControl>
                                     </Grid>
@@ -315,7 +322,10 @@ const PatientDetailsForm = (props) => {
                                         fullWidth
                                         required
                                         error={!!getBlurError("fullName", props.patient?.fullName)}
-                                        helperText={getBlurError("fullName", props.patient?.fullName)}
+                                        helperText={getBlurError(
+                                            "fullName",
+                                            props.patient?.fullName
+                                        )}
                                         label="Patient Full Name"
                                         value={props.patient?.fullName ?? ""}
                                         name="fullName"
@@ -324,7 +334,7 @@ const PatientDetailsForm = (props) => {
                                         InputProps={{
                                             startAdornment: (
                                                 <InputAdornment position="start">
-                                                    <PersonIcon color="action" fontSize="small"/>
+                                                    <PersonIcon color="action" fontSize="small" />
                                                 </InputAdornment>
                                             ),
                                         }}
@@ -366,8 +376,16 @@ const PatientDetailsForm = (props) => {
                                         fullWidth
                                         required
                                         label="Date Of Birth"
-                                        error={!!getBlurError("dateOfBirth", props.patient?.dateOfBirth)}
-                                        helperText={getBlurError("dateOfBirth", props.patient?.dateOfBirth)}
+                                        error={
+                                            !!getBlurError(
+                                                "dateOfBirth",
+                                                props.patient?.dateOfBirth
+                                            )
+                                        }
+                                        helperText={getBlurError(
+                                            "dateOfBirth",
+                                            props.patient?.dateOfBirth
+                                        )}
                                         value={props.patient?.dateOfBirth ?? ""}
                                         name="dateOfBirth"
                                         type="date"
@@ -376,10 +394,10 @@ const PatientDetailsForm = (props) => {
                                         InputProps={{
                                             startAdornment: (
                                                 <InputAdornment position="start">
-                                                    <CakeIcon color="action" fontSize="small"/>
+                                                    <CakeIcon color="action" fontSize="small" />
                                                 </InputAdornment>
                                             ),
-                                            sx: {textAlign: "right"}
+                                            sx: { textAlign: "right" },
                                         }}
                                     />
                                 </Grid>
@@ -403,7 +421,7 @@ const PatientDetailsForm = (props) => {
                                             onChange={handleChange}
                                             startAdornment={
                                                 <InputAdornment position="start">
-                                                    <MedicalIcon color="action" fontSize="small"/>
+                                                    <MedicalIcon color="action" fontSize="small" />
                                                 </InputAdornment>
                                             }
                                         >
@@ -430,7 +448,7 @@ const PatientDetailsForm = (props) => {
                                         renderOption={(props, option) => (
                                             <Box
                                                 component="li"
-                                                sx={{'& > img': {mr: 2, flexShrink: 0}}}
+                                                sx={{ "& > img": { mr: 2, flexShrink: 0 } }}
                                                 {...props}
                                             >
                                                 <img
@@ -451,10 +469,13 @@ const PatientDetailsForm = (props) => {
                                                 helperText={props.errors["nationality.code"]}
                                                 InputProps={{
                                                     ...params.InputProps,
-                                                    autoComplete: 'new-password',
+                                                    autoComplete: "new-password",
                                                     startAdornment: (
                                                         <InputAdornment position="start">
-                                                            <FlagIcon color="action" fontSize="small"/>
+                                                            <FlagIcon
+                                                                color="action"
+                                                                fontSize="small"
+                                                            />
                                                             {params.InputProps.startAdornment}
                                                         </InputAdornment>
                                                     ),
@@ -467,16 +488,16 @@ const PatientDetailsForm = (props) => {
                             </Grid>
 
                             {/* Contact Information Section */}
-                            <Box sx={{mt: 4, mb: 2}}>
+                            <Box sx={{ mt: 4, mb: 2 }}>
                                 <Box
                                     sx={{
-                                        display: 'flex',
-                                        alignItems: 'center',
+                                        display: "flex",
+                                        alignItems: "center",
                                         gap: 1,
-                                        mb: 2
+                                        mb: 2,
                                     }}
                                 >
-                                    <ContactPhoneIcon color="primary"/>
+                                    <ContactPhoneIcon color="primary" />
                                     <Typography variant="h6" fontWeight={600}>
                                         Contact Information
                                     </Typography>
@@ -494,7 +515,7 @@ const PatientDetailsForm = (props) => {
                                             renderOption={(props, option) => (
                                                 <Box
                                                     component="li"
-                                                    sx={{'& > img': {mr: 2, flexShrink: 0}}}
+                                                    sx={{ "& > img": { mr: 2, flexShrink: 0 } }}
                                                     {...props}
                                                 >
                                                     <img
@@ -513,10 +534,13 @@ const PatientDetailsForm = (props) => {
                                                     label="Country"
                                                     InputProps={{
                                                         ...params.InputProps,
-                                                        autoComplete: 'new-password',
+                                                        autoComplete: "new-password",
                                                         startAdornment: (
                                                             <InputAdornment position="start">
-                                                                <FlagIcon color="action" fontSize="small"/>
+                                                                <FlagIcon
+                                                                    color="action"
+                                                                    fontSize="small"
+                                                                />
                                                                 {params.InputProps.startAdornment}
                                                             </InputAdornment>
                                                         ),
@@ -530,17 +554,24 @@ const PatientDetailsForm = (props) => {
                                         <TextField
                                             fullWidth
                                             label="Phone"
-                                            error={!!props.errors['contact.phone']}
-                                            helperText={props.errors['contact.phone']}
+                                            error={!!props.errors["contact.phone"]}
+                                            helperText={props.errors["contact.phone"]}
                                             value={props.patient?.contact?.phone ?? ""}
                                             name="phone"
                                             onChange={handleContactChange}
                                             InputProps={{
                                                 startAdornment: (
                                                     <InputAdornment position="start">
-                                                        <PhoneIcon color="action" fontSize="small"/>
+                                                        <PhoneIcon
+                                                            color="action"
+                                                            fontSize="small"
+                                                        />
                                                         <CountrySelector
-                                                            value={props.patient?.contact?.phone?.substring(1) ?? ""}
+                                                            value={
+                                                                props.patient?.contact?.phone?.substring(
+                                                                    1
+                                                                ) ?? ""
+                                                            }
                                                             onChange={handlePhoneCountryCodeChange}
                                                         />
                                                     </InputAdornment>
@@ -555,13 +586,16 @@ const PatientDetailsForm = (props) => {
                                             label="Email"
                                             value={props.patient?.contact?.email ?? ""}
                                             name="email"
-                                            error={!!props.errors['contact.email']}
-                                            helperText={props.errors['contact.email']}
+                                            error={!!props.errors["contact.email"]}
+                                            helperText={props.errors["contact.email"]}
                                             onChange={handleContactChange}
                                             InputProps={{
                                                 startAdornment: (
                                                     <InputAdornment position="start">
-                                                        <EmailIcon color="action" fontSize="small"/>
+                                                        <EmailIcon
+                                                            color="action"
+                                                            fontSize="small"
+                                                        />
                                                     </InputAdornment>
                                                 ),
                                             }}
@@ -578,7 +612,10 @@ const PatientDetailsForm = (props) => {
                                             InputProps={{
                                                 startAdornment: (
                                                     <InputAdornment position="start">
-                                                        <LocationIcon color="action" fontSize="small"/>
+                                                        <LocationIcon
+                                                            color="action"
+                                                            fontSize="small"
+                                                        />
                                                     </InputAdornment>
                                                 ),
                                             }}
@@ -595,7 +632,10 @@ const PatientDetailsForm = (props) => {
                                             InputProps={{
                                                 startAdornment: (
                                                     <InputAdornment position="start">
-                                                        <LocationIcon color="action" fontSize="small"/>
+                                                        <LocationIcon
+                                                            color="action"
+                                                            fontSize="small"
+                                                        />
                                                     </InputAdornment>
                                                 ),
                                             }}
@@ -612,7 +652,10 @@ const PatientDetailsForm = (props) => {
                                             InputProps={{
                                                 startAdornment: (
                                                     <InputAdornment position="start">
-                                                        <LocationIcon color="action" fontSize="small"/>
+                                                        <LocationIcon
+                                                            color="action"
+                                                            fontSize="small"
+                                                        />
                                                     </InputAdornment>
                                                 ),
                                             }}
@@ -632,45 +675,45 @@ const PatientDetailsForm = (props) => {
                             elevation={0}
                             sx={{
                                 borderRadius: 2,
-                                border: '1px solid',
+                                border: "1px solid",
                                 borderColor: theme.palette.divider,
-                                bgcolor: alpha(theme.palette.background.default, 0.5)
+                                bgcolor: alpha(theme.palette.background.default, 0.5),
                             }}
                         >
-                            <CardContent sx={{p: 3}}>
+                            <CardContent sx={{ p: 3 }}>
                                 <Typography
                                     variant="subtitle1"
                                     fontWeight={600}
                                     sx={{
                                         mb: 2,
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: 1
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: 1,
                                     }}
                                 >
-                                    <PersonSearchIcon color="primary"/>
+                                    <PersonSearchIcon color="primary" />
                                     Select Existing Patient
                                 </Typography>
 
                                 <Typography variant="body2" color="text.secondary" paragraph>
-                                    To use an existing patient's information, click the button below to select from your
-                                    patient list.
+                                    To use an existing patient&apos;s information, click the button
+                                    below to select from your patient list.
                                 </Typography>
 
                                 <Button
                                     variant="contained"
                                     fullWidth
-                                    startIcon={<PersonSearchIcon/>}
+                                    startIcon={<PersonSearchIcon />}
                                     onClick={props.handlePatientListOpen}
                                     sx={{
                                         mt: 1,
                                         borderRadius: 1.5,
-                                        textTransform: 'none',
+                                        textTransform: "none",
                                         py: 1,
-                                        boxShadow: 'none',
-                                        '&:hover': {
-                                            boxShadow: theme.shadows[2]
-                                        }
+                                        boxShadow: "none",
+                                        "&:hover": {
+                                            boxShadow: theme.shadows[2],
+                                        },
                                     }}
                                 >
                                     Choose From Patient List
@@ -682,26 +725,26 @@ const PatientDetailsForm = (props) => {
                         <Alert
                             severity="info"
                             variant="outlined"
-                            icon={<InfoIcon/>}
+                            icon={<InfoIcon />}
                             sx={{
                                 borderRadius: 2,
-                                '& .MuiAlert-icon': {
-                                    alignItems: 'flex-start',
-                                    pt: 1
-                                }
+                                "& .MuiAlert-icon": {
+                                    alignItems: "flex-start",
+                                    pt: 1,
+                                },
                             }}
                         >
                             <Typography variant="subtitle2" fontWeight={600} gutterBottom>
                                 Required Information
                             </Typography>
-                            <Box component="ul" sx={{m: 0, pl: 2, mb: 0}}>
-                                <Box component="li" sx={{mb: 0.5}}>
+                            <Box component="ul" sx={{ m: 0, pl: 2, mb: 0 }}>
+                                <Box component="li" sx={{ mb: 0.5 }}>
                                     <Typography variant="body2">Full name</Typography>
                                 </Box>
-                                <Box component="li" sx={{mb: 0.5}}>
+                                <Box component="li" sx={{ mb: 0.5 }}>
                                     <Typography variant="body2">Date of birth</Typography>
                                 </Box>
-                                <Box component="li" sx={{mb: 0.5}}>
+                                <Box component="li" sx={{ mb: 0.5 }}>
                                     <Typography variant="body2">Gender</Typography>
                                 </Box>
                                 <Box component="li">

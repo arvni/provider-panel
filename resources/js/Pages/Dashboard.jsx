@@ -19,16 +19,15 @@ import {
     alpha,
 } from "@mui/material";
 import AdminLayout from "@/Layouts/AuthenticatedLayout";
-import LightModeIcon from '@mui/icons-material/LightMode';
-import WbTwilightIcon from '@mui/icons-material/WbTwilight';
-import Brightness3Icon from '@mui/icons-material/Brightness3';
-import DescriptionIcon from '@mui/icons-material/Description';
-import FileDownloadIcon from '@mui/icons-material/FileDownload';
-import RefreshIcon from '@mui/icons-material/Refresh';
+import LightModeIcon from "@mui/icons-material/LightMode";
+import WbTwilightIcon from "@mui/icons-material/WbTwilight";
+import Brightness3Icon from "@mui/icons-material/Brightness3";
+import DescriptionIcon from "@mui/icons-material/Description";
+import RefreshIcon from "@mui/icons-material/Refresh";
 import AddOrderByBarcode from "@/Components/AddOrderByBarcode.jsx";
 import { motion } from "framer-motion";
 import { Link, router } from "@inertiajs/react";
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
 /**
  * Enhanced greeting component with animations and time-based content
@@ -47,8 +46,10 @@ export const Greeting = () => {
     useEffect(() => {
         const updateTime = () => {
             const now = new Date();
-            setTimeString(now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
-            setDateString(now.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' }));
+            setTimeString(now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
+            setDateString(
+                now.toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" })
+            );
         };
 
         // Update immediately
@@ -77,14 +78,16 @@ export const Greeting = () => {
     }
 
     return (
-        <Box sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            textAlign: 'center',
-            width: '100%',
-            gap: 1.5
-        }}>
+        <Box
+            sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                textAlign: "center",
+                width: "100%",
+                gap: 1.5,
+            }}
+        >
             <motion.div
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
@@ -102,12 +105,13 @@ export const Greeting = () => {
                 sx={{
                     fontWeight: 600,
                     background: `linear-gradient(45deg, ${color} 30%, ${theme.palette.primary.main} 90%)`,
-                    backgroundClip: 'text',
-                    textFillColor: 'transparent',
-                    mb: 0
+                    backgroundClip: "text",
+                    textFillColor: "transparent",
+                    mb: 0,
                 }}
             >
-                {greeting}{userName ? `, ${userName.split(' ')[0]}` : "!"}
+                {greeting}
+                {userName ? `, ${userName.split(" ")[0]}` : "!"}
             </Typography>
 
             <Typography
@@ -118,9 +122,9 @@ export const Greeting = () => {
                 transition={{ delay: 0.4, duration: 0.4 }}
                 sx={{
                     fontWeight: 400,
-                    fontSize: '1.1rem',
+                    fontSize: "1.1rem",
                     color: theme.palette.text.secondary,
-                    mb: 2
+                    mb: 2,
                 }}
             >
                 {timeString}
@@ -137,7 +141,7 @@ export const Greeting = () => {
                 sx={{
                     fontWeight: 500,
                     color: theme.palette.text.secondary,
-                    borderColor: alpha(theme.palette.divider, 0.8)
+                    borderColor: alpha(theme.palette.divider, 0.8),
                 }}
             />
         </Box>
@@ -165,8 +169,8 @@ export default function Dashboard({ auth, recentlyOrders = [], notDownloadedRepo
             transition: {
                 when: "beforeChildren",
                 staggerChildren: 0.1,
-            }
-        }
+            },
+        },
     };
 
     const itemVariants = {
@@ -174,30 +178,26 @@ export default function Dashboard({ auth, recentlyOrders = [], notDownloadedRepo
         visible: {
             y: 0,
             opacity: 1,
-            transition: { duration: 0.4 }
-        }
+            transition: { duration: 0.4 },
+        },
     };
 
     // Get status color
     const getStatusColor = (status) => {
         const statusMap = {
-            'completed': 'success',
-            'pending': 'warning',
-            'in progress': 'info',
-            'cancelled': 'error',
-            'processing': 'primary'
+            completed: "success",
+            pending: "warning",
+            "in progress": "info",
+            cancelled: "error",
+            processing: "primary",
         };
 
-        return statusMap[status?.toLowerCase()] || 'default';
+        return statusMap[status?.toLowerCase()] || "default";
     };
 
     return (
         <AdminLayout auth={auth} breadcrumbs={[]} title="Dashboard">
-            <motion.div
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-            >
+            <motion.div variants={containerVariants} initial="hidden" animate="visible">
                 <Grid container spacing={3}>
                     {/* Information cards row */}
                     <Grid size={{ xs: 12, md: 4, lg: 3 }}>
@@ -209,32 +209,35 @@ export default function Dashboard({ auth, recentlyOrders = [], notDownloadedRepo
                                     sx={{
                                         height: "100%",
                                         p: 3,
-                                        display: 'flex',
-                                        flexDirection: 'column',
+                                        display: "flex",
+                                        flexDirection: "column",
                                         justifyContent: "center",
                                         alignItems: "center",
                                         borderRadius: 2,
-                                        backgroundColor: theme.palette.mode === 'dark'
-                                            ? alpha(theme.palette.primary.dark, 0.2)
-                                            : alpha(theme.palette.primary.light, 0.1),
-                                        border: '1px solid',
-                                        borderColor: theme.palette.mode === 'dark'
-                                            ? alpha(theme.palette.primary.dark, 0.4)
-                                            : alpha(theme.palette.primary.light, 0.4),
-                                        overflow: 'hidden',
-                                        position: 'relative',
-                                        '&::before': {
+                                        backgroundColor:
+                                            theme.palette.mode === "dark"
+                                                ? alpha(theme.palette.primary.dark, 0.2)
+                                                : alpha(theme.palette.primary.light, 0.1),
+                                        border: "1px solid",
+                                        borderColor:
+                                            theme.palette.mode === "dark"
+                                                ? alpha(theme.palette.primary.dark, 0.4)
+                                                : alpha(theme.palette.primary.light, 0.4),
+                                        overflow: "hidden",
+                                        position: "relative",
+                                        "&::before": {
                                             content: '""',
-                                            position: 'absolute',
+                                            position: "absolute",
                                             top: 0,
                                             left: 0,
-                                            width: '100%',
-                                            height: '100%',
-                                            backgroundImage: theme.palette.mode === 'dark'
-                                                ? 'radial-gradient(circle at top right, rgba(66, 165, 245, 0.1), transparent 70%)'
-                                                : 'radial-gradient(circle at top right, rgba(66, 165, 245, 0.1), transparent 70%)',
-                                            zIndex: 0
-                                        }
+                                            width: "100%",
+                                            height: "100%",
+                                            backgroundImage:
+                                                theme.palette.mode === "dark"
+                                                    ? "radial-gradient(circle at top right, rgba(66, 165, 245, 0.1), transparent 70%)"
+                                                    : "radial-gradient(circle at top right, rgba(66, 165, 245, 0.1), transparent 70%)",
+                                            zIndex: 0,
+                                        },
                                     }}
                                 >
                                     <Box sx={{ zIndex: 1 }}>
@@ -249,19 +252,19 @@ export default function Dashboard({ auth, recentlyOrders = [], notDownloadedRepo
                                     sx={{
                                         height: "100%",
                                         p: 3,
-                                        display: 'flex',
-                                        flexDirection: 'column',
+                                        display: "flex",
+                                        flexDirection: "column",
                                         justifyContent: "center",
                                         alignItems: "center",
                                         borderRadius: 2,
-                                        border: '1px solid',
+                                        border: "1px solid",
                                         borderColor: theme.palette.divider,
                                         backgroundColor: theme.palette.background.paper,
-                                        transition: 'transform 0.3s, box-shadow 0.3s',
-                                        '&:hover': {
-                                            transform: 'translateY(-4px)',
-                                            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.1)'
-                                        }
+                                        transition: "transform 0.3s, box-shadow 0.3s",
+                                        "&:hover": {
+                                            transform: "translateY(-4px)",
+                                            boxShadow: "0 8px 24px rgba(0, 0, 0, 0.1)",
+                                        },
                                     }}
                                 >
                                     <motion.div
@@ -271,14 +274,19 @@ export default function Dashboard({ auth, recentlyOrders = [], notDownloadedRepo
                                     >
                                         <Avatar
                                             sx={{
-                                                bgcolor: notDownloadedReports > 0 ? theme.palette.success.light : theme.palette.grey[300],
+                                                bgcolor:
+                                                    notDownloadedReports > 0
+                                                        ? theme.palette.success.light
+                                                        : theme.palette.grey[300],
                                                 width: 60,
                                                 height: 60,
                                                 mb: 2,
-                                                mx: 'auto'
+                                                mx: "auto",
                                             }}
                                         >
-                                            <DescriptionIcon sx={{ color: 'white', fontSize: 30 }} />
+                                            <DescriptionIcon
+                                                sx={{ color: "white", fontSize: 30 }}
+                                            />
                                         </Avatar>
                                     </motion.div>
 
@@ -286,11 +294,18 @@ export default function Dashboard({ auth, recentlyOrders = [], notDownloadedRepo
                                         variant="h3"
                                         sx={{
                                             fontWeight: 700,
-                                            color: notDownloadedReports > 0 ? theme.palette.success.main : theme.palette.text.primary,
-                                            mb: 1
+                                            color:
+                                                notDownloadedReports > 0
+                                                    ? theme.palette.success.main
+                                                    : theme.palette.text.primary,
+                                            mb: 1,
                                         }}
                                     >
-                                        {isRefreshing ? <Skeleton width={60} height={60} /> : notDownloadedReports}
+                                        {isRefreshing ? (
+                                            <Skeleton width={60} height={60} />
+                                        ) : (
+                                            notDownloadedReports
+                                        )}
                                     </Typography>
 
                                     <Typography
@@ -298,7 +313,7 @@ export default function Dashboard({ auth, recentlyOrders = [], notDownloadedRepo
                                         align="center"
                                         sx={{
                                             color: theme.palette.text.secondary,
-                                            mb: 2
+                                            mb: 2,
                                         }}
                                     >
                                         Reports Ready To Download
@@ -307,27 +322,31 @@ export default function Dashboard({ auth, recentlyOrders = [], notDownloadedRepo
                             </Grid>
                         </Grid>
                     </Grid>
-                    <Grid size={{ xs: 12, md: 8, lg: 9 }} component={motion.div} variants={itemVariants}>
-                        <Grid container  spacing={3}>
+                    <Grid
+                        size={{ xs: 12, md: 8, lg: 9 }}
+                        component={motion.div}
+                        variants={itemVariants}
+                    >
+                        <Grid container spacing={3}>
                             {/* Latest orders table */}
                             <Grid size={12} component={motion.div} variants={itemVariants}>
                                 <Paper
                                     elevation={0}
                                     sx={{
                                         borderRadius: 2,
-                                        border: '1px solid',
+                                        border: "1px solid",
                                         borderColor: theme.palette.divider,
-                                        overflow: 'hidden'
+                                        overflow: "hidden",
                                     }}
                                 >
                                     <Box
                                         sx={{
                                             p: 2,
-                                            display: 'flex',
-                                            justifyContent: 'space-between',
-                                            alignItems: 'center',
-                                            borderBottom: '1px solid',
-                                            borderColor: theme.palette.divider
+                                            display: "flex",
+                                            justifyContent: "space-between",
+                                            alignItems: "center",
+                                            borderBottom: "1px solid",
+                                            borderColor: theme.palette.divider,
                                         }}
                                     >
                                         <Typography variant="h6" sx={{ fontWeight: 600 }}>
@@ -340,8 +359,13 @@ export default function Dashboard({ auth, recentlyOrders = [], notDownloadedRepo
                                                     size="small"
                                                     onClick={handleRefresh}
                                                     sx={{
-                                                        ...(isRefreshing && { animation: 'spin 1s linear infinite' }),
-                                                        '@keyframes spin': { '0%': { transform: 'rotate(0deg)' }, '100%': { transform: 'rotate(360deg)' } },
+                                                        ...(isRefreshing && {
+                                                            animation: "spin 1s linear infinite",
+                                                        }),
+                                                        "@keyframes spin": {
+                                                            "0%": { transform: "rotate(0deg)" },
+                                                            "100%": { transform: "rotate(360deg)" },
+                                                        },
                                                     }}
                                                 >
                                                     <RefreshIcon />
@@ -352,7 +376,7 @@ export default function Dashboard({ auth, recentlyOrders = [], notDownloadedRepo
                                                 <IconButton
                                                     size="small"
                                                     component={Link}
-                                                    href={route('orders.index')}
+                                                    href={route("orders.index")}
                                                     sx={{ ml: 1 }}
                                                 >
                                                     <ArrowForwardIcon />
@@ -364,7 +388,14 @@ export default function Dashboard({ auth, recentlyOrders = [], notDownloadedRepo
                                     <Box sx={{ overflowX: "auto" }}>
                                         <Table>
                                             <TableHead>
-                                                <TableRow sx={{ backgroundColor: alpha(theme.palette.primary.main, 0.05) }}>
+                                                <TableRow
+                                                    sx={{
+                                                        backgroundColor: alpha(
+                                                            theme.palette.primary.main,
+                                                            0.05
+                                                        ),
+                                                    }}
+                                                >
                                                     <TableCell>Patient Name</TableCell>
                                                     <TableCell>Tests</TableCell>
                                                     <TableCell>Status</TableCell>
@@ -374,71 +405,104 @@ export default function Dashboard({ auth, recentlyOrders = [], notDownloadedRepo
                                             <TableBody>
                                                 {isRefreshing ? (
                                                     // Loading state
-                                                    Array(5).fill(0).map((_, index) => (
-                                                        <TableRow key={`skeleton-${index}`}>
-                                                            <TableCell><Skeleton width={150} /></TableCell>
-                                                            <TableCell><Skeleton width={100} /></TableCell>
-                                                            <TableCell><Skeleton width={80} /></TableCell>
-                                                            <TableCell><Skeleton width={90} /></TableCell>
-                                                        </TableRow>
-                                                    ))
+                                                    Array(5)
+                                                        .fill(0)
+                                                        .map((_, index) => (
+                                                            <TableRow key={`skeleton-${index}`}>
+                                                                <TableCell>
+                                                                    <Skeleton width={150} />
+                                                                </TableCell>
+                                                                <TableCell>
+                                                                    <Skeleton width={100} />
+                                                                </TableCell>
+                                                                <TableCell>
+                                                                    <Skeleton width={80} />
+                                                                </TableCell>
+                                                                <TableCell>
+                                                                    <Skeleton width={90} />
+                                                                </TableCell>
+                                                            </TableRow>
+                                                        ))
                                                 ) : recentlyOrders.length > 0 ? (
                                                     // Orders list
-                                                    recentlyOrders.map(order => (
+                                                    recentlyOrders.map((order) => (
                                                         <TableRow
                                                             key={"order-" + order.id}
                                                             sx={{
-                                                                '&:hover': {
-                                                                    backgroundColor: alpha(theme.palette.primary.main, 0.04),
-                                                                    cursor: 'pointer'
-                                                                }
+                                                                "&:hover": {
+                                                                    backgroundColor: alpha(
+                                                                        theme.palette.primary.main,
+                                                                        0.04
+                                                                    ),
+                                                                    cursor: "pointer",
+                                                                },
                                                             }}
-                                                            onClick={() => router.visit(route('orders.show', order.id))}
+                                                            onClick={() =>
+                                                                router.visit(
+                                                                    route("orders.show", order.id)
+                                                                )
+                                                            }
                                                         >
                                                             <TableCell sx={{ fontWeight: 500 }}>
                                                                 {order.patient_full_name}
                                                             </TableCell>
                                                             <TableCell>
-                                                                {order.tests_name?.split(',')?.map((test, i) => (
-                                                                    <Chip
-                                                                        key={i}
-                                                                        label={test.trim()}
-                                                                        size="small"
-                                                                        sx={{
-                                                                            mr: 0.5,
-                                                                            mb: 0.5,
-                                                                            fontSize: '0.7rem',
-                                                                            height: 20
-                                                                        }}
-                                                                    />
-                                                                ))}
+                                                                {order.tests_name
+                                                                    ?.split(",")
+                                                                    ?.map((test, i) => (
+                                                                        <Chip
+                                                                            key={i}
+                                                                            label={test.trim()}
+                                                                            size="small"
+                                                                            sx={{
+                                                                                mr: 0.5,
+                                                                                mb: 0.5,
+                                                                                fontSize: "0.7rem",
+                                                                                height: 20,
+                                                                            }}
+                                                                        />
+                                                                    ))}
                                                             </TableCell>
                                                             <TableCell>
                                                                 <Chip
                                                                     label={order.status}
                                                                     size="small"
-                                                                    color={getStatusColor(order.status)}
+                                                                    color={getStatusColor(
+                                                                        order.status
+                                                                    )}
                                                                     sx={{ fontWeight: 500 }}
                                                                 />
                                                             </TableCell>
                                                             <TableCell>
-                                                                {new Date(order.updated_at).toLocaleDateString()}
+                                                                {new Date(
+                                                                    order.updated_at
+                                                                ).toLocaleDateString()}
                                                             </TableCell>
                                                         </TableRow>
                                                     ))
                                                 ) : (
                                                     // Empty state
                                                     <TableRow>
-                                                        <TableCell colSpan={4} align="center" sx={{ py: 4 }}>
-                                                            <Typography variant="body2" color="text.secondary">
+                                                        <TableCell
+                                                            colSpan={4}
+                                                            align="center"
+                                                            sx={{ py: 4 }}
+                                                        >
+                                                            <Typography
+                                                                variant="body2"
+                                                                color="text.secondary"
+                                                            >
                                                                 No recent orders found
                                                             </Typography>
                                                             <Button
                                                                 variant="outlined"
                                                                 size="small"
-                                                                sx={{ mt: 2, textTransform: 'none' }}
+                                                                sx={{
+                                                                    mt: 2,
+                                                                    textTransform: "none",
+                                                                }}
                                                                 component={Link}
-                                                                href={route('orders.create')}
+                                                                href={route("orders.create")}
                                                             >
                                                                 Create New Order
                                                             </Button>
@@ -458,7 +522,7 @@ export default function Dashboard({ auth, recentlyOrders = [], notDownloadedRepo
                                         sx={{
                                             p: 3,
                                             borderRadius: 2,
-                                            border: '1px solid',
+                                            border: "1px solid",
                                             borderColor: theme.palette.divider,
                                         }}
                                     >
@@ -471,7 +535,6 @@ export default function Dashboard({ auth, recentlyOrders = [], notDownloadedRepo
                             )}
                         </Grid>
                     </Grid>
-
                 </Grid>
             </motion.div>
         </AdminLayout>

@@ -1,15 +1,6 @@
 import * as React from "react";
-import {useState} from "react";
-import {
-    Alert,
-    Box,
-    Button,
-    Grid,
-    Paper,
-    Typography,
-    IconButton,
-    Tooltip
-} from "@mui/material";
+import { useState } from "react";
+import { Alert, Box, Button, Grid, Paper, Typography, IconButton, Tooltip } from "@mui/material";
 import {
     Add,
     ErrorOutline,
@@ -19,7 +10,7 @@ import {
 } from "@mui/icons-material";
 import axios from "axios";
 import SampleRow from "./SampleRow"; // Import the SampleRow component
-import {motion, AnimatePresence} from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 /**
  * Enhanced SampleDetailsForm component with improved validation
@@ -37,18 +28,18 @@ import {motion, AnimatePresence} from "framer-motion";
  * @returns {JSX.Element} Rendered component
  */
 const SampleDetailsForm = ({
-                               samples = [],
-                               onChange,
-                               onSubmit,
-                               sampleTypes = [],
-                               errors = {},
-                               user,
-                               setError,
-                               clearErrors,
-                               disabled = false,
-                               patients = [],
-                               orderItems = []
-                           }) => {
+    samples = [],
+    onChange,
+    onSubmit,
+    sampleTypes = [],
+    errors = {},
+    user,
+    setError,
+    clearErrors,
+    disabled = false,
+    patients = [],
+    orderItems = [],
+}) => {
     const [validatingIds, setValidatingIds] = useState({});
     const [expandedSamples, setExpandedSamples] = useState({});
     const [showHelp, setShowHelp] = useState(false);
@@ -64,9 +55,9 @@ const SampleDetailsForm = ({
      * @param {number} index Sample index
      */
     const toggleSampleExpansion = (index) => {
-        setExpandedSamples(prev => ({
+        setExpandedSamples((prev) => ({
             ...prev,
-            [index]: !prev[index]
+            [index]: !prev[index],
         }));
     };
 
@@ -77,7 +68,7 @@ const SampleDetailsForm = ({
      * @returns {Function} Change handler
      */
     const handleChange = (index) => (e) => {
-        const {name, value} = e.target;
+        const { name, value } = e.target;
 
         let newSamples = [...samples];
         let newValue = value;
@@ -93,10 +84,10 @@ const SampleDetailsForm = ({
             newSamples[index] = {
                 ...samples[index],
                 ...newExtraUpdate,
-                [name]: newValue
+                [name]: newValue,
             };
         } else {
-            newSamples[index] = {[name]: newValue};
+            newSamples[index] = { [name]: newValue };
         }
 
         onChange("samples", newSamples);
@@ -118,7 +109,7 @@ const SampleDetailsForm = ({
             sampleId: "",
             collectionDate: "",
             pooling: false,
-            notes: ""
+            notes: "",
         };
 
         const newSamples = [...samples, newSample];
@@ -126,9 +117,9 @@ const SampleDetailsForm = ({
 
         // Auto-expand the newly added sample
         setTimeout(() => {
-            setExpandedSamples(prev => ({
+            setExpandedSamples((prev) => ({
                 ...prev,
-                [newSamples.length - 1]: true
+                [newSamples.length - 1]: true,
             }));
         }, 100);
     };
@@ -147,7 +138,7 @@ const SampleDetailsForm = ({
             onChange("samples", newSamples);
 
             // Clear errors related to this sample - handle both error formats
-            Object.keys(errors).forEach(key => {
+            Object.keys(errors).forEach((key) => {
                 if (key.startsWith(`samples[${index}]`) || key.startsWith(`samples.${index}`)) {
                     clearErrors(key);
                 }
@@ -179,7 +170,7 @@ const SampleDetailsForm = ({
         if (e.target.required && e.target.value) {
             try {
                 // Set validating state
-                setValidatingIds(prev => ({...prev, [index]: true}));
+                setValidatingIds((prev) => ({ ...prev, [index]: true }));
 
                 // Clear previous errors - handle both error formats
                 clearErrors(`samples[${index}].sampleId`);
@@ -187,45 +178,48 @@ const SampleDetailsForm = ({
 
                 // Build URL params
                 const params = new URLSearchParams({
-                    id: id || '',
+                    id: id || "",
                     sampleId: e.target.value,
-                    user: user || ''
+                    user: user || "",
                 }).toString();
 
                 // Call API to validate
-                const response = await axios.get(`${route("api.check_materials")}?${params}`);
+                await axios.get(`${route("api.check_materials")}?${params}`);
 
                 // Clear validating state
-                setValidatingIds(prev => ({...prev, [index]: false}));
+                setValidatingIds((prev) => ({ ...prev, [index]: false }));
             } catch (error) {
                 // Set error message - use the bracket format for consistency with validation service
-                setError(`samples[${index}].sampleId`, error.response?.data?.message || 'Invalid Sample ID');
+                setError(
+                    `samples[${index}].sampleId`,
+                    error.response?.data?.message || "Invalid Sample ID"
+                );
 
                 // Clear validating state
-                setValidatingIds(prev => ({...prev, [index]: false}));
+                setValidatingIds((prev) => ({ ...prev, [index]: false }));
             }
         }
     };
 
     // Animation variants
     const containerVariants = {
-        hidden: {opacity: 0},
+        hidden: { opacity: 0 },
         visible: {
             opacity: 1,
             transition: {
                 when: "beforeChildren",
                 staggerChildren: 0.1,
-            }
-        }
+            },
+        },
     };
 
     const itemVariants = {
-        hidden: {y: 20, opacity: 0},
+        hidden: { y: 20, opacity: 0 },
         visible: {
             y: 0,
             opacity: 1,
-            transition: {duration: 0.4}
-        }
+            transition: { duration: 0.4 },
+        },
     };
 
     return (
@@ -234,26 +228,26 @@ const SampleDetailsForm = ({
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            sx={{mt: 2}}
+            sx={{ mt: 2 }}
         >
             {/* Help information */}
             <AnimatePresence>
                 {showHelp && (
                     <motion.div
-                        initial={{opacity: 0, height: 0}}
-                        animate={{opacity: 1, height: 'auto'}}
-                        exit={{opacity: 0, height: 0}}
-                        transition={{duration: 0.3}}
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3 }}
                     >
                         <Alert
                             severity="info"
-                            icon={<InfoIcon/>}
+                            icon={<InfoIcon />}
                             sx={{
                                 mb: 3,
                                 borderRadius: 2,
-                                '& .MuiAlert-icon': {
-                                    alignItems: 'center'
-                                }
+                                "& .MuiAlert-icon": {
+                                    alignItems: "center",
+                                },
                             }}
                             onClose={toggleHelp}
                         >
@@ -261,22 +255,26 @@ const SampleDetailsForm = ({
                                 Sample Details Guidelines
                             </Typography>
                             <Typography variant="body2" paragraph>
-                                Please provide detailed information about each sample being submitted.
+                                Please provide detailed information about each sample being
+                                submitted.
                             </Typography>
-                            <Box component="ul" sx={{m: 0, pl: 2, mb: 0}}>
-                                <Box component="li" sx={{mb: 0.5}}>
+                            <Box component="ul" sx={{ m: 0, pl: 2, mb: 0 }}>
+                                <Box component="li" sx={{ mb: 0.5 }}>
                                     <Typography variant="body2">
-                                        <strong>Sample Type:</strong> Select the type of sample being submitted
+                                        <strong>Sample Type:</strong> Select the type of sample
+                                        being submitted
                                     </Typography>
                                 </Box>
-                                <Box component="li" sx={{mb: 0.5}}>
+                                <Box component="li" sx={{ mb: 0.5 }}>
                                     <Typography variant="body2">
-                                        <strong>Sample ID:</strong> Provide a unique identifier for each sample
+                                        <strong>Sample ID:</strong> Provide a unique identifier for
+                                        each sample
                                     </Typography>
                                 </Box>
                                 <Box component="li">
                                     <Typography variant="body2">
-                                        <strong>Collection Date:</strong> When the sample was collected
+                                        <strong>Collection Date:</strong> When the sample was
+                                        collected
                                     </Typography>
                                 </Box>
                             </Box>
@@ -290,14 +288,14 @@ const SampleDetailsForm = ({
                 component={motion.div}
                 variants={itemVariants}
                 sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    mb: 3
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    mb: 3,
                 }}
             >
-                <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
-                    <ScienceIcon color="primary"/>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <ScienceIcon color="primary" />
                     <Typography variant="h5" fontWeight={600}>
                         Sample Details
                     </Typography>
@@ -309,34 +307,30 @@ const SampleDetailsForm = ({
                         onClick={toggleHelp}
                         color={showHelp ? "primary" : "default"}
                     >
-                        <HelpIcon/>
+                        <HelpIcon />
                     </IconButton>
                 </Tooltip>
             </Box>
 
             <Box component="form" onSubmit={handleSubmit} id="sample-details-form">
                 <Grid container spacing={3}>
-                    <Grid
-                        item
-                        xs={12}
-                        component={motion.div}
-                        variants={itemVariants}
-                    >
-                        <Typography variant="body2" color="text.secondary" sx={{mb: 2}}>
-                            Please document all material details accurately. All fields marked with * are required.
+                    <Grid item xs={12} component={motion.div} variants={itemVariants}>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                            Please document all material details accurately. All fields marked with
+                            * are required.
                         </Typography>
 
                         {/* General samples error */}
-                        {(errors.samples || errors['samples']) && (
+                        {(errors.samples || errors["samples"]) && (
                             <Alert
                                 severity="error"
                                 sx={{
                                     mb: 3,
-                                    borderRadius: 2
+                                    borderRadius: 2,
                                 }}
-                                icon={<ErrorOutline/>}
+                                icon={<ErrorOutline />}
                             >
-                                {errors.samples || errors['samples']}
+                                {errors.samples || errors["samples"]}
                             </Alert>
                         )}
 
@@ -346,27 +340,27 @@ const SampleDetailsForm = ({
                                 variant="outlined"
                                 sx={{
                                     p: 3,
-                                    textAlign: 'center',
-                                    borderStyle: 'dashed',
+                                    textAlign: "center",
+                                    borderStyle: "dashed",
                                     borderWidth: 1,
-                                    borderColor: 'divider',
+                                    borderColor: "divider",
                                     mb: 3,
-                                    borderRadius: 2
+                                    borderRadius: 2,
                                 }}
                             >
-                                <Typography color="text.secondary" sx={{mb: 2}}>
+                                <Typography color="text.secondary" sx={{ mb: 2 }}>
                                     No samples added yet
                                 </Typography>
                                 <Button
                                     variant="contained"
-                                    startIcon={<Add/>}
+                                    startIcon={<Add />}
                                     onClick={addSample}
                                     disabled={disabled}
                                     sx={{
                                         borderRadius: 2,
-                                        textTransform: 'none',
+                                        textTransform: "none",
                                         py: 1,
-                                        px: 3
+                                        px: 3,
                                     }}
                                 >
                                     Add First Sample
@@ -398,23 +392,23 @@ const SampleDetailsForm = ({
 
                                 <Box
                                     sx={{
-                                        textAlign: 'center',
+                                        textAlign: "center",
                                         mt: 3,
-                                        mb: 3
+                                        mb: 3,
                                     }}
                                     component={motion.div}
                                     variants={itemVariants}
                                 >
                                     <Button
                                         variant="outlined"
-                                        startIcon={<Add/>}
+                                        startIcon={<Add />}
                                         onClick={addSample}
                                         disabled={disabled}
                                         sx={{
                                             borderRadius: 2,
-                                            textTransform: 'none',
+                                            textTransform: "none",
                                             py: 1,
-                                            px: 3
+                                            px: 3,
                                         }}
                                     >
                                         Add Another Sample

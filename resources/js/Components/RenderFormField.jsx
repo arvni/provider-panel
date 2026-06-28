@@ -12,7 +12,13 @@ import FormField from "@/Components/FormField";
  * @param {Object} props.errors - Error messages object
  * @returns {JSX.Element}
  */
-const RenderFormField = ({ field, onchange, defaultValue = null, errors = {},size="medium" }) => {
+const RenderFormField = ({
+    field,
+    onchange,
+    defaultValue = null,
+    errors = {},
+    size = "medium",
+}) => {
     // Generate the error path for this field
     const getErrorPath = () => {
         // This assumes the error path follows the structure: orderForms[formIndex].formData[fieldIndex].value
@@ -45,10 +51,11 @@ const RenderFormField = ({ field, onchange, defaultValue = null, errors = {},siz
             case "select":
             case "radio":
                 // Format options for select/radio fields
-                formattedField.options = field.options ?
-                    field.options.map(opt =>
-                        typeof opt === "object" ? opt : { value: opt, label: opt }
-                    ) : [];
+                formattedField.options = field.options
+                    ? field.options.map((opt) =>
+                          typeof opt === "object" ? opt : { value: opt, label: opt }
+                      )
+                    : [];
                 formattedField.row = field.layout === "row";
                 break;
 

@@ -2,15 +2,18 @@ import TableLayout from "@/Layouts/TableLayout";
 
 import React from "react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import {usePage} from "@inertiajs/react";
-import {usePageReload} from "@/Services/api";
-import {Avatar, IconButton, Paper, Stack} from "@mui/material";
+import { usePage } from "@inertiajs/react";
+import { usePageReload } from "@/Services/api";
+import { Avatar, IconButton, Paper, Stack } from "@mui/material";
 import PageHeader from "@/Components/PageHeader";
-import {RemoveRedEye} from "@mui/icons-material";
+import { RemoveRedEye } from "@mui/icons-material";
 import Excel from "@/../images/excel.png";
 
 const Index = () => {
-    const {orderMaterials: {data: orderMaterialsData, ...pagination}, request} = usePage().props;
+    const {
+        orderMaterials: { data: orderMaterialsData, ...pagination },
+        request,
+    } = usePage().props;
     const {
         data: queryData,
         processing,
@@ -18,7 +21,7 @@ const Index = () => {
         onPageSizeChange,
         onOrderByChange,
         onFilterChange,
-        onPageChange
+        onPageChange,
     } = usePageReload(request, ["orderMaterials", "request", "status"]);
     const columns = [
         {
@@ -26,14 +29,14 @@ const Index = () => {
             title: "Sample Type",
             type: "text",
             sortable: true,
-            render: (row) => row?.sample_type?.name
+            render: (row) => row?.sample_type?.name,
         },
         {
             field: "user.name",
             title: "User",
             type: "text",
             sortable: true,
-            render: (row) => row?.user?.name
+            render: (row) => row?.user?.name,
         },
         {
             field: "amount",
@@ -53,28 +56,39 @@ const Index = () => {
             type: "datetime",
             sortable: true,
             valueGetter: (value) => new Date(value),
-
         },
         {
             field: "id",
             title: "#",
             type: "actions",
-            render: (row) => <Stack direction="row" spacing={1}>
-                {row.materials_count === row.amount ? <IconButton href={route("admin.orderMaterials.show", row.id)}
-                                                                  color="success" target="_blank">
-                    <RemoveRedEye/>
-                </IconButton> :null}
-            </Stack>
-        }
+            render: (row) => (
+                <Stack direction="row" spacing={1}>
+                    {row.materials_count === row.amount ? (
+                        <IconButton
+                            href={route("admin.orderMaterials.show", row.id)}
+                            color="success"
+                            target="_blank"
+                        >
+                            <RemoveRedEye />
+                        </IconButton>
+                    ) : null}
+                </Stack>
+            ),
+        },
     ];
 
     const handlePage = (e) => e.preventDefault() || reload();
     return (
         <>
-            <PageHeader title="Order Materials" actions={<IconButton href={route("admin.materials")}>
-                <Avatar src={Excel} variant="square"/>
-            </IconButton>}/>
-            <Paper sx={{mt: "1em", p: "1rem"}}>
+            <PageHeader
+                title="Order Materials"
+                actions={
+                    <IconButton href={route("admin.materials")}>
+                        <Avatar src={Excel} variant="square" />
+                    </IconButton>
+                }
+            />
+            <Paper sx={{ mt: "1em", p: "1rem" }}>
                 <TableLayout
                     columns={columns}
                     data={orderMaterialsData}
@@ -88,26 +102,31 @@ const Index = () => {
                     tableModel={{
                         orderBy: queryData.orderBy ?? {
                             field: "id",
-                            type: "asc"
+                            type: "asc",
                         },
                         page: queryData.page,
-                        filter: queryData.filters
+                        filter: queryData.filters,
                     }}
                     pageSize={{
                         defaultValue: queryData.pageSize ?? 10,
-                        onChange: onPageSizeChange
+                        onChange: onPageSizeChange,
                     }}
                 />
             </Paper>
-        </>);
-}
+        </>
+    );
+};
 const breadCrumbs = [
     {
         title: "Order Materials",
         link: null,
-        icon: null
-    }
-]
-Index.layout = page => <AuthenticatedLayout auth={page.props.auth} children={page} breadcrumbs={breadCrumbs}/>
+        icon: null,
+    },
+];
+Index.layout = (page) => (
+    <AuthenticatedLayout auth={page.props.auth} breadcrumbs={breadCrumbs}>
+        {page}
+    </AuthenticatedLayout>
+);
 
 export default Index;

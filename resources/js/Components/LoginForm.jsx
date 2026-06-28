@@ -10,10 +10,10 @@ import {
     InputAdornment,
     useTheme,
     useMediaQuery,
-    Fade
+    Fade,
 } from "@mui/material";
-import EmailIcon from '@mui/icons-material/Email';
-import VpnKeyIcon from '@mui/icons-material/VpnKey';
+import EmailIcon from "@mui/icons-material/Email";
+import VpnKeyIcon from "@mui/icons-material/VpnKey";
 import { motion } from "framer-motion";
 import { loginFormValidator } from "@/Services/validate";
 import { useSubmitForm } from "@/Services/api";
@@ -22,25 +22,20 @@ import LoadingButton from "@/Components/LoadingButton.jsx";
 
 const LoginForm = ({ siteKey }) => {
     const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
     const turnstileWidgetRef = useRef(null);
     const widgetIdRef = useRef(null);
 
-    const {
-        data,
-        setData,
-        submit,
-        processing,
-        errors,
-        setError,
-        clearErrors,
-        reset
-    } = useSubmitForm({
-        email: "",
-        password: "",
-        remember: false,
-        "cf-turnstile-response": ""
-    }, route("login"));
+    const { data, setData, submit, processing, errors, setError, clearErrors, reset } =
+        useSubmitForm(
+            {
+                email: "",
+                password: "",
+                remember: false,
+                "cf-turnstile-response": "",
+            },
+            route("login")
+        );
 
     useEffect(() => {
         if (!siteKey) return;
@@ -54,10 +49,10 @@ const LoginForm = ({ siteKey }) => {
             }
             widgetIdRef.current = window.turnstile.render(turnstileWidgetRef.current, {
                 sitekey: siteKey,
-                theme: 'light',
+                theme: "light",
                 callback: (token) => formChange("cf-turnstile-response", token),
-                'expired-callback': () => formChange("cf-turnstile-response", ""),
-                'error-callback': () => formChange("cf-turnstile-response", ""),
+                "expired-callback": () => formChange("cf-turnstile-response", ""),
+                "error-callback": () => formChange("cf-turnstile-response", ""),
             });
         };
 
@@ -72,14 +67,16 @@ const LoginForm = ({ siteKey }) => {
             };
         }
 
-        const existingScript = document.querySelector('script[src*="challenges.cloudflare.com/turnstile"]');
+        const existingScript = document.querySelector(
+            'script[src*="challenges.cloudflare.com/turnstile"]'
+        );
         if (existingScript) {
-            existingScript.addEventListener('load', renderWidget);
-            return () => existingScript.removeEventListener('load', renderWidget);
+            existingScript.addEventListener("load", renderWidget);
+            return () => existingScript.removeEventListener("load", renderWidget);
         }
 
-        const script = document.createElement('script');
-        script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+        const script = document.createElement("script");
+        script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
         script.async = true;
         script.defer = true;
         script.onload = renderWidget;
@@ -114,7 +111,7 @@ const LoginForm = ({ siteKey }) => {
             submit({
                 onError: () => {
                     resetTurnstile();
-                }
+                },
             });
         } else {
             resetTurnstile();
@@ -122,10 +119,11 @@ const LoginForm = ({ siteKey }) => {
     };
 
     const handleChange = (e) => formChange(e.target.name, e.target.value);
-    const formChange = (key, value) => setData(previousData => ({
-        ...previousData,
-        [key]: value
-    }));
+    const formChange = (key, value) =>
+        setData((previousData) => ({
+            ...previousData,
+            [key]: value,
+        }));
 
     const handleRememberChange = (e, value) => formChange("remember", value);
 
@@ -137,13 +135,13 @@ const LoginForm = ({ siteKey }) => {
             transition: {
                 staggerChildren: 0.1,
                 delayChildren: 0.2,
-            }
-        }
+            },
+        },
     };
 
     const itemVariants = {
         hidden: { y: 10, opacity: 0 },
-        visible: { y: 0, opacity: 1, transition: { duration: 0.4 } }
+        visible: { y: 0, opacity: 1, transition: { duration: 0.4 } },
     };
 
     return (
@@ -157,20 +155,16 @@ const LoginForm = ({ siteKey }) => {
                 width: "100%",
                 display: "flex",
                 flexDirection: "column",
-                gap: 2.5
+                gap: 2.5,
             }}
         >
-            <Box
-                component={motion.div}
-                variants={itemVariants}
-                sx={{ width: "100%" }}
-            >
+            <Box component={motion.div} variants={itemVariants} sx={{ width: "100%" }}>
                 <TextField
                     onChange={handleChange}
                     name="email"
                     value={data.email}
                     helperText={errors.email ?? ""}
-                    error={errors.hasOwnProperty("email")}
+                    error={Object.prototype.hasOwnProperty.call(errors, "email")}
                     type="email"
                     label="Email Address"
                     autoComplete="username"
@@ -186,30 +180,26 @@ const LoginForm = ({ siteKey }) => {
                         ),
                     }}
                     sx={{
-                        '& .MuiOutlinedInput-root': {
+                        "& .MuiOutlinedInput-root": {
                             borderRadius: 1.5,
-                            transition: 'all 0.2s ease-in-out',
-                            '&:hover': {
-                                boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+                            transition: "all 0.2s ease-in-out",
+                            "&:hover": {
+                                boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
                             },
-                            '&.Mui-focused': {
-                                boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
-                            }
-                        }
+                            "&.Mui-focused": {
+                                boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+                            },
+                        },
                     }}
                 />
             </Box>
 
-            <Box
-                component={motion.div}
-                variants={itemVariants}
-                sx={{ width: "100%" }}
-            >
+            <Box component={motion.div} variants={itemVariants} sx={{ width: "100%" }}>
                 <PasswordField
                     name="password"
                     value={data.password}
                     helperText={errors.password ?? ""}
-                    error={errors.hasOwnProperty("password")}
+                    error={Object.prototype.hasOwnProperty.call(errors, "password")}
                     label="Password"
                     autoComplete="current-password"
                     required
@@ -221,16 +211,16 @@ const LoginForm = ({ siteKey }) => {
                         </InputAdornment>
                     }
                     sx={{
-                        '& .MuiOutlinedInput-root': {
+                        "& .MuiOutlinedInput-root": {
                             borderRadius: 1.5,
-                            transition: 'all 0.2s ease-in-out',
-                            '&:hover': {
-                                boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+                            transition: "all 0.2s ease-in-out",
+                            "&:hover": {
+                                boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
                             },
-                            '&.Mui-focused': {
-                                boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
-                            }
-                        }
+                            "&.Mui-focused": {
+                                boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+                            },
+                        },
                     }}
                 />
             </Box>
@@ -245,16 +235,16 @@ const LoginForm = ({ siteKey }) => {
                         flexDirection: "column",
                         alignItems: "center",
                         mt: 1,
-                        mb: 1
+                        mb: 1,
                     }}
                 >
                     <Box
                         ref={turnstileWidgetRef}
                         sx={{
-                            transform: isMobile ? 'scale(0.85)' : 'scale(1)',
-                            transformOrigin: 'left',
-                            minHeight: '65px', // Ensures space for the widget
-                            width: '100%'
+                            transform: isMobile ? "scale(0.85)" : "scale(1)",
+                            transformOrigin: "left",
+                            minHeight: "65px", // Ensures space for the widget
+                            width: "100%",
                         }}
                     />
                     {errors["cf-turnstile-response"] && (
@@ -262,9 +252,9 @@ const LoginForm = ({ siteKey }) => {
                             <FormHelperText
                                 error={true}
                                 sx={{
-                                    textAlign: 'center',
+                                    textAlign: "center",
                                     mt: 1,
-                                    fontSize: '0.75rem'
+                                    fontSize: "0.75rem",
                                 }}
                             >
                                 {errors["cf-turnstile-response"]}
@@ -283,7 +273,7 @@ const LoginForm = ({ siteKey }) => {
                     flexDirection: isMobile ? "column" : "row",
                     justifyContent: "space-between",
                     alignItems: isMobile ? "flex-start" : "center",
-                    gap: 1
+                    gap: 1,
                 }}
             >
                 <FormControlLabel
@@ -295,7 +285,7 @@ const LoginForm = ({ siteKey }) => {
                             size="small"
                             sx={{
                                 color: theme.palette.primary.main,
-                                '&.Mui-checked': {
+                                "&.Mui-checked": {
                                     color: theme.palette.primary.main,
                                 },
                             }}
@@ -316,11 +306,11 @@ const LoginForm = ({ siteKey }) => {
                         fontFamily: theme.typography.fontFamily,
                         color: theme.palette.primary.main,
                         fontWeight: 500,
-                        fontSize: '0.875rem',
-                        transition: 'color 0.2s',
-                        ':hover': {
+                        fontSize: "0.875rem",
+                        transition: "color 0.2s",
+                        ":hover": {
                             color: theme.palette.primary.dark,
-                        }
+                        },
                     }}
                 >
                     Forgot Password?
@@ -332,7 +322,7 @@ const LoginForm = ({ siteKey }) => {
                 variants={itemVariants}
                 sx={{
                     width: "100%",
-                    mt: 1
+                    mt: 1,
                 }}
             >
                 <LoadingButton
@@ -343,16 +333,16 @@ const LoginForm = ({ siteKey }) => {
                     size="large"
                     sx={{
                         borderRadius: 1.5,
-                        textTransform: 'none',
+                        textTransform: "none",
                         fontWeight: 600,
-                        fontSize: '1rem',
+                        fontSize: "1rem",
                         py: 1.2,
-                        boxShadow: '0 4px 12px rgba(42, 57, 144, 0.2)',
-                        transition: 'all 0.3s',
-                        '&:hover': {
-                            boxShadow: '0 6px 16px rgba(42, 57, 144, 0.35)',
-                            transform: 'translateY(-2px)'
-                        }
+                        boxShadow: "0 4px 12px rgba(42, 57, 144, 0.2)",
+                        transition: "all 0.3s",
+                        "&:hover": {
+                            boxShadow: "0 6px 16px rgba(42, 57, 144, 0.35)",
+                            transform: "translateY(-2px)",
+                        },
                     }}
                 >
                     Sign In

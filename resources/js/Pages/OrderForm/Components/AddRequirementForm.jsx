@@ -22,7 +22,7 @@ import {
     Tooltip,
     Typography,
     alpha,
-    Slide
+    Slide,
 } from "@mui/material";
 import {
     Save,
@@ -57,31 +57,24 @@ const SlideTransition = React.forwardRef(function Transition(props, ref) {
  * @param {boolean} props.disabled Whether form is disabled
  * @returns {JSX.Element} Rendered component
  */
-const AddRequirementForm = ({
-                                data,
-                                setData,
-                                open,
-                                onClose,
-                                onSubmit,
-                                disabled = false
-                            }) => {
+const AddRequirementForm = ({ data, setData, open, onClose, onSubmit, disabled = false }) => {
     // State for validation errors
     const [errors, setErrors] = useState({});
 
     // Get field type icon
     const getFieldTypeIcon = (type) => {
         switch (type) {
-            case 'text':
+            case "text":
                 return <TextFields color="primary" />;
-            case 'checkbox':
+            case "checkbox":
                 return <CheckBox color="secondary" />;
-            case 'number':
+            case "number":
                 return <Numbers color="warning" />;
-            case 'select':
+            case "select":
                 return <ListIcon color="success" />;
-            case 'date':
+            case "date":
                 return <CalendarMonth color="info" />;
-            case 'description':
+            case "description":
                 return <Title color="error" />;
             default:
                 return <TextFields color="primary" />;
@@ -91,20 +84,20 @@ const AddRequirementForm = ({
     // Get field type description
     const getTypeDescription = (type) => {
         switch (type) {
-            case 'text':
-                return 'Single line text input field';
-            case 'checkbox':
-                return 'Yes/No field that can be checked';
-            case 'number':
-                return 'Numeric input field with validation';
-            case 'select':
-                return 'Dropdown with selectable options';
-            case 'date':
-                return 'Date picker field';
-            case 'description':
-                return 'Section title or label (not an input field)';
+            case "text":
+                return "Single line text input field";
+            case "checkbox":
+                return "Yes/No field that can be checked";
+            case "number":
+                return "Numeric input field with validation";
+            case "select":
+                return "Dropdown with selectable options";
+            case "date":
+                return "Date picker field";
+            case "description":
+                return "Section title or label (not an input field)";
             default:
-                return '';
+                return "";
         }
     };
 
@@ -128,20 +121,20 @@ const AddRequirementForm = ({
         let newErrors = {};
 
         // Validate label
-        if (!data.label || data.label.trim() === '') {
-            newErrors.label = 'Field label is required';
+        if (!data.label || data.label.trim() === "") {
+            newErrors.label = "Field label is required";
             formValid = false;
         }
 
         // Validate field type
         if (!data.type) {
-            newErrors.type = 'Field type is required';
+            newErrors.type = "Field type is required";
             formValid = false;
         }
 
         // Validate options for select type
-        if (data.type === 'select' && (!data.options || data.options.length === 0)) {
-            newErrors.options = 'At least one option is required for dropdown fields';
+        if (data.type === "select" && (!data.options || data.options.length === 0)) {
+            newErrors.options = "At least one option is required for dropdown fields";
             formValid = false;
         }
 
@@ -166,7 +159,7 @@ const AddRequirementForm = ({
 
         // Clear error when field changes
         if (errors[name]) {
-            setErrors(prev => {
+            setErrors((prev) => {
                 const newErrors = { ...prev };
                 delete newErrors[name];
                 return newErrors;
@@ -177,8 +170,8 @@ const AddRequirementForm = ({
         setData(name, value);
 
         // Reset options when type changes
-        if (name === 'type' && value !== 'select') {
-            setData('options', []);
+        if (name === "type" && value !== "select") {
+            setData("options", []);
         }
     };
 
@@ -191,14 +184,14 @@ const AddRequirementForm = ({
     const handleOptionChange = (_, value) => {
         // Clear error when options change
         if (errors.options) {
-            setErrors(prev => {
+            setErrors((prev) => {
                 const newErrors = { ...prev };
                 delete newErrors.options;
                 return newErrors;
             });
         }
 
-        setData('options', value);
+        setData("options", value);
     };
 
     /**
@@ -208,7 +201,7 @@ const AddRequirementForm = ({
      * @param {boolean} value New required value
      */
     const handleRequiredChange = (_, value) => {
-        setData('required', value);
+        setData("required", value);
     };
 
     /**
@@ -217,7 +210,7 @@ const AddRequirementForm = ({
      * @param {Event} e Change event
      */
     const handlePlaceholderChange = (e) => {
-        setData('placeholder', e.target.value);
+        setData("placeholder", e.target.value);
     };
 
     /**
@@ -243,21 +236,23 @@ const AddRequirementForm = ({
             maxWidth="md"
             PaperProps={{
                 elevation: 5,
-                sx: { borderRadius: 2 }
+                sx: { borderRadius: 2 },
             }}
             slots={{ transition: SlideTransition }}
         >
             {/* Dialog title */}
-            <DialogTitle sx={{
-                pb: 1,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between'
-            }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <DialogTitle
+                sx={{
+                    pb: 1,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                }}
+            >
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     {data.type && getFieldTypeIcon(data.type)}
                     <Typography variant="h6">
-                        {data.id && data.label ? 'Edit Field' : 'Add New Field'}
+                        {data.id && data.label ? "Edit Field" : "Add New Field"}
                     </Typography>
                 </Box>
 
@@ -282,13 +277,15 @@ const AddRequirementForm = ({
                         <TextField
                             fullWidth
                             name="label"
-                            value={data.label || ''}
+                            value={data.label || ""}
                             onChange={handleChange}
                             label="Field Label"
                             placeholder="Enter field label"
                             required
                             error={!!errors.label}
-                            helperText={errors.label || "The label that will be displayed for this field"}
+                            helperText={
+                                errors.label || "The label that will be displayed for this field"
+                            }
                             multiline={data.type === "description"}
                             rows={data.type === "description" ? 3 : 1}
                             disabled={disabled}
@@ -302,7 +299,7 @@ const AddRequirementForm = ({
                             fullWidth
                             select
                             name="type"
-                            value={data.type || ''}
+                            value={data.type || ""}
                             onChange={handleChange}
                             label="Field Type"
                             required
@@ -314,7 +311,7 @@ const AddRequirementForm = ({
                                     <InputAdornment position="start">
                                         {getFieldTypeIcon(data.type)}
                                     </InputAdornment>
-                                ) : undefined
+                                ) : undefined,
                             }}
                         >
                             <MenuItem value="text">Text Field</MenuItem>
@@ -334,7 +331,7 @@ const AddRequirementForm = ({
                                     <Switch
                                         checked={!!data.required}
                                         onChange={handleRequiredChange}
-                                        disabled={disabled || data.type === 'description'}
+                                        disabled={disabled || data.type === "description"}
                                         color="primary"
                                     />
                                 }
@@ -342,20 +339,20 @@ const AddRequirementForm = ({
                                 labelPlacement="end"
                             />
                             <FormHelperText>
-                                {data.type === 'description'
-                                    ? 'Section titles cannot be required fields'
-                                    : 'Toggle on to make this field mandatory'}
+                                {data.type === "description"
+                                    ? "Section titles cannot be required fields"
+                                    : "Toggle on to make this field mandatory"}
                             </FormHelperText>
                         </FormControl>
                     </Grid>
 
                     {/* Placeholder field */}
-                    {(data.type === 'text' || data.type === 'number') && (
+                    {(data.type === "text" || data.type === "number") && (
                         <Grid size={{ xs: 12, md: 6 }}>
                             <TextField
                                 fullWidth
                                 name="placeholder"
-                                value={data.placeholder || ''}
+                                value={data.placeholder || ""}
                                 onChange={handlePlaceholderChange}
                                 label="Placeholder Text"
                                 placeholder="Enter placeholder text"
@@ -366,7 +363,7 @@ const AddRequirementForm = ({
                     )}
 
                     {/* Options for select type */}
-                    {data.type === 'select' && (
+                    {data.type === "select" && (
                         <Grid size={12}>
                             <Autocomplete
                                 multiple
@@ -399,7 +396,10 @@ const AddRequirementForm = ({
                                         placeholder="Type and press Enter to add options"
                                         fullWidth
                                         error={!!errors.options}
-                                        helperText={errors.options || "Add the options that will appear in the dropdown list"}
+                                        helperText={
+                                            errors.options ||
+                                            "Add the options that will appear in the dropdown list"
+                                        }
                                         InputProps={{
                                             ...params.InputProps,
                                             startAdornment: (
@@ -409,14 +409,14 @@ const AddRequirementForm = ({
                                                     </InputAdornment>
                                                     {params.InputProps.startAdornment}
                                                 </>
-                                            )
+                                            ),
                                         }}
                                     />
                                 )}
                             />
 
                             {!errors.options && data.options && data.options.length > 0 && (
-                                <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Box sx={{ mt: 1, display: "flex", alignItems: "center", gap: 1 }}>
                                     <Typography variant="caption" color="text.secondary">
                                         Tip: Users will be able to select from these options
                                     </Typography>
@@ -438,20 +438,24 @@ const AddRequirementForm = ({
                             <Box
                                 sx={{
                                     p: 2,
-                                    border: '1px solid',
-                                    borderColor: 'divider',
+                                    border: "1px solid",
+                                    borderColor: "divider",
                                     borderRadius: 1,
-                                    bgcolor: alpha('#f5f5f5', 0.5)
+                                    bgcolor: alpha("#f5f5f5", 0.5),
                                 }}
                             >
-                                {data.type === 'description' ? (
-                                    <Typography variant="subtitle1" fontWeight={500} color="primary">
-                                        {data.label || 'Section Title'}
+                                {data.type === "description" ? (
+                                    <Typography
+                                        variant="subtitle1"
+                                        fontWeight={500}
+                                        color="primary"
+                                    >
+                                        {data.label || "Section Title"}
                                     </Typography>
                                 ) : (
                                     <Stack spacing={1}>
                                         <Typography variant="body2">
-                                            {data.label || 'Field Label'}
+                                            {data.label || "Field Label"}
                                             {data.required && (
                                                 <Typography
                                                     component="span"
@@ -463,26 +467,26 @@ const AddRequirementForm = ({
                                             )}
                                         </Typography>
 
-                                        {data.type === 'text' && (
+                                        {data.type === "text" && (
                                             <TextField
                                                 size="small"
                                                 disabled
-                                                placeholder={data.placeholder || 'Text input'}
+                                                placeholder={data.placeholder || "Text input"}
                                                 fullWidth
                                             />
                                         )}
 
-                                        {data.type === 'number' && (
+                                        {data.type === "number" && (
                                             <TextField
                                                 type="number"
                                                 size="small"
                                                 disabled
-                                                placeholder={data.placeholder || 'Number input'}
+                                                placeholder={data.placeholder || "Number input"}
                                                 fullWidth
                                             />
                                         )}
 
-                                        {data.type === 'date' && (
+                                        {data.type === "date" && (
                                             <TextField
                                                 type="date"
                                                 size="small"
@@ -494,14 +498,14 @@ const AddRequirementForm = ({
                                             />
                                         )}
 
-                                        {data.type === 'checkbox' && (
+                                        {data.type === "checkbox" && (
                                             <FormControlLabel
                                                 control={<Switch disabled />}
                                                 label="Yes/No"
                                             />
                                         )}
 
-                                        {data.type === 'select' && (
+                                        {data.type === "select" && (
                                             <TextField
                                                 select
                                                 size="small"
@@ -529,11 +533,7 @@ const AddRequirementForm = ({
 
             {/* Dialog actions */}
             <DialogActions sx={{ px: 3, py: 2 }}>
-                <Button
-                    onClick={handleClose}
-                    startIcon={<Cancel />}
-                    disabled={disabled}
-                >
+                <Button onClick={handleClose} startIcon={<Cancel />} disabled={disabled}>
                     Cancel
                 </Button>
 
@@ -544,7 +544,7 @@ const AddRequirementForm = ({
                     onClick={handleSubmit}
                     disabled={disabled}
                 >
-                    {data.id && data.label ? 'Update Field' : 'Add Field'}
+                    {data.id && data.label ? "Update Field" : "Add Field"}
                 </Button>
             </DialogActions>
         </Dialog>

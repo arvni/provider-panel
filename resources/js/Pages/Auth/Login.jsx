@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Head } from '@inertiajs/react';
+import React, { useState, useEffect } from "react";
+import { Head } from "@inertiajs/react";
 import { Alert, Box, Typography, Fade, Paper, Divider } from "@mui/material";
 import { motion } from "framer-motion";
 import GuestLayout from "@/Layouts/GuestLayout";
@@ -26,9 +26,9 @@ const Login = ({ status, siteKey }) => {
             y: 0,
             transition: {
                 duration: 0.6,
-                ease: "easeOut"
-            }
-        }
+                ease: "easeOut",
+            },
+        },
     };
 
     const alertVariants = {
@@ -39,17 +39,17 @@ const Login = ({ status, siteKey }) => {
             scale: 1,
             transition: {
                 duration: 0.4,
-                ease: "easeOut"
-            }
+                ease: "easeOut",
+            },
         },
         exit: {
             opacity: 0,
             y: -10,
             scale: 0.95,
             transition: {
-                duration: 0.3
-            }
-        }
+                duration: 0.3,
+            },
+        },
     };
 
     return (
@@ -62,10 +62,10 @@ const Login = ({ status, siteKey }) => {
                 animate="animate"
                 variants={pageVariants}
                 sx={{
-                    width: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 3
+                    width: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 3,
                 }}
             >
                 <Typography
@@ -73,9 +73,9 @@ const Login = ({ status, siteKey }) => {
                     sx={{
                         mb: 1,
                         fontWeight: 600,
-                        color: 'primary.dark',
-                        display: { xs: 'block', md: 'none' },
-                        textAlign: 'center'
+                        color: "primary.dark",
+                        display: { xs: "block", md: "none" },
+                        textAlign: "center",
                     }}
                 >
                     Welcome Back
@@ -88,10 +88,10 @@ const Login = ({ status, siteKey }) => {
                                 severity="success"
                                 sx={{
                                     borderRadius: 2,
-                                    boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
-                                    '& .MuiAlert-icon': {
-                                        alignItems: 'center'
-                                    }
+                                    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+                                    "& .MuiAlert-icon": {
+                                        alignItems: "center",
+                                    },
                                 }}
                                 onClose={() => setShowStatus(false)}
                             >
@@ -107,26 +107,23 @@ const Login = ({ status, siteKey }) => {
                     sx={{
                         p: { xs: 2, sm: 3 },
                         borderRadius: 2,
-                        bgcolor: 'background.paper',
-                        border: '1px solid',
-                        borderColor: 'divider'
+                        bgcolor: "background.paper",
+                        border: "1px solid",
+                        borderColor: "divider",
                     }}
                 >
-                    <Box sx={{ mb: 3, display: { xs: 'none', md: 'block' } }}>
+                    <Box sx={{ mb: 3, display: { xs: "none", md: "block" } }}>
                         <Typography
                             variant="h5"
                             sx={{
                                 fontWeight: 600,
-                                color: 'primary.main',
-                                mb: 1
+                                color: "primary.main",
+                                mb: 1,
                             }}
                         >
                             Welcome Back
                         </Typography>
-                        <Typography
-                            variant="body2"
-                            color="text.secondary"
-                        >
+                        <Typography variant="body2" color="text.secondary">
                             Please enter your credentials to access your account
                         </Typography>
                         <Divider sx={{ mt: 2 }} />
@@ -138,14 +135,11 @@ const Login = ({ status, siteKey }) => {
                 <Box
                     sx={{
                         mt: 2,
-                        textAlign: 'center',
-                        opacity: 0.8
+                        textAlign: "center",
+                        opacity: 0.8,
                     }}
                 >
-                    <Typography
-                        variant="caption"
-                        color="text.secondary"
-                    >
+                    <Typography variant="caption" color="text.secondary">
                         powered by Bion Genetic Lab
                     </Typography>
                 </Box>

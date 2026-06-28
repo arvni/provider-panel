@@ -17,7 +17,7 @@ import {
     TextField,
     Tooltip,
     Typography,
-    alpha
+    alpha,
 } from "@mui/material";
 import {
     AttachFile,
@@ -28,7 +28,7 @@ import {
     Cancel,
     CheckBox,
     TextFields,
-    FormatListNumbered
+    FormatListNumbered,
 } from "@mui/icons-material";
 import RequirementForm from "@/Pages/OrderForm/Components/RequirementForm";
 
@@ -47,17 +47,17 @@ import RequirementForm from "@/Pages/OrderForm/Components/RequirementForm";
  * @returns {JSX.Element} Rendered component
  */
 const Form = ({
-                  values,
-                  setValues,
-                  cancel,
-                  submit,
-                  errors = {},
-                  edit = false,
-                  processing = false
-              }) => {
+    values,
+    setValues,
+    cancel,
+    submit,
+    errors = {},
+    edit = false,
+    processing = false,
+}) => {
     // State for file upload
-    const [fileError, setFileError] = useState('');
-    const [fileName, setFileName] = useState('');
+    const [fileError, setFileError] = useState("");
+    const [fileName, setFileName] = useState("");
 
     /**
      * Handle input change
@@ -65,9 +65,9 @@ const Form = ({
      * @param {Event} e Change event
      */
     const handleChange = (e) => {
-        setValues(prevValues => ({
+        setValues((prevValues) => ({
             ...prevValues,
-            [e.target.name]: e.target.value
+            [e.target.name]: e.target.value,
         }));
     };
 
@@ -82,23 +82,27 @@ const Form = ({
         // Validate file
         if (file) {
             // Check file type
-            const validTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+            const validTypes = [
+                "application/pdf",
+                "application/msword",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            ];
             if (!validTypes.includes(file.type)) {
-                setFileError('Please upload a PDF or Word document');
+                setFileError("Please upload a PDF or Word document");
                 return;
             }
 
             // Check file size (5MB max)
             if (file.size > 5 * 1024 * 1024) {
-                setFileError('File size should not exceed 5MB');
+                setFileError("File size should not exceed 5MB");
                 return;
             }
 
             setFileName(file.name);
-            setFileError('');
-            setValues(prevState => ({
+            setFileError("");
+            setValues((prevState) => ({
                 ...prevState,
-                [e.target.name]: file
+                [e.target.name]: file,
             }));
         }
     };
@@ -107,12 +111,12 @@ const Form = ({
      * Clear file selection
      */
     const clearFile = () => {
-        setValues(prevState => ({
+        setValues((prevState) => ({
             ...prevState,
-            file: null
+            file: null,
         }));
-        setFileName('');
-        setFileError('');
+        setFileName("");
+        setFileError("");
     };
 
     /**
@@ -121,9 +125,9 @@ const Form = ({
      * @param {Array} formData Updated form data
      */
     const handleFormDataChanged = (formData) => {
-        setValues(prevState => ({
+        setValues((prevState) => ({
             ...prevState,
-            formData
+            formData,
         }));
     };
 
@@ -135,11 +139,11 @@ const Form = ({
      */
     const getFieldTypeIcon = (type) => {
         switch (type) {
-            case 'text':
+            case "text":
                 return <TextFields fontSize="small" color="primary" />;
-            case 'checkbox':
+            case "checkbox":
                 return <CheckBox fontSize="small" color="secondary" />;
-            case 'number':
+            case "number":
                 return <FormatListNumbered fontSize="small" color="success" />;
             default:
                 return <TextFields fontSize="small" color="primary" />;
@@ -155,7 +159,7 @@ const Form = ({
                     sx={{
                         p: 3,
                         mb: 2,
-                        borderRadius: 2
+                        borderRadius: 2,
                     }}
                 >
                     <Typography variant="h6" gutterBottom>
@@ -168,7 +172,7 @@ const Form = ({
                                 fullWidth
                                 label="Form Name"
                                 name="name"
-                                value={values.name || ''}
+                                value={values.name || ""}
                                 onChange={handleChange}
                                 error={!!errors.name}
                                 helperText={errors.name || "Enter a descriptive name for this form"}
@@ -186,11 +190,7 @@ const Form = ({
 
                         <Grid size={{ xs: 12, sm: 6 }}>
                             <Box>
-                                <Typography
-                                    variant="subtitle2"
-                                    color="text.secondary"
-                                    gutterBottom
-                                >
+                                <Typography variant="subtitle2" color="text.secondary" gutterBottom>
                                     Form Template File (PDF or Word)
                                 </Typography>
 
@@ -201,8 +201,8 @@ const Form = ({
                                         sx={{
                                             p: 2,
                                             mb: 2,
-                                            borderColor: 'primary.main',
-                                            bgcolor: alpha('#fff', 0.7)
+                                            borderColor: "primary.main",
+                                            bgcolor: alpha("#fff", 0.7),
                                         }}
                                     >
                                         <Stack
@@ -211,7 +211,13 @@ const Form = ({
                                             alignItems="center"
                                             justifyContent="space-between"
                                         >
-                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                            <Box
+                                                sx={{
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    gap: 1,
+                                                }}
+                                            >
                                                 <Description color="primary" />
                                                 <Typography variant="body2" noWrap>
                                                     Current file
@@ -221,7 +227,10 @@ const Form = ({
                                             <Box>
                                                 <Tooltip title="View File">
                                                     <IconButton
-                                                        href={route("file", { id: values.id, type: "orderForm" })}
+                                                        href={route("file", {
+                                                            id: values.id,
+                                                            type: "orderForm",
+                                                        })}
                                                         target="_blank"
                                                         size="small"
                                                         color="primary"
@@ -257,8 +266,8 @@ const Form = ({
                                         sx={{
                                             p: 2,
                                             mb: 1,
-                                            borderColor: 'primary.light',
-                                            bgcolor: alpha('#fff', 0.7)
+                                            borderColor: "primary.light",
+                                            bgcolor: alpha("#fff", 0.7),
                                         }}
                                     >
                                         <Stack
@@ -267,7 +276,13 @@ const Form = ({
                                             alignItems="center"
                                             justifyContent="space-between"
                                         >
-                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                            <Box
+                                                sx={{
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    gap: 1,
+                                                }}
+                                            >
                                                 <Description color="primary" />
                                                 <Typography variant="body2" noWrap>
                                                     {fileName}
@@ -287,11 +302,7 @@ const Form = ({
                                     </Paper>
                                 )}
 
-                                {fileError && (
-                                    <FormHelperText error>
-                                        {fileError}
-                                    </FormHelperText>
-                                )}
+                                {fileError && <FormHelperText error>{fileError}</FormHelperText>}
 
                                 <FormHelperText>
                                     Upload a PDF or Word document template for this form (max 5MB)
@@ -309,16 +320,21 @@ const Form = ({
                     sx={{
                         p: 3,
                         mb: 2,
-                        borderRadius: 2
+                        borderRadius: 2,
                     }}
                 >
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                        <Typography variant="h6">
-                            Form Fields
-                        </Typography>
+                    <Box
+                        sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            mb: 2,
+                        }}
+                    >
+                        <Typography variant="h6">Form Fields</Typography>
 
                         <Chip
-                            label={`${values.formData.length} ${values.formData.length === 1 ? 'field' : 'fields'}`}
+                            label={`${values.formData.length} ${values.formData.length === 1 ? "field" : "fields"}`}
                             color="primary"
                             variant="outlined"
                             size="small"
@@ -356,7 +372,10 @@ const Form = ({
 
                                                 <ListItemText
                                                     primary={
-                                                        <Typography variant="body2" fontWeight={500}>
+                                                        <Typography
+                                                            variant="body2"
+                                                            fontWeight={500}
+                                                        >
                                                             {field.label}
                                                             {field.required && (
                                                                 <Typography
@@ -370,9 +389,15 @@ const Form = ({
                                                         </Typography>
                                                     }
                                                     secondary={
-                                                        <Typography variant="caption" color="text.secondary">
-                                                            {field.type.charAt(0).toUpperCase() + field.type.slice(1)} field
-                                                            {field.placeholder && ` • Placeholder: "${field.placeholder}"`}
+                                                        <Typography
+                                                            variant="caption"
+                                                            color="text.secondary"
+                                                        >
+                                                            {field.type.charAt(0).toUpperCase() +
+                                                                field.type.slice(1)}{" "}
+                                                            field
+                                                            {field.placeholder &&
+                                                                ` • Placeholder: "${field.placeholder}"`}
                                                         </Typography>
                                                     }
                                                 />
@@ -390,13 +415,13 @@ const Form = ({
             <Grid size={12}>
                 <Box
                     sx={{
-                        display: 'flex',
-                        justifyContent: 'flex-end',
+                        display: "flex",
+                        justifyContent: "flex-end",
                         gap: 2,
                         mt: 2,
                         pt: 3,
-                        borderTop: '1px solid',
-                        borderColor: 'divider'
+                        borderTop: "1px solid",
+                        borderColor: "divider",
                     }}
                 >
                     <Button
@@ -415,7 +440,7 @@ const Form = ({
                         disabled={processing}
                         color="primary"
                     >
-                        {processing ? 'Saving...' : edit ? 'Update Form' : 'Create Form'}
+                        {processing ? "Saving..." : edit ? "Update Form" : "Create Form"}
                     </Button>
                 </Box>
             </Grid>

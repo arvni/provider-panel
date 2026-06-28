@@ -14,15 +14,10 @@ import {
     Chip,
     useTheme,
     alpha,
-    Divider
 } from "@mui/material";
-import {
-    Add as AddIcon,
-    Delete as DeleteIcon,
-    Person as PersonIcon
-} from "@mui/icons-material";
+import { Add as AddIcon, Delete as DeleteIcon, Person as PersonIcon } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
-import PatientList  from "../Components/PatientList.jsx";
+import PatientList from "../Components/PatientList.jsx";
 
 /**
  * Enhanced PatientDetails component with multiple patients support
@@ -31,20 +26,23 @@ const PatientDetails = ({ auth, order, step, genders }) => {
     const theme = useTheme();
 
     // Initialize patients array - support both existing multiple patients and single patient
-    const initialPatients = order.patient_ids && order.patient_ids.length > 0
-        ? (order.patients || [order.patient])
-        : [order.patient || {
-            fullName: "",
-            nationality: null,
-            dateOfBirth: "",
-            gender: "",
-            consanguineousParents: "",
-            contact: null,
-            isFetus: false,
-            reference_id: "",
-            id_no: "",
-            relations: []
-        }];
+    const initialPatients =
+        order.patient_ids && order.patient_ids.length > 0
+            ? order.patients || [order.patient]
+            : [
+                  order.patient || {
+                      fullName: "",
+                      nationality: null,
+                      dateOfBirth: "",
+                      gender: "",
+                      consanguineousParents: "",
+                      contact: null,
+                      isFetus: false,
+                      reference_id: "",
+                      id_no: "",
+                      relations: [],
+                  },
+              ];
 
     // State for multiple patients
     const [patients, setPatients] = useState(initialPatients);
@@ -53,15 +51,7 @@ const PatientDetails = ({ auth, order, step, genders }) => {
     const [selectedPatientIndex, setSelectedPatientIndex] = useState(null);
 
     // Form state management
-    const {
-        data,
-        setData,
-        submit,
-        errors,
-        setError,
-        clearErrors,
-        processing
-    } = useSubmitForm(
+    const { setData, submit, errors, setError, clearErrors, processing } = useSubmitForm(
         { patients, _method: "put" },
         route("orders.update", { order: order.id, step })
     );
@@ -76,7 +66,7 @@ const PatientDetails = ({ auth, order, step, genders }) => {
         const updatedPatients = [...patients];
         updatedPatients[patientIndex] = {
             ...updatedPatients[patientIndex],
-            [key]: value
+            [key]: value,
         };
         setPatients(updatedPatients);
 
@@ -93,18 +83,21 @@ const PatientDetails = ({ auth, order, step, genders }) => {
 
     // Add new patient
     const handleAddPatient = () => {
-        setPatients([...patients, {
-            fullName: "",
-            nationality: null,
-            dateOfBirth: "",
-            gender: "",
-            consanguineousParents: "",
-            contact: null,
-            isFetus: false,
-            reference_id: "",
-            id_no: "",
-            relations: []
-        }]);
+        setPatients([
+            ...patients,
+            {
+                fullName: "",
+                nationality: null,
+                dateOfBirth: "",
+                gender: "",
+                consanguineousParents: "",
+                contact: null,
+                isFetus: false,
+                reference_id: "",
+                id_no: "",
+                relations: [],
+            },
+        ]);
     };
 
     // Remove patient (except first one)
@@ -121,10 +114,12 @@ const PatientDetails = ({ auth, order, step, genders }) => {
         // Validate all patients
         let isValid = true;
         patients.forEach((patient, index) => {
-            if (!patientDetailsValidate(patient, (key, message) => {
-                setError(`patients.${index}.${key}`, message);
-                isValid = false;
-            })) {
+            if (
+                !patientDetailsValidate(patient, (key, message) => {
+                    setError(`patients.${index}.${key}`, message);
+                    isValid = false;
+                })
+            ) {
                 isValid = false;
             }
         });
@@ -139,7 +134,7 @@ const PatientDetails = ({ auth, order, step, genders }) => {
                     setTimeout(() => {
                         setShowSuccess(false);
                     }, 3000);
-                }
+                },
             });
         }
     };
@@ -193,9 +188,9 @@ const PatientDetails = ({ auth, order, step, genders }) => {
                             sx={{
                                 mb: 3,
                                 borderRadius: 2,
-                                '& .MuiAlert-icon': {
-                                    alignItems: 'center'
-                                }
+                                "& .MuiAlert-icon": {
+                                    alignItems: "center",
+                                },
                             }}
                             onClose={() => setShowSuccess(false)}
                         >
@@ -208,7 +203,8 @@ const PatientDetails = ({ auth, order, step, genders }) => {
             {/* Info Alert */}
             {patients.length > 1 && (
                 <Alert severity="info" sx={{ mb: 3 }}>
-                    You have {patients.length} patients in this order. The first patient is the main patient.
+                    You have {patients.length} patients in this order. The first patient is the main
+                    patient.
                 </Alert>
             )}
 
@@ -223,31 +219,32 @@ const PatientDetails = ({ auth, order, step, genders }) => {
                         transition={{ duration: 0.3, delay: index * 0.1 }}
                         sx={{
                             mb: 3,
-                            border: '2px solid',
-                            borderColor: index === 0 ? 'primary.main' : 'divider',
+                            border: "2px solid",
+                            borderColor: index === 0 ? "primary.main" : "divider",
                             borderRadius: 2,
-                            overflow: 'visible'
+                            overflow: "visible",
                         }}
                     >
                         {/* Patient Card Header */}
                         <Box
                             sx={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
                                 px: 3,
                                 py: 2,
-                                bgcolor: index === 0
-                                    ? alpha(theme.palette.primary.main, 0.08)
-                                    : alpha(theme.palette.grey[500], 0.05),
-                                borderBottom: '1px solid',
-                                borderColor: 'divider'
+                                bgcolor:
+                                    index === 0
+                                        ? alpha(theme.palette.primary.main, 0.08)
+                                        : alpha(theme.palette.grey[500], 0.05),
+                                borderBottom: "1px solid",
+                                borderColor: "divider",
                             }}
                         >
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                                 <PersonIcon color={index === 0 ? "primary" : "action"} />
                                 <Typography variant="h6" fontWeight={600}>
-                                    {index === 0 ? 'Main Patient' : `Additional Patient ${index}`}
+                                    {index === 0 ? "Main Patient" : `Additional Patient ${index}`}
                                 </Typography>
                                 {index === 0 && (
                                     <Chip
@@ -265,9 +262,9 @@ const PatientDetails = ({ auth, order, step, genders }) => {
                                     color="error"
                                     size="small"
                                     sx={{
-                                        '&:hover': {
-                                            bgcolor: alpha(theme.palette.error.main, 0.1)
-                                        }
+                                        "&:hover": {
+                                            bgcolor: alpha(theme.palette.error.main, 0.1),
+                                        },
                                     }}
                                 >
                                     <DeleteIcon />
@@ -285,9 +282,9 @@ const PatientDetails = ({ auth, order, step, genders }) => {
                                 onChange={(key, value) => handleChange(index, key, value)}
                                 onSubmit={handleSubmit}
                                 errors={Object.keys(errors)
-                                    .filter(key => key.startsWith(`patients.${index}.`))
+                                    .filter((key) => key.startsWith(`patients.${index}.`))
                                     .reduce((obj, key) => {
-                                        const newKey = key.replace(`patients.${index}.`, '');
+                                        const newKey = key.replace(`patients.${index}.`, "");
                                         obj[newKey] = errors[key];
                                         return obj;
                                     }, {})}
@@ -307,16 +304,16 @@ const PatientDetails = ({ auth, order, step, genders }) => {
                     sx={{
                         py: 1.5,
                         borderRadius: 2,
-                        borderStyle: 'dashed',
+                        borderStyle: "dashed",
                         borderWidth: 2,
-                        textTransform: 'none',
-                        fontSize: '1rem',
+                        textTransform: "none",
+                        fontSize: "1rem",
                         fontWeight: 600,
-                        '&:hover': {
-                            borderStyle: 'dashed',
+                        "&:hover": {
+                            borderStyle: "dashed",
                             borderWidth: 2,
-                            bgcolor: alpha(theme.palette.primary.main, 0.04)
-                        }
+                            bgcolor: alpha(theme.palette.primary.main, 0.04),
+                        },
                     }}
                 >
                     Add Another Patient

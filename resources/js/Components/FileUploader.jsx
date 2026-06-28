@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
     Box,
     Button,
@@ -11,7 +11,7 @@ import {
     Stack,
     Typography,
     alpha,
-    useTheme
+    useTheme,
 } from "@mui/material";
 import {
     Delete,
@@ -21,46 +21,48 @@ import {
     Image,
     VideoFile,
     AudioFile,
-    Description
+    Description,
 } from "@mui/icons-material";
-import { styled } from '@mui/material/styles';
+import { styled } from "@mui/material/styles";
 
 // Styled component for the drop zone
 const DropZone = styled(Paper)(({ theme, isDragActive }) => ({
     padding: theme.spacing(3),
     border: `2px dashed ${isDragActive ? theme.palette.primary.main : theme.palette.divider}`,
-    backgroundColor: isDragActive ? alpha(theme.palette.primary.main, 0.05) : theme.palette.background.paper,
-    cursor: 'pointer',
-    transition: 'all 0.3s ease',
-    '&:hover': {
+    backgroundColor: isDragActive
+        ? alpha(theme.palette.primary.main, 0.05)
+        : theme.palette.background.paper,
+    cursor: "pointer",
+    transition: "all 0.3s ease",
+    "&:hover": {
         borderColor: theme.palette.primary.main,
-        backgroundColor: alpha(theme.palette.primary.main, 0.05)
-    }
+        backgroundColor: alpha(theme.palette.primary.main, 0.05),
+    },
 }));
 
 // Function to get the appropriate icon based on file type
 const getFileIcon = (fileName) => {
     if (!fileName) return <InsertDriveFile />;
 
-    const extension = fileName.split('.').pop().toLowerCase();
+    const extension = fileName.split(".").pop().toLowerCase();
 
     switch (extension) {
-        case 'pdf':
+        case "pdf":
             return <PictureAsPdf color="error" />;
-        case 'jpg':
-        case 'jpeg':
-        case 'png':
-        case 'gif':
-        case 'webp':
+        case "jpg":
+        case "jpeg":
+        case "png":
+        case "gif":
+        case "webp":
             return <Image color="primary" />;
-        case 'mp4':
-        case 'mov':
-        case 'avi':
-        case 'webm':
+        case "mp4":
+        case "mov":
+        case "avi":
+        case "webm":
             return <VideoFile color="secondary" />;
-        case 'mp3':
-        case 'wav':
-        case 'ogg':
+        case "mp3":
+        case "wav":
+        case "ogg":
             return <AudioFile color="success" />;
         default:
             return <Description />;
@@ -69,14 +71,21 @@ const getFileIcon = (fileName) => {
 
 // Format file size
 const formatFileSize = (bytes) => {
-    if (bytes === 0) return '0 Bytes';
+    if (bytes === 0) return "0 Bytes";
     const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
 };
 
-const FileUploader = ({ title, description, onChange, name, defaultValues = [], maxFiles = 10 }) => {
+const FileUploader = ({
+    title,
+    description,
+    onChange,
+    name,
+    defaultValues = [],
+    maxFiles = 10,
+}) => {
     const theme = useTheme();
     const [isDragActive, setIsDragActive] = useState(false);
     const inputRef = React.useRef(null);
@@ -93,7 +102,7 @@ const FileUploader = ({ title, description, onChange, name, defaultValues = [], 
         }
         onChange(name, [...defaultValues, ...newFiles]);
         // Clear the input value so the same file can be uploaded again if needed
-        e.target.value = '';
+        e.target.value = "";
     };
 
     const handleDelete = (index) => () => {
@@ -134,7 +143,7 @@ const FileUploader = ({ title, description, onChange, name, defaultValues = [], 
 
     const getFileName = (file) => {
         if (typeof file === "string") {
-            return file.split('/').pop();
+            return file.split("/").pop();
         }
         return file.name;
     };
@@ -164,7 +173,7 @@ const FileUploader = ({ title, description, onChange, name, defaultValues = [], 
                     ref={inputRef}
                     type="file"
                     multiple
-                    style={{ display: 'none' }}
+                    style={{ display: "none" }}
                     onChange={handleChange}
                     accept="*/*"
                 />
@@ -173,17 +182,14 @@ const FileUploader = ({ title, description, onChange, name, defaultValues = [], 
                     <Box
                         sx={{
                             backgroundColor: alpha(theme.palette.primary.main, 0.1),
-                            borderRadius: '50%',
+                            borderRadius: "50%",
                             p: 1.5,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center'
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
                         }}
                     >
-                        <UploadFile
-                            fontSize="large"
-                            color="primary"
-                        />
+                        <UploadFile fontSize="large" color="primary" />
                     </Box>
 
                     <Typography variant="body1" fontWeight="medium">
@@ -208,7 +214,7 @@ const FileUploader = ({ title, description, onChange, name, defaultValues = [], 
 
                     {defaultValues.length > 0 && (
                         <Chip
-                            label={`${defaultValues.length} file${defaultValues.length > 1 ? 's' : ''} selected`}
+                            label={`${defaultValues.length} file${defaultValues.length > 1 ? "s" : ""} selected`}
                             color="primary"
                             variant="outlined"
                             size="small"
@@ -218,21 +224,28 @@ const FileUploader = ({ title, description, onChange, name, defaultValues = [], 
             </DropZone>
 
             {defaultValues.length > 0 && (
-                <Paper variant="outlined" sx={{ mt: 2, p: 0, overflow: 'hidden' }}>
+                <Paper variant="outlined" sx={{ mt: 2, p: 0, overflow: "hidden" }}>
                     <List dense disablePadding>
                         {defaultValues.map((item, index) => {
                             const fileName = getFileName(item);
-                            const fileSize = typeof item !== "string" ? formatFileSize(item.size) : '';
-                            const fileUrl = typeof item === "string" ? `/files/${item}` : URL.createObjectURL(item);
+                            const fileSize =
+                                typeof item !== "string" ? formatFileSize(item.size) : "";
+                            const fileUrl =
+                                typeof item === "string"
+                                    ? `/files/${item}`
+                                    : URL.createObjectURL(item);
 
                             return (
                                 <ListItem
                                     key={`file-${index}`}
                                     divider={index !== defaultValues.length - 1}
                                     sx={{
-                                        '&:hover': {
-                                            backgroundColor: alpha(theme.palette.primary.main, 0.05)
-                                        }
+                                        "&:hover": {
+                                            backgroundColor: alpha(
+                                                theme.palette.primary.main,
+                                                0.05
+                                            ),
+                                        },
                                     }}
                                     secondaryAction={
                                         <Button
@@ -246,9 +259,7 @@ const FileUploader = ({ title, description, onChange, name, defaultValues = [], 
                                         </Button>
                                     }
                                 >
-                                    <ListItemIcon>
-                                        {getFileIcon(fileName)}
-                                    </ListItemIcon>
+                                    <ListItemIcon>{getFileIcon(fileName)}</ListItemIcon>
 
                                     <ListItemText
                                         primary={
@@ -256,11 +267,11 @@ const FileUploader = ({ title, description, onChange, name, defaultValues = [], 
                                                 variant="body2"
                                                 component="span"
                                                 sx={{
-                                                    display: 'inline-block',
-                                                    maxWidth: '70%',
-                                                    whiteSpace: 'nowrap',
-                                                    overflow: 'hidden',
-                                                    textOverflow: 'ellipsis'
+                                                    display: "inline-block",
+                                                    maxWidth: "70%",
+                                                    whiteSpace: "nowrap",
+                                                    overflow: "hidden",
+                                                    textOverflow: "ellipsis",
                                                 }}
                                             >
                                                 {fileName}
@@ -268,16 +279,23 @@ const FileUploader = ({ title, description, onChange, name, defaultValues = [], 
                                         }
                                         secondary={
                                             <Stack direction="row" spacing={1} alignItems="center">
-                                                {fileSize && <Typography variant="caption" color="text.secondary">{fileSize}</Typography>}
+                                                {fileSize && (
+                                                    <Typography
+                                                        variant="caption"
+                                                        color="text.secondary"
+                                                    >
+                                                        {fileSize}
+                                                    </Typography>
+                                                )}
                                                 <a
                                                     href={fileUrl}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     onClick={(e) => e.stopPropagation()}
                                                     style={{
-                                                        textDecoration: 'none',
+                                                        textDecoration: "none",
                                                         color: theme.palette.primary.main,
-                                                        fontSize: '0.75rem'
+                                                        fontSize: "0.75rem",
                                                     }}
                                                 >
                                                     Preview

@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Stack, Typography, alpha, useTheme } from "@mui/material";
+import { Box, Stack, Typography, useTheme } from "@mui/material";
 import Actions from "./Actions";
 
 const PageHeader = ({ title, subtitle = "", actions = [] }) => {

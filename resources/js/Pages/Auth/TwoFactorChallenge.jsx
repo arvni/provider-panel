@@ -25,8 +25,10 @@ const TwoFactorChallenge = ({ email, status }) => {
     const [cooldown, setCooldown] = useState(0);
     const [resending, setResending] = useState(false);
 
-    const { data, setData, submit, processing, errors, clearErrors } =
-        useSubmitForm({ code: "" }, route("two-factor.verify"));
+    const { data, setData, submit, processing, errors, clearErrors } = useSubmitForm(
+        { code: "" },
+        route("two-factor.verify")
+    );
 
     useEffect(() => {
         setShowStatus(Boolean(status));
@@ -104,9 +106,20 @@ const TwoFactorChallenge = ({ email, status }) => {
                         borderColor: "divider",
                     }}
                 >
-                    <Box sx={{ mb: 3, display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+                    <Box
+                        sx={{
+                            mb: 3,
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            textAlign: "center",
+                        }}
+                    >
                         <ShieldOutlinedIcon color="primary" sx={{ fontSize: 40, mb: 1 }} />
-                        <Typography variant="h5" sx={{ fontWeight: 600, color: "primary.main", mb: 1 }}>
+                        <Typography
+                            variant="h5"
+                            sx={{ fontWeight: 600, color: "primary.main", mb: 1 }}
+                        >
                             Two-Factor Verification
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
@@ -166,7 +179,7 @@ const TwoFactorChallenge = ({ email, status }) => {
 
                         <Box sx={{ textAlign: "center" }}>
                             <Typography variant="body2" color="text.secondary" component="span">
-                                Didn't get a code?{" "}
+                                Didn&apos;t get a code?{" "}
                             </Typography>
                             {cooldown > 0 ? (
                                 <Typography variant="body2" color="text.disabled" component="span">

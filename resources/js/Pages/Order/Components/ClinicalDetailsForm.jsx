@@ -15,7 +15,7 @@ import {
     Badge,
     LinearProgress,
     useTheme,
-    alpha
+    alpha,
 } from "@mui/material";
 import FormField from "@/Components/FormField";
 import FileUploader from "@/Components/FileUploader";
@@ -27,7 +27,7 @@ import {
     MedicalServices as MedicalIcon,
     Info as InfoIcon,
     CheckCircle as CheckCircleIcon,
-    Description as DescriptionIcon
+    Description as DescriptionIcon,
 } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
 import { calculateFormCompletion } from "@/Services/validate";
@@ -44,8 +44,8 @@ const ClinicalDetailsForm = (props) => {
     // Handle field value changes
     const handleChange = (orderFormId, elId, type) => (e, v) => {
         let newForms = [...props.orderForms];
-        let formIndex = props.orderForms.findIndex(item => item.id === orderFormId);
-        let elIndex = props.orderForms[formIndex].formData.findIndex(item => item.id === elId);
+        let formIndex = props.orderForms.findIndex((item) => item.id === orderFormId);
+        let elIndex = props.orderForms[formIndex].formData.findIndex((item) => item.id === elId);
 
         // Handle different field types appropriately
         if (formIndex !== -1 && elIndex !== -1) {
@@ -77,16 +77,16 @@ const ClinicalDetailsForm = (props) => {
 
     // Toggle form expansion
     const toggleFormExpansion = (formId) => () => {
-        setExpandedForms(prev => ({
+        setExpandedForms((prev) => ({
             ...prev,
-            [formId]: !prev[formId]
+            [formId]: !prev[formId],
         }));
     };
 
     // Calculate completion percentage for each form (memoized to avoid stale closure)
     const calculateFormCompletionStatus = useCallback(() => {
         const completion = {};
-        props.orderForms.forEach(form => {
+        props.orderForms.forEach((form) => {
             completion[form.id] = calculateFormCompletion(form);
         });
         setFormCompletion(completion);
@@ -112,8 +112,8 @@ const ClinicalDetailsForm = (props) => {
             transition: {
                 when: "beforeChildren",
                 staggerChildren: 0.1,
-            }
-        }
+            },
+        },
     };
 
     const itemVariants = {
@@ -121,8 +121,8 @@ const ClinicalDetailsForm = (props) => {
         visible: {
             y: 0,
             opacity: 1,
-            transition: { duration: 0.4 }
-        }
+            transition: { duration: 0.4 },
+        },
     };
 
     // Count total number of files
@@ -134,14 +134,14 @@ const ClinicalDetailsForm = (props) => {
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            sx={{ width: '100%' }}
+            sx={{ width: "100%" }}
         >
             {/* Help section */}
             <AnimatePresence>
                 {showHelp && (
                     <motion.div
                         initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
+                        animate={{ opacity: 1, height: "auto" }}
                         exit={{ opacity: 0, height: 0 }}
                         transition={{ duration: 0.3 }}
                     >
@@ -151,9 +151,9 @@ const ClinicalDetailsForm = (props) => {
                             sx={{
                                 mb: 3,
                                 borderRadius: 2,
-                                '& .MuiAlert-icon': {
-                                    alignItems: 'center'
-                                }
+                                "& .MuiAlert-icon": {
+                                    alignItems: "center",
+                                },
                             }}
                             onClose={toggleHelp}
                         >
@@ -161,22 +161,26 @@ const ClinicalDetailsForm = (props) => {
                                 Clinical Details Guidelines
                             </Typography>
                             <Typography variant="body2" paragraph>
-                                Please provide as much clinical information as possible to ensure accurate test interpretation.
+                                Please provide as much clinical information as possible to ensure
+                                accurate test interpretation.
                             </Typography>
                             <Box component="ul" sx={{ m: 0, pl: 2, mb: 0 }}>
                                 <Box component="li" sx={{ mb: 0.5 }}>
                                     <Typography variant="body2">
-                                        <strong>Required fields:</strong> Fields marked with an asterisk (*) must be completed
+                                        <strong>Required fields:</strong> Fields marked with an
+                                        asterisk (*) must be completed
                                     </Typography>
                                 </Box>
                                 <Box component="li" sx={{ mb: 0.5 }}>
                                     <Typography variant="body2">
-                                        <strong>Medical records:</strong> Upload relevant medical records in PDF, JPG, or PNG format
+                                        <strong>Medical records:</strong> Upload relevant medical
+                                        records in PDF, JPG, or PNG format
                                     </Typography>
                                 </Box>
                                 <Box component="li">
                                     <Typography variant="body2">
-                                        <strong>Previous tests:</strong> Include any previous test results that may be relevant
+                                        <strong>Previous tests:</strong> Include any previous test
+                                        results that may be relevant
                                     </Typography>
                                 </Box>
                             </Box>
@@ -191,14 +195,14 @@ const ClinicalDetailsForm = (props) => {
                 variants={itemVariants}
                 sx={{
                     mb: 3,
-                    display: 'flex',
-                    flexDirection: { xs: 'column', sm: 'row' },
-                    justifyContent: 'space-between',
-                    alignItems: { xs: 'flex-start', sm: 'center' },
-                    gap: 2
+                    display: "flex",
+                    flexDirection: { xs: "column", sm: "row" },
+                    justifyContent: "space-between",
+                    alignItems: { xs: "flex-start", sm: "center" },
+                    gap: 2,
                 }}
             >
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     <MedicalIcon color="primary" />
                     <Typography variant="h5" fontWeight={600}>
                         Clinical Details
@@ -217,14 +221,14 @@ const ClinicalDetailsForm = (props) => {
 
                 <Box
                     sx={{
-                        display: 'flex',
-                        alignItems: 'center',
+                        display: "flex",
+                        alignItems: "center",
                         gap: 2,
-                        width: { xs: '100%', sm: 'auto' }
+                        width: { xs: "100%", sm: "auto" },
                     }}
                 >
                     <Box sx={{ flexGrow: 1, mr: 1, minWidth: { xs: 0, sm: 200 } }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                        <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
                             <Typography variant="body2" color="text.secondary">
                                 Overall Completion
                             </Typography>
@@ -238,7 +242,7 @@ const ClinicalDetailsForm = (props) => {
                             color={overallCompletion === 100 ? "success" : "primary"}
                             sx={{
                                 height: 8,
-                                borderRadius: 4
+                                borderRadius: 4,
                             }}
                         />
                     </Box>
@@ -248,11 +252,11 @@ const ClinicalDetailsForm = (props) => {
                         color="primary"
                         max={99}
                         sx={{
-                            '& .MuiBadge-badge': {
-                                fontSize: '0.75rem',
+                            "& .MuiBadge-badge": {
+                                fontSize: "0.75rem",
                                 height: 20,
-                                minWidth: 20
-                            }
+                                minWidth: 20,
+                            },
                         }}
                     >
                         <Chip
@@ -281,18 +285,18 @@ const ClinicalDetailsForm = (props) => {
                                 elevation={0}
                                 sx={{
                                     borderRadius: 2,
-                                    border: '1px solid',
+                                    border: "1px solid",
                                     borderColor: theme.palette.divider,
-                                    overflow: 'hidden',
-                                    transition: 'all 0.3s ease-in-out',
-                                    '&:hover': {
-                                        boxShadow: theme.shadows[2]
-                                    }
+                                    overflow: "hidden",
+                                    transition: "all 0.3s ease-in-out",
+                                    "&:hover": {
+                                        boxShadow: theme.shadows[2],
+                                    },
                                 }}
                             >
                                 <CardHeader
                                     title={
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                                             <AssignmentIcon color="primary" />
                                             <Typography variant="h6" fontWeight={600}>
                                                 {orderForm.name} Form
@@ -300,7 +304,7 @@ const ClinicalDetailsForm = (props) => {
                                         </Box>
                                     }
                                     action={
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                                             {formCompletion[orderForm.id] === 100 ? (
                                                 <Chip
                                                     icon={<CheckCircleIcon />}
@@ -328,8 +332,10 @@ const ClinicalDetailsForm = (props) => {
                                                 >
                                                     <ExpandMoreIcon
                                                         sx={{
-                                                            transform: expandedForms[orderForm.id] ? 'rotate(180deg)' : 'rotate(0deg)',
-                                                            transition: 'transform 0.3s'
+                                                            transform: expandedForms[orderForm.id]
+                                                                ? "rotate(180deg)"
+                                                                : "rotate(0deg)",
+                                                            transition: "transform 0.3s",
                                                         }}
                                                     />
                                                 </IconButton>
@@ -338,9 +344,9 @@ const ClinicalDetailsForm = (props) => {
                                     }
                                     sx={{
                                         bgcolor: alpha(theme.palette.primary.main, 0.05),
-                                        borderBottom: '1px solid',
+                                        borderBottom: "1px solid",
                                         borderColor: theme.palette.divider,
-                                        py: 1.5
+                                        py: 1.5,
                                     }}
                                 />
 
@@ -352,7 +358,7 @@ const ClinicalDetailsForm = (props) => {
                                                     <Grid
                                                         item
                                                         xs={12}
-                                                        sm={el.type === 'textarea' ? 12 : 6}
+                                                        sm={el.type === "textarea" ? 12 : 6}
                                                         key={el.id}
                                                     >
                                                         <FormField
@@ -366,14 +372,21 @@ const ClinicalDetailsForm = (props) => {
                                                                 placeholder: el.placeholder,
                                                                 helpText: el.description,
                                                                 options: el.options,
-                                                                rows: el.type === 'textarea' ? 4 : undefined,
+                                                                rows:
+                                                                    el.type === "textarea"
+                                                                        ? 4
+                                                                        : undefined,
                                                                 min: el.min,
                                                                 max: el.max,
                                                                 step: el.step,
                                                                 // Additional props specific to certain field types
-                                                                ...el.props
+                                                                ...el.props,
                                                             }}
-                                                            onchange={handleChange(orderForm.id, el.id, el.type)}
+                                                            onchange={handleChange(
+                                                                orderForm.id,
+                                                                el.id,
+                                                                el.type
+                                                            )}
                                                             errors={props.errors}
                                                             errorPath={`orderForms[${formIndex}].formData[${fieldIndex}].value`}
                                                             size="medium"
@@ -388,14 +401,16 @@ const ClinicalDetailsForm = (props) => {
                                         )}
 
                                         {/* Form-level errors */}
-                                        {props.errors && props.errors[`orderForms[${formIndex}].hasErrors`] && (
-                                            <Alert
-                                                severity="error"
-                                                sx={{ mt: 2 }}
-                                            >
-                                                {props.errors[`orderForms[${formIndex}].hasErrors`]}
-                                            </Alert>
-                                        )}
+                                        {props.errors &&
+                                            props.errors[`orderForms[${formIndex}].hasErrors`] && (
+                                                <Alert severity="error" sx={{ mt: 2 }}>
+                                                    {
+                                                        props.errors[
+                                                            `orderForms[${formIndex}].hasErrors`
+                                                        ]
+                                                    }
+                                                </Alert>
+                                            )}
                                     </CardContent>
                                 </Collapse>
                             </Card>
@@ -403,24 +418,19 @@ const ClinicalDetailsForm = (props) => {
                     ))}
 
                     {/* File Upload Section */}
-                    <Grid
-                        item
-                        xs={12}
-                        component={motion.div}
-                        variants={itemVariants}
-                    >
+                    <Grid item xs={12} component={motion.div} variants={itemVariants}>
                         <Card
                             elevation={0}
                             sx={{
                                 borderRadius: 2,
-                                border: '1px solid',
+                                border: "1px solid",
                                 borderColor: theme.palette.divider,
-                                overflow: 'hidden'
+                                overflow: "hidden",
                             }}
                         >
                             <CardHeader
                                 title={
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                                         <CloudUploadIcon color="primary" />
                                         <Typography variant="h6" fontWeight={600}>
                                             Medical Records & Test Results
@@ -429,15 +439,17 @@ const ClinicalDetailsForm = (props) => {
                                 }
                                 sx={{
                                     bgcolor: alpha(theme.palette.primary.main, 0.05),
-                                    borderBottom: '1px solid',
+                                    borderBottom: "1px solid",
                                     borderColor: theme.palette.divider,
-                                    py: 1.5
+                                    py: 1.5,
                                 }}
                             />
 
                             <CardContent sx={{ p: 3 }}>
                                 <Typography variant="body2" color="text.secondary" paragraph>
-                                    Upload any relevant medical records, previous test results, or clinical documents that may assist in the interpretation of the tests.
+                                    Upload any relevant medical records, previous test results, or
+                                    clinical documents that may assist in the interpretation of the
+                                    tests.
                                 </Typography>
 
                                 <FileUploader
@@ -449,10 +461,7 @@ const ClinicalDetailsForm = (props) => {
 
                                 {/* File errors */}
                                 {props.errors && props.errors.files && (
-                                    <Alert
-                                        severity="error"
-                                        sx={{ mt: 2 }}
-                                    >
+                                    <Alert severity="error" sx={{ mt: 2 }}>
                                         {props.errors.files}
                                     </Alert>
                                 )}
@@ -460,18 +469,18 @@ const ClinicalDetailsForm = (props) => {
                                 {/* Individual file errors */}
                                 {props.errors &&
                                     props.files &&
-                                    props.files.map((file, index) => (
-                                        props.errors[`files[${index}]`] && (
-                                            <Alert
-                                                key={`file-error-${index}`}
-                                                severity="error"
-                                                sx={{ mt: 1 }}
-                                            >
-                                                {props.errors[`files[${index}]`]}
-                                            </Alert>
-                                        )
-                                    ))
-                                }
+                                    props.files.map(
+                                        (file, index) =>
+                                            props.errors[`files[${index}]`] && (
+                                                <Alert
+                                                    key={`file-error-${index}`}
+                                                    severity="error"
+                                                    sx={{ mt: 1 }}
+                                                >
+                                                    {props.errors[`files[${index}]`]}
+                                                </Alert>
+                                            )
+                                    )}
                             </CardContent>
                         </Card>
                     </Grid>

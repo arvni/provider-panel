@@ -19,7 +19,13 @@ import EditSectionButton from "@/Pages/Order/Components/Finalize/EditSectionButt
 /**
  * Patient-test assignment review section on the Finalize page.
  */
-const PatientTestAssignmentSection = ({ orderItems, mainPatientId, expanded, onToggle, orderId }) => {
+const PatientTestAssignmentSection = ({
+    orderItems,
+    mainPatientId,
+    expanded,
+    onToggle,
+    orderId,
+}) => {
     const theme = useTheme();
 
     return (
@@ -44,19 +50,29 @@ const PatientTestAssignmentSection = ({ orderItems, mainPatientId, expanded, onT
                             <TableRow key={orderItem.id || index}>
                                 <TableCell>
                                     <Typography fontWeight={500}>
-                                        {orderItem.test?.name || orderItem.Test?.name || "Unknown Test"}
+                                        {orderItem.test?.name ||
+                                            orderItem.Test?.name ||
+                                            "Unknown Test"}
                                     </Typography>
                                 </TableCell>
                                 <TableCell>
-                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
                                         {orderItem.patients && orderItem.patients.length > 0 ? (
                                             orderItem.patients.map((patient) => (
                                                 <Chip
                                                     key={patient.id}
                                                     label={patient.fullName || patient.full_name}
                                                     size="small"
-                                                    color={patient.id === mainPatientId ? "primary" : "default"}
-                                                    variant={patient.id === mainPatientId ? "filled" : "outlined"}
+                                                    color={
+                                                        patient.id === mainPatientId
+                                                            ? "primary"
+                                                            : "default"
+                                                    }
+                                                    variant={
+                                                        patient.id === mainPatientId
+                                                            ? "filled"
+                                                            : "outlined"
+                                                    }
                                                 />
                                             ))
                                         ) : (
@@ -72,7 +88,11 @@ const PatientTestAssignmentSection = ({ orderItems, mainPatientId, expanded, onT
                 </Table>
             </TableContainer>
 
-            <EditSectionButton orderId={orderId} step="patient test assignment" label="Edit Assignments" />
+            <EditSectionButton
+                orderId={orderId}
+                step="patient test assignment"
+                label="Edit Assignments"
+            />
         </CollapsibleSection>
     );
 };
