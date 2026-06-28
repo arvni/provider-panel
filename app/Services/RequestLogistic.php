@@ -5,7 +5,9 @@ namespace App\Services;
 use App\Exceptions\ApiServiceException;
 use App\Models\CollectRequest;
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Patient;
+use App\Models\Sample;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
@@ -222,122 +224,19 @@ class RequestLogistic
      */
     private static function prepareOrderData(Order $order): array
     {
-        // Prepare order items with samples and patients. Items whose samples are
-        // not part of this collect request were filtered out at load time, so we
-        // skip any that have no samples left to send.
+        // Items whose samples are not part of this collect request were filtered
+        // out at load time, so skip any that have no samples left to send.
         $orderItems = $order->OrderItems
             ->filter(fn ($orderItem) => $orderItem->Samples->isNotEmpty())
-            ->map(function ($orderItem) {
-                // Get samples for this order item
-                $samples = $orderItem->Samples->map(function ($sample) {
-                    return [
-                        'id' => $sample->id,
-                        'sampleId' => $sample->sampleId,
-                        'sample_type_id' => $sample->SampleType->server_id ?? null,
-                        'material_id' => $sample->material_id,
-                        'collectionDate' => $sample->collectionDate,
-                        'sample_type' => $sample->SampleType ? [
-                            'id' => $sample->SampleType->id,
-                            'server_id' => $sample->SampleType->server_id,
-                            'name' => $sample->SampleType->name,
-                            'sample_id_required' => $sample->SampleType->sample_id_required,
-                        ] : null,
-                        'material' => $sample->Material ? [
-                            'id' => $sample->Material->id,
-                            'barcode' => $sample->Material->barcode,
-                        ] : null,
-                    ];
-                })->toArray();
-
-                // Get patients for this order item
-                $patients = $orderItem->Patients->map(function ($patient) {
-                    return [
-                        'id' => $patient->id,
-                        'fullName' => $patient->fullName,
-                        'nationality' => $patient->nationality,
-                        'dateOfBirth' => $patient->dateOfBirth,
-                        'gender' => $patient->gender,
-                        'consanguineousParents' => $patient->consanguineousParents,
-                        'contact' => $patient->contact,
-                        'isFetus' => $patient->isFetus,
-                        'reference_id' => $patient->reference_id,
-                        'id_no' => $patient->id_no,
-                        'is_main' => $patient->pivot->is_main ?? false,
-                    ];
-                })->toArray();
-
-                return [
-                    'id' => $orderItem->id,
-                    'server_id' => $orderItem->server_id,
-                    'test_id' => $orderItem->Test->server_id ?? $orderItem->test_id,
-                    'test' => $orderItem->Test ? [
-                        'id' => $orderItem->Test->id,
-                        'server_id' => $orderItem->Test->server_id,
-                        'name' => $orderItem->Test->name,
-                        'code' => $orderItem->Test->code,
-                        'shortName' => $orderItem->Test->shortName,
-                        'gender' => $orderItem->Test->gender,
-                    ] : null,
-                    'samples' => $samples,
-                    'patients' => $patients,
-                ];
-            })->values()->toArray();
-
-        // Process order forms
-        $orderForms = collect($order->orderForms ?? [])
-            ->mapWithKeys(function ($item) {
-                return [$item['name'] => $item['formData'] ?? []];
-            })
+            ->map(fn (OrderItem $orderItem) => self::prepareOrderItemData($orderItem))
+            ->values()
             ->toArray();
 
-        // Prepare main patient data
-        $patientData = [
-            'id' => $order->Patient->id,
-            'fullName' => $order->Patient->fullName,
-            'nationality' => $order->Patient->nationality,
-            'dateOfBirth' => $order->Patient->dateOfBirth,
-            'gender' => $order->Patient->gender,
-            'consanguineousParents' => $order->Patient->consanguineousParents,
-            'contact' => $order->Patient->contact,
-            'extra' => $order->Patient->extra ?? null,
-            'isFetus' => $order->Patient->isFetus,
-            'reference_id' => $order->Patient->reference_id,
-            'id_no' => $order->Patient->id_no,
-        ];
+        $orderForms = collect($order->orderForms ?? [])
+            ->mapWithKeys(fn ($item) => [$item['name'] => $item['formData'] ?? []])
+            ->toArray();
 
-        // Prepare all patients in the order
-        $allPatients = [];
-        if (! empty($order->patient_ids)) {
-            $patients = Patient::whereIn('id', $order->patient_ids)->get();
-            $allPatients = $patients->map(function ($patient) use ($order) {
-                return [
-                    'id' => $patient->id,
-                    'fullName' => $patient->fullName,
-                    'nationality' => $patient->nationality,
-                    'dateOfBirth' => $patient->dateOfBirth,
-                    'gender' => $patient->gender,
-                    'consanguineousParents' => $patient->consanguineousParents,
-                    'contact' => $patient->contact,
-                    'extra' => $patient->extra ?? null,
-                    'isFetus' => $patient->isFetus,
-                    'reference_id' => $patient->reference_id,
-                    'id_no' => $patient->id_no,
-                    'is_main' => $patient->id === $order->main_patient_id,
-                ];
-            })->toArray();
-        }
-
-        // Prepare tests data with server IDs
-        $testsData = $order->Tests->map(function ($test) {
-            return [
-                'id' => $test->id,
-                'server_id' => $test->server_id,
-                'name' => $test->name,
-                'shortName' => $test->shortName,
-            ];
-        })->toArray();
-
-        // Check if any sample has pooling
+        // Whether any sample in the order is pooled.
         $pooling = $order->OrderItems->pluck('Samples')->flatten()->contains('pooling', true);
 
         return [
@@ -348,15 +247,132 @@ class RequestLogistic
             'pooling' => $pooling,
             'orderForms' => $orderForms,
             'consents' => $order->consents ?? [],
-            'patient' => $patientData,
-            'patients' => $allPatients,
+            'patient' => self::prepareMainPatientData($order->Patient),
+            'patients' => self::prepareOrderPatients($order),
             'patient_ids' => $order->patient_ids ?? [],
             'main_patient_id' => $order->main_patient_id,
-            'tests' => $testsData,
+            'tests' => self::prepareTestsData($order),
             'orderItems' => $orderItems,
             'created_at' => $order->created_at,
             'updated_at' => $order->updated_at,
         ];
+    }
+
+    /**
+     * Shape a single order item (its test, samples and patients) for the payload.
+     */
+    private static function prepareOrderItemData(OrderItem $orderItem): array
+    {
+        return [
+            'id' => $orderItem->id,
+            'server_id' => $orderItem->server_id,
+            'test_id' => $orderItem->Test->server_id ?? $orderItem->test_id,
+            'test' => $orderItem->Test ? [
+                'id' => $orderItem->Test->id,
+                'server_id' => $orderItem->Test->server_id,
+                'name' => $orderItem->Test->name,
+                'code' => $orderItem->Test->code,
+                'shortName' => $orderItem->Test->shortName,
+                'gender' => $orderItem->Test->gender,
+            ] : null,
+            'samples' => $orderItem->Samples->map(fn (Sample $sample) => self::prepareSampleData($sample))->toArray(),
+            'patients' => $orderItem->Patients->map(fn (Patient $patient) => [
+                'id' => $patient->id,
+                'fullName' => $patient->fullName,
+                'nationality' => $patient->nationality,
+                'dateOfBirth' => $patient->dateOfBirth,
+                'gender' => $patient->gender,
+                'consanguineousParents' => $patient->consanguineousParents,
+                'contact' => $patient->contact,
+                'isFetus' => $patient->isFetus,
+                'reference_id' => $patient->reference_id,
+                'id_no' => $patient->id_no,
+                'is_main' => $patient->pivot->is_main ?? false,
+            ])->toArray(),
+        ];
+    }
+
+    /**
+     * Shape a single sample (with its sample type and material) for the payload.
+     */
+    private static function prepareSampleData(Sample $sample): array
+    {
+        return [
+            'id' => $sample->id,
+            'sampleId' => $sample->sampleId,
+            'sample_type_id' => $sample->SampleType->server_id ?? null,
+            'material_id' => $sample->material_id,
+            'collectionDate' => $sample->collectionDate,
+            'sample_type' => $sample->SampleType ? [
+                'id' => $sample->SampleType->id,
+                'server_id' => $sample->SampleType->server_id,
+                'name' => $sample->SampleType->name,
+                'sample_id_required' => $sample->SampleType->sample_id_required,
+            ] : null,
+            'material' => $sample->Material ? [
+                'id' => $sample->Material->id,
+                'barcode' => $sample->Material->barcode,
+            ] : null,
+        ];
+    }
+
+    /**
+     * Shape the order's main patient for the payload.
+     */
+    private static function prepareMainPatientData(Patient $patient): array
+    {
+        return [
+            'id' => $patient->id,
+            'fullName' => $patient->fullName,
+            'nationality' => $patient->nationality,
+            'dateOfBirth' => $patient->dateOfBirth,
+            'gender' => $patient->gender,
+            'consanguineousParents' => $patient->consanguineousParents,
+            'contact' => $patient->contact,
+            'extra' => $patient->extra ?? null,
+            'isFetus' => $patient->isFetus,
+            'reference_id' => $patient->reference_id,
+            'id_no' => $patient->id_no,
+        ];
+    }
+
+    /**
+     * Shape every patient referenced by the order (flagging the main one).
+     */
+    private static function prepareOrderPatients(Order $order): array
+    {
+        if (empty($order->patient_ids)) {
+            return [];
+        }
+
+        return Patient::whereIn('id', $order->patient_ids)->get()
+            ->map(fn (Patient $patient) => [
+                'id' => $patient->id,
+                'fullName' => $patient->fullName,
+                'nationality' => $patient->nationality,
+                'dateOfBirth' => $patient->dateOfBirth,
+                'gender' => $patient->gender,
+                'consanguineousParents' => $patient->consanguineousParents,
+                'contact' => $patient->contact,
+                'extra' => $patient->extra ?? null,
+                'isFetus' => $patient->isFetus,
+                'reference_id' => $patient->reference_id,
+                'id_no' => $patient->id_no,
+                'is_main' => $patient->id === $order->main_patient_id,
+            ])->toArray();
+    }
+
+    /**
+     * Shape the order's tests (with their server IDs) for the payload.
+     */
+    private static function prepareTestsData(Order $order): array
+    {
+        return $order->Tests->map(fn ($test) => [
+            'id' => $test->id,
+            'server_id' => $test->server_id,
+            'name' => $test->name,
+            'shortName' => $test->shortName,
+        ])->toArray();
     }
 
     /**
