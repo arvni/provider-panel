@@ -43,7 +43,7 @@ const SortableCol = ({ title, field, onClick, currentOrder, color, sx = {} }) =>
     };
 
     // Custom sort icon that animates between states
-    const SortIcon = () => {
+    const renderSortIcon = () => {
         const variants = {
             asc: { rotate: 0, transition: { duration: 0.2 } },
             desc: { rotate: 180, transition: { duration: 0.2 } },
@@ -126,7 +126,7 @@ const SortableCol = ({ title, field, onClick, currentOrder, color, sx = {} }) =>
                     {title}
                 </Typography>
 
-                <SortIcon />
+                {renderSortIcon()}
             </ButtonBase>
         </Tooltip>
     );

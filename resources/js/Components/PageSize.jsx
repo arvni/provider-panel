@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
     FormControl,
     InputLabel,
@@ -37,10 +37,14 @@ const PageSize = ({
     const theme = useTheme();
     const [value, setValue] = useState(defaultValue);
 
-    // Update value if defaultValue changes
-    useEffect(() => {
+    // Reset the selected size when the incoming defaultValue changes.
+    // Adjusting state during render (instead of in an effect) avoids the extra
+    // commit/cascading render the effect caused.
+    const [prevDefaultValue, setPrevDefaultValue] = useState(defaultValue);
+    if (defaultValue !== prevDefaultValue) {
+        setPrevDefaultValue(defaultValue);
         setValue(defaultValue);
-    }, [defaultValue]);
+    }
 
     // Handle change of page size
     const handleChange = (e) => {
@@ -65,7 +69,7 @@ const PageSize = ({
     const recommendedSize = getRecommendedSize();
 
     // For compact/mobile view
-    const CompactView = () => (
+    const renderCompactView = () => (
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: "nowrap" }}>
                 Show:
@@ -152,7 +156,7 @@ const PageSize = ({
     );
 
     // For desktop view
-    const DesktopView = () => (
+    const renderDesktopView = () => (
         <FormControl
             size={size}
             variant={showLabel ? "outlined" : "standard"}
@@ -251,7 +255,7 @@ const PageSize = ({
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
         >
-            {size === "small" ? <CompactView /> : <DesktopView />}
+            {size === "small" ? renderCompactView() : renderDesktopView()}
         </motion.div>
     );
 };

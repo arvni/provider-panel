@@ -62,6 +62,12 @@ export const usePageReload = (request, only = []) => {
     const [data, setData] = useState(request);
     const firstUpdate = useRef(true);
     const [processing, setProcessing] = useState(false);
+    const activateProcessing = () => {
+        setProcessing(true);
+    };
+    const deactivateProcessing = () => {
+        setProcessing(false);
+    };
     const reload = () =>
         router.reload({
             only,
@@ -69,12 +75,20 @@ export const usePageReload = (request, only = []) => {
             onStart: activateProcessing,
             onFinish: deactivateProcessing,
         });
+    // Reload only when pagination/filter/sort `data` changes (not on mount),
+    // always invoking the latest `reload` closure. `only` is an inline array at
+    // every call site, so depending on `reload` directly would reload on every
+    // render — the ref keeps it current without re-subscribing the effect.
+    const reloadRef = useRef(reload);
+    useEffect(() => {
+        reloadRef.current = reload;
+    });
     useEffect(() => {
         if (firstUpdate.current) {
             firstUpdate.current = false;
             return;
         }
-        reload();
+        reloadRef.current();
     }, [data]);
     const onPageChange = (event, page) => {
         setData((prevData) => ({ ...prevData, page }));
@@ -106,12 +120,6 @@ export const usePageReload = (request, only = []) => {
             onStart: activateProcessing,
             onFinish: deactivateProcessing,
         });
-    };
-    const activateProcessing = () => {
-        setProcessing(true);
-    };
-    const deactivateProcessing = () => {
-        setProcessing(false);
     };
 
     return {

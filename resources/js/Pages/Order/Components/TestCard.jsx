@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
     Button,
     Card,
@@ -37,10 +37,13 @@ const TestCard = (props) => {
     const [open, setOpen] = useState(false);
     const [expanded, setExpanded] = useState(false);
 
-    // Update selected state when props change
-    useEffect(() => {
+    // Sync local selection with the prop when it changes. Adjusting during
+    // render (instead of in an effect) avoids the extra commit.
+    const [prevSelected, setPrevSelected] = useState(props.selected);
+    if (props.selected !== prevSelected) {
+        setPrevSelected(props.selected);
         setSelected(props.selected);
-    }, [props.selected]);
+    }
 
     // Handle test selection/deselection
     const handleSelect = () => {

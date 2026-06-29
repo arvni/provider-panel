@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { router, useForm } from "@inertiajs/react";
 
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
@@ -17,16 +16,12 @@ const Add = (props) => {
         order_form: null,
         sample_types: [],
     });
-    const [errors, setErrors] = useState({});
-    useEffect(() => {
-        if (Object.keys(props.errors).length) setErrors(props.errors);
-    }, [props.errors]);
     const handleSubmit = () => post(route("admin.tests.store"));
     const handleCancel = () => router.visit(route("admin.tests.index"));
     return (
         <Form
             values={data}
-            errors={errors}
+            errors={props.errors}
             setValues={setData}
             submit={handleSubmit}
             cancel={handleCancel}

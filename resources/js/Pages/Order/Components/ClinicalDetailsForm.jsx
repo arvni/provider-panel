@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useMemo, useCallback } from "react";
+import { useMemo } from "react";
 import {
     Grid,
     Typography,
@@ -39,7 +39,6 @@ const ClinicalDetailsForm = (props) => {
     const theme = useTheme();
     const [showHelp, setShowHelp] = React.useState(false);
     const [expandedForms, setExpandedForms] = React.useState({});
-    const [formCompletion, setFormCompletion] = React.useState({});
 
     // Handle field value changes
     const handleChange = (orderFormId, elId, type) => (e, v) => {
@@ -83,19 +82,14 @@ const ClinicalDetailsForm = (props) => {
         }));
     };
 
-    // Calculate completion percentage for each form (memoized to avoid stale closure)
-    const calculateFormCompletionStatus = useCallback(() => {
+    // Completion percentage for each form, derived from the order forms data.
+    const formCompletion = useMemo(() => {
         const completion = {};
         props.orderForms.forEach((form) => {
             completion[form.id] = calculateFormCompletion(form);
         });
-        setFormCompletion(completion);
+        return completion;
     }, [props.orderForms]);
-
-    // Run on mount and when orderForms data changes
-    React.useEffect(() => {
-        calculateFormCompletionStatus();
-    }, [calculateFormCompletionStatus]);
 
     // Get overall completion percentage (memoized)
     const overallCompletion = useMemo(() => {

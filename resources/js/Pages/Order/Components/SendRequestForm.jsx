@@ -30,7 +30,7 @@ import {
     CalendarMonth as CalendarIcon,
     Send as SendIcon,
 } from "@mui/icons-material";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { router } from "@inertiajs/react";
 
 /**
@@ -64,14 +64,17 @@ const SendRequestForm = ({ open, onClose, orders }) => {
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Reset state when dialog opens
-    useEffect(() => {
+    // Reset state when the dialog transitions to open. Adjusting during render
+    // (instead of in an effect) avoids the extra commit/cascading render.
+    const [prevOpen, setPrevOpen] = useState(open);
+    if (open !== prevOpen) {
+        setPrevOpen(open);
         if (open) {
             setPreferredDate(minDate());
             setErrors({});
             setIsSubmitting(false);
         }
-    }, [open]);
+    }
 
     // Handle form submission
     const send = (e) => {

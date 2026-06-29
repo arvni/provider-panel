@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { Link } from "@inertiajs/react";
 import {
     Box,
@@ -36,6 +36,15 @@ const LoginForm = ({ siteKey }) => {
             },
             route("login")
         );
+
+    const formChange = useCallback(
+        (key, value) =>
+            setData((previousData) => ({
+                ...previousData,
+                [key]: value,
+            })),
+        [setData]
+    );
 
     useEffect(() => {
         if (!siteKey) return;
@@ -88,13 +97,13 @@ const LoginForm = ({ siteKey }) => {
                 widgetIdRef.current = null;
             }
         };
-    }, [siteKey]);
+    }, [siteKey, formChange]);
 
     useEffect(() => {
         return () => {
             reset("password", "cf-turnstile-response");
         };
-    }, [processing]);
+    }, [processing, reset]);
 
     const resetTurnstile = () => {
         if (window.turnstile && widgetIdRef.current !== null) {
@@ -119,12 +128,6 @@ const LoginForm = ({ siteKey }) => {
     };
 
     const handleChange = (e) => formChange(e.target.name, e.target.value);
-    const formChange = (key, value) =>
-        setData((previousData) => ({
-            ...previousData,
-            [key]: value,
-        }));
-
     const handleRememberChange = (e, value) => formChange("remember", value);
 
     // Animation variants

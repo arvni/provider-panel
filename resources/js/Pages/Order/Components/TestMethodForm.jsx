@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
     Box,
     Button,
@@ -47,23 +47,27 @@ const TestMethodForm = (props) => {
     const [sortOrder, setSortOrder] = useState("name_asc");
     const [showFilters, setShowFilters] = useState(false);
     const [notification, setNotification] = useState({ open: false, message: "", type: "info" });
-    const [recentSearches, setRecentSearches] = useState([]);
-    const { getData, loading } = useGetData();
-
-    // Load initial tests
-    useEffect(() => {
-        handleTestSearch({});
-
-        // Load recent searches from localStorage
+    const [recentSearches, setRecentSearches] = useState(() => {
         const storedSearches = localStorage.getItem("recentTestSearches");
         if (storedSearches) {
             try {
-                setRecentSearches(JSON.parse(storedSearches));
+                return JSON.parse(storedSearches);
             } catch (e) {
                 console.error("Failed to parse stored searches", e);
             }
         }
-    }, []);
+        return [];
+    });
+    const { getData, loading } = useGetData();
+
+    // Show notification
+    const showNotification = (message, type = "info") => {
+        setNotification({
+            open: true,
+            message,
+            type,
+        });
+    };
 
     // Handle test search with sorting and filters
     const handleTestSearch = (values) => {
@@ -106,6 +110,13 @@ const TestMethodForm = (props) => {
                 return [];
             });
     };
+
+    // Load initial tests once on mount. Captured in a ref so the unstable
+    // handleTestSearch identity doesn't re-subscribe the effect each render.
+    const handleTestSearchRef = useRef(handleTestSearch);
+    useEffect(() => {
+        handleTestSearchRef.current({});
+    }, []);
 
     // Toggle test selection
     const toggleSelect = (id) => {
@@ -154,15 +165,6 @@ const TestMethodForm = (props) => {
     // Handle recent search saving
     const handleSaveSearch = (searches) => {
         setRecentSearches(searches);
-    };
-
-    // Show notification
-    const showNotification = (message, type = "info") => {
-        setNotification({
-            open: true,
-            message,
-            type,
-        });
     };
 
     // Close notification

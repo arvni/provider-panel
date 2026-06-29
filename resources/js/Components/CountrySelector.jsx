@@ -80,7 +80,7 @@ const StyledInput = styled(InputBase)(({ theme }) => ({
 
 const CountrySelector = ({ value, onChange }) => {
     const [anchorEl, setAnchorEl] = React.useState(null);
-    let pendingValue =
+    const pendingValue =
         countries.find((item) => {
             if (item.phone.length <= value.length) {
                 return new RegExp(`^${item.phone}.*`).test(value + "");
@@ -106,7 +106,6 @@ const CountrySelector = ({ value, onChange }) => {
         }
         let output = value.replace(pendingValue?.phone ?? "", newValue?.phone ?? "");
         onChange(output);
-        pendingValue = newValue;
         handleClose();
     };
     return (

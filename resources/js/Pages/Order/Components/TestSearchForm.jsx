@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import {
     Button,
     Divider,
@@ -50,22 +50,20 @@ const TestSearchForm = (props) => {
         }
     );
     const [showSuggestions, setShowSuggestions] = useState(false);
-    const [recentSearches, setRecentSearches] = useState(props.recentSearches || []);
-    const [expanded, setExpanded] = useState(false);
-    const debounceRef = useRef(null);
-
-    // Keep track of local storage for recent searches
-    useEffect(() => {
+    // Seed recent searches from localStorage (falling back to the prop) on mount.
+    const [recentSearches, setRecentSearches] = useState(() => {
         const storedSearches = localStorage.getItem("recentTestSearches");
         if (storedSearches) {
             try {
-                setRecentSearches(JSON.parse(storedSearches).slice(0, 5));
+                return JSON.parse(storedSearches).slice(0, 5);
             } catch {
-                // Handle parsing error
-                setRecentSearches([]);
+                return [];
             }
         }
-    }, []);
+        return props.recentSearches || [];
+    });
+    const [expanded, setExpanded] = useState(false);
+    const debounceRef = useRef(null);
 
     // Save recent searches
     const saveSearch = (searchTerm) => {

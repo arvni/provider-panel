@@ -106,7 +106,11 @@ export default function Authenticated({ auth: authProp, breadcrumbs, children, t
 
             // Show flash messages as notifications
             if (flash && flash.message) {
-                showNotification(flash.message, flash.type || "info");
+                setNotification({
+                    open: true,
+                    message: flash.message,
+                    severity: flash.type || "info",
+                });
             }
         };
 
@@ -148,11 +152,6 @@ export default function Authenticated({ auth: authProp, breadcrumbs, children, t
             if (prevMode === "light") return "dark";
             if (prevMode === "dark") return "light";
         });
-    };
-
-    // Show notification
-    const showNotification = (message, severity = "info") => {
-        setNotification({ open: true, message, severity });
     };
 
     // Scroll to top handler

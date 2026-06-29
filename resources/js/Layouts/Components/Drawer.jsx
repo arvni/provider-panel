@@ -142,8 +142,13 @@ const renderMenu = (item, index, permissions, handleVisit, currentPath, open) =>
 const Drawer = ({ toggleDrawer, auth, open, colorMode = "light" }) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-    const [_activeSection, setActiveSection] = useState("");
-    const [currentPath, setCurrentPath] = useState("");
+    // Initialise path/section from the current URL (lazy init reads the external
+    // location once on mount; the navigation listener below keeps it in sync).
+    const [_activeSection, setActiveSection] = useState(() => {
+        const currentRoute = routes.find((route) => route.route === window.location.pathname);
+        return currentRoute ? currentRoute.section || "Main" : "";
+    });
+    const [currentPath, setCurrentPath] = useState(() => window.location.pathname);
 
     // Group routes by section
     const routeSections = {};
@@ -154,19 +159,6 @@ const Drawer = ({ toggleDrawer, auth, open, colorMode = "light" }) => {
         }
         routeSections[section].push(route);
     });
-
-    // Get current path from window location
-    useEffect(() => {
-        // Extract path from the current URL
-        const path = window.location.pathname;
-        setCurrentPath(path);
-
-        // Find matching route to set active section
-        const currentRoute = routes.find((route) => route.route === path);
-        if (currentRoute) {
-            setActiveSection(currentRoute.section || "Main");
-        }
-    }, []);
 
     // Update current path when navigation occurs
     useEffect(() => {

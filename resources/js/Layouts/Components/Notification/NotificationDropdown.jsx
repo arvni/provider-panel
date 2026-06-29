@@ -24,7 +24,7 @@ import { useNotifications } from "./hooks/useNotifications";
 
 const NotificationDropdown = ({ anchorEl, open, onClose }) => {
     const [tabValue, setTabValue] = useState(0);
-    const [lastRefresh, setLastRefresh] = useState(Date.now());
+    const [lastRefresh, setLastRefresh] = useState(() => Date.now());
     const [refreshCountdown, setRefreshCountdown] = useState(60);
 
     const {

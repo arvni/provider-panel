@@ -140,7 +140,7 @@ const Filter = ({ columns, onChange, filter }) => {
             if (hasActiveFilter(col)) count++;
             return count;
         }, 0);
-    }, [filter]);
+    }, [filter, columns, hasActiveFilter]);
 
     // Create synthetic event and trigger onChange
     const triggerFilterChange = useCallback(

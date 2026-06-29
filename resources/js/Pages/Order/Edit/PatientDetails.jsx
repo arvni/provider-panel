@@ -59,7 +59,7 @@ const PatientDetails = ({ auth, order, step, genders }) => {
     // Update data when patients change
     React.useEffect(() => {
         setData({ patients, _method: "put" });
-    }, [patients]);
+    }, [patients, setData]);
 
     // Handle field changes for a specific patient
     const handleChange = (patientIndex, key, value) => {

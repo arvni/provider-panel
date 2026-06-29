@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { router, useForm } from "@inertiajs/react";
 import { Alert, Box, LinearProgress, Paper, Typography } from "@mui/material";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
@@ -21,17 +21,8 @@ const Add = (props) => {
     });
 
     // Local state for error handling
-    const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formSubmitted, setFormSubmitted] = useState(false);
-
-    // Update errors from props
-    useEffect(() => {
-        if (Object.keys(props.errors).length) {
-            setErrors(props.errors);
-            setIsSubmitting(false);
-        }
-    }, [props.errors]);
 
     /**
      * Handle form submission
@@ -109,7 +100,7 @@ const Add = (props) => {
                 </Typography>
 
                 {/* Error alert */}
-                {formSubmitted && Object.keys(errors).length > 0 && (
+                {formSubmitted && Object.keys(props.errors).length > 0 && (
                     <Alert severity="error" sx={{ mb: 3 }}>
                         Please correct the errors below before submitting.
                     </Alert>
@@ -118,7 +109,7 @@ const Add = (props) => {
                 {/* Form component */}
                 <Form
                     values={data}
-                    errors={errors}
+                    errors={props.errors}
                     setValues={setData}
                     submit={handleSubmit}
                     cancel={handleCancel}

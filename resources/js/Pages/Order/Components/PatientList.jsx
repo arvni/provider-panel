@@ -45,32 +45,8 @@ const PatientList = ({ open, onClose, onSelect }) => {
     const [selectedPatient, setSelectedPatient] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Fetch patients when dialog opens
-    useEffect(() => {
-        if (open) {
-            fetch();
-        }
-    }, [open]);
-
-    // Handle search input change
-    const handleSearchChange = (e) => {
-        setSearchTerm(e.target.value);
-    };
-
-    // Handle search submission
-    const handleSearch = (e) => {
-        e.preventDefault();
-        fetch(searchTerm);
-    };
-
-    // Clear search
-    const handleClearSearch = () => {
-        setSearchTerm("");
-        fetch("");
-    };
-
     // Fetch patients from API
-    const fetch = (search) => {
+    const fetchPatients = (search) => {
         setLoading(true);
         setSelectedPatient(null);
 
@@ -87,6 +63,32 @@ const PatientList = ({ open, onClose, onSelect }) => {
             .finally(() => {
                 setLoading(false);
             });
+    };
+
+    // Fetch patients when the dialog opens. The synchronous setLoading/reset in
+    // fetchPatients is the intended loading UI for this data-fetching effect.
+    useEffect(() => {
+        if (open) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            fetchPatients();
+        }
+    }, [open]);
+
+    // Handle search input change
+    const handleSearchChange = (e) => {
+        setSearchTerm(e.target.value);
+    };
+
+    // Handle search submission
+    const handleSearch = (e) => {
+        e.preventDefault();
+        fetchPatients(searchTerm);
+    };
+
+    // Clear search
+    const handleClearSearch = () => {
+        setSearchTerm("");
+        fetchPatients("");
     };
 
     // Handle row selection
