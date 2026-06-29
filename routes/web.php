@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\ConsentTermController;
 use App\Http\Controllers\Admin\EditUserTestsListController;
 use App\Http\Controllers\Admin\ExportExcelMaterialsController;
 use App\Http\Controllers\Admin\InstructionController;
+use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\OrderFormController;
 use App\Http\Controllers\Admin\OrderMaterialController as OrderMaterialAdminController;
 use App\Http\Controllers\Admin\PermissionController;
@@ -82,6 +83,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('sampleTypes', SampleTypeController::class);
         Route::resource('tests', TestController::class)->except('show');
         Route::resource('orderMaterials', OrderMaterialAdminController::class)->only(['show', 'index', 'destroy']);
+        Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
         Route::get('/materials', ExportExcelMaterialsController::class)->name('materials');
     });
     Route::get('patient-list', PatientListController::class)->name('api.patients.list');
