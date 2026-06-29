@@ -66,6 +66,12 @@ const routes = [
         icon: <ManageAccountsIcon/>,
         child: [
             {
+                title: "Orders",
+                route: route("admin.orders.index"),
+                permission: 'Admin.Order.Index',
+                icon: <AssignmentIcon/>,
+            },
+            {
                 title: "Order Materials",
                 route: route("admin.orderMaterials.index"),
                 permission: 'Admin.OrderMaterial.Index',

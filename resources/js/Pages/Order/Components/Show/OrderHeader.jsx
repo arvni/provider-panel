@@ -14,6 +14,7 @@ import {
     Print as PrintIcon,
     Assignment as AssignmentIcon,
     ContentCopy as ContentCopyIcon,
+    Description as ReportIcon,
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
 import { itemVariants } from "@/Pages/Order/Components/orderMotion";
@@ -32,6 +33,8 @@ const OrderHeader = ({ order }) => {
     const copyOrderId = () => {
         navigator.clipboard.writeText(order.id.toString());
     };
+
+    const reportReady = ["reported", "report downloaded"].includes(order.status);
 
     return (
         <Box
@@ -169,6 +172,26 @@ const OrderHeader = ({ order }) => {
                 >
                     Download Summary
                 </Button>
+
+                {reportReady && (
+                    <Button
+                        href={route("orders.report", order.id)}
+                        target="_blank"
+                        variant="contained"
+                        color="success"
+                        startIcon={<ReportIcon />}
+                        sx={{
+                            borderRadius: 1,
+                            textTransform: "none",
+                            boxShadow: "none",
+                            "&:hover": {
+                                boxShadow: theme.shadows[2],
+                            },
+                        }}
+                    >
+                        Download Report
+                    </Button>
+                )}
             </Stack>
         </Box>
     );
