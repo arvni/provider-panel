@@ -12,6 +12,13 @@ const TurnstileWidget = ({ siteKey, error, onToken, widgetRef }) => {
     const containerRef = useRef(null);
     const widgetIdRef = useRef(null);
 
+    // Keep the latest onToken without re-rendering the widget on every parent
+    // render (parents pass a fresh inline callback).
+    const onTokenRef = useRef(onToken);
+    useEffect(() => {
+        onTokenRef.current = onToken;
+    }, [onToken]);
+
     useEffect(() => {
         if (!siteKey) return;
 
@@ -25,9 +32,9 @@ const TurnstileWidget = ({ siteKey, error, onToken, widgetRef }) => {
             widgetIdRef.current = window.turnstile.render(containerRef.current, {
                 sitekey: siteKey,
                 theme: "light",
-                callback: (token) => onToken(token),
-                "expired-callback": () => onToken(""),
-                "error-callback": () => onToken(""),
+                callback: (token) => onTokenRef.current(token),
+                "expired-callback": () => onTokenRef.current(""),
+                "error-callback": () => onTokenRef.current(""),
             });
 
             if (widgetRef) {
@@ -35,7 +42,7 @@ const TurnstileWidget = ({ siteKey, error, onToken, widgetRef }) => {
                     if (window.turnstile && widgetIdRef.current !== null) {
                         window.turnstile.reset(widgetIdRef.current);
                     }
-                    onToken("");
+                    onTokenRef.current("");
                 };
             }
         };
@@ -69,7 +76,7 @@ const TurnstileWidget = ({ siteKey, error, onToken, widgetRef }) => {
         document.body.appendChild(script);
 
         return cleanup;
-    }, [siteKey]);
+    }, [siteKey, widgetRef]);
 
     if (!siteKey) return null;
 

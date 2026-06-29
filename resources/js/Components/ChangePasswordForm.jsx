@@ -18,7 +18,7 @@ const ChangePasswordForm = ({ open, onClose, user = undefined }) => {
         );
     useEffect(() => {
         reset();
-    }, []);
+    }, [reset]);
     const handleSubmit = (e) => {
         e.preventDefault();
         clearErrors();

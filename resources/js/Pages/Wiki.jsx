@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { Box, Chip, IconButton, Paper, Stack, Tooltip, Typography } from "@mui/material";
 import PageHeader from "@/Components/PageHeader";
 import TableLayout from "@/Layouts/TableLayout";
@@ -39,26 +39,32 @@ function Index({ tests: { data: testsData, ...pagination }, request }) {
     const [test, setTest] = useState();
     const [openShowForm, setOpenShowForm] = useState(false);
 
-    const handleShow = (id) => () => {
-        let testIndex = testsData.findIndex((item) => item.id === id);
-        if (testIndex >= 0) {
-            setTest(testsData[testIndex]);
-            setOpenShowForm(true);
-        }
-    };
+    const handleShow = useCallback(
+        (id) => () => {
+            let testIndex = testsData.findIndex((item) => item.id === id);
+            if (testIndex >= 0) {
+                setTest(testsData[testIndex]);
+                setOpenShowForm(true);
+            }
+        },
+        [testsData]
+    );
 
     const handleCloseShowForm = () => {
         setOpenShowForm(false);
         setTest(null);
     };
 
-    const createOrder = (id) => (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        router.visit(route("orders.create", { test: id }));
-    };
+    const createOrder = useCallback(
+        (id) => (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            router.visit(route("orders.create", { test: id }));
+        },
+        []
+    );
 
-    const formatTurnaroundTime = (days) => {
+    const formatTurnaroundTime = useCallback((days) => {
         if (!days && days !== 0) return "—";
 
         if (days > 30) {
@@ -83,7 +89,7 @@ function Index({ tests: { data: testsData, ...pagination }, request }) {
                 icon={<Timer fontSize="small" />}
             />
         );
-    };
+    }, []);
 
     const columns = useMemo(
         () => [
@@ -256,7 +262,7 @@ function Index({ tests: { data: testsData, ...pagination }, request }) {
                 ),
             },
         ],
-        [data?.filters]
+        [data?.filters, handleShow, createOrder, formatTurnaroundTime]
     );
 
     return (

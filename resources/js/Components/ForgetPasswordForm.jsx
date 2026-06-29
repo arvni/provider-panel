@@ -28,7 +28,7 @@ const ForgetPasswordForm = ({ siteKey }) => {
 
     useEffect(() => {
         if (wasSuccessful) reset();
-    }, [wasSuccessful]);
+    }, [wasSuccessful, reset]);
 
     const handleChange = (e) => formChange(e.target.name, e.target.value);
     const formChange = (key, value) =>

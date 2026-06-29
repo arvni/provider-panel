@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import ListItemButton from "@mui/material/ListItemButton";
@@ -36,27 +36,12 @@ const MenuItem = ({
                       ...props
                   }) => {
     const theme = useTheme();
-    const [open, setOpen] = useState(false);
-    const [hasActiveChild, setHasActiveChild] = useState(false);
-
-    // Check if this item or any children are active
-    useEffect(() => {
-        if (props.child) {
-            const anyChildActive = checkForActiveChild(props.child);
-            setHasActiveChild(anyChildActive);
-
-            // Auto-expand parent if a child is active
-            if (anyChildActive && !open) {
-                setOpen(true);
-            }
-        }
-    }, [active, props.child]);
 
     // Helper function to check if any child items are active
     const checkForActiveChild = (children) => {
         if (!children) return false;
 
-        return children.some(child => {
+        return children.some((child) => {
             if (child.route && window.location.pathname === child.route) {
                 return true;
             }
@@ -66,6 +51,17 @@ const MenuItem = ({
             return false;
         });
     };
+
+    // Derive whether a descendant route is active. Auto-expand this item on
+    // mount (initial state) and the first time a child becomes active during
+    // navigation (adjust-during-render), while still allowing manual collapse.
+    const hasActiveChild = props.child ? checkForActiveChild(props.child) : false;
+    const [open, setOpen] = useState(hasActiveChild);
+    const [prevHasActiveChild, setPrevHasActiveChild] = useState(hasActiveChild);
+    if (hasActiveChild !== prevHasActiveChild) {
+        setPrevHasActiveChild(hasActiveChild);
+        if (hasActiveChild) setOpen(true);
+    }
 
     // Handle click for this item
     const handleClick = (route) => (e) => {

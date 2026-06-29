@@ -5,7 +5,7 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import Autocomplete from "@mui/material/Autocomplete";
 import CircularProgress from "@mui/material/CircularProgress";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import FilterIcon from "@mui/icons-material/FilterAlt";
 import Button from "@mui/material/Button";
 
@@ -16,17 +16,20 @@ const Filter = ({ defaultFilter, onFilter }) => {
     const [search, setSearch] = useState("");
     const [loading, setLoading] = useState(false);
     const [filter, setFilter] = useState(defaultFilter);
-    useEffect(() => {
-        listPermissions();
-    }, [search]);
-
-    const handleSearch = (e) => setSearch(e?.target?.value ?? "");
-    const listPermissions = async () => {
+    const listPermissions = useCallback(async () => {
         setLoading(true);
         const { data } = await axios.get("/api/permissions/?search=" + search);
         setPermissions(data.data);
         setLoading(false);
-    };
+    }, [search]);
+    // Fetches permissions on mount and whenever `search` changes. The synchronous
+    // setLoading is the intended loading UI for this data-fetching effect.
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        listPermissions();
+    }, [listPermissions]);
+
+    const handleSearch = (e) => setSearch(e?.target?.value ?? "");
     const handleChange = (e) => {
         if (e.target.getAttribute("data-option-index")) {
             setFilter((prevState) => ({

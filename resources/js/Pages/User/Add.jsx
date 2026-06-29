@@ -1,7 +1,6 @@
 import UserForm from "@/Pages/User/Components/Form";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
-import { useEffect, useState } from "react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { router, useForm } from "@inertiajs/react";
 
@@ -29,17 +28,13 @@ const Add = (props) => {
             },
         },
     });
-    const [errors, setErrors] = useState({});
-    useEffect(() => {
-        if (Object.keys(props.errors).length) setErrors(props.errors);
-    }, [props.errors]);
     const handleSubmit = () => post(route("admin.users.store"));
     const handleCancel = () => router.visit(route("admin.users.index"));
     return (
         <>
             <UserForm
                 values={data}
-                errors={errors}
+                errors={props.errors}
                 setValues={setData}
                 loading={processing}
                 submit={handleSubmit}

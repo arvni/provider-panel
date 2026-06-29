@@ -35,7 +35,7 @@ export default function ResetPassword({ token, email, siteKey }) {
         return () => {
             reset("password", "password_confirmation", "cf-turnstile-response");
         };
-    }, []);
+    }, [reset]);
     const resetTurnstileRef = useRef(null);
     const handleSubmit = (e) => {
         e.preventDefault();

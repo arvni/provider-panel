@@ -30,9 +30,13 @@ const TwoFactorChallenge = ({ email, status }) => {
         route("two-factor.verify")
     );
 
-    useEffect(() => {
+    // Reflect the latest status flash; adjusting during render avoids the extra
+    // commit an effect would cause.
+    const [prevStatus, setPrevStatus] = useState(status);
+    if (status !== prevStatus) {
+        setPrevStatus(status);
         setShowStatus(Boolean(status));
-    }, [status]);
+    }
 
     // Countdown timer for the resend button.
     useEffect(() => {
