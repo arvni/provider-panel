@@ -10,6 +10,8 @@ use App\Models\Test;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 /**
@@ -23,12 +25,22 @@ class OrderControllerTest extends TestCase
     use RefreshDatabase;
 
     /**
-     * A role-less provider keeps the default self-service permissions, so this
-     * is the common acting user for the provider-facing order flow.
+     * A provider granted the provider role (which carries the provider-facing
+     * permissions). Role-less users now have no access, so the common acting
+     * user for the provider-facing order flow holds this role explicitly.
      */
     private function provider(): User
     {
-        return User::factory()->create();
+        $user = User::factory()->create();
+
+        $role = Role::findOrCreate('provider');
+        foreach (User::PROVIDER_PERMISSIONS as $permission) {
+            Permission::findOrCreate($permission);
+        }
+        $role->syncPermissions(User::PROVIDER_PERMISSIONS);
+        $user->assignRole($role);
+
+        return $user;
     }
 
     /**

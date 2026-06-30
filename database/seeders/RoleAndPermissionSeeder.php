@@ -133,6 +133,11 @@ class RoleAndPermissionSeeder extends Seeder
             }
         }
         $role->givePermissionTo(Permission::all()->pluck('id')->flatten()->toArray());
+
+        // Default provider role: bundles the provider-facing permissions so a new
+        // provider can be granted access in one step. Role-less users have no access.
+        $providerRole = Role::findOrCreate('provider');
+        $providerRole->givePermissionTo(\App\Models\User::PROVIDER_PERMISSIONS);
     }
 
     private function createPermissions($key, $value)

@@ -29,7 +29,7 @@ class OrderPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('Admin.Order.Create') || ($user->Roles()->count() == 0);
+        return $user->can('Admin.Order.Create') || $user->can('Order.Create');
     }
 
     /**

@@ -16,9 +16,10 @@ class User extends Authenticatable implements MustVerifyEmail
     use HasApiTokens, HasFactory, HasRoles, Notifiable, Searchable;
 
     /**
-     * Permissions granted by default to providers that have not been assigned
-     * any role. These gate the (non-admin) left-menu pages and their actions.
-     * Assigning a role to a user switches them to explicit permission checks.
+     * The canonical set of provider-facing permissions that gate the (non-admin)
+     * left-menu pages and their actions. Kept as the reference list used to seed
+     * the provider role; access is now granted purely by the permissions a user
+     * holds (via a role) — a user with no role has no access.
      *
      * @var array<int, string>
      */
@@ -106,33 +107,23 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Whether the user may access a provider-facing feature. Users without a
-     * role keep the default self-service access; users with a role must be
-     * granted the matching permission explicitly.
+     * Whether the user may access a provider-facing feature. Access is granted
+     * solely by the permissions the user holds (through an assigned role); a user
+     * without a role — and therefore without permissions — has no access.
      */
     public function hasAccess(string $permission): bool
     {
-        if ($this->roles()->count() === 0) {
-            return in_array($permission, self::PROVIDER_PERMISSIONS, true);
-        }
-
         return $this->can($permission);
     }
 
     /**
      * The effective permission names used to drive menu/UI visibility on the
-     * front-end: real permissions plus the provider defaults for role-less users.
+     * front-end: the real permissions the user holds via their assigned roles.
      *
      * @return Collection<int, string>
      */
     public function effectivePermissions()
     {
-        $permissions = $this->getAllPermissions()->pluck('name');
-
-        if ($this->roles()->count() === 0) {
-            $permissions = $permissions->merge(self::PROVIDER_PERMISSIONS)->unique()->values();
-        }
-
-        return $permissions;
+        return $this->getAllPermissions()->pluck('name');
     }
 }
