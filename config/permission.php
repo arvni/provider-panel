@@ -114,6 +114,14 @@ return [
     'register_octane_reset_listener' => false,
 
     /*
+     * When set to true, the package fires RoleAttached/RoleDetached and
+     * PermissionAttached/PermissionDetached events. We listen for these to flush
+     * the permission cache when a user is granted a role or a role is granted a
+     * permission (see App\Listeners\FlushPermissionCache).
+     */
+    'events_enabled' => true,
+
+    /*
      * Teams Feature.
      * When set to true the package implements teams using the 'team_foreign_key'.
      * If you want the migrations to register the 'team_foreign_key', you must

@@ -9,9 +9,9 @@ use Symfony\Component\HttpFoundation\Response;
 class ProviderAccess
 {
     /**
-     * Gate a provider-facing route behind a permission. Users without a role
-     * keep the default self-service access (see User::PROVIDER_PERMISSIONS);
-     * users with a role must hold the given permission explicitly.
+     * Gate a provider-facing route behind a permission. Access requires the user
+     * to hold the given permission (granted through an assigned role); a user
+     * without a role has no access.
      *
      * Usage: ->middleware('providerAccess:Order.Index')
      */
