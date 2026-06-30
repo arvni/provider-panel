@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Role;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 
@@ -136,8 +137,8 @@ class RoleAndPermissionSeeder extends Seeder
 
         // Default provider role: bundles the provider-facing permissions so a new
         // provider can be granted access in one step. Role-less users have no access.
-        $providerRole = Role::findOrCreate(\App\Models\User::PROVIDER_ROLE);
-        $providerRole->givePermissionTo(\App\Models\User::PROVIDER_PERMISSIONS);
+        $providerRole = Role::findOrCreate(User::PROVIDER_ROLE);
+        $providerRole->givePermissionTo(User::PROVIDER_PERMISSIONS);
     }
 
     private function createPermissions($key, $value)
