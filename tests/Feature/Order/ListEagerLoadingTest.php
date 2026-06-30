@@ -39,7 +39,7 @@ class ListEagerLoadingTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $role = Role::findOrCreate('provider');
+        $role = Role::findOrCreate(User::PROVIDER_ROLE);
         foreach (User::PROVIDER_PERMISSIONS as $permission) {
             Permission::findOrCreate($permission);
         }

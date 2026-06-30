@@ -16,6 +16,13 @@ class User extends Authenticatable implements MustVerifyEmail
     use HasApiTokens, HasFactory, HasRoles, Notifiable, Searchable;
 
     /**
+     * The default role granted to providers synced from the LIS server. It
+     * bundles the provider-facing permissions (see PROVIDER_PERMISSIONS) and is
+     * seeded by RoleAndPermissionSeeder.
+     */
+    public const PROVIDER_ROLE = 'provider';
+
+    /**
      * The canonical set of provider-facing permissions that gate the (non-admin)
      * left-menu pages and their actions. Kept as the reference list used to seed
      * the provider role; access is now granted purely by the permissions a user

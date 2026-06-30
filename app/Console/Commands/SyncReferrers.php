@@ -67,6 +67,10 @@ class SyncReferrers extends Command
                         'mobile' => $referrer['phoneNo'],
                         'active' => $referrer['isActive'],
                     ]);
+
+                    // Newly synced providers get the default provider role so they
+                    // have provider-facing access (role-less users have none).
+                    $user->assignRole(User::PROVIDER_ROLE);
                 }
             }
         }
