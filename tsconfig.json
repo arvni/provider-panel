@@ -1,0 +1,34 @@
+{
+    "compilerOptions": {
+        "target": "ES2022",
+        "useDefineForClassFields": true,
+        "lib": ["ES2022", "DOM", "DOM.Iterable"],
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "jsx": "react-jsx",
+        "skipLibCheck": true,
+
+        /* Incremental adoption: type-check .ts/.tsx files now; leave the existing
+           .js/.jsx tree untouched (allowJs so TS can resolve imports into it, but
+           checkJs off so legacy JS isn't type-checked yet). Convert files to .ts
+           one at a time — see IMPROVEMENT_PLAN.md item 11. */
+        "allowJs": true,
+        "checkJs": false,
+
+        "strict": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noFallthroughCasesInSwitch": true,
+        "esModuleInterop": true,
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        "noEmit": true,
+
+        "paths": {
+            "@/*": ["./resources/js/*"],
+            "ziggy-js": ["./vendor/tightenco/ziggy"]
+        }
+    },
+    "include": ["resources/js"],
+    "exclude": ["node_modules", "public", "bootstrap/ssr"]
+}

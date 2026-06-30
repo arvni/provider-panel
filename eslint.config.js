@@ -3,14 +3,25 @@ import globals from 'globals';
 import react from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
 import prettier from 'eslint-config-prettier';
+import tseslint from 'typescript-eslint';
 
 export default [
     {
         ignores: ['public/build/**', 'vendor/**', 'node_modules/**', 'bootstrap/ssr/**'],
     },
     js.configs.recommended,
+    // Swap in the TypeScript parser for the incrementally migrated .ts/.tsx files
+    // (see IMPROVEMENT_PLAN.md item 11) so ESLint can read type annotations. The
+    // shared rule block below applies to JS and TS alike; `tsc --noEmit`
+    // (npm run typecheck) does the actual type checking.
     {
-        files: ['resources/js/**/*.{js,jsx}'],
+        files: ['resources/js/**/*.{ts,tsx}'],
+        languageOptions: {
+            parser: tseslint.parser,
+        },
+    },
+    {
+        files: ['resources/js/**/*.{js,jsx,ts,tsx}'],
         languageOptions: {
             ecmaVersion: 2022,
             sourceType: 'module',
@@ -54,6 +65,15 @@ export default [
             'react-hooks/static-components': 'warn',
             'react-hooks/purity': 'warn',
             'react-hooks/rules-of-hooks': 'warn',
+        },
+    },
+    // TS-only rule overrides (applied after the shared block). The base
+    // no-unused-vars misfires on type-only references; tsconfig's
+    // noUnusedLocals/noUnusedParameters covers unused detection for TS instead.
+    {
+        files: ['resources/js/**/*.{ts,tsx}'],
+        rules: {
+            'no-unused-vars': 'off',
         },
     },
     prettier,

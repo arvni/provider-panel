@@ -47,6 +47,9 @@ jobs:
       - name: Lint JS (ESLint)
         run: npm run lint
 
+      - name: Type-check (tsc)
+        run: npm run typecheck
+
       - name: Frontend unit tests (Vitest)
         run: npm test
 
