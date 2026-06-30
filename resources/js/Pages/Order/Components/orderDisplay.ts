@@ -4,17 +4,33 @@
  * These were previously duplicated verbatim inside the two 1800–2000 line page
  * components. Extracting them keeps a single source of truth and makes the
  * logic unit-testable independent of MUI rendering.
+ *
+ * This is the project's first TypeScript module — the seed for the incremental
+ * migration described in IMPROVEMENT_PLAN.md item 11.
  */
+
+export interface ConsentItem {
+    [key: string]: unknown;
+}
+
+export interface ProcessedConsents {
+    restConsents: ConsentItem[];
+    consentForm: unknown[] | null;
+}
+
+/** The shape `consents` arrives in when keyed by id rather than a plain array. */
+type ConsentMap = Record<string, ConsentItem> & {
+    consentForm?: unknown[] | null;
+};
 
 /**
  * Normalize the order `consents` payload, which arrives either as a plain array
  * of consent items, or as an object keyed by consent id plus a `consentForm`
  * entry holding uploaded form file paths.
- *
- * @param {Array|Object|null|undefined} consents
- * @returns {{ restConsents: Array, consentForm: Array|null }}
  */
-export function processConsentData(consents) {
+export function processConsentData(
+    consents: ConsentItem[] | ConsentMap | null | undefined,
+): ProcessedConsents {
     if (!consents) return { restConsents: [], consentForm: null };
 
     if (Array.isArray(consents)) {
@@ -24,8 +40,8 @@ export function processConsentData(consents) {
     const consentForm = consents.consentForm ?? null;
     const restConsents = Object.keys(consents)
         .filter((key) => key !== "consentForm")
-        .map((key) => consents?.[key])
-        .filter(Boolean);
+        .map((key) => consents[key])
+        .filter((item): item is ConsentItem => Boolean(item));
 
     return { restConsents, consentForm };
 }
@@ -35,7 +51,7 @@ export function processConsentData(consents) {
  * Returns "Not specified" for empty values, and echoes the raw string if it
  * cannot be parsed.
  */
-export function formatShortDate(dateString) {
+export function formatShortDate(dateString: string | null | undefined): string {
     if (!dateString) return "Not specified";
 
     try {
@@ -54,7 +70,7 @@ export function formatShortDate(dateString) {
  * Returns "Not specified" for empty values, and echoes the raw string if it
  * cannot be parsed.
  */
-export function formatLongDate(dateString) {
+export function formatLongDate(dateString: string | null | undefined): string {
     if (!dateString) return "Not specified";
 
     try {
