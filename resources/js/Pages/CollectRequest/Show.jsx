@@ -59,6 +59,7 @@ import {
 } from "@mui/icons-material";
 import { useForm, router } from "@inertiajs/react";
 import Form from "./Components/Form";
+import LogisticsTracking from "./Components/LogisticsTracking";
 import DeleteButton from "@/Components/DeleteButton.jsx";
 import TabContext from "@mui/lab/TabContext";
 import TabList from "@mui/lab/TabList";
@@ -491,6 +492,14 @@ const Show = ({ collectRequest }) => {
                                     </Card>
                                 </Grid>
                             </Grid>
+
+                            {/* Courier tracking reported back by the webhook. The
+                                cards above cover the dates an admin sets by hand;
+                                these are the values recorded during the pickup. */}
+                            <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
+                                Collection Tracking
+                            </Typography>
+                            <LogisticsTracking details={collectRequest.details || {}} />
                         </Box>
                     </TabPanel>
 
