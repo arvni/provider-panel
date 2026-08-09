@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import {
     Box,
     Button,
     Chip,
+    Divider,
     Grid,
     Paper,
     Stack,
@@ -12,6 +13,8 @@ import {
     Card,
     CardContent,
     useTheme,
+    useMediaQuery,
+    alpha,
     Accordion,
     AccordionSummary,
     AccordionDetails,
@@ -32,21 +35,29 @@ import {
     Timeline,
     ExpandMore,
     Info,
+    AcUnit,
+    Whatshot,
+    TrendingUp,
+    TrendingDown,
+    Straighten,
+    HourglassBottom,
+    FlagCircle,
+    PlayCircle,
+    MyLocation,
 } from "@mui/icons-material";
 import { router } from "@inertiajs/react";
 import PageHeader from "@/Components/PageHeader";
 import {
-    Line,
+    Area,
     XAxis,
     YAxis,
     CartesianGrid,
     Tooltip,
-    Legend,
     ResponsiveContainer,
     ReferenceLine,
     ComposedChart,
 } from "recharts";
-import { MapContainer, TileLayer, Marker, Popup, Polyline } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
@@ -80,103 +91,313 @@ const endIcon = new L.Icon({
 });
 
 /**
+ * Coerce a value that may arrive as a string or a number into a finite number.
+ * The webhook sends coordinates and temperatures inconsistently typed.
+ */
+const toNumber = (value) => {
+    const parsed = typeof value === "number" ? value : parseFloat(value);
+    return Number.isFinite(parsed) ? parsed : null;
+};
+
+/**
+ * Turn a location payload into a [lat, lng] pair, or null when unusable.
+ */
+const toLatLng = (location) => {
+    if (!location) return null;
+    const lat = toNumber(location.latitude);
+    const lng = toNumber(location.longitude);
+    return lat === null || lng === null ? null : [lat, lng];
+};
+
+/**
+ * Great-circle distance between two [lat, lng] pairs, in metres.
+ */
+const haversineMeters = ([lat1, lng1], [lat2, lng2]) => {
+    const R = 6371000;
+    const toRad = (deg) => (deg * Math.PI) / 180;
+    const dLat = toRad(lat2 - lat1);
+    const dLng = toRad(lng2 - lng1);
+    const a =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(a));
+};
+
+const formatDistance = (meters) =>
+    meters >= 1000 ? `${(meters / 1000).toFixed(2)} km` : `${Math.round(meters)} m`;
+
+const formatAccuracy = (accuracy) => {
+    const value = toNumber(accuracy);
+    return value === null ? null : `±${value.toFixed(1)} m`;
+};
+
+/**
+ * Human duration between two timestamps, e.g. "1h 12m" or "27m 46s".
+ */
+const formatDuration = (from, to) => {
+    if (!from || !to) return null;
+    const ms = new Date(to).getTime() - new Date(from).getTime();
+    if (!Number.isFinite(ms) || ms < 0) return null;
+    const totalSeconds = Math.floor(ms / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    if (hours > 0) return `${hours}h ${minutes}m`;
+    if (minutes > 0) return `${minutes}m ${seconds}s`;
+    return `${seconds}s`;
+};
+
+const formatDate = (dateString) => {
+    if (!dateString) return "Not specified";
+    const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) return dateString;
+    return date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+};
+
+const formatDateTime = (dateString) => {
+    if (!dateString) return "Not specified";
+    const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) return dateString;
+    return date.toLocaleString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+    });
+};
+
+const formatTime = (dateString) => {
+    if (!dateString) return null;
+    const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) return null;
+    return date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+};
+
+const getStatusColor = (status) => {
+    switch (status?.toLowerCase()) {
+        case "requested":
+        case "pending":
+        case "waiting_for_assign":
+            return "warning";
+        case "scheduled":
+        case "sample_collector_on_the_way":
+            return "info";
+        case "picked_up":
+        case "picked up":
+            return "primary";
+        case "received":
+            return "success";
+        case "cancelled":
+            return "error";
+        default:
+            return "default";
+    }
+};
+
+const getStatusLabel = (status) => {
+    const labelMap = {
+        requested: "Requested",
+        pending: "Pending",
+        waiting_for_assign: "Waiting for Assignment",
+        scheduled: "Scheduled",
+        sample_collector_on_the_way: "Collector On The Way",
+        picked_up: "Picked Up",
+        received: "Received",
+        cancelled: "Cancelled",
+    };
+    return labelMap[status?.toLowerCase()] || status;
+};
+
+/**
+ * Compact labelled metric used across the summary and temperature panels.
+ */
+const StatTile = ({ icon, label, value, caption, color = "text.primary" }) => (
+    <Stack spacing={0.5}>
+        <Stack direction="row" spacing={0.75} alignItems="center">
+            {icon}
+            <Typography
+                variant="caption"
+                color="text.secondary"
+                fontWeight={700}
+                letterSpacing={0.6}
+            >
+                {label}
+            </Typography>
+        </Stack>
+        <Typography variant="h6" fontWeight={700} color={color} lineHeight={1.3}>
+            {value}
+        </Typography>
+        {caption && (
+            <Typography variant="caption" color="text.secondary">
+                {caption}
+            </Typography>
+        )}
+    </Stack>
+);
+
+/**
+ * Keeps the map framed around every point we have instead of a fixed zoom.
+ */
+const FitBounds = ({ points }) => {
+    const map = useMap();
+
+    useEffect(() => {
+        if (!points.length) return;
+        if (points.length === 1) {
+            map.setView(points[0], 16);
+            return;
+        }
+        map.fitBounds(L.latLngBounds(points), { padding: [56, 56], maxZoom: 17 });
+    }, [map, points]);
+
+    return null;
+};
+
+/**
+ * Popup body shared by the start and end markers.
+ */
+const LocationPopup = ({ title, color, location }) => (
+    <Box sx={{ minWidth: 190 }}>
+        <Typography variant="subtitle2" fontWeight={700} color={color}>
+            {title}
+        </Typography>
+        {location.timestamp && (
+            <Typography variant="body2" sx={{ mb: 0.5 }}>
+                {formatDateTime(location.timestamp)}
+            </Typography>
+        )}
+        <Typography variant="body2" sx={{ fontFamily: "monospace" }}>
+            {toNumber(location.latitude)?.toFixed(6)}, {toNumber(location.longitude)?.toFixed(6)}
+        </Typography>
+        {formatAccuracy(location.accuracy) && (
+            <Typography variant="caption" color="text.secondary">
+                Accuracy {formatAccuracy(location.accuracy)}
+            </Typography>
+        )}
+    </Box>
+);
+
+/**
  * User CollectRequest Show component
  * Displays detailed information about a collection request (read-only for users)
  */
 const UserShow = ({ collectRequest }) => {
     const theme = useTheme();
+    const isSmall = useMediaQuery(theme.breakpoints.down("sm"));
     const [expanded, setExpanded] = useState(["details", "tracking", "orders"]);
 
-    /**
-     * Handle accordion change
-     */
     const handleAccordionChange = (panel) => (event, isExpanded) => {
         setExpanded((prev) => (isExpanded ? [...prev, panel] : prev.filter((p) => p !== panel)));
     };
 
-    /**
-     * Handle back navigation
-     */
     const handleBack = () => {
         router.get(route("collectRequests.index"));
     };
 
-    /**
-     * Format date string
-     */
-    const formatDate = (dateString) => {
-        if (!dateString) return "Not specified";
-        try {
-            return new Date(dateString).toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-            });
-        } catch {
-            return dateString || "Not specified";
-        }
-    };
-
-    /**
-     * Format date and time string
-     */
-    const formatDateTime = (dateString) => {
-        if (!dateString) return "Not specified";
-        try {
-            return new Date(dateString).toLocaleString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-            });
-        } catch {
-            return dateString || "Not specified";
-        }
-    };
-
-    /**
-     * Get status chip color based on status
-     */
-    const getStatusColor = (status) => {
-        switch (status?.toLowerCase()) {
-            case "requested":
-                return "warning";
-            case "scheduled":
-                return "info";
-            case "picked_up":
-            case "picked up":
-                return "primary";
-            case "received":
-                return "success";
-            case "cancelled":
-                return "error";
-            default:
-                return "default";
-        }
-    };
-
-    /**
-     * Get status label
-     */
-    const getStatusLabel = (status) => {
-        const labelMap = {
-            requested: "Requested",
-            scheduled: "Scheduled",
-            picked_up: "Picked Up",
-            received: "Received",
-            cancelled: "Cancelled",
-        };
-        return labelMap[status?.toLowerCase()] || status;
-    };
-
     const details = collectRequest.details || {};
+    const collector = details.sample_collector;
+
+    // The payload carries both a singular `barcode` and a `barcodes` list; the
+    // singular one is often the only value present, so merge and de-duplicate.
+    const barcodes = useMemo(() => {
+        const list = [...(details.barcodes || []), details.barcode];
+        return [...new Set(list.filter(Boolean).map(String))];
+    }, [details.barcodes, details.barcode]);
+
+    const startPoint = useMemo(
+        () => toLatLng(details.starting_location),
+        [details.starting_location]
+    );
+    const endPoint = useMemo(() => toLatLng(details.ending_location), [details.ending_location]);
+    const mapPoints = useMemo(() => [startPoint, endPoint].filter(Boolean), [startPoint, endPoint]);
+
+    const distance = startPoint && endPoint ? haversineMeters(startPoint, endPoint) : null;
+    const duration = formatDuration(details.started_at, details.ended_at);
+
+    /**
+     * Chart series plus the statistics shown above it. The Y domain is derived
+     * from the readings themselves so a narrow temperature band stays readable.
+     */
+    const temperature = useMemo(() => {
+        const logs = (details.temperature_logs || [])
+            .map((log) => ({ value: toNumber(log.value), timestamp: log.timestamp }))
+            .filter((log) => log.value !== null)
+            .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+        if (!logs.length) return null;
+
+        const days = new Set(logs.map((log) => new Date(log.timestamp).toDateString()));
+        const singleDay = days.size <= 1;
+
+        const series = logs.map((log) => {
+            const date = new Date(log.timestamp);
+            return {
+                label: singleDay
+                    ? date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })
+                    : date.toLocaleString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                      }),
+                temperature: log.value,
+                timestamp: log.timestamp,
+            };
+        });
+
+        const values = series.map((point) => point.temperature);
+        const min = Math.min(...values);
+        const max = Math.max(...values);
+        const average = values.reduce((sum, value) => sum + value, 0) / values.length;
+        // Pad a nearly flat run so the curve never hugs the top or bottom edge.
+        const pad = Math.max(max - min, 0.2) * 0.3;
+
+        const first = values[0];
+        const last = values[values.length - 1];
+
+        return {
+            series,
+            min,
+            max,
+            average,
+            first,
+            last,
+            drift: last - first,
+            minIndex: values.indexOf(min),
+            maxIndex: values.indexOf(max),
+            from: logs[0].timestamp,
+            to: logs[logs.length - 1].timestamp,
+            monitoredFor: formatDuration(logs[0].timestamp, logs[logs.length - 1].timestamp),
+            domain: [Number((min - pad).toFixed(2)), Number((max + pad).toFixed(2))],
+            tickInterval: Math.max(0, Math.ceil(series.length / (isSmall ? 4 : 9)) - 1),
+        };
+    }, [details.temperature_logs, isSmall]);
+
+    const hasTracking = Boolean(
+        barcodes.length || startPoint || endPoint || temperature || details.started_at
+    );
+
+    const mapsHref = useMemo(() => {
+        if (startPoint && endPoint) {
+            return `https://www.openstreetmap.org/directions?engine=fossgis_osrm_car&route=${startPoint[0]}%2C${startPoint[1]}%3B${endPoint[0]}%2C${endPoint[1]}`;
+        }
+        const single = startPoint || endPoint;
+        if (!single) return null;
+        return `https://www.openstreetmap.org/?mlat=${single[0]}&mlon=${single[1]}#map=16/${single[0]}/${single[1]}`;
+    }, [startPoint, endPoint]);
 
     return (
         <AuthenticatedLayout>
             <PageHeader
                 title={
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    <Stack
+                        direction="row"
+                        spacing={2}
+                        alignItems="center"
+                        useFlexGap
+                        flexWrap="wrap"
+                    >
                         <Typography variant="h5" component="span">
                             Collection Request #{collectRequest.id}
                         </Typography>
@@ -184,12 +405,31 @@ const UserShow = ({ collectRequest }) => {
                             label={getStatusLabel(collectRequest.status)}
                             color={getStatusColor(collectRequest.status)}
                             size="medium"
-                            sx={{
-                                fontWeight: 600,
-                                textTransform: "capitalize",
-                            }}
+                            sx={{ fontWeight: 600, textTransform: "capitalize" }}
                         />
-                    </Box>
+                        {barcodes.length === 1 && (
+                            <Chip
+                                icon={<QrCode />}
+                                label={barcodes[0]}
+                                variant="outlined"
+                                size="medium"
+                                sx={{ fontFamily: "monospace", fontWeight: 600 }}
+                            />
+                        )}
+                        {collector?.name && (
+                            <Chip
+                                avatar={
+                                    <Avatar sx={{ textTransform: "uppercase" }}>
+                                        {collector.name.charAt(0)}
+                                    </Avatar>
+                                }
+                                label={collector.name}
+                                variant="outlined"
+                                size="medium"
+                                sx={{ textTransform: "capitalize" }}
+                            />
+                        )}
+                    </Stack>
                 }
                 action={
                     <Button variant="outlined" startIcon={<ArrowBack />} onClick={handleBack}>
@@ -235,132 +475,108 @@ const UserShow = ({ collectRequest }) => {
                                         <CardContent>
                                             <Grid container spacing={3}>
                                                 <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                                                    <Stack spacing={0.5}>
-                                                        <Stack
-                                                            direction="row"
-                                                            spacing={1}
-                                                            alignItems="center"
-                                                        >
+                                                    <StatTile
+                                                        icon={
                                                             <Event
                                                                 color="primary"
                                                                 fontSize="small"
                                                             />
-                                                            <Typography
-                                                                variant="caption"
-                                                                color="text.secondary"
-                                                                fontWeight={600}
-                                                            >
-                                                                PREFERRED DATE
-                                                            </Typography>
-                                                        </Stack>
-                                                        <Typography
-                                                            variant="body1"
-                                                            fontWeight={600}
-                                                        >
-                                                            {formatDate(
-                                                                collectRequest.preferred_date
-                                                            )}
-                                                        </Typography>
-                                                    </Stack>
+                                                        }
+                                                        label="PREFERRED DATE"
+                                                        value={formatDate(
+                                                            collectRequest.preferred_date
+                                                        )}
+                                                    />
                                                 </Grid>
-
-                                                {details.started_at && (
-                                                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                                                        <Stack spacing={0.5}>
-                                                            <Stack
-                                                                direction="row"
-                                                                spacing={1}
-                                                                alignItems="center"
-                                                            >
-                                                                <LocalShipping
-                                                                    color="success"
-                                                                    fontSize="small"
-                                                                />
-                                                                <Typography
-                                                                    variant="caption"
-                                                                    color="text.secondary"
-                                                                    fontWeight={600}
-                                                                >
-                                                                    ACTUAL PICKUP
-                                                                </Typography>
-                                                            </Stack>
-                                                            <Typography
-                                                                variant="body1"
-                                                                fontWeight={600}
-                                                                color="success.main"
-                                                            >
-                                                                {formatDateTime(details.started_at)}
-                                                            </Typography>
-                                                        </Stack>
-                                                    </Grid>
-                                                )}
 
                                                 {(details.collection_date ||
                                                     details.collection_time) && (
                                                     <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                                                        <Stack spacing={0.5}>
-                                                            <Stack
-                                                                direction="row"
-                                                                spacing={1}
-                                                                alignItems="center"
-                                                            >
+                                                        <StatTile
+                                                            icon={
                                                                 <Schedule
                                                                     color="primary"
                                                                     fontSize="small"
                                                                 />
-                                                                <Typography
-                                                                    variant="caption"
-                                                                    color="text.secondary"
-                                                                    fontWeight={600}
+                                                            }
+                                                            label="SCHEDULED"
+                                                            value={`${
+                                                                details.collection_date
+                                                                    ? formatDate(
+                                                                          details.collection_date
+                                                                      )
+                                                                    : ""
+                                                            }${
+                                                                details.collection_time
+                                                                    ? ` at ${details.collection_time}`
+                                                                    : ""
+                                                            }`}
+                                                        />
+                                                    </Grid>
+                                                )}
+
+                                                {details.started_at && (
+                                                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                                                        <StatTile
+                                                            icon={
+                                                                <LocalShipping
+                                                                    color="success"
+                                                                    fontSize="small"
+                                                                />
+                                                            }
+                                                            label="ACTUAL PICKUP"
+                                                            value={formatDateTime(
+                                                                details.started_at
+                                                            )}
+                                                            caption={
+                                                                duration
+                                                                    ? `Completed in ${duration}`
+                                                                    : undefined
+                                                            }
+                                                            color="success.main"
+                                                        />
+                                                    </Grid>
+                                                )}
+
+                                                {collector?.name && (
+                                                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                                                        <StatTile
+                                                            icon={
+                                                                <Person
+                                                                    color="primary"
+                                                                    fontSize="small"
+                                                                />
+                                                            }
+                                                            label="SAMPLE COLLECTOR"
+                                                            value={
+                                                                <Box
+                                                                    component="span"
+                                                                    sx={{
+                                                                        textTransform: "capitalize",
+                                                                    }}
                                                                 >
-                                                                    SCHEDULED
-                                                                </Typography>
-                                                            </Stack>
-                                                            <Typography
-                                                                variant="body1"
-                                                                fontWeight={600}
-                                                            >
-                                                                {details.collection_date &&
-                                                                    formatDate(
-                                                                        details.collection_date
-                                                                    )}
-                                                                {details.collection_time &&
-                                                                    ` at ${details.collection_time}`}
-                                                            </Typography>
-                                                        </Stack>
+                                                                    {collector.name}
+                                                                </Box>
+                                                            }
+                                                        />
                                                     </Grid>
                                                 )}
 
                                                 <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                                                    <Stack spacing={0.5}>
-                                                        <Stack
-                                                            direction="row"
-                                                            spacing={1}
-                                                            alignItems="center"
-                                                        >
+                                                    <StatTile
+                                                        icon={
                                                             <Receipt
                                                                 color="primary"
                                                                 fontSize="small"
                                                             />
-                                                            <Typography
-                                                                variant="caption"
-                                                                color="text.secondary"
-                                                                fontWeight={600}
-                                                            >
-                                                                TOTAL ORDERS
-                                                            </Typography>
-                                                        </Stack>
-                                                        <Typography
-                                                            variant="body1"
-                                                            fontWeight={600}
-                                                        >
-                                                            {collectRequest.orders?.length || 0}{" "}
-                                                            Order
-                                                            {collectRequest.orders?.length !== 1
+                                                        }
+                                                        label="TOTAL ORDERS"
+                                                        value={`${collectRequest.orders?.length || 0} Order${
+                                                            collectRequest.orders?.length !== 1
                                                                 ? "s"
-                                                                : ""}
-                                                        </Typography>
-                                                    </Stack>
+                                                                : ""
+                                                        }`}
+                                                    />
                                                 </Grid>
                                             </Grid>
                                         </CardContent>
@@ -497,25 +713,159 @@ const UserShow = ({ collectRequest }) => {
                             "&:hover": { bgcolor: "success.light" },
                         }}
                     >
-                        <Stack direction="row" spacing={2} alignItems="center">
+                        <Stack
+                            direction="row"
+                            spacing={2}
+                            alignItems="center"
+                            useFlexGap
+                            flexWrap="wrap"
+                        >
                             <Timeline color="success" />
                             <Typography variant="h6" fontWeight={600}>
                                 Logistics Tracking
                             </Typography>
+                            {temperature && (
+                                <Chip
+                                    size="small"
+                                    variant="outlined"
+                                    icon={<AcUnit />}
+                                    label={`${temperature.min.toFixed(2)}°C – ${temperature.max.toFixed(2)}°C`}
+                                    sx={{ fontWeight: 600 }}
+                                />
+                            )}
                         </Stack>
                     </AccordionSummary>
                     <AccordionDetails sx={{ p: 0 }}>
                         <Box sx={{ p: 3 }}>
                             <Grid container spacing={3}>
+                                {/* Journey timeline: start -> end with duration and distance */}
+                                {(details.started_at || details.ended_at) && (
+                                    <Grid size={12}>
+                                        <Card variant="outlined">
+                                            <CardContent>
+                                                <Stack
+                                                    direction={{ xs: "column", md: "row" }}
+                                                    spacing={2}
+                                                    alignItems={{ xs: "stretch", md: "center" }}
+                                                    divider={
+                                                        <Divider
+                                                            orientation={
+                                                                isSmall ? "horizontal" : "vertical"
+                                                            }
+                                                            flexItem
+                                                        />
+                                                    }
+                                                >
+                                                    <Stack
+                                                        direction="row"
+                                                        spacing={1.5}
+                                                        alignItems="center"
+                                                        sx={{ flex: 1 }}
+                                                    >
+                                                        <PlayCircle color="success" />
+                                                        <Box>
+                                                            <Typography
+                                                                variant="caption"
+                                                                color="text.secondary"
+                                                                fontWeight={700}
+                                                            >
+                                                                PICKED UP
+                                                            </Typography>
+                                                            <Typography
+                                                                variant="body1"
+                                                                fontWeight={600}
+                                                            >
+                                                                {formatDateTime(details.started_at)}
+                                                            </Typography>
+                                                        </Box>
+                                                    </Stack>
+
+                                                    <Stack
+                                                        spacing={0.5}
+                                                        alignItems="center"
+                                                        sx={{ flex: 1 }}
+                                                    >
+                                                        <Stack
+                                                            direction="row"
+                                                            spacing={2}
+                                                            alignItems="center"
+                                                            useFlexGap
+                                                            flexWrap="wrap"
+                                                            justifyContent="center"
+                                                        >
+                                                            {duration && (
+                                                                <Chip
+                                                                    size="small"
+                                                                    icon={<HourglassBottom />}
+                                                                    label={duration}
+                                                                    variant="outlined"
+                                                                />
+                                                            )}
+                                                            {distance !== null && (
+                                                                <Chip
+                                                                    size="small"
+                                                                    icon={<Straighten />}
+                                                                    label={formatDistance(distance)}
+                                                                    variant="outlined"
+                                                                />
+                                                            )}
+                                                        </Stack>
+                                                        <Box
+                                                            sx={{
+                                                                width: "100%",
+                                                                height: 2,
+                                                                borderRadius: 1,
+                                                                background: `linear-gradient(90deg, ${theme.palette.success.main}, ${theme.palette.error.main})`,
+                                                                display: {
+                                                                    xs: "none",
+                                                                    md: "block",
+                                                                },
+                                                            }}
+                                                        />
+                                                    </Stack>
+
+                                                    <Stack
+                                                        direction="row"
+                                                        spacing={1.5}
+                                                        alignItems="center"
+                                                        sx={{ flex: 1 }}
+                                                        justifyContent={{
+                                                            xs: "flex-start",
+                                                            md: "flex-end",
+                                                        }}
+                                                    >
+                                                        <FlagCircle color="error" />
+                                                        <Box>
+                                                            <Typography
+                                                                variant="caption"
+                                                                color="text.secondary"
+                                                                fontWeight={700}
+                                                            >
+                                                                DELIVERED
+                                                            </Typography>
+                                                            <Typography
+                                                                variant="body1"
+                                                                fontWeight={600}
+                                                            >
+                                                                {formatDateTime(details.ended_at)}
+                                                            </Typography>
+                                                        </Box>
+                                                    </Stack>
+                                                </Stack>
+                                            </CardContent>
+                                        </Card>
+                                    </Grid>
+                                )}
+
                                 {/* Barcodes */}
-                                {details.barcodes && details.barcodes.length > 0 && (
+                                {barcodes.length > 0 && (
                                     <Grid size={12}>
                                         <Typography
                                             variant="h6"
                                             gutterBottom
                                             sx={{ fontWeight: 600 }}
                                         >
-                                            Sample Barcodes ({details.barcodes.length})
+                                            Sample Barcodes ({barcodes.length})
                                         </Typography>
                                         <Paper variant="outlined" sx={{ p: 2.5 }}>
                                             <Stack
@@ -526,28 +876,27 @@ const UserShow = ({ collectRequest }) => {
                                                 <Avatar sx={{ bgcolor: "primary.main" }}>
                                                     <QrCode />
                                                 </Avatar>
-                                                <Box sx={{ flex: 1 }}>
-                                                    <Box
-                                                        sx={{
-                                                            display: "flex",
-                                                            flexWrap: "wrap",
-                                                            gap: 1,
-                                                        }}
-                                                    >
-                                                        {details.barcodes.map((barcode, idx) => (
-                                                            <Chip
-                                                                key={idx}
-                                                                label={barcode}
-                                                                variant="filled"
-                                                                color="primary"
-                                                                sx={{
-                                                                    fontFamily: "monospace",
-                                                                    fontWeight: 600,
-                                                                    fontSize: "0.875rem",
-                                                                }}
-                                                            />
-                                                        ))}
-                                                    </Box>
+                                                <Box
+                                                    sx={{
+                                                        flex: 1,
+                                                        display: "flex",
+                                                        flexWrap: "wrap",
+                                                        gap: 1,
+                                                    }}
+                                                >
+                                                    {barcodes.map((barcode) => (
+                                                        <Chip
+                                                            key={barcode}
+                                                            label={barcode}
+                                                            variant="filled"
+                                                            color="primary"
+                                                            sx={{
+                                                                fontFamily: "monospace",
+                                                                fontWeight: 600,
+                                                                fontSize: "0.875rem",
+                                                            }}
+                                                        />
+                                                    ))}
                                                 </Box>
                                             </Stack>
                                         </Paper>
@@ -555,7 +904,7 @@ const UserShow = ({ collectRequest }) => {
                                 )}
 
                                 {/* Location Tracking */}
-                                {(details.starting_location || details.ending_location) && (
+                                {mapPoints.length > 0 && (
                                     <Grid size={12}>
                                         <Typography
                                             variant="h6"
@@ -566,13 +915,76 @@ const UserShow = ({ collectRequest }) => {
                                         </Typography>
                                         <Card variant="outlined">
                                             <CardContent sx={{ p: 2 }}>
+                                                <Grid container spacing={2} sx={{ mb: 2 }}>
+                                                    {details.starting_location && (
+                                                        <Grid size={{ xs: 12, sm: 4 }}>
+                                                            <StatTile
+                                                                icon={
+                                                                    <MyLocation
+                                                                        color="success"
+                                                                        fontSize="small"
+                                                                    />
+                                                                }
+                                                                label="START"
+                                                                value={
+                                                                    formatTime(
+                                                                        details.starting_location
+                                                                            .timestamp
+                                                                    ) || "—"
+                                                                }
+                                                                caption={formatAccuracy(
+                                                                    details.starting_location
+                                                                        .accuracy
+                                                                )}
+                                                            />
+                                                        </Grid>
+                                                    )}
+                                                    {details.ending_location && (
+                                                        <Grid size={{ xs: 12, sm: 4 }}>
+                                                            <StatTile
+                                                                icon={
+                                                                    <LocationOn
+                                                                        color="error"
+                                                                        fontSize="small"
+                                                                    />
+                                                                }
+                                                                label="END"
+                                                                value={
+                                                                    formatTime(
+                                                                        details.ending_location
+                                                                            .timestamp
+                                                                    ) || "—"
+                                                                }
+                                                                caption={formatAccuracy(
+                                                                    details.ending_location.accuracy
+                                                                )}
+                                                            />
+                                                        </Grid>
+                                                    )}
+                                                    {distance !== null && (
+                                                        <Grid size={{ xs: 12, sm: 4 }}>
+                                                            <StatTile
+                                                                icon={
+                                                                    <Straighten
+                                                                        color="primary"
+                                                                        fontSize="small"
+                                                                    />
+                                                                }
+                                                                label="STRAIGHT-LINE"
+                                                                value={formatDistance(distance)}
+                                                                caption="Between start and end"
+                                                            />
+                                                        </Grid>
+                                                    )}
+                                                </Grid>
+
                                                 <Box
                                                     sx={{
                                                         width: "100%",
-                                                        height: 450,
-                                                        mb: 2,
+                                                        height: 420,
                                                         borderRadius: 2,
                                                         overflow: "hidden",
+                                                        border: `1px solid ${theme.palette.divider}`,
                                                         "& .leaflet-container": {
                                                             height: "100%",
                                                             width: "100%",
@@ -580,216 +992,60 @@ const UserShow = ({ collectRequest }) => {
                                                     }}
                                                 >
                                                     <MapContainer
-                                                        center={(() => {
-                                                            if (
-                                                                details.starting_location &&
-                                                                details.ending_location
-                                                            ) {
-                                                                const centerLat =
-                                                                    (parseFloat(
-                                                                        details.starting_location
-                                                                            .latitude
-                                                                    ) +
-                                                                        parseFloat(
-                                                                            details.ending_location
-                                                                                .latitude
-                                                                        )) /
-                                                                    2;
-                                                                const centerLng =
-                                                                    (parseFloat(
-                                                                        details.starting_location
-                                                                            .longitude
-                                                                    ) +
-                                                                        parseFloat(
-                                                                            details.ending_location
-                                                                                .longitude
-                                                                        )) /
-                                                                    2;
-                                                                return [centerLat, centerLng];
-                                                            } else if (details.starting_location) {
-                                                                return [
-                                                                    parseFloat(
-                                                                        details.starting_location
-                                                                            .latitude
-                                                                    ),
-                                                                    parseFloat(
-                                                                        details.starting_location
-                                                                            .longitude
-                                                                    ),
-                                                                ];
-                                                            } else {
-                                                                return [
-                                                                    parseFloat(
-                                                                        details.ending_location
-                                                                            .latitude
-                                                                    ),
-                                                                    parseFloat(
-                                                                        details.ending_location
-                                                                            .longitude
-                                                                    ),
-                                                                ];
-                                                            }
-                                                        })()}
-                                                        zoom={
-                                                            details.starting_location &&
-                                                            details.ending_location
-                                                                ? 13
-                                                                : 15
-                                                        }
+                                                        center={mapPoints[0]}
+                                                        zoom={15}
+                                                        scrollWheelZoom={false}
                                                         style={{ height: "100%", width: "100%" }}
                                                     >
                                                         <TileLayer
                                                             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                                                             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                                                         />
+                                                        <FitBounds points={mapPoints} />
 
-                                                        {details.starting_location && (
+                                                        {startPoint && (
                                                             <Marker
-                                                                position={[
-                                                                    parseFloat(
-                                                                        details.starting_location
-                                                                            .latitude
-                                                                    ),
-                                                                    parseFloat(
-                                                                        details.starting_location
-                                                                            .longitude
-                                                                    ),
-                                                                ]}
+                                                                position={startPoint}
                                                                 icon={startIcon}
                                                             >
                                                                 <Popup>
-                                                                    <Box sx={{ minWidth: 200 }}>
-                                                                        <Typography
-                                                                            variant="subtitle2"
-                                                                            fontWeight={600}
-                                                                            color="success.main"
-                                                                        >
-                                                                            Start Location
-                                                                        </Typography>
-                                                                        <Typography variant="body2">
-                                                                            Lat:{" "}
-                                                                            {
-                                                                                details
-                                                                                    .starting_location
-                                                                                    .latitude
-                                                                            }
-                                                                        </Typography>
-                                                                        <Typography variant="body2">
-                                                                            Long:{" "}
-                                                                            {
-                                                                                details
-                                                                                    .starting_location
-                                                                                    .longitude
-                                                                            }
-                                                                        </Typography>
-                                                                        <Typography
-                                                                            variant="caption"
-                                                                            color="text.secondary"
-                                                                        >
-                                                                            Accuracy:{" "}
-                                                                            {
-                                                                                details
-                                                                                    .starting_location
-                                                                                    .accuracy
-                                                                            }
-                                                                            m
-                                                                        </Typography>
-                                                                    </Box>
+                                                                    <LocationPopup
+                                                                        title="Start Location"
+                                                                        color="success.main"
+                                                                        location={
+                                                                            details.starting_location
+                                                                        }
+                                                                    />
                                                                 </Popup>
                                                             </Marker>
                                                         )}
 
-                                                        {details.ending_location && (
+                                                        {endPoint && (
                                                             <Marker
-                                                                position={[
-                                                                    parseFloat(
-                                                                        details.ending_location
-                                                                            .latitude
-                                                                    ),
-                                                                    parseFloat(
-                                                                        details.ending_location
-                                                                            .longitude
-                                                                    ),
-                                                                ]}
+                                                                position={endPoint}
                                                                 icon={endIcon}
                                                             >
                                                                 <Popup>
-                                                                    <Box sx={{ minWidth: 200 }}>
-                                                                        <Typography
-                                                                            variant="subtitle2"
-                                                                            fontWeight={600}
-                                                                            color="error.main"
-                                                                        >
-                                                                            End Location
-                                                                        </Typography>
-                                                                        <Typography variant="body2">
-                                                                            Lat:{" "}
-                                                                            {
-                                                                                details
-                                                                                    .ending_location
-                                                                                    .latitude
-                                                                            }
-                                                                        </Typography>
-                                                                        <Typography variant="body2">
-                                                                            Long:{" "}
-                                                                            {
-                                                                                details
-                                                                                    .ending_location
-                                                                                    .longitude
-                                                                            }
-                                                                        </Typography>
-                                                                        <Typography
-                                                                            variant="caption"
-                                                                            color="text.secondary"
-                                                                        >
-                                                                            Accuracy:{" "}
-                                                                            {
-                                                                                details
-                                                                                    .ending_location
-                                                                                    .accuracy
-                                                                            }
-                                                                            m
-                                                                        </Typography>
-                                                                    </Box>
+                                                                    <LocationPopup
+                                                                        title="End Location"
+                                                                        color="error.main"
+                                                                        location={
+                                                                            details.ending_location
+                                                                        }
+                                                                    />
                                                                 </Popup>
                                                             </Marker>
                                                         )}
 
-                                                        {details.starting_location &&
-                                                            details.ending_location && (
-                                                                <Polyline
-                                                                    positions={[
-                                                                        [
-                                                                            parseFloat(
-                                                                                details
-                                                                                    .starting_location
-                                                                                    .latitude
-                                                                            ),
-                                                                            parseFloat(
-                                                                                details
-                                                                                    .starting_location
-                                                                                    .longitude
-                                                                            ),
-                                                                        ],
-                                                                        [
-                                                                            parseFloat(
-                                                                                details
-                                                                                    .ending_location
-                                                                                    .latitude
-                                                                            ),
-                                                                            parseFloat(
-                                                                                details
-                                                                                    .ending_location
-                                                                                    .longitude
-                                                                            ),
-                                                                        ],
-                                                                    ]}
-                                                                    color="blue"
-                                                                    weight={3}
-                                                                    opacity={0.7}
-                                                                    dashArray="10, 10"
-                                                                />
-                                                            )}
+                                                        {startPoint && endPoint && (
+                                                            <Polyline
+                                                                positions={[startPoint, endPoint]}
+                                                                color={theme.palette.primary.main}
+                                                                weight={3}
+                                                                opacity={0.7}
+                                                                dashArray="10, 10"
+                                                            />
+                                                        )}
                                                     </MapContainer>
                                                 </Box>
 
@@ -797,18 +1053,7 @@ const UserShow = ({ collectRequest }) => {
                                                     variant="outlined"
                                                     size="small"
                                                     startIcon={<LocationOn />}
-                                                    href={(() => {
-                                                        if (
-                                                            details.starting_location &&
-                                                            details.ending_location
-                                                        ) {
-                                                            return `https://www.openstreetmap.org/directions?engine=fossgis_osrm_car&route=${details.starting_location.latitude}%2C${details.starting_location.longitude}%3B${details.ending_location.latitude}%2C${details.ending_location.longitude}`;
-                                                        } else if (details.starting_location) {
-                                                            return `https://www.openstreetmap.org/?mlat=${details.starting_location.latitude}&mlon=${details.starting_location.longitude}#map=15/${details.starting_location.latitude}/${details.starting_location.longitude}`;
-                                                        } else {
-                                                            return `https://www.openstreetmap.org/?mlat=${details.ending_location.latitude}&mlon=${details.ending_location.longitude}#map=15/${details.ending_location.latitude}/${details.ending_location.longitude}`;
-                                                        }
-                                                    })()}
+                                                    href={mapsHref}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     fullWidth
@@ -822,330 +1067,312 @@ const UserShow = ({ collectRequest }) => {
                                 )}
 
                                 {/* Temperature Logs */}
-                                {details.temperature_logs &&
-                                    details.temperature_logs.length > 0 && (
-                                        <Grid size={12}>
-                                            <Typography
-                                                variant="h6"
-                                                gutterBottom
-                                                sx={{ fontWeight: 600, mt: 2 }}
-                                            >
-                                                Temperature Monitoring
-                                            </Typography>
-                                            <Card variant="outlined">
-                                                <CardContent sx={{ p: 2 }}>
-                                                    <Stack
-                                                        direction="row"
-                                                        spacing={3}
-                                                        sx={{
-                                                            mb: 2,
-                                                            p: 2,
-                                                            bgcolor: "grey.50",
-                                                            borderRadius: 1,
-                                                        }}
-                                                    >
-                                                        <Box>
-                                                            <Typography
-                                                                variant="caption"
-                                                                color="text.secondary"
-                                                                fontWeight={600}
-                                                            >
-                                                                READINGS
-                                                            </Typography>
-                                                            <Typography
-                                                                variant="h6"
-                                                                fontWeight={600}
-                                                            >
-                                                                {details.temperature_logs.length}
-                                                            </Typography>
-                                                        </Box>
-                                                        <Box>
-                                                            <Typography
-                                                                variant="caption"
-                                                                color="text.secondary"
-                                                                fontWeight={600}
-                                                            >
-                                                                MIN
-                                                            </Typography>
-                                                            <Typography
-                                                                variant="h6"
-                                                                fontWeight={600}
-                                                                color="info.main"
-                                                            >
-                                                                {Math.min(
-                                                                    ...details.temperature_logs.map(
-                                                                        (log) =>
-                                                                            parseFloat(log.value)
-                                                                    )
-                                                                )}
-                                                                °C
-                                                            </Typography>
-                                                        </Box>
-                                                        <Box>
-                                                            <Typography
-                                                                variant="caption"
-                                                                color="text.secondary"
-                                                                fontWeight={600}
-                                                            >
-                                                                MAX
-                                                            </Typography>
-                                                            <Typography
-                                                                variant="h6"
-                                                                fontWeight={600}
-                                                                color="error.main"
-                                                            >
-                                                                {Math.max(
-                                                                    ...details.temperature_logs.map(
-                                                                        (log) =>
-                                                                            parseFloat(log.value)
-                                                                    )
-                                                                )}
-                                                                °C
-                                                            </Typography>
-                                                        </Box>
-                                                        <Box>
-                                                            <Typography
-                                                                variant="caption"
-                                                                color="text.secondary"
-                                                                fontWeight={600}
-                                                            >
-                                                                AVG
-                                                            </Typography>
-                                                            <Typography
-                                                                variant="h6"
-                                                                fontWeight={600}
-                                                            >
-                                                                {(
-                                                                    details.temperature_logs
-                                                                        .map((log) =>
-                                                                            parseFloat(log.value)
-                                                                        )
-                                                                        .reduce(
-                                                                            (a, b) => a + b,
-                                                                            0
-                                                                        ) /
-                                                                    details.temperature_logs.length
-                                                                ).toFixed(2)}
-                                                                °C
-                                                            </Typography>
-                                                        </Box>
-                                                    </Stack>
-                                                    <Box sx={{ width: "100%", height: 400 }}>
-                                                        <ResponsiveContainer
-                                                            width="100%"
-                                                            height="100%"
+                                {temperature && (
+                                    <Grid size={12}>
+                                        <Typography
+                                            variant="h6"
+                                            gutterBottom
+                                            sx={{ fontWeight: 600, mt: 2 }}
+                                        >
+                                            Temperature Monitoring
+                                        </Typography>
+                                        <Card variant="outlined">
+                                            <CardContent sx={{ p: 2 }}>
+                                                <Grid
+                                                    container
+                                                    spacing={2}
+                                                    sx={{
+                                                        mb: 2,
+                                                        p: 2,
+                                                        bgcolor: alpha(
+                                                            theme.palette.primary.main,
+                                                            0.04
+                                                        ),
+                                                        borderRadius: 1,
+                                                    }}
+                                                >
+                                                    <Grid size={{ xs: 6, sm: 4, md: 2 }}>
+                                                        <StatTile
+                                                            icon={
+                                                                <Timeline
+                                                                    fontSize="small"
+                                                                    color="disabled"
+                                                                />
+                                                            }
+                                                            label="READINGS"
+                                                            value={temperature.series.length}
+                                                            caption={
+                                                                temperature.monitoredFor
+                                                                    ? `over ${temperature.monitoredFor}`
+                                                                    : undefined
+                                                            }
+                                                        />
+                                                    </Grid>
+                                                    <Grid size={{ xs: 6, sm: 4, md: 2 }}>
+                                                        <StatTile
+                                                            icon={
+                                                                <AcUnit
+                                                                    fontSize="small"
+                                                                    color="info"
+                                                                />
+                                                            }
+                                                            label="MIN"
+                                                            value={`${temperature.min.toFixed(2)}°C`}
+                                                            color="info.main"
+                                                        />
+                                                    </Grid>
+                                                    <Grid size={{ xs: 6, sm: 4, md: 2 }}>
+                                                        <StatTile
+                                                            icon={
+                                                                <Whatshot
+                                                                    fontSize="small"
+                                                                    color="error"
+                                                                />
+                                                            }
+                                                            label="MAX"
+                                                            value={`${temperature.max.toFixed(2)}°C`}
+                                                            color="error.main"
+                                                        />
+                                                    </Grid>
+                                                    <Grid size={{ xs: 6, sm: 4, md: 2 }}>
+                                                        <StatTile
+                                                            label="AVERAGE"
+                                                            value={`${temperature.average.toFixed(2)}°C`}
+                                                        />
+                                                    </Grid>
+                                                    <Grid size={{ xs: 6, sm: 4, md: 2 }}>
+                                                        <StatTile
+                                                            label="SPREAD"
+                                                            value={`${(
+                                                                temperature.max - temperature.min
+                                                            ).toFixed(2)}°C`}
+                                                            caption="max − min"
+                                                        />
+                                                    </Grid>
+                                                    <Grid size={{ xs: 6, sm: 4, md: 2 }}>
+                                                        <StatTile
+                                                            icon={
+                                                                temperature.drift >= 0 ? (
+                                                                    <TrendingUp
+                                                                        fontSize="small"
+                                                                        color="error"
+                                                                    />
+                                                                ) : (
+                                                                    <TrendingDown
+                                                                        fontSize="small"
+                                                                        color="info"
+                                                                    />
+                                                                )
+                                                            }
+                                                            label="START → END"
+                                                            value={`${
+                                                                temperature.drift >= 0 ? "+" : "−"
+                                                            }${Math.abs(temperature.drift).toFixed(2)}°C`}
+                                                            color={
+                                                                temperature.drift >= 0
+                                                                    ? "error.main"
+                                                                    : "info.main"
+                                                            }
+                                                            caption={`${temperature.first.toFixed(
+                                                                2
+                                                            )} → ${temperature.last.toFixed(2)}°C`}
+                                                        />
+                                                    </Grid>
+                                                </Grid>
+
+                                                <Box sx={{ width: "100%", height: 360 }}>
+                                                    <ResponsiveContainer width="100%" height="100%">
+                                                        <ComposedChart
+                                                            data={temperature.series}
+                                                            margin={{
+                                                                top: 10,
+                                                                right: 24,
+                                                                left: 0,
+                                                                bottom: 8,
+                                                            }}
                                                         >
-                                                            <ComposedChart
-                                                                data={details.temperature_logs.map(
-                                                                    (log) => ({
-                                                                        time: new Date(
-                                                                            log.timestamp
-                                                                        ).toLocaleString("en-US", {
-                                                                            month: "short",
-                                                                            day: "numeric",
-                                                                            hour: "2-digit",
-                                                                            minute: "2-digit",
-                                                                        }),
-                                                                        temperature: parseFloat(
-                                                                            log.value
-                                                                        ),
-                                                                        timestamp: log.timestamp,
-                                                                    })
-                                                                )}
-                                                                margin={{
-                                                                    top: 10,
-                                                                    right: 30,
-                                                                    left: 0,
-                                                                    bottom: 60,
-                                                                }}
-                                                            >
-                                                                <CartesianGrid strokeDasharray="3 3" />
-                                                                <XAxis
-                                                                    dataKey="time"
-                                                                    angle={-45}
-                                                                    textAnchor="end"
-                                                                    height={80}
-                                                                    tick={{ fontSize: 12 }}
-                                                                />
-                                                                <YAxis
-                                                                    label={{
-                                                                        value: "Temperature (°C)",
-                                                                        angle: -90,
-                                                                        position: "insideLeft",
-                                                                    }}
-                                                                    domain={["auto", "auto"]}
-                                                                />
-                                                                <Tooltip
-                                                                    content={({
-                                                                        active,
-                                                                        payload,
-                                                                    }) => {
-                                                                        if (
-                                                                            active &&
-                                                                            payload &&
-                                                                            payload.length
-                                                                        ) {
-                                                                            const temp =
-                                                                                payload[0].value;
-                                                                            const isOutOfRange =
-                                                                                temp > 8 ||
-                                                                                temp < -80;
-                                                                            return (
-                                                                                <Paper
-                                                                                    sx={{
-                                                                                        p: 1.5,
-                                                                                        bgcolor:
-                                                                                            "background.paper",
-                                                                                    }}
-                                                                                >
-                                                                                    <Typography
-                                                                                        variant="body2"
-                                                                                        sx={{
-                                                                                            fontWeight: 600,
-                                                                                        }}
-                                                                                    >
-                                                                                        {
-                                                                                            payload[0]
-                                                                                                .payload
-                                                                                                .time
-                                                                                        }
-                                                                                    </Typography>
-                                                                                    <Typography
-                                                                                        variant="body2"
-                                                                                        sx={{
-                                                                                            color: isOutOfRange
-                                                                                                ? "error.main"
-                                                                                                : "primary.main",
-                                                                                            fontWeight:
-                                                                                                isOutOfRange
-                                                                                                    ? 600
-                                                                                                    : 400,
-                                                                                        }}
-                                                                                    >
-                                                                                        {temp}°C
-                                                                                        {isOutOfRange &&
-                                                                                            " ⚠️ Out of range"}
-                                                                                    </Typography>
-                                                                                </Paper>
-                                                                            );
+                                                            <defs>
+                                                                <linearGradient
+                                                                    id="tempFill"
+                                                                    x1="0"
+                                                                    y1="0"
+                                                                    x2="0"
+                                                                    y2="1"
+                                                                >
+                                                                    <stop
+                                                                        offset="0%"
+                                                                        stopColor={
+                                                                            theme.palette.primary
+                                                                                .main
                                                                         }
+                                                                        stopOpacity={0.35}
+                                                                    />
+                                                                    <stop
+                                                                        offset="100%"
+                                                                        stopColor={
+                                                                            theme.palette.primary
+                                                                                .main
+                                                                        }
+                                                                        stopOpacity={0.02}
+                                                                    />
+                                                                </linearGradient>
+                                                            </defs>
+
+                                                            <CartesianGrid
+                                                                strokeDasharray="3 3"
+                                                                vertical={false}
+                                                                stroke={theme.palette.divider}
+                                                            />
+                                                            <XAxis
+                                                                dataKey="label"
+                                                                interval={temperature.tickInterval}
+                                                                tickMargin={8}
+                                                                tick={{ fontSize: 12 }}
+                                                                stroke={
+                                                                    theme.palette.text.secondary
+                                                                }
+                                                            />
+                                                            <YAxis
+                                                                domain={temperature.domain}
+                                                                width={64}
+                                                                tickFormatter={(value) =>
+                                                                    `${value.toFixed(1)}°`
+                                                                }
+                                                                tick={{ fontSize: 12 }}
+                                                                stroke={
+                                                                    theme.palette.text.secondary
+                                                                }
+                                                            />
+                                                            <Tooltip
+                                                                cursor={{
+                                                                    stroke: theme.palette.divider,
+                                                                }}
+                                                                content={({ active, payload }) => {
+                                                                    if (!active || !payload?.length)
                                                                         return null;
-                                                                    }}
-                                                                />
-                                                                <Legend
-                                                                    wrapperStyle={{
-                                                                        paddingTop: "20px",
-                                                                    }}
-                                                                />
+                                                                    const point =
+                                                                        payload[0].payload;
+                                                                    return (
+                                                                        <Paper
+                                                                            elevation={3}
+                                                                            sx={{ p: 1.5 }}
+                                                                        >
+                                                                            <Typography
+                                                                                variant="caption"
+                                                                                color="text.secondary"
+                                                                            >
+                                                                                {formatDateTime(
+                                                                                    point.timestamp
+                                                                                )}
+                                                                            </Typography>
+                                                                            <Typography
+                                                                                variant="h6"
+                                                                                fontWeight={700}
+                                                                                color="primary.main"
+                                                                            >
+                                                                                {point.temperature.toFixed(
+                                                                                    2
+                                                                                )}
+                                                                                °C
+                                                                            </Typography>
+                                                                        </Paper>
+                                                                    );
+                                                                }}
+                                                            />
 
-                                                                {/* Safe temperature range area */}
-                                                                <ReferenceLine
-                                                                    y={8}
-                                                                    stroke="#ff9800"
-                                                                    strokeDasharray="5 5"
-                                                                    label={{
-                                                                        value: "Max Safe (8°C)",
-                                                                        position: "right",
-                                                                        fill: "#ff9800",
-                                                                        fontSize: 12,
-                                                                    }}
-                                                                />
-                                                                <ReferenceLine
-                                                                    y={-80}
-                                                                    stroke="#2196f3"
-                                                                    strokeDasharray="5 5"
-                                                                    label={{
-                                                                        value: "Min Safe (-80°C)",
-                                                                        position: "right",
-                                                                        fill: "#2196f3",
-                                                                        fontSize: 12,
-                                                                    }}
-                                                                />
+                                                            <ReferenceLine
+                                                                y={temperature.average}
+                                                                stroke={
+                                                                    theme.palette.text.secondary
+                                                                }
+                                                                strokeDasharray="2 6"
+                                                                label={{
+                                                                    value: `avg ${temperature.average.toFixed(2)}°C`,
+                                                                    position: "insideLeft",
+                                                                    fill: theme.palette.text
+                                                                        .secondary,
+                                                                    fontSize: 11,
+                                                                }}
+                                                            />
 
-                                                                {/* Temperature line */}
-                                                                <Line
-                                                                    type="monotone"
-                                                                    dataKey="temperature"
-                                                                    stroke={
-                                                                        theme.palette.primary.main
-                                                                    }
-                                                                    strokeWidth={2}
-                                                                    dot={(props) => {
-                                                                        const { cx, cy, payload } =
-                                                                            props;
-                                                                        const temp =
-                                                                            payload.temperature;
-                                                                        const isOutOfRange =
-                                                                            temp > 8 || temp < -80;
-                                                                        return (
-                                                                            <circle
-                                                                                cx={cx}
-                                                                                cy={cy}
-                                                                                r={4}
-                                                                                fill={
-                                                                                    isOutOfRange
-                                                                                        ? theme
-                                                                                              .palette
-                                                                                              .error
-                                                                                              .main
-                                                                                        : theme
-                                                                                              .palette
-                                                                                              .primary
-                                                                                              .main
-                                                                                }
-                                                                                stroke={
-                                                                                    isOutOfRange
-                                                                                        ? theme
-                                                                                              .palette
-                                                                                              .error
-                                                                                              .dark
-                                                                                        : theme
-                                                                                              .palette
-                                                                                              .primary
-                                                                                              .dark
-                                                                                }
-                                                                                strokeWidth={2}
-                                                                            />
-                                                                        );
-                                                                    }}
-                                                                    name="Temperature"
-                                                                />
-                                                            </ComposedChart>
-                                                        </ResponsiveContainer>
-                                                    </Box>
+                                                            <Area
+                                                                type="monotone"
+                                                                dataKey="temperature"
+                                                                name="Temperature"
+                                                                stroke={theme.palette.primary.main}
+                                                                strokeWidth={2}
+                                                                fill="url(#tempFill)"
+                                                                activeDot={{ r: 5 }}
+                                                                // Emphasise the coldest and warmest
+                                                                // readings; keep the rest subtle.
+                                                                dot={({ cx, cy, index }) => {
+                                                                    const isPeak =
+                                                                        index ===
+                                                                            temperature.minIndex ||
+                                                                        index ===
+                                                                            temperature.maxIndex;
+                                                                    return (
+                                                                        <circle
+                                                                            key={index}
+                                                                            cx={cx}
+                                                                            cy={cy}
+                                                                            r={isPeak ? 4 : 2}
+                                                                            fill={
+                                                                                theme.palette
+                                                                                    .primary.main
+                                                                            }
+                                                                            stroke={
+                                                                                isPeak
+                                                                                    ? theme.palette
+                                                                                          .primary
+                                                                                          .dark
+                                                                                    : undefined
+                                                                            }
+                                                                            strokeWidth={
+                                                                                isPeak ? 2 : 0
+                                                                            }
+                                                                        />
+                                                                    );
+                                                                }}
+                                                            />
+                                                        </ComposedChart>
+                                                    </ResponsiveContainer>
+                                                </Box>
+
+                                                <Stack
+                                                    direction="row"
+                                                    spacing={1}
+                                                    alignItems="center"
+                                                    justifyContent="center"
+                                                    sx={{ mt: 1.5 }}
+                                                >
                                                     <Typography
                                                         variant="caption"
                                                         color="text.secondary"
-                                                        sx={{
-                                                            mt: 2,
-                                                            display: "block",
-                                                            textAlign: "center",
-                                                        }}
                                                     >
-                                                        * Red dots indicate temperature outside safe
-                                                        range (-80°C to 8°C)
+                                                        {temperature.series.length} readings from{" "}
+                                                        {formatDateTime(temperature.from)} to{" "}
+                                                        {formatDateTime(temperature.to)}
                                                     </Typography>
-                                                </CardContent>
-                                            </Card>
-                                        </Grid>
-                                    )}
+                                                </Stack>
+                                            </CardContent>
+                                        </Card>
+                                    </Grid>
+                                )}
 
                                 {/* No tracking data message */}
-                                {!details.barcodes &&
-                                    !details.starting_location &&
-                                    !details.ending_location &&
-                                    !details.temperature_logs && (
-                                        <Grid size={12}>
-                                            <Paper
-                                                variant="outlined"
-                                                sx={{ p: 3, textAlign: "center" }}
-                                            >
-                                                <Typography color="text.secondary">
-                                                    No tracking information available yet
-                                                </Typography>
-                                            </Paper>
-                                        </Grid>
-                                    )}
+                                {!hasTracking && (
+                                    <Grid size={12}>
+                                        <Paper
+                                            variant="outlined"
+                                            sx={{ p: 3, textAlign: "center" }}
+                                        >
+                                            <Typography color="text.secondary">
+                                                No tracking information available yet
+                                            </Typography>
+                                        </Paper>
+                                    </Grid>
+                                )}
                             </Grid>
                         </Box>
                     </AccordionDetails>
