@@ -194,6 +194,40 @@ trait HandlesCollectRequests
     }
 
     /**
+     * Attach an already-imported order's not-yet-collected samples from the
+     * webhook payload.
+     *
+     * The import webhook does not re-create samples when the order already
+     * exists, so the per-sample collect_request_id carried by the payload would
+     * otherwise be dropped. Walk the payload's samples, match each one against
+     * the order's existing rows by sampleId, and stamp the resolved request.
+     *
+     * A sample that already belongs to a request is left alone: it was collected
+     * under that request and stays there, so only samples still awaiting
+     * collection join the new one.
+     */
+    protected function tagUncollectedOrderSamples(Order $order, array $orderData, ?CollectRequest $collectRequest): void
+    {
+        foreach ($orderData['orderItems'] ?? [] as $orderItemData) {
+            foreach ($orderItemData['samples'] ?? [] as $sampleData) {
+                if (empty($sampleData['sampleId'])) {
+                    continue;
+                }
+
+                $collectRequestId = $this->resolveSampleCollectRequestId($sampleData, $collectRequest);
+                if (is_null($collectRequestId)) {
+                    continue;
+                }
+
+                Sample::whereHas('OrderItems', fn ($query) => $query->where('order_id', $order->id))
+                    ->where('sampleId', $sampleData['sampleId'])
+                    ->whereNull('collect_request_id')
+                    ->update(['collect_request_id' => $collectRequestId]);
+            }
+        }
+    }
+
+    /**
      * Link the order to its collect request, optionally tagging the order's
      * samples, and mirror the request status onto the order's lifecycle.
      *

@@ -224,8 +224,11 @@ class OrderImportController extends Controller
             $result = $this->updateExistingOrder($existingOrder, $orderData, $userId);
 
             if ($collectRequest) {
-                // Update path does not re-create samples, so tag the order's
-                // existing samples (those not already on another request).
+                // The update path does not re-create samples: first honour the
+                // per-sample collect_request_id from the payload, then fall back
+                // to the order's request for whatever is still uncollected.
+                // Samples already on a request keep it either way.
+                $this->tagUncollectedOrderSamples($existingOrder, $orderData, $collectRequest);
                 $this->linkCollectRequest($existingOrder, $collectRequest, tagSamples: true);
             }
 
@@ -367,8 +370,9 @@ class OrderImportController extends Controller
                 'collectionDate' => $sampleData['collectionDate'] ?? null,
                 'collect_request_id' => $collectRequestId,
             ]);
-        } elseif (! is_null($collectRequestId) && $sample->collect_request_id !== $collectRequestId) {
-            // Keep an existing sample's collect request in sync.
+        } elseif (! is_null($collectRequestId) && is_null($sample->collect_request_id)) {
+            // A sample keeps the request it was collected under: only attach one
+            // that is not on a request yet.
             $sample->update(['collect_request_id' => $collectRequestId]);
         }
 

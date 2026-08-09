@@ -80,7 +80,7 @@ const getStatusLabel = (status) => {
  */
 const UserShow = ({ collectRequest }) => {
     const theme = useTheme();
-    const [expanded, setExpanded] = useState(["details", "tracking", "orders"]);
+    const [expanded, setExpanded] = useState(["details", "tracking", "orders", "samples"]);
 
     const handleAccordionChange = (panel) => (event, isExpanded) => {
         setExpanded((prev) => (isExpanded ? [...prev, panel] : prev.filter((p) => p !== panel)));
@@ -91,6 +91,9 @@ const UserShow = ({ collectRequest }) => {
     };
 
     const details = useMemo(() => collectRequest.details || {}, [collectRequest.details]);
+
+    // Every sample tagged to this request, whichever order it came from.
+    const samples = collectRequest.samples ?? [];
 
     // Only the pieces the summary card and page header need; the tracking panel
     // derives the rest itself.
@@ -633,6 +636,44 @@ const UserShow = ({ collectRequest }) => {
                                                                 />
                                                             </Box>
                                                         </Grid>
+
+                                                        {/* The samples of this order that belong
+                                                            to this request (an order's remaining
+                                                            samples may be collected separately). */}
+                                                        {order.samples?.length > 0 && (
+                                                            <Grid size={12}>
+                                                                <Box
+                                                                    sx={{
+                                                                        display: "flex",
+                                                                        flexWrap: "wrap",
+                                                                        gap: 0.5,
+                                                                        pt: 1,
+                                                                        borderTop: 1,
+                                                                        borderColor: "divider",
+                                                                    }}
+                                                                >
+                                                                    {order.samples.map((sample) => (
+                                                                        <Chip
+                                                                            key={sample.id}
+                                                                            size="small"
+                                                                            variant="outlined"
+                                                                            icon={<Vaccines />}
+                                                                            label={`${
+                                                                                sample.sampleId ||
+                                                                                `#${sample.id}`
+                                                                            } · ${
+                                                                                sample.sample_type
+                                                                                    ?.name || "—"
+                                                                            }`}
+                                                                            sx={{
+                                                                                fontFamily:
+                                                                                    "monospace",
+                                                                            }}
+                                                                        />
+                                                                    ))}
+                                                                </Box>
+                                                            </Grid>
+                                                        )}
                                                     </Grid>
                                                 </CardContent>
                                             </Card>
@@ -643,6 +684,191 @@ const UserShow = ({ collectRequest }) => {
                                 <Paper variant="outlined" sx={{ p: 3, textAlign: "center", mt: 2 }}>
                                     <Typography color="text.secondary">
                                         No orders found in this collection request
+                                    </Typography>
+                                </Paper>
+                            )}
+                        </Box>
+                    </AccordionDetails>
+                </Accordion>
+
+                {/* Accordion 4: Samples collected under this request */}
+                <Accordion
+                    expanded={expanded.includes("samples")}
+                    onChange={handleAccordionChange("samples")}
+                    sx={{ mb: 2, boxShadow: theme.shadows[2] }}
+                >
+                    <AccordionSummary
+                        expandIcon={<ExpandMore />}
+                        sx={{
+                            bgcolor: "success.lighter",
+                            "&:hover": { bgcolor: "success.light" },
+                        }}
+                    >
+                        <Stack direction="row" spacing={2} alignItems="center">
+                            <Vaccines color="success" />
+                            <Typography variant="h6" fontWeight={600}>
+                                Samples ({samples.length})
+                            </Typography>
+                        </Stack>
+                    </AccordionSummary>
+                    <AccordionDetails sx={{ p: 0 }}>
+                        <Box sx={{ p: 3 }}>
+                            {samples.length > 0 ? (
+                                <Grid container spacing={2}>
+                                    {samples.map((sample) => {
+                                        const orderIds = [
+                                            ...new Set(
+                                                (sample.order_items ?? [])
+                                                    .map((item) => item.order_id)
+                                                    .filter(Boolean)
+                                            ),
+                                        ];
+                                        const tests = (sample.order_items ?? [])
+                                            .map((item) => item.test)
+                                            .filter(Boolean);
+
+                                        return (
+                                            <Grid size={{ xs: 12, md: 6 }} key={sample.id}>
+                                                <Card variant="outlined" sx={{ height: "100%" }}>
+                                                    <CardContent>
+                                                        <Stack
+                                                            direction="row"
+                                                            spacing={1}
+                                                            alignItems="center"
+                                                            flexWrap="wrap"
+                                                            useFlexGap
+                                                            sx={{ mb: 1.5 }}
+                                                        >
+                                                            <QrCode color="success" />
+                                                            <Typography
+                                                                variant="subtitle1"
+                                                                fontWeight={600}
+                                                                sx={{ fontFamily: "monospace" }}
+                                                            >
+                                                                {sample.sampleId || `#${sample.id}`}
+                                                            </Typography>
+                                                            <Chip
+                                                                size="small"
+                                                                label={
+                                                                    sample.sample_type?.name || "—"
+                                                                }
+                                                                variant="outlined"
+                                                            />
+                                                        </Stack>
+
+                                                        <Grid container spacing={1.5}>
+                                                            <Grid size={{ xs: 12, sm: 6 }}>
+                                                                <Typography
+                                                                    variant="caption"
+                                                                    color="text.secondary"
+                                                                    fontWeight={600}
+                                                                >
+                                                                    PATIENT
+                                                                </Typography>
+                                                                <Stack
+                                                                    direction="row"
+                                                                    spacing={1}
+                                                                    alignItems="center"
+                                                                    sx={{ mt: 0.5 }}
+                                                                >
+                                                                    <Person
+                                                                        fontSize="small"
+                                                                        color="action"
+                                                                    />
+                                                                    <Typography variant="body2">
+                                                                        {sample.patient?.fullName ||
+                                                                            "N/A"}
+                                                                    </Typography>
+                                                                </Stack>
+                                                            </Grid>
+
+                                                            <Grid size={{ xs: 12, sm: 6 }}>
+                                                                <Typography
+                                                                    variant="caption"
+                                                                    color="text.secondary"
+                                                                    fontWeight={600}
+                                                                >
+                                                                    COLLECTED
+                                                                </Typography>
+                                                                <Stack
+                                                                    direction="row"
+                                                                    spacing={1}
+                                                                    alignItems="center"
+                                                                    sx={{ mt: 0.5 }}
+                                                                >
+                                                                    <Event
+                                                                        fontSize="small"
+                                                                        color="action"
+                                                                    />
+                                                                    <Typography variant="body2">
+                                                                        {sample.collectionDate
+                                                                            ? formatDateTime(
+                                                                                  sample.collectionDate
+                                                                              )
+                                                                            : "Not recorded"}
+                                                                    </Typography>
+                                                                </Stack>
+                                                            </Grid>
+
+                                                            <Grid size={12}>
+                                                                <Typography
+                                                                    variant="caption"
+                                                                    color="text.secondary"
+                                                                    fontWeight={600}
+                                                                >
+                                                                    ORDER &amp; TESTS
+                                                                </Typography>
+                                                                <Box
+                                                                    sx={{
+                                                                        display: "flex",
+                                                                        flexWrap: "wrap",
+                                                                        gap: 0.5,
+                                                                        mt: 0.5,
+                                                                    }}
+                                                                >
+                                                                    {orderIds.map((orderId) => (
+                                                                        <Chip
+                                                                            key={`order-${orderId}`}
+                                                                            size="small"
+                                                                            color="primary"
+                                                                            icon={<Receipt />}
+                                                                            label={`#${orderId}`}
+                                                                        />
+                                                                    ))}
+                                                                    {tests.map((test, index) => (
+                                                                        <Chip
+                                                                            key={`test-${test.id}-${index}`}
+                                                                            size="small"
+                                                                            icon={<Biotech />}
+                                                                            label={
+                                                                                test.shortName ||
+                                                                                test.name
+                                                                            }
+                                                                        />
+                                                                    ))}
+                                                                    {orderIds.length === 0 &&
+                                                                        tests.length === 0 && (
+                                                                            <Typography
+                                                                                variant="body2"
+                                                                                color="text.secondary"
+                                                                            >
+                                                                                Not linked to an
+                                                                                order
+                                                                            </Typography>
+                                                                        )}
+                                                                </Box>
+                                                            </Grid>
+                                                        </Grid>
+                                                    </CardContent>
+                                                </Card>
+                                            </Grid>
+                                        );
+                                    })}
+                                </Grid>
+                            ) : (
+                                <Paper variant="outlined" sx={{ p: 3, textAlign: "center" }}>
+                                    <Typography color="text.secondary">
+                                        No samples are linked to this collection request
                                     </Typography>
                                 </Paper>
                             )}

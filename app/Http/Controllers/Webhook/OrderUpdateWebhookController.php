@@ -357,9 +357,11 @@ class OrderUpdateWebhookController extends Controller
             'collectionDate' => $sampleData['collectionDate'] ?? null,
         ];
 
-        // Only (re)assign the collect request when we resolved one, so a webhook
-        // that omits it never clears an existing link.
-        if (! is_null($collectRequestId)) {
+        // Assign the collect request only to a sample that does not have one yet:
+        // a sample stays on the request it was collected under, so a later
+        // request picks up only the samples still awaiting collection. A webhook
+        // that omits the request never clears an existing link either.
+        if (! is_null($collectRequestId) && is_null($sample?->collect_request_id)) {
             $attributes['collect_request_id'] = $collectRequestId;
         }
 

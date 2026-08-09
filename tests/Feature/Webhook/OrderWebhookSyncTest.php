@@ -2,8 +2,10 @@
 
 namespace Tests\Feature\Webhook;
 
+use App\Models\CollectRequest;
 use App\Models\Order;
 use App\Models\Patient;
+use App\Models\Sample;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -73,6 +75,36 @@ class OrderWebhookSyncTest extends TestCase
         ];
     }
 
+    /**
+     * The order payload carrying a collect request, plus sample barcodes so the
+     * same samples can be matched across deliveries.
+     *
+     * $samples maps each barcode to the collect request server id that sample
+     * itself claims (null to leave it to the order's request).
+     */
+    private function collectRequestPayload(int $referrerId, int $collectRequestServerId, array $samples = ['BC-1' => null]): array
+    {
+        $payload = $this->orderPayload($referrerId);
+        $template = $payload['order']['orderItems'][0]['samples'][0];
+
+        $payload['order']['orderItems'][0]['samples'] = [];
+        foreach ($samples as $sampleId => $claimedCollectRequestId) {
+            $sample = [...$template, 'sampleId' => $sampleId];
+            if ($claimedCollectRequestId) {
+                $sample['collect_request_id'] = $claimedCollectRequestId;
+            }
+
+            $payload['order']['orderItems'][0]['samples'][] = $sample;
+        }
+
+        $payload['collect_request'] = [
+            'id' => $collectRequestServerId,
+            'status' => 'requested',
+        ];
+
+        return $payload;
+    }
+
     private function postSigned(string $routeName, array $payload)
     {
         $body = json_encode($payload);
@@ -137,5 +169,79 @@ class OrderWebhookSyncTest extends TestCase
 
         $this->assertSame(1, Patient::where('server_id', 5001)->count());
         $this->assertDatabaseHas('patients', ['server_id' => 5001, 'fullName' => 'Alice Renamed']);
+    }
+
+    public function test_import_links_the_order_and_its_samples_to_the_collect_request(): void
+    {
+        User::factory()->create(['referrer_id' => 42]);
+
+        $this->postSigned('api.webhooks.orders.import', $this->collectRequestPayload(42, 9001))
+            ->assertOk();
+
+        $collectRequest = CollectRequest::where('server_id', 9001)->firstOrFail();
+
+        $this->assertDatabaseHas('orders', ['server_id' => 1001, 'collect_request_id' => $collectRequest->id]);
+        $this->assertDatabaseHas('samples', ['sampleId' => 'BC-1', 'collect_request_id' => $collectRequest->id]);
+    }
+
+    public function test_reimport_keeps_collected_samples_on_their_original_request(): void
+    {
+        User::factory()->create(['referrer_id' => 42]);
+
+        $this->postSigned('api.webhooks.orders.import', $this->collectRequestPayload(42, 9001))
+            ->assertOk();
+
+        $this->postSigned('api.webhooks.orders.import', $this->collectRequestPayload(42, 9002))
+            ->assertOk();
+
+        $first = CollectRequest::where('server_id', 9001)->firstOrFail();
+        $second = CollectRequest::where('server_id', 9002)->firstOrFail();
+
+        // The sample was collected under 9001 and stays there, even though the
+        // order itself has moved on to the newer request.
+        $this->assertSame(1, Sample::where('sampleId', 'BC-1')->count());
+        $this->assertDatabaseHas('samples', ['sampleId' => 'BC-1', 'collect_request_id' => $first->id]);
+        $this->assertDatabaseHas('orders', ['server_id' => 1001, 'collect_request_id' => $second->id]);
+    }
+
+    public function test_update_attaches_only_the_uncollected_samples_to_the_new_request(): void
+    {
+        User::factory()->create(['referrer_id' => 42]);
+
+        $this->postSigned('api.orders.update-by-webhook', $this->collectRequestPayload(42, 9001))
+            ->assertOk();
+
+        // A second request covering the same order plus a newly added sample.
+        $this->postSigned(
+            'api.orders.update-by-webhook',
+            $this->collectRequestPayload(42, 9002, ['BC-1' => null, 'BC-2' => null])
+        )->assertOk();
+
+        $first = CollectRequest::where('server_id', 9001)->firstOrFail();
+        $second = CollectRequest::where('server_id', 9002)->firstOrFail();
+
+        $this->assertDatabaseHas('samples', ['sampleId' => 'BC-1', 'collect_request_id' => $first->id]);
+        $this->assertDatabaseHas('samples', ['sampleId' => 'BC-2', 'collect_request_id' => $second->id]);
+    }
+
+    public function test_a_new_sample_joins_the_collect_request_it_claims(): void
+    {
+        User::factory()->create(['referrer_id' => 42]);
+
+        $this->postSigned('api.orders.update-by-webhook', $this->collectRequestPayload(42, 9001))
+            ->assertOk();
+
+        // The order is delivered under request 9002, but the new sample reports
+        // 9001 as its own: the sample's request wins over the order's.
+        $this->postSigned(
+            'api.orders.update-by-webhook',
+            $this->collectRequestPayload(42, 9002, ['BC-1' => null, 'BC-2' => 9001])
+        )->assertOk();
+
+        $first = CollectRequest::where('server_id', 9001)->firstOrFail();
+        $second = CollectRequest::where('server_id', 9002)->firstOrFail();
+
+        $this->assertDatabaseHas('samples', ['sampleId' => 'BC-2', 'collect_request_id' => $first->id]);
+        $this->assertDatabaseHas('orders', ['server_id' => 1001, 'collect_request_id' => $second->id]);
     }
 }

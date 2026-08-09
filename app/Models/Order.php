@@ -34,6 +34,7 @@ class Order extends Model
         'main_patient_id',
         'patient_ids',
         'user_id',
+        'collect_request_id',
         'created_at',
         'updated_at',
     ];

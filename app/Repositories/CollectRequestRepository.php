@@ -96,6 +96,12 @@ class CollectRequestRepository extends BaseRepository implements CollectRequestR
                     ->with(['SampleType', 'Material', 'Patient']);
             },
             'Orders.Tests',
+            // Flat list of every sample tagged to this request, carrying the
+            // order item (and therefore the order + test) it was collected for,
+            // so the detail view can list samples on their own.
+            'Samples' => function ($query) {
+                $query->with(['Material', 'OrderItems.Test'])->orderBy('id');
+            },
             'User',
         ]);
 

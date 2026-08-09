@@ -56,6 +56,9 @@ import {
     CloudSync,
     Send,
     Tag,
+    Vaccines,
+    Biotech,
+    QrCode,
 } from "@mui/icons-material";
 import { useForm, router } from "@inertiajs/react";
 import Form from "./Components/Form";
@@ -86,6 +89,10 @@ const Show = ({ collectRequest }) => {
     const [openEdit, setOpenEdit] = useState(false);
     const [openSend, setOpenSend] = useState(false);
     const [activeTab, setActiveTab] = useState("1");
+
+    // Samples tagged to this collect request, with the order/tests each one was
+    // collected for (a request may cover only part of an order's samples).
+    const samples = collectRequest.samples ?? [];
 
     const handleSendToServer = () => {
         setOpenSend(false);
@@ -298,6 +305,12 @@ const Show = ({ collectRequest }) => {
                                 iconPosition="start"
                             />
                             <Tab label="Orders" value="3" icon={<Receipt />} iconPosition="start" />
+                            <Tab
+                                label={`Samples (${samples.length})`}
+                                value="4"
+                                icon={<Vaccines />}
+                                iconPosition="start"
+                            />
                         </TabList>
                     </Box>
 
@@ -744,9 +757,10 @@ const Show = ({ collectRequest }) => {
                                     <TableHead>
                                         <TableRow>
                                             <TableCell width="10%">Order ID</TableCell>
-                                            <TableCell width="30%">Tests</TableCell>
+                                            <TableCell width="25%">Tests</TableCell>
+                                            <TableCell width="10%">Samples</TableCell>
                                             <TableCell width="15%">Status</TableCell>
-                                            <TableCell width="25%">Patient</TableCell>
+                                            <TableCell width="20%">Patient</TableCell>
                                             <TableCell width="20%">Actions</TableCell>
                                         </TableRow>
                                     </TableHead>
@@ -754,7 +768,7 @@ const Show = ({ collectRequest }) => {
                                         {collectRequest.orders.length === 0 ? (
                                             <TableRow>
                                                 <TableCell
-                                                    colSpan={5}
+                                                    colSpan={6}
                                                     align="center"
                                                     sx={{ py: 3 }}
                                                 >
@@ -783,6 +797,24 @@ const Show = ({ collectRequest }) => {
                                                                 sx={{ mr: 0.5, mb: 0.5 }}
                                                             />
                                                         ))}
+                                                    </TableCell>
+                                                    {/* Samples of this order that belong to this
+                                                        request — see the Samples tab for detail. */}
+                                                    <TableCell>
+                                                        <Tooltip title="Samples collected under this request">
+                                                            <Chip
+                                                                icon={<Vaccines fontSize="small" />}
+                                                                label={order.samples?.length || 0}
+                                                                size="small"
+                                                                color={
+                                                                    order.samples?.length
+                                                                        ? "primary"
+                                                                        : "default"
+                                                                }
+                                                                variant="outlined"
+                                                                onClick={() => setActiveTab("4")}
+                                                            />
+                                                        </Tooltip>
                                                     </TableCell>
                                                     <TableCell>
                                                         <Chip
@@ -876,6 +908,158 @@ const Show = ({ collectRequest }) => {
                                                     </TableCell>
                                                 </TableRow>
                                             ))
+                                        )}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                        </Box>
+                    </TabPanel>
+
+                    {/* Tab 4: Samples collected under this request */}
+                    <TabPanel value="4" sx={{ p: 0 }}>
+                        <Box sx={{ p: 3 }}>
+                            <Typography variant="h6" gutterBottom>
+                                Collected Samples
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                                Only the samples tagged to this collection request are listed — an
+                                order may have further samples collected separately.
+                            </Typography>
+
+                            <TableContainer component={Paper} variant="outlined">
+                                <Table size="small">
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell width="20%">Sample ID</TableCell>
+                                            <TableCell width="15%">Type</TableCell>
+                                            <TableCell width="20%">Patient</TableCell>
+                                            <TableCell width="15%">Order</TableCell>
+                                            <TableCell width="20%">Tests</TableCell>
+                                            <TableCell width="10%">Collected</TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {samples.length === 0 ? (
+                                            <TableRow>
+                                                <TableCell colSpan={6} align="center" sx={{ py: 3 }}>
+                                                    <Typography color="text.secondary">
+                                                        No samples are linked to this collection
+                                                        request
+                                                    </Typography>
+                                                </TableCell>
+                                            </TableRow>
+                                        ) : (
+                                            samples.map((sample) => {
+                                                const orderIds = [
+                                                    ...new Set(
+                                                        (sample.order_items ?? [])
+                                                            .map((item) => item.order_id)
+                                                            .filter(Boolean)
+                                                    ),
+                                                ];
+                                                const tests = (sample.order_items ?? [])
+                                                    .map((item) => item.test)
+                                                    .filter(Boolean);
+
+                                                return (
+                                                    <TableRow key={sample.id} hover>
+                                                        <TableCell>
+                                                            <Stack
+                                                                direction="row"
+                                                                spacing={1}
+                                                                alignItems="center"
+                                                            >
+                                                                <QrCode
+                                                                    fontSize="small"
+                                                                    color="action"
+                                                                />
+                                                                <Typography
+                                                                    variant="body2"
+                                                                    fontWeight="medium"
+                                                                >
+                                                                    {sample.sampleId ||
+                                                                        sample.material?.barcode ||
+                                                                        `#${sample.id}`}
+                                                                </Typography>
+                                                            </Stack>
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <Chip
+                                                                label={
+                                                                    sample.sample_type?.name || "—"
+                                                                }
+                                                                size="small"
+                                                                variant="outlined"
+                                                            />
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <Typography variant="body2">
+                                                                {sample.patient?.fullName || "—"}
+                                                            </Typography>
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {orderIds.length === 0 ? (
+                                                                <Typography
+                                                                    variant="body2"
+                                                                    color="text.secondary"
+                                                                >
+                                                                    —
+                                                                </Typography>
+                                                            ) : (
+                                                                orderIds.map((orderId) => (
+                                                                    <Chip
+                                                                        key={orderId}
+                                                                        label={`#${orderId}`}
+                                                                        size="small"
+                                                                        clickable
+                                                                        component="a"
+                                                                        href={route(
+                                                                            "orders.show",
+                                                                            orderId
+                                                                        )}
+                                                                        target="_blank"
+                                                                        sx={{ mr: 0.5, mb: 0.5 }}
+                                                                    />
+                                                                ))
+                                                            )}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {tests.length === 0 ? (
+                                                                <Typography
+                                                                    variant="body2"
+                                                                    color="text.secondary"
+                                                                >
+                                                                    —
+                                                                </Typography>
+                                                            ) : (
+                                                                tests.map((test, index) => (
+                                                                    <Chip
+                                                                        key={`${test.id}-${index}`}
+                                                                        icon={
+                                                                            <Biotech fontSize="small" />
+                                                                        }
+                                                                        label={
+                                                                            test.shortName ||
+                                                                            test.name
+                                                                        }
+                                                                        size="small"
+                                                                        sx={{ mr: 0.5, mb: 0.5 }}
+                                                                    />
+                                                                ))
+                                                            )}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <Typography variant="body2">
+                                                                {sample.collectionDate
+                                                                    ? formatDate(
+                                                                          sample.collectionDate
+                                                                      )
+                                                                    : "—"}
+                                                            </Typography>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                );
+                                            })
                                         )}
                                     </TableBody>
                                 </Table>
