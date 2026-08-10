@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\SafeUpload;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
@@ -30,6 +31,8 @@ class UpdateOrderFormRequest extends FormRequest
             'formData.*.label' => 'required',
             'formData.*.type' => ['required', Rule::in(['text', 'number', 'checkbox', 'select', 'date', 'description'])],
             'name' => 'required|unique:order_forms,name, '.$this->route()->parameter('orderForm')->id,
+            // Left untouched when the form re-submits the stored path as a string.
+            'file' => $this->hasFile('file') ? SafeUpload::documentRules() : ['nullable'],
         ];
     }
 }

@@ -2,8 +2,8 @@ FROM php:8.2-alpine
 
 ENV COMPOSER_ALLOW_SUPERUSER=1 \
     PHP_MEMORY_LIMIT=512M \
-    UPLOAD_MAX_FILESIZE=128M \
-    POST_MAX_SIZE=128M
+    UPLOAD_MAX_FILESIZE=50M \
+    POST_MAX_SIZE=256M
 
 RUN apk --no-cache add \
         libzip-dev \

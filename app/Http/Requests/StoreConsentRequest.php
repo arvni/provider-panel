@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\Consent;
+use App\Rules\SafeUpload;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
@@ -26,6 +27,7 @@ class StoreConsentRequest extends FormRequest
     {
         return [
             'name' => 'required|unique:consents,name',
+            'file' => $this->hasFile('file') ? SafeUpload::documentRules() : ['nullable'],
         ];
     }
 }

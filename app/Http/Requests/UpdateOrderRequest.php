@@ -6,9 +6,11 @@ use App\Enums\Nationality;
 use App\Enums\OrderStep;
 use App\Rules\CheckSampleMaterial;
 use App\Rules\CheckSamples;
+use App\Rules\SafeUpload;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\NestedRules;
 use Illuminate\Validation\Rule;
 
 class UpdateOrderRequest extends FormRequest
@@ -24,7 +26,7 @@ class UpdateOrderRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, ValidationRule|array|string>
+     * @return array<string, ValidationRule|NestedRules|array|string>
      */
     public function rules(): array
     {
@@ -68,8 +70,43 @@ class UpdateOrderRequest extends FormRequest
                     'samples.*.collectionDate' => 'required|date|before_or_equal:today',
                     'samples.*.pooling' => 'boolean',
                 ];
+            case OrderStep::CLINICAL_DETAILS:
+                return [
+                    'files' => ['nullable', 'array', 'max:10'],
+                    'files.*' => Rule::forEach($this->uploadOrExistingPath(...)),
+                ];
+            case OrderStep::CONSENT_FORM:
+                return [
+                    'consentForm' => ['nullable', 'array', 'max:3'],
+                    'consentForm.*' => Rule::forEach($this->uploadOrExistingPath(...)),
+                ];
             default:
                 return [];
         }
+    }
+
+    /**
+     * Without these the rejection reads "The files.0 field must ...".
+     *
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return [
+            'files.*' => __('file'),
+            'consentForm.*' => __('consent form'),
+        ];
+    }
+
+    /**
+     * Files already stored on a previous visit to the step come back as their
+     * string path and must be left alone; anything else is a fresh upload and
+     * has to clear the allow-list.
+     *
+     * @return array<int, mixed>
+     */
+    private function uploadOrExistingPath(mixed $value): array
+    {
+        return is_string($value) ? ['string'] : SafeUpload::rules();
     }
 }

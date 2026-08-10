@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\SafeUpload;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\File;
 
 class UploadFileRequest extends FormRequest
 {
@@ -24,10 +24,7 @@ class UploadFileRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'file.*' => ['required', 'extensions:jpg,png', 'file',
-                File::image()
-                    ->min('10kb')
-                    ->max('10mb')],
+            'file.*' => ['required', ...SafeUpload::rules()],
         ];
     }
 }

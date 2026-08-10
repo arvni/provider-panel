@@ -31,6 +31,7 @@ import {
     FormatListNumbered,
 } from "@mui/icons-material";
 import RequirementForm from "@/Pages/OrderForm/Components/RequirementForm";
+import { MAX_FILE_BYTES, formatBytes } from "@/uploadTypes";
 
 /**
  * Order Form component
@@ -92,9 +93,9 @@ const Form = ({
                 return;
             }
 
-            // Check file size (5MB max)
-            if (file.size > 5 * 1024 * 1024) {
-                setFileError("File size should not exceed 5MB");
+            // Same ceiling the server enforces (App\Rules\SafeUpload).
+            if (file.size > MAX_FILE_BYTES) {
+                setFileError(`File size should not exceed ${formatBytes(MAX_FILE_BYTES)}`);
                 return;
             }
 

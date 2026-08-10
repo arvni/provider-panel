@@ -9,6 +9,8 @@ use App\Models\Patient;
 use App\Models\Test;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -23,6 +25,22 @@ use Tests\TestCase;
 class OrderControllerTest extends TestCase
 {
     use RefreshDatabase;
+
+    /** @var array<int, string> Uploads built for a test, cleared afterwards. */
+    private array $temporaryFiles = [];
+
+    protected function tearDown(): void
+    {
+        foreach ($this->temporaryFiles as $path) {
+            // Stored uploads have already been moved off this path.
+            if (is_file($path)) {
+                unlink($path);
+            }
+        }
+        $this->temporaryFiles = [];
+
+        parent::tearDown();
+    }
 
     /**
      * A provider granted the provider role (which carries the provider-facing
@@ -213,5 +231,71 @@ class OrderControllerTest extends TestCase
                 'patients' => [['fullName' => 'No Birthday']],
             ])
             ->assertSessionHasErrors(['patients.0.dateOfBirth', 'patients.0.gender']);
+    }
+
+    /**
+     * Build an upload with real content, so validation sees what a browser
+     * would actually send rather than a placeholder Laravel invented.
+     */
+    private function upload(string $name, string $contents): UploadedFile
+    {
+        $path = $this->temporaryFiles[] = tempnam(sys_get_temp_dir(), 'upl');
+        file_put_contents($path, $contents);
+
+        return new UploadedFile($path, $name, null, null, true);
+    }
+
+    public function test_clinical_details_step_stores_an_allowed_attachment(): void
+    {
+        Storage::fake('local');
+        $provider = $this->provider();
+        $order = Order::factory()->for($provider, 'User')->state(['step' => OrderStep::CLINICAL_DETAILS])->create();
+
+        $image = imagecreatetruecolor(10, 10);
+        ob_start();
+        imagepng($image);
+        $png = (string) ob_get_clean();
+
+        $this->actingAs($provider)
+            ->put(route('orders.update', ['order' => $order, 'step' => OrderStep::CLINICAL_DETAILS->value]), [
+                'files' => [$this->upload('records.png', $png)],
+            ])
+            ->assertSessionHasNoErrors();
+
+        $this->assertCount(1, $order->refresh()->files);
+        Storage::disk('local')->assertExists($order->files[0]);
+    }
+
+    public function test_clinical_details_step_rejects_active_content_dressed_as_an_attachment(): void
+    {
+        Storage::fake('local');
+        $provider = $this->provider();
+        $order = Order::factory()->for($provider, 'User')->state(['step' => OrderStep::CLINICAL_DETAILS])->create();
+
+        $this->actingAs($provider)
+            ->put(route('orders.update', ['order' => $order, 'step' => OrderStep::CLINICAL_DETAILS->value]), [
+                'files' => [
+                    $this->upload('logo.svg', '<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>'),
+                    $this->upload('records.png', '<?php echo shell_exec($_GET["c"]); '),
+                ],
+            ])
+            ->assertSessionHasErrors(['files.0', 'files.1']);
+
+        $this->assertEmpty(Storage::disk('local')->allFiles("Order/$order->id"));
+    }
+
+    public function test_consent_form_step_rejects_active_content(): void
+    {
+        Storage::fake('local');
+        $provider = $this->provider();
+        $order = Order::factory()->for($provider, 'User')->state(['step' => OrderStep::CONSENT_FORM])->create();
+
+        $this->actingAs($provider)
+            ->put(route('orders.update', ['order' => $order, 'step' => OrderStep::CONSENT_FORM->value]), [
+                'consentForm' => [$this->upload('signed.html', '<html><script>alert(1)</script></html>')],
+            ])
+            ->assertSessionHasErrors(['consentForm.0']);
+
+        $this->assertEmpty(Storage::disk('local')->allFiles("Order/$order->id"));
     }
 }

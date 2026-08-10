@@ -47,7 +47,7 @@ class InstructionRepository extends BaseRepository implements InstructionReposit
     {
         return $this->query->create([
             ...$instructionDetails,
-            'file' => $instructionDetails['file'] ? $this->uploadFileService->init('instructions')[0] : '']);
+            'file' => $instructionDetails['file'] ? ($this->uploadFileService->init('instructions')[0] ?? '') : '']);
     }
 
     public function show(Instruction $instruction): Instruction
@@ -60,7 +60,7 @@ class InstructionRepository extends BaseRepository implements InstructionReposit
         $instruction->update([
             ...$newInstructionDetails,
             'file' => $newInstructionDetails['file'] ?
-                (is_string($newInstructionDetails['file']) ? $newInstructionDetails['file'] : $this->uploadFileService->init('instructions')[0]) :
+                (is_string($newInstructionDetails['file']) ? $newInstructionDetails['file'] : ($this->uploadFileService->init('instructions')[0] ?? '')) :
                 '',
         ]);
     }

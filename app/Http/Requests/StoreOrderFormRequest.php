@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\OrderForm;
+use App\Rules\SafeUpload;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
@@ -30,6 +31,7 @@ class StoreOrderFormRequest extends FormRequest
             'formData.*.label' => 'required',
             'formData.*.type' => ['required', Rule::in(['text', 'number', 'checkbox', 'select', 'date', 'description'])],
             'name' => 'required|unique:order_forms,name',
+            'file' => $this->hasFile('file') ? SafeUpload::documentRules() : ['nullable'],
         ];
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\Instruction;
+use App\Rules\SafeUpload;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
@@ -26,6 +27,7 @@ class StoreInstructionRequest extends FormRequest
     {
         return [
             'name' => 'required|unique:instructions,name',
+            'file' => $this->hasFile('file') ? SafeUpload::documentRules() : ['nullable'],
         ];
     }
 }
