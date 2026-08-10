@@ -333,7 +333,14 @@ const TableLayout = ({
                         <TableHead>
                             <TableRow>
                                 {columns.map(
-                                    ({ title, render = null, sortable, width, ...rest }, index) => (
+                                    // render is pulled out only to keep it out of
+                                    // rest, which is spread onto the TableCell; the
+                                    // header has no use for it (the body calls
+                                    // col.render itself).
+                                    (
+                                        { title, render: _render = null, sortable, width, ...rest },
+                                        index
+                                    ) => (
                                         <TableCell
                                             {...rest}
                                             key={index}
