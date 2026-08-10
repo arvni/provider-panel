@@ -47,7 +47,13 @@ export default [
             ...reactHooks.configs.recommended.rules,
             'react/react-in-jsx-scope': 'off',
             'react/prop-types': 'off',
-            'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+            // ignoreRestSiblings covers `const { open, ...other } = props`, where
+            // the named props exist precisely so they are dropped from the rest
+            // that gets spread onto a DOM node. They are discards, not oversights.
+            'no-unused-vars': [
+                'warn',
+                { argsIgnorePattern: '^_', varsIgnorePattern: '^_', ignoreRestSiblings: true },
+            ],
 
             // High-value bug-catchers — kept as errors (CI gates on these).
             'react/jsx-key': 'error',
