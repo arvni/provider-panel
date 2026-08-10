@@ -94,6 +94,9 @@ const Show = ({ collectRequest }) => {
     // collected for (a request may cover only part of an order's samples).
     const samples = collectRequest.samples ?? [];
 
+    // Sample types declared on a request raised without an order.
+    const requestedSampleTypes = collectRequest.details?.sample_types ?? [];
+
     const handleSendToServer = () => {
         setOpenSend(false);
         router.post(
@@ -404,6 +407,53 @@ const Show = ({ collectRequest }) => {
                                         )}
                                     </Card>
                                 </Grid>
+                                {/* Requested sample types: only present on requests
+                                    raised without an order, where they (and the
+                                    provider's comment) are all that was asked for. */}
+                                {requestedSampleTypes.length > 0 && (
+                                    <Grid size={12}>
+                                        <Card variant="outlined">
+                                            <CardHeader
+                                                title="Requested Sample Types"
+                                                subheader="Requested without an order"
+                                                avatar={
+                                                    <Avatar sx={{ bgcolor: "primary.main" }}>
+                                                        <Vaccines />
+                                                    </Avatar>
+                                                }
+                                            />
+                                            <Divider />
+                                            <CardContent>
+                                                <Stack
+                                                    direction="row"
+                                                    spacing={1}
+                                                    useFlexGap
+                                                    flexWrap="wrap"
+                                                >
+                                                    {requestedSampleTypes.map(
+                                                        (sampleType, index) => (
+                                                            <Chip
+                                                                key={sampleType.id ?? index}
+                                                                label={sampleType.name}
+                                                                variant="outlined"
+                                                            />
+                                                        )
+                                                    )}
+                                                </Stack>
+                                                {collectRequest?.details?.comment && (
+                                                    <Typography
+                                                        variant="body2"
+                                                        color="text.secondary"
+                                                        sx={{ mt: 2 }}
+                                                    >
+                                                        {collectRequest.details.comment}
+                                                    </Typography>
+                                                )}
+                                            </CardContent>
+                                        </Card>
+                                    </Grid>
+                                )}
+
                                 {/* Scheduling Information */}
                                 <Grid size={{ xs: 12, md: 6 }}>
                                     <Card variant="outlined">
@@ -941,7 +991,11 @@ const Show = ({ collectRequest }) => {
                                     <TableBody>
                                         {samples.length === 0 ? (
                                             <TableRow>
-                                                <TableCell colSpan={6} align="center" sx={{ py: 3 }}>
+                                                <TableCell
+                                                    colSpan={6}
+                                                    align="center"
+                                                    sx={{ py: 3 }}
+                                                >
                                                     <Typography color="text.secondary">
                                                         No samples are linked to this collection
                                                         request

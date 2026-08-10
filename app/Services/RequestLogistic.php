@@ -137,7 +137,7 @@ class RequestLogistic
             throw new ApiServiceException('Collect request user or referrer_id is missing', 400);
         }
 
-        if ($collectRequest->Orders->isEmpty()) {
+        if ($collectRequest->Orders->isEmpty() && ! self::isStandalone($collectRequest)) {
             throw new ApiServiceException('Collect request has no orders', 400);
         }
 
@@ -178,6 +178,16 @@ class RequestLogistic
                 }
             }
         }
+    }
+
+    /**
+     * A standalone request is raised without any order: the provider only
+     * declares which sample types they have ready for pickup, so the request
+     * carries them in its details and has no order graph to send.
+     */
+    private static function isStandalone(CollectRequest $collectRequest): bool
+    {
+        return ! empty($collectRequest->details['sample_types']);
     }
 
     /**
@@ -502,12 +512,16 @@ class RequestLogistic
             'id' => $collectRequest->id,
             'status' => $collectRequest->status->value,
             'details' => $details,
+            // 'standalone' when the request was raised without an order; the
+            // requested sample types are then all the server has to go on.
+            'type' => $details['type'] ?? 'order',
+            'sample_types' => $details['sample_types'] ?? [],
             'address' => $details['address'] ?? null,
             'phone' => $details['phone'] ?? null,
             'collection_date' => $details['collection_date'] ?? $collectRequest->preferred_date ?? null,
             'collection_time' => $details['collection_time'] ?? null,
             'preferred_date' => $collectRequest->preferred_date,
-            'notes' => $collectRequest->notes,
+            'notes' => $collectRequest->notes ?? ($details['comment'] ?? null),
             'user' => [
                 'id' => $collectRequest->User->id,
                 'name' => $collectRequest->User->name,

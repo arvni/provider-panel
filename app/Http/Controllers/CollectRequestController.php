@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Interfaces\CollectRequestRepositoryInterface;
 use App\Models\CollectRequest;
+use App\Models\SampleType;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -34,6 +35,11 @@ class CollectRequestController extends Controller
 
         return Inertia::render('CollectRequest/UserIndex', [
             'collectRequests' => $collectRequests,
+            // Choices for the standalone (order-less) collect request form: only
+            // the types a provider is allowed to order.
+            'sampleTypes' => fn () => SampleType::where('orderable', true)
+                ->orderBy('name')
+                ->get(['id', 'name']),
             'request' => $requestInputs,
         ]);
     }
