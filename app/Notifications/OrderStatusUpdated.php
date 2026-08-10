@@ -74,6 +74,7 @@ class OrderStatusUpdated extends Notification implements ShouldQueue
             'reported' => 'Great news! Your test results for order **%s** are now available for review.',
             'received' => 'We have successfully received your sample for order **%s** and it\'s being prepared for analysis.',
             'processing' => 'Your sample for order **%s** is currently being analyzed by our laboratory team.',
+            'waiting for financial approval' => 'The report for order **%s** is ready, but its release is on hold pending financial approval. We will publish it as soon as the payment has been settled.',
         ];
 
         $defaultMessage = 'Your order **%s** status has been updated to **%s**.';
@@ -94,6 +95,7 @@ class OrderStatusUpdated extends Notification implements ShouldQueue
             'processing' => 'Your Sample Is Being Processed',
             'sent' => 'Your Collection Kit Has Been Shipped',
             'semi reported' => 'Partial Results Available',
+            'waiting for financial approval' => 'Your Report Is Awaiting Financial Approval',
         ];
 
         $defaultSubject = sprintf(
@@ -126,6 +128,7 @@ class OrderStatusUpdated extends Notification implements ShouldQueue
             'reported' => 'Great news! Your test results for order **%s** are now available for review.',
             'received' => 'We have successfully received your sample for order **%s** and it\'s being prepared for analysis.',
             'processing' => 'Your sample for order **%s** is currently being analyzed by our laboratory team.',
+            'waiting for financial approval' => 'The report for order **%s** is ready, but its release is on hold pending financial approval. We will publish it as soon as the payment has been settled.',
         ];
 
         $defaultMessage = 'Your order **%s** status has been updated to **%s**.';
@@ -219,6 +222,10 @@ class OrderStatusUpdated extends Notification implements ShouldQueue
             'processing' => [
                 'action' => 'View Status',
                 'footer' => 'We\'ll notify you as soon as your results are ready.',
+            ],
+            'waiting for financial approval' => [
+                'action' => 'View Order',
+                'footer' => 'Please contact our finance team if you believe this hold is a mistake.',
             ],
         ];
 

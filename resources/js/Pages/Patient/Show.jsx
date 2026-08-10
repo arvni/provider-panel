@@ -47,6 +47,7 @@ const getStatusColor = (status) =>
         sent: "primary",
         received: "success",
         processing: "secondary",
+        "waiting for financial approval": "warning",
         reported: "success",
         "report downloaded": "default",
         pending: "error",

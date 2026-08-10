@@ -23,7 +23,7 @@ class OrderObserver
      */
     public function updated(Order $order): void
     {
-        if (in_array($order->status->value, [OrderStatus::REPORTED->value, OrderStatus::RECEIVED->value, OrderStatus::PROCESSING->value])) {
+        if (in_array($order->status->value, [OrderStatus::REPORTED->value, OrderStatus::RECEIVED->value, OrderStatus::PROCESSING->value, OrderStatus::WAITING_FOR_FINANCIAL_APPROVAL->value])) {
             $order->load('User');
             $users = [$order->User];
             Notification::send($users, new OrderStatusUpdated($order));

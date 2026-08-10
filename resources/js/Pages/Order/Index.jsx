@@ -127,6 +127,7 @@ const Index = ({ orders: { data: ordersData, ...pagination }, request }) => {
             received: "success",
             processing: "secondary",
             "semi reported": "warning",
+            "waiting for financial approval": "warning",
             reported: "success",
             "report downloaded": "default",
         };
@@ -225,6 +226,10 @@ const Index = ({ orders: { data: ordersData, ...pagination }, request }) => {
                     { value: "received", label: "Received" },
                     { value: "processing", label: "Processing" },
                     { value: "semi reported", label: "Semi Reported" },
+                    {
+                        value: "waiting for financial approval",
+                        label: "Waiting for Financial Approval",
+                    },
                     { value: "reported", label: "Reported" },
                     { value: "report downloaded", label: "Report Downloaded" },
                 ],

@@ -32,6 +32,7 @@ class SyncOrdersStatus extends Command
         $status = function ($x, OrderStatus $old) {
             return match ($x) {
                 'processing' => OrderStatus::PROCESSING,
+                'waiting for financial approval' => OrderStatus::WAITING_FOR_FINANCIAL_APPROVAL,
                 'reported' => OrderStatus::REPORTED,
                 default => $old
             };
@@ -42,6 +43,7 @@ class SyncOrdersStatus extends Command
                 OrderStatus::PROCESSING->value,
                 OrderStatus::SENT->value,
                 OrderStatus::SEMI_REPORTED->value,
+                OrderStatus::WAITING_FOR_FINANCIAL_APPROVAL->value,
                 OrderStatus::RECEIVED->value,
                 OrderStatus::LOGISTIC_REQUESTED->value,
             ]);

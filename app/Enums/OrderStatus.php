@@ -11,6 +11,7 @@ enum OrderStatus: string
     case RECEIVED = 'received';
     case PROCESSING = 'processing';
     case SEMI_REPORTED = 'semi reported';
+    case WAITING_FOR_FINANCIAL_APPROVAL = 'waiting for financial approval';
     case REPORTED = 'reported';
     case REPORT_DOWNLOADED = 'report downloaded';
 
