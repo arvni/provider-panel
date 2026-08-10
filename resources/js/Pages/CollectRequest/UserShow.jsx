@@ -95,6 +95,11 @@ const UserShow = ({ collectRequest }) => {
     // Every sample tagged to this request, whichever order it came from.
     const samples = collectRequest.samples ?? [];
 
+    // Order-less requests only declare the sample types waiting for pickup,
+    // with the provider's comment kept alongside them in details.
+    const requestedSampleTypes = details.sample_types ?? [];
+    const notes = collectRequest.notes || details.comment;
+
     // Only the pieces the summary card and page header need; the tracking panel
     // derives the rest itself.
     const { collector, barcodes, duration, temperature } = useMemo(
@@ -298,6 +303,36 @@ const UserShow = ({ collectRequest }) => {
                                     </Card>
                                 </Grid>
 
+                                {/* Requested sample types (order-less requests) */}
+                                {requestedSampleTypes.length > 0 && (
+                                    <Grid size={12}>
+                                        <Typography
+                                            variant="h6"
+                                            gutterBottom
+                                            sx={{ fontWeight: 600, mt: 2 }}
+                                        >
+                                            Requested Sample Types
+                                        </Typography>
+                                        <Paper variant="outlined" sx={{ p: 2.5 }}>
+                                            <Stack
+                                                direction="row"
+                                                spacing={1}
+                                                useFlexGap
+                                                flexWrap="wrap"
+                                            >
+                                                {requestedSampleTypes.map((sampleType, index) => (
+                                                    <Chip
+                                                        key={sampleType.id ?? index}
+                                                        icon={<Vaccines />}
+                                                        label={sampleType.name}
+                                                        variant="outlined"
+                                                    />
+                                                ))}
+                                            </Stack>
+                                        </Paper>
+                                    </Grid>
+                                )}
+
                                 {/* Contact Information Section */}
                                 {(details.address || details.phone) && (
                                     <Grid size={12}>
@@ -378,7 +413,7 @@ const UserShow = ({ collectRequest }) => {
                                 )}
 
                                 {/* Notes Section */}
-                                {collectRequest.notes && (
+                                {notes && (
                                     <Grid size={12}>
                                         <Typography
                                             variant="h6"
@@ -404,7 +439,7 @@ const UserShow = ({ collectRequest }) => {
                                                     <Notes />
                                                 </Avatar>
                                                 <Typography variant="body1" sx={{ pt: 0.5 }}>
-                                                    {collectRequest.notes}
+                                                    {notes}
                                                 </Typography>
                                             </Stack>
                                         </Paper>

@@ -70,6 +70,36 @@ class RequestLogisticTest extends TestCase
         RequestLogistic::send($collectRequest);
     }
 
+    public function test_it_sends_a_standalone_request_that_has_no_orders(): void
+    {
+        Http::fake(['*' => Http::response(['id' => 1001], 200)]);
+
+        $user = User::factory()->create(['referrer_id' => 7]);
+        $collectRequest = CollectRequest::create([
+            'user_id' => $user->id,
+            'status' => CollectRequestStatus::REQUESTED,
+            'preferred_date' => '2026-07-01',
+            'details' => [
+                'type' => 'standalone',
+                'sample_types' => [['id' => 3, 'server_id' => 55, 'name' => 'Blood']],
+                'comment' => 'Ready at the front desk.',
+            ],
+        ]);
+
+        $response = RequestLogistic::send($collectRequest);
+
+        $this->assertTrue($response->successful());
+        $this->assertSame(1001, $collectRequest->refresh()->server_id);
+
+        $payload = $this->capturedDataPayload();
+
+        $this->assertSame('standalone', $payload['type']);
+        $this->assertSame([], $payload['orders']);
+        $this->assertSame(55, $payload['sample_types'][0]['server_id']);
+        // With no notes column set, the provider's comment carries them.
+        $this->assertSame('Ready at the front desk.', $payload['notes']);
+    }
+
     public function test_it_sends_the_order_graph_and_records_the_server_id(): void
     {
         Http::fake(['*' => Http::response(['id' => 999], 200)]);

@@ -1,16 +1,22 @@
-import React from "react";
-import { IconButton, Paper, Typography, Box, Chip, useTheme, alpha } from "@mui/material";
-import { RemoveRedEye as ViewIcon } from "@mui/icons-material";
+import React, { useState } from "react";
+import { Button, IconButton, Paper, Typography, Box, Chip, useTheme, alpha } from "@mui/material";
+import { Add as AddIcon, RemoveRedEye as ViewIcon } from "@mui/icons-material";
 import ClientLayout from "@/Layouts/AuthenticatedLayout";
 import PageHeader from "@/Components/PageHeader";
 import { usePageReload } from "@/Services/api";
 import TableLayout from "@/Layouts/TableLayout";
+import StandaloneRequestForm from "./Components/StandaloneRequestForm";
 
 /**
  * User Collect Requests Index component
  */
-const UserIndex = ({ collectRequests: { data: collectRequestsData, ...pagination }, request }) => {
+const UserIndex = ({
+    collectRequests: { data: collectRequestsData, ...pagination },
+    sampleTypes = [],
+    request,
+}) => {
     const theme = useTheme();
+    const [formOpen, setFormOpen] = useState(false);
 
     const {
         data,
@@ -110,6 +116,32 @@ const UserIndex = ({ collectRequests: { data: collectRequestsData, ...pagination
             ),
         },
         {
+            field: "sample_types",
+            title: "Sample Types",
+            type: "component",
+            // Only requests raised without an order carry sample types.
+            render: (row) => {
+                const sampleTypes = row.details?.sample_types || [];
+
+                if (sampleTypes.length === 0) {
+                    return <Typography variant="body2">—</Typography>;
+                }
+
+                return (
+                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                        {sampleTypes.map((sampleType, index) => (
+                            <Chip
+                                key={sampleType.id ?? index}
+                                label={sampleType.name}
+                                size="small"
+                                variant="outlined"
+                            />
+                        ))}
+                    </Box>
+                );
+            },
+        },
+        {
             field: "preferred_date",
             title: "Preferred Date",
             type: "text",
@@ -156,7 +188,24 @@ const UserIndex = ({ collectRequests: { data: collectRequestsData, ...pagination
 
     return (
         <ClientLayout>
-            <PageHeader title="My Collection Requests" />
+            <PageHeader
+                title="My Collection Requests"
+                actions={[
+                    <Button
+                        key="new-request"
+                        variant="contained"
+                        startIcon={<AddIcon />}
+                        onClick={() => setFormOpen(true)}
+                    >
+                        New Request
+                    </Button>,
+                ]}
+            />
+            <StandaloneRequestForm
+                open={formOpen}
+                onClose={() => setFormOpen(false)}
+                sampleTypes={sampleTypes}
+            />
             <Paper
                 sx={{
                     p: 2,

@@ -34,6 +34,7 @@ use App\Http\Controllers\PatientController;
 use App\Http\Controllers\SampleController;
 use App\Http\Controllers\StoreCollectRequestController;
 use App\Http\Controllers\StoreSampleCollectRequestController;
+use App\Http\Controllers\StoreStandaloneCollectRequestController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -90,6 +91,7 @@ Route::middleware('auth')->group(function () {
     Route::get('patients', [PatientController::class, 'index'])->name('patients.index')->middleware('providerAccess:Patient.Index');
     Route::resource('patients', PatientController::class)->only(['show', 'edit', 'update', 'destroy'])->middleware('providerAccess:Patient.Index');
     Route::get('collectRequests', [CollectRequestController::class, 'index'])->name('collectRequests.index')->middleware('providerAccess:CollectRequest.Index');
+    Route::post('collectRequests', StoreStandaloneCollectRequestController::class)->name('collectRequests.store')->middleware('providerAccess:CollectRequest.Index');
     Route::resource('collectRequests', CollectRequestController::class)->only(['show'])->names([
         'show' => 'collectRequests.show',
     ]);
