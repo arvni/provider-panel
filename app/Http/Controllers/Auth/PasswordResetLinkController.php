@@ -14,6 +14,12 @@ use RyanChandler\LaravelCloudflareTurnstile\Rules\Turnstile;
 class PasswordResetLinkController extends Controller
 {
     /**
+     * Generic response shown for every reset link request, so the endpoint
+     * cannot be used to discover which email addresses have an account.
+     */
+    private const STATUS = 'If an account exists for that email address, a password reset link has been sent to it.';
+
+    /**
      * Display the password reset link request view.
      */
     public function create(Request $request): Response
@@ -38,19 +44,13 @@ class PasswordResetLinkController extends Controller
                 : [],
         ]);
 
-        // We will send the password reset link to this user. Once we have attempted
-        // to send the link, we will examine the response then see the message we
-        // need to show to the user. Finally, we'll send out a proper response.
-        $status = Password::sendResetLink(
+        // Attempt to send the reset link, but ignore the outcome: an unknown
+        // address, a throttled request and a delivered link all get the same
+        // answer so that nobody can probe this endpoint for valid accounts.
+        Password::sendResetLink(
             $request->only('email')
         );
 
-        if ($status == Password::RESET_LINK_SENT) {
-            return back()->with('status', __($status));
-        }
-
-        throw ValidationException::withMessages([
-            'email' => [trans($status)],
-        ]);
+        return back()->with('status', __(self::STATUS));
     }
 }
