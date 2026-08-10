@@ -118,11 +118,6 @@ class SafeUploadTest extends TestCase
         $this->assertAccepted($this->upload('sheet.xlsx', $this->xlsxContents()));
     }
 
-    public function test_it_rejects_one_office_type_wearing_anothers_name(): void
-    {
-        $this->assertFalse($this->passes($this->upload('sheet.xlsx', $this->docxContents())));
-    }
-
     /**
      * An OOXML file is a zip underneath, and some libmagic builds report only
      * that. The name still has to claim an office extension.

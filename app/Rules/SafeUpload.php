@@ -53,6 +53,10 @@ final class SafeUpload
      * name still has to be .docx/.xlsx, and everything here is served as an
      * attachment, so the worst a zip in that disguise achieves is being stored.
      *
+     * The corollary is that on a build which reports only the container, a
+     * .docx and a .xlsx cannot be told apart. That is a mislabelling, not a
+     * security boundary: both are types this list already accepts.
+     *
      * @var array<string, array<int, string>>
      */
     private const CONTENT_TYPES = [

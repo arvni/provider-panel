@@ -67,6 +67,16 @@ export default [
             'react-hooks/rules-of-hooks': 'warn',
         },
     },
+    // Vitest runs the specs in Node, so they may reach for Node globals
+    // (`global`, `process`) that the browser block above does not declare.
+    {
+        files: ['resources/js/**/*.{test,spec}.{js,jsx,ts,tsx}', 'resources/js/test/**'],
+        languageOptions: {
+            globals: {
+                ...globals.node,
+            },
+        },
+    },
     // TS-only rule overrides (applied after the shared block). The base
     // no-unused-vars misfires on type-only references; tsconfig's
     // noUnusedLocals/noUnusedParameters covers unused detection for TS instead.
