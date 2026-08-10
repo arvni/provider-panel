@@ -65,10 +65,14 @@ class GetFileController extends Controller
         // Serve only an existing regular file (never a directory or a missing path).
         abort_unless(is_file($absolutePath), 404);
 
+        // download() sends Content-Disposition: attachment, and nosniff stops the
+        // browser second-guessing the type, so stored content can never run in
+        // the app's origin even if something unexpected made it onto disk.
         return Response::download($absolutePath, null, [
             'Cache-Control' => 'no-cache, no-store, must-revalidate',
             'Pragma' => 'no-cache',
             'Expires' => '0',
+            'X-Content-Type-Options' => 'nosniff',
         ], null);
     }
 }

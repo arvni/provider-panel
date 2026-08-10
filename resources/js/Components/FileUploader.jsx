@@ -24,6 +24,14 @@ import {
     Description,
 } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
+import {
+    ACCEPTED_EXTENSIONS,
+    ACCEPT_ATTRIBUTE,
+    MAX_FILE_BYTES,
+    MAX_TOTAL_BYTES,
+    formatBytes,
+    isAcceptedFile,
+} from "@/uploadTypes";
 
 // Styled component for the drop zone
 const DropZone = styled(Paper)(({ theme, isDragActive }) => ({
@@ -94,13 +102,60 @@ const FileUploader = ({
         inputRef.current.click();
     };
 
-    const handleChange = (e) => {
-        const newFiles = Array.from(e.target.files);
+    // The accept attribute only guides the file picker, and drag-and-drop skips
+    // it entirely, so the selection is filtered here as well. The server
+    // re-checks the extension, the file's real content and the size regardless.
+    const acceptFiles = (newFiles) => {
+        const wrongType = newFiles.filter((file) => !isAcceptedFile(file));
+        if (wrongType.length) {
+            alert(
+                `These files are not an accepted type and were skipped:\n` +
+                    `${wrongType.map((file) => file.name).join("\n")}\n\n` +
+                    `Accepted types: ${ACCEPTED_EXTENSIONS.join(", ")}`
+            );
+        }
+
+        const tooLarge = newFiles.filter((file) => file.size > MAX_FILE_BYTES);
+        if (tooLarge.length) {
+            alert(
+                `These files are larger than ${formatBytes(MAX_FILE_BYTES)} and were skipped:\n` +
+                    `${tooLarge.map((file) => `${file.name} (${formatFileSize(file.size)})`).join("\n")}`
+            );
+        }
+
+        return newFiles.filter((file) => isAcceptedFile(file) && file.size <= MAX_FILE_BYTES);
+    };
+
+    const addFiles = (selected) => {
+        const newFiles = acceptFiles(selected);
+        if (!newFiles.length) {
+            return;
+        }
         if (defaultValues.length + newFiles.length > maxFiles) {
             alert(`You can only upload a maximum of ${maxFiles} files.`);
             return;
         }
+
+        // Everything queued goes up in one request, so the combined size is what
+        // has to clear the server's limit on the request body.
+        const total = [...defaultValues, ...newFiles].reduce(
+            (sum, file) => sum + (typeof file === "string" ? 0 : file.size),
+            0
+        );
+        if (total > MAX_TOTAL_BYTES) {
+            alert(
+                `These files add up to ${formatFileSize(total)}, over the ` +
+                    `${formatBytes(MAX_TOTAL_BYTES)} limit for a single upload. ` +
+                    `Please upload them in smaller batches.`
+            );
+            return;
+        }
+
         onChange(name, [...defaultValues, ...newFiles]);
+    };
+
+    const handleChange = (e) => {
+        addFiles(Array.from(e.target.files));
         // Clear the input value so the same file can be uploaded again if needed
         e.target.value = "";
     };
@@ -133,12 +188,7 @@ const FileUploader = ({
         e.stopPropagation();
         setIsDragActive(false);
 
-        const newFiles = Array.from(e.dataTransfer.files);
-        if (defaultValues.length + newFiles.length > maxFiles) {
-            alert(`You can only upload a maximum of ${maxFiles} files.`);
-            return;
-        }
-        onChange(name, [...defaultValues, ...newFiles]);
+        addFiles(Array.from(e.dataTransfer.files));
     };
 
     const getFileName = (file) => {
@@ -175,7 +225,7 @@ const FileUploader = ({
                     multiple
                     style={{ display: "none" }}
                     onChange={handleChange}
-                    accept="*/*"
+                    accept={ACCEPT_ATTRIBUTE}
                 />
 
                 <Stack direction="column" spacing={2} alignItems="center">
@@ -208,8 +258,9 @@ const FileUploader = ({
                         Choose Files
                     </Button>
 
-                    <Typography variant="caption" color="text.secondary">
-                        Maximum {maxFiles} files
+                    <Typography variant="caption" color="text.secondary" align="center">
+                        Maximum {maxFiles} files, {formatBytes(MAX_FILE_BYTES)} each &mdash;{" "}
+                        {ACCEPTED_EXTENSIONS.join(", ")}
                     </Typography>
 
                     {defaultValues.length > 0 && (

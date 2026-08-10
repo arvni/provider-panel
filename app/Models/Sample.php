@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Sample extends Model
 {
@@ -28,27 +30,27 @@ class Sample extends Model
     // Use explicit ->with('OrderItems') when needed
     protected $with = ['SampleType', 'Patient'];
 
-    public function SampleType()
+    public function SampleType(): BelongsTo
     {
         return $this->belongsTo(SampleType::class);
     }
 
-    public function Material()
+    public function Material(): BelongsTo
     {
         return $this->belongsTo(Material::class);
     }
 
-    public function Patient()
+    public function Patient(): BelongsTo
     {
         return $this->belongsTo(Patient::class);
     }
 
-    public function OrderItems()
+    public function OrderItems(): BelongsToMany
     {
         return $this->belongsToMany(OrderItem::class, 'order_item_sample');
     }
 
-    public function CollectRequest()
+    public function CollectRequest(): BelongsTo
     {
         return $this->belongsTo(CollectRequest::class);
     }

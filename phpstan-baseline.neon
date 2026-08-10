@@ -205,34 +205,28 @@ parameters:
 			path: app/Http/Controllers/PatientController.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\Sample\:\:\$OrderItems\.$#'
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
 			count: 1
 			path: app/Http/Controllers/SampleController.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\Sample\:\:\$SampleType\.$#'
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
 			identifier: property.notFound
 			count: 1
 			path: app/Http/Controllers/SampleController.php
 
 		-
-			message: '#^Relation ''OrderItems'' is not found in App\\Models\\Sample model\.$#'
-			identifier: larastan.relationExistence
-			count: 2
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<\(int\|string\),array\<string, mixed\>\>\:\:sortByDesc\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
 			path: app/Http/Controllers/SampleController.php
 
 		-
-			message: '#^Relation ''OrderItems'' is not found in App\\Models\\Sample model\.$#'
-			identifier: larastan.relationExistence
-			count: 2
-			path: app/Http/Controllers/StoreSampleCollectRequestController.php
-
-		-
-			message: '#^Relation ''OrderItems'' is not found in App\\Models\\Sample model\.$#'
-			identifier: larastan.relationExistence
+			message: '#^Parameter \#1 \$value of function collect contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
 			count: 1
-			path: app/Http/Controllers/Webhook/OrderImportController.php
+			path: app/Http/Controllers/SampleController.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>details" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
@@ -253,22 +247,10 @@ parameters:
 			path: app/Http/Controllers/Webhook/OrderMaterialUpdateWebhookController.php
 
 		-
-			message: '#^Relation ''OrderItems'' is not found in App\\Models\\Sample model\.$#'
-			identifier: larastan.relationExistence
-			count: 1
-			path: app/Http/Controllers/Webhook/OrderUpdateWebhookController.php
-
-		-
 			message: '#^Using nullsafe property access "\?\-\>details" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
 			path: app/Http/Controllers/Webhook/OrderUpdateWebhookController.php
-
-		-
-			message: '#^Relation ''OrderItems'' is not found in App\\Models\\Sample model\.$#'
-			identifier: larastan.relationExistence
-			count: 1
-			path: app/Http/Controllers/Webhook/PatientWebhookController.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>details" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
@@ -619,12 +601,6 @@ parameters:
 			path: app/Repositories/CollectRequestRepository.php
 
 		-
-			message: '#^Relation ''OrderItems'' is not found in App\\Models\\Sample model\.$#'
-			identifier: larastan.relationExistence
-			count: 1
-			path: app/Repositories/CollectRequestRepository.php
-
-		-
 			message: '#^Unreachable statement \- code above always terminates\.$#'
 			identifier: deadCode.unreachable
 			count: 1
@@ -679,12 +655,6 @@ parameters:
 			path: app/Repositories/OrderRepository.php
 
 		-
-			message: '#^Relation ''OrderItems'' is not found in App\\Models\\Sample model\.$#'
-			identifier: larastan.relationExistence
-			count: 1
-			path: app/Repositories/OrderRepository.php
-
-		-
 			message: '#^Relation ''Sample'' is not found in App\\Models\\Material model\.$#'
 			identifier: larastan.relationExistence
 			count: 1
@@ -707,12 +677,6 @@ parameters:
 			identifier: property.notFound
 			count: 4
 			path: app/Services/MaterialOrder.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\CollectRequest\:\:\$notes\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Services/RequestLogistic.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Order\:\:\$OrderItems\.$#'
@@ -751,18 +715,6 @@ parameters:
 			path: app/Services/RequestLogistic.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\Sample\:\:\$Material\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Services/RequestLogistic.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Sample\:\:\$SampleType\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Services/RequestLogistic.php
-
-		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$OrderItems\.$#'
 			identifier: property.notFound
 			count: 2
@@ -781,6 +733,12 @@ parameters:
 			path: app/Services/RequestLogistic.php
 
 		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$barcode\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/RequestLogistic.php
+
+		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$email\.$#'
 			identifier: property.notFound
 			count: 1
@@ -789,19 +747,31 @@ parameters:
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 5
+			count: 7
 			path: app/Services/RequestLogistic.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
 			identifier: property.notFound
-			count: 1
+			count: 2
 			path: app/Services/RequestLogistic.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$referrer_id\.$#'
 			identifier: property.notFound
 			count: 4
+			path: app/Services/RequestLogistic.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$sample_id_required\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/RequestLogistic.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$server_id\.$#'
+			identifier: property.notFound
+			count: 1
 			path: app/Services/RequestLogistic.php
 
 		-

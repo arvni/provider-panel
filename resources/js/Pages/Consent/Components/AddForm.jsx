@@ -15,6 +15,7 @@ import Container from "@mui/material/Container";
 import { RemoveRedEye } from "@mui/icons-material";
 import ListItemText from "@mui/material/ListItemText";
 import List from "@mui/material/List";
+import { ACCEPT_DOCUMENTS } from "@/uploadTypes";
 
 const AddForm = ({ values, setValues, submit, open, setOpen, title, loading, reset }) => {
     const handleChange = (e) =>
@@ -58,7 +59,12 @@ const AddForm = ({ values, setValues, submit, open, setOpen, title, loading, res
                                     </ListItem>
                                 </List>
                             ) : null}
-                            <Input type="file" name="file" onChange={handleFileChange} />
+                            <Input
+                                type="file"
+                                name="file"
+                                onChange={handleFileChange}
+                                inputProps={{ accept: ACCEPT_DOCUMENTS }}
+                            />
                         </Grid>
                     </Grid>
                 </Container>

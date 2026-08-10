@@ -47,7 +47,7 @@ class ConsentRepository extends BaseRepository implements ConsentRepositoryInter
     {
         return $this->query->create([
             ...$consentDetails,
-            'file' => $consentDetails['file'] ? $this->uploadFileService->init('consents')[0] : '']);
+            'file' => $consentDetails['file'] ? ($this->uploadFileService->init('consents')[0] ?? '') : '']);
     }
 
     public function show(Consent $consent): Consent
@@ -60,7 +60,7 @@ class ConsentRepository extends BaseRepository implements ConsentRepositoryInter
         $consent->update([
             ...$newConsentDetails,
             'file' => $newConsentDetails['file'] ?
-                (is_string($newConsentDetails['file']) ? $newConsentDetails['file'] : $this->uploadFileService->init('consents')[0]) :
+                (is_string($newConsentDetails['file']) ? $newConsentDetails['file'] : ($this->uploadFileService->init('consents')[0] ?? '')) :
                 '',
         ]);
     }

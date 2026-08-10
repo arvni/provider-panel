@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\SafeUpload;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
@@ -25,6 +26,8 @@ class UpdateInstructionRequest extends FormRequest
     {
         return [
             'name' => 'required|unique:instructions,name, '.$this->route()->parameter('instruction')->id,
+            // Left untouched when the form re-submits the stored path as a string.
+            'file' => $this->hasFile('file') ? SafeUpload::documentRules() : ['nullable'],
         ];
     }
 }

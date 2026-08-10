@@ -30,6 +30,16 @@ RUN set -xe \
 
 ENV COMPOSER_ALLOW_SUPERUSER 1
 
+# Uploads are capped at 50 MB per file by App\Rules\SafeUpload; PHP's stock 2M /
+# 8M would reject them long before that, and a body over post_max_size reaches
+# the app empty rather than as a validation error. post_max_size covers a whole
+# submission, which may carry several attachments.
+ENV UPLOAD_MAX_FILESIZE=50M \
+    POST_MAX_SIZE=256M
+
+RUN echo "upload_max_filesize=${UPLOAD_MAX_FILESIZE}" >  /usr/local/etc/php/conf.d/uploads.ini && \
+    echo "post_max_size=${POST_MAX_SIZE}"             >> /usr/local/etc/php/conf.d/uploads.ini
+
 EXPOSE 8000
 WORKDIR /app
 COPY ./package.json ./package.json
