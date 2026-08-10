@@ -60,12 +60,33 @@ class SafeUploadTest extends TestCase
 
     private function docxContents(): string
     {
-        $path = $this->temporaryPath('docx');
+        return $this->ooxmlContents('word/document.xml', 'wordprocessingml.document');
+    }
+
+    private function xlsxContents(): string
+    {
+        return $this->ooxmlContents('xl/workbook.xml', 'spreadsheetml.sheet');
+    }
+
+    private function ooxmlContents(string $part, string $type): string
+    {
+        $path = $this->temporaryPath('ooxml');
         $zip = new \ZipArchive;
         $zip->open($path, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
         $zip->addFromString('[Content_Types].xml', '<?xml version="1.0"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
-            .'<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>');
-        $zip->addFromString('word/document.xml', '<w:document/>');
+            ."<Override PartName=\"/$part\" ContentType=\"application/vnd.openxmlformats-officedocument.$type.main+xml\"/></Types>");
+        $zip->addFromString($part, '<root/>');
+        $zip->close();
+
+        return (string) file_get_contents($path);
+    }
+
+    private function plainZipContents(): string
+    {
+        $path = $this->temporaryPath('zip');
+        $zip = new \ZipArchive;
+        $zip->open($path, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+        $zip->addFromString('readme.txt', 'not an office document');
         $zip->close();
 
         return (string) file_get_contents($path);
@@ -76,11 +97,43 @@ class SafeUploadTest extends TestCase
         return Validator::make(['file' => $file], ['file' => SafeUpload::rules()])->passes();
     }
 
+    /**
+     * Which content types libmagic reports varies by build, so a failure here
+     * has to name what it actually saw or it is undebuggable on a machine that
+     * is not this one.
+     */
+    private function assertAccepted(UploadedFile $file): void
+    {
+        $this->assertTrue(
+            $this->passes($file),
+            "{$file->getClientOriginalName()} was rejected; it sniffed as {$file->getMimeType()}."
+        );
+    }
+
     public function test_it_accepts_images_and_documents(): void
     {
-        $this->assertTrue($this->passes($this->upload('scan.png', $this->pngContents())));
-        $this->assertTrue($this->passes($this->upload('report.pdf', $this->pdfContents())));
-        $this->assertTrue($this->passes($this->upload('form.docx', $this->docxContents())));
+        $this->assertAccepted($this->upload('scan.png', $this->pngContents()));
+        $this->assertAccepted($this->upload('report.pdf', $this->pdfContents()));
+        $this->assertAccepted($this->upload('form.docx', $this->docxContents()));
+        $this->assertAccepted($this->upload('sheet.xlsx', $this->xlsxContents()));
+    }
+
+    public function test_it_rejects_one_office_type_wearing_anothers_name(): void
+    {
+        $this->assertFalse($this->passes($this->upload('sheet.xlsx', $this->docxContents())));
+    }
+
+    /**
+     * An OOXML file is a zip underneath, and some libmagic builds report only
+     * that. The name still has to claim an office extension.
+     */
+    public function test_it_accepts_an_office_document_that_only_sniffs_as_its_container(): void
+    {
+        $zip = $this->upload('report.docx', $this->plainZipContents());
+
+        $this->assertContains($zip->getMimeType(), ['application/zip', 'application/x-zip-compressed']);
+        $this->assertAccepted($zip);
+        $this->assertFalse($this->passes($this->upload('report.zip', $this->plainZipContents())));
     }
 
     /**

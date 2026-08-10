@@ -49,23 +49,18 @@ class UploadFileService
      * Build the name the file is stored under, or null when the file is not an
      * allowed type.
      *
-     * The extension is taken from the sniffed content rather than from the
-     * client-supplied name, so an upload cannot choose the extension it lands
-     * on disk with. Requests are validated against the same allow-list
-     * (@see SafeUpload); this is the last gate for any path that is not.
+     * The extension is only kept once the sniffed content agrees with it, so an
+     * upload cannot choose to land on disk as something it is not. Requests are
+     * validated against the same allow-list (@see SafeUpload); this is the last
+     * gate for any path that is not, such as the lab webhooks.
      */
     private function getFileName(UploadedFile $file): ?string
     {
-        $extension = strtolower((string) $file->extension());
-        $clientExtension = strtolower($file->getClientOriginalExtension());
+        $extension = SafeUpload::resolveExtension($file);
 
-        // A .docx/.xlsx that sniffs as its own OOXML type is fine; anything
-        // whose content disagrees with its name is rejected outright.
-        if (! SafeUpload::allows($extension) || ! SafeUpload::allows($clientExtension)) {
+        if ($extension === null) {
             Log::warning('Rejected upload of disallowed type', [
                 'client_name' => $file->getClientOriginalName(),
-                'client_extension' => $clientExtension,
-                'detected_extension' => $extension,
                 'detected_mime' => $file->getMimeType(),
             ]);
 

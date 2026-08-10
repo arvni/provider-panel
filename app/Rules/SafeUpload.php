@@ -2,7 +2,7 @@
 
 namespace App\Rules;
 
-use Illuminate\Validation\Rules\File;
+use Illuminate\Http\UploadedFile;
 
 /**
  * Central allow-list for every file a user (or the lab webhook) may upload.
@@ -13,11 +13,11 @@ use Illuminate\Validation\Rules\File;
  *  - SVG is an XML document that can carry <script>/onload handlers, so it is
  *    treated as active content, not as an image.
  *  - HTML, PHP and every other executable/markup type is rejected by not being
- *    on the list (Laravel additionally hard-blocks php* uploads).
+ *    on the list.
  *
- * Rules produced here check the extension of the uploaded name *and* the type
- * sniffed from the file content, so renaming shell.php to shell.png does not
- * get past them.
+ * A file is accepted only when the extension in its name is on the list *and*
+ * the type sniffed from its content is one this extension may legitimately
+ * have, so renaming shell.php to avatar.png does not get past it.
  */
 final class SafeUpload
 {
@@ -44,6 +44,47 @@ final class SafeUpload
     public const MAX_KILOBYTES = 51200;
 
     /**
+     * The content types each extension is allowed to sniff as, lower-cased.
+     *
+     * The office entries carry their container type as well, because how much
+     * an OOXML file is recognised as more than a zip, or a legacy .doc as more
+     * than an OLE2 compound file, depends on the libmagic build underneath —
+     * strict OOXML-only matching rejects real Word documents on some hosts. The
+     * name still has to be .docx/.xlsx, and everything here is served as an
+     * attachment, so the worst a zip in that disguise achieves is being stored.
+     *
+     * @var array<string, array<int, string>>
+     */
+    private const CONTENT_TYPES = [
+        'jpg' => ['image/jpeg'],
+        'jpeg' => ['image/jpeg'],
+        'png' => ['image/png'],
+        'gif' => ['image/gif'],
+        'webp' => ['image/webp'],
+        'pdf' => ['application/pdf'],
+        'doc' => [
+            'application/msword',
+            'application/vnd.ms-office',
+            'application/x-ole-storage',
+            'application/cdfv2',
+        ],
+        'docx' => [
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/zip',
+        ],
+        'xls' => [
+            'application/vnd.ms-excel',
+            'application/vnd.ms-office',
+            'application/x-ole-storage',
+            'application/cdfv2',
+        ],
+        'xlsx' => [
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'application/zip',
+        ],
+    ];
+
+    /**
      * Everything that is allowed to reach the disk.
      *
      * @return array<int, string>
@@ -51,6 +92,28 @@ final class SafeUpload
     public static function extensions(): array
     {
         return [...self::IMAGE_EXTENSIONS, ...self::DOCUMENT_EXTENSIONS];
+    }
+
+    /**
+     * The extension an upload may be stored under, or null when it is not an
+     * allowed type. Both the name and the content have to agree.
+     *
+     * @param  array<int, string>|null  $allowed
+     */
+    public static function resolveExtension(UploadedFile $file, ?array $allowed = null): ?string
+    {
+        $allowed ??= self::extensions();
+        $extension = strtolower($file->getClientOriginalExtension());
+
+        if (! in_array($extension, $allowed, true)) {
+            return null;
+        }
+
+        $contentType = strtolower((string) $file->getMimeType());
+
+        return in_array($contentType, self::CONTENT_TYPES[$extension] ?? [], true)
+            ? $extension
+            : null;
     }
 
     /**
@@ -84,25 +147,11 @@ final class SafeUpload
     }
 
     /**
-     * Is this extension one we accept? Used as the last gate before writing.
-     */
-    public static function allows(string $extension): bool
-    {
-        return in_array(strtolower($extension), self::extensions(), true);
-    }
-
-    /**
      * @param  array<int, string>  $extensions
      * @return array<int, mixed>
      */
     private static function rulesFor(array $extensions, int $maxKilobytes): array
     {
-        return [
-            'file',
-            // extensions:  the name the browser sent must end in an allowed type.
-            // File::types(): the content must actually sniff as that type.
-            'extensions:'.implode(',', $extensions),
-            File::types($extensions)->max($maxKilobytes),
-        ];
+        return ['file', 'max:'.$maxKilobytes, new AllowedFileType($extensions)];
     }
 }
