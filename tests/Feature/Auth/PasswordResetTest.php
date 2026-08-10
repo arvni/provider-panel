@@ -30,6 +30,37 @@ class PasswordResetTest extends TestCase
         Notification::assertSentTo($user, ResetPassword::class);
     }
 
+    public function test_reset_password_link_request_does_not_reveal_whether_the_account_exists(): void
+    {
+        Notification::fake();
+
+        $user = User::factory()->create();
+
+        $known = $this->post('/forgot-password', ['email' => $user->email]);
+        $unknown = $this->post('/forgot-password', ['email' => 'nobody@example.com']);
+
+        $unknown->assertSessionHasNoErrors();
+        $this->assertSame(
+            $known->getSession()->get('status'),
+            $unknown->getSession()->get('status')
+        );
+
+        Notification::assertSentToTimes($user, ResetPassword::class, 1);
+    }
+
+    public function test_reset_password_link_request_does_not_reveal_throttling(): void
+    {
+        Notification::fake();
+
+        $user = User::factory()->create();
+
+        $this->post('/forgot-password', ['email' => $user->email]);
+        $throttled = $this->post('/forgot-password', ['email' => $user->email]);
+
+        $throttled->assertSessionHasNoErrors();
+        $throttled->assertSessionHas('status');
+    }
+
     public function test_reset_password_screen_can_be_rendered(): void
     {
         Notification::fake();
@@ -67,5 +98,24 @@ class PasswordResetTest extends TestCase
 
             return true;
         });
+    }
+
+    public function test_failed_password_reset_does_not_reveal_whether_the_account_exists(): void
+    {
+        $user = User::factory()->create();
+
+        $payload = [
+            'token' => 'a-token-that-was-never-issued',
+            'password' => 'new-password',
+            'password_confirmation' => 'new-password',
+        ];
+
+        $known = $this->post('/reset-password', ['email' => $user->email] + $payload);
+        $unknown = $this->post('/reset-password', ['email' => 'nobody@example.com'] + $payload);
+
+        $this->assertSame(
+            $known->getSession()->get('errors')->get('email'),
+            $unknown->getSession()->get('errors')->get('email')
+        );
     }
 }

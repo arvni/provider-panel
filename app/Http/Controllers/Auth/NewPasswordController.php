@@ -18,6 +18,12 @@ use RyanChandler\LaravelCloudflareTurnstile\Rules\Turnstile;
 class NewPasswordController extends Controller
 {
     /**
+     * Generic failure shown whenever the reset cannot be completed, so that an
+     * unknown email cannot be told apart from a bad or expired token.
+     */
+    private const FAILED = 'This password reset link is invalid or has expired. Please request a new one.';
+
+    /**
      * Display the password reset view.
      */
     public function create(Request $request): Response
@@ -61,14 +67,15 @@ class NewPasswordController extends Controller
         );
 
         // If the password was successfully reset, we will redirect the user back to
-        // the application's home authenticated view. If there is an error we can
-        // redirect them back to where they came from with their error message.
+        // the application's home authenticated view. Every failure — unknown user,
+        // bad token, expired token — reports the same message so this form cannot
+        // be used to confirm which email addresses have an account.
         if ($status == Password::PASSWORD_RESET) {
             return redirect()->route('login')->with('status', __($status));
         }
 
         throw ValidationException::withMessages([
-            'email' => [trans($status)],
+            'email' => [__(self::FAILED)],
         ]);
     }
 }
