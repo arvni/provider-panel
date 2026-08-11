@@ -13,6 +13,8 @@ interface OrderRepositoryInterface
 
     public function getUserOrders(array $queryData = []);
 
+    public function listCollectable(int $userId, ?string $search = null, int $limit = 100);
+
     public function getById(int $id): ?Order;
 
     public function getRecentlyOrders();

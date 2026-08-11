@@ -86,6 +86,23 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         return $this->applyPagination($queryData['pageSize'] ?? $this->pageSize);
     }
 
+    /**
+     * The orders of a provider that may still be attached to a new collect
+     * request: requested, and not already tied to one.
+     */
+    public function listCollectable(int $userId, ?string $search = null, int $limit = 100): Collection|array
+    {
+        return $this->query
+            ->where('orders.user_id', $userId)
+            ->where('orders.status', OrderStatus::REQUESTED)
+            ->whereNull('orders.collect_request_id')
+            ->with(['Tests:id,name', 'Patient:id,fullName,reference_id'])
+            ->when($search, fn ($query) => $query->search($search, ['id', 'Patient.fullName', 'Patient.reference_id']))
+            ->orderByDesc('orders.id')
+            ->limit($limit)
+            ->get(['id', 'main_patient_id', 'status', 'created_at']);
+    }
+
     public function getRecentlyOrders()
     {
         return $this->query

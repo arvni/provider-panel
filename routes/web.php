@@ -8,6 +8,8 @@ use App\Http\Controllers\Admin\ConsentTermController;
 use App\Http\Controllers\Admin\EditUserTestsListController;
 use App\Http\Controllers\Admin\ExportExcelMaterialsController;
 use App\Http\Controllers\Admin\InstructionController;
+use App\Http\Controllers\Admin\ListCollectableOrdersController;
+use App\Http\Controllers\Admin\ListCollectRequestProvidersController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\OrderFormController;
 use App\Http\Controllers\Admin\OrderMaterialController as OrderMaterialAdminController;
@@ -79,6 +81,10 @@ Route::middleware('auth')->group(function () {
         Route::resource('/consents', ConsentController::class)->except(['create', 'edit']);
         Route::resource('/instructions', InstructionController::class)->except(['create', 'edit']);
         Route::resource('orderForms', OrderFormController::class)->except('show');
+        // Lookups for the admin "new collection request" form. Registered before
+        // the resource so they are not swallowed by collectRequests/{collectRequest}.
+        Route::get('collectRequests/providers', ListCollectRequestProvidersController::class)->name('collectRequests.providers');
+        Route::get('collectRequests/collectable-orders', ListCollectableOrdersController::class)->name('collectRequests.collectableOrders');
         Route::post('collectRequests/{collectRequest}/send', [AdminCollectRequestController::class, 'send'])->name('collectRequests.send');
         Route::resource('collectRequests', AdminCollectRequestController::class)->except(['edit']);
         Route::resource('sampleTypes', SampleTypeController::class);

@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Enums\CollectRequestStatus;
 use App\Enums\OrderStatus;
 use App\Interfaces\CollectRequestRepositoryInterface;
 use App\Models\CollectRequest;
@@ -10,6 +11,7 @@ use App\Models\Sample;
 use App\Services\UploadFileService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 
 class CollectRequestRepository extends BaseRepository implements CollectRequestRepositoryInterface
 {
@@ -71,18 +73,42 @@ class CollectRequestRepository extends BaseRepository implements CollectRequestR
         return $this->applyGet(['order_forms.*']);
     }
 
+    /**
+     * Create an order-backed collect request.
+     *
+     * The owner defaults to the authenticated user (a provider raising their own
+     * request) but may be given explicitly as `user_id` when an admin raises the
+     * request on a provider's behalf. Only that owner's still-collectable orders
+     * are attached, so a stale selection can never pull in someone else's order.
+     */
     public function create($collectRequestDetails): CollectRequest
     {
-        $collectRequest = $this->query->make(['preferred_date' => $collectRequestDetails['preferred_date']]);
-        $collectRequest->User()->associate(auth()->user()->id);
-        $collectRequest->save();
-        $collectRequest->refresh();
-        Order::whereIn('id', $collectRequestDetails['selectedOrders'])->update(['collect_request_id' => $collectRequest->id, 'status' => OrderStatus::LOGISTIC_REQUESTED]);
-        Sample::whereHas('OrderItems', function ($query) use ($collectRequestDetails) {
-            $query->whereIn('order_id', $collectRequestDetails['selectedOrders']);
-        })->update(['collect_request_id' => $collectRequest->id]);
+        $userId = $collectRequestDetails['user_id'] ?? auth()->id();
 
-        return $collectRequest;
+        return DB::transaction(function () use ($collectRequestDetails, $userId) {
+            $collectRequest = $this->query->make([
+                'preferred_date' => $collectRequestDetails['preferred_date'],
+                'status' => CollectRequestStatus::REQUESTED,
+                'notes' => $collectRequestDetails['notes'] ?? null,
+            ]);
+            $collectRequest->User()->associate($userId);
+            $collectRequest->save();
+            $collectRequest->refresh();
+
+            Order::whereIn('id', $collectRequestDetails['selectedOrders'])
+                ->where('user_id', $userId)
+                ->where('status', OrderStatus::REQUESTED)
+                ->whereNull('collect_request_id')
+                ->update(['collect_request_id' => $collectRequest->id, 'status' => OrderStatus::LOGISTIC_REQUESTED]);
+
+            // Tag the samples of the orders that were actually attached above.
+            $attachedOrderIds = Order::where('collect_request_id', $collectRequest->id)->pluck('id');
+            Sample::whereHas('OrderItems', function ($query) use ($attachedOrderIds) {
+                $query->whereIn('order_id', $attachedOrderIds);
+            })->update(['collect_request_id' => $collectRequest->id]);
+
+            return $collectRequest;
+        });
     }
 
     public function show(CollectRequest $collectRequest): CollectRequest
