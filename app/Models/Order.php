@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Gate;
 
 class Order extends Model
@@ -130,5 +131,15 @@ class Order extends Model
     public function CollectRequest(): BelongsTo
     {
         return $this->belongsTo(CollectRequest::class);
+    }
+
+    /**
+     * The order's recorded status transitions, oldest first.
+     *
+     * @return HasMany<OrderStatusHistory, $this>
+     */
+    public function statusHistories(): HasMany
+    {
+        return $this->hasMany(OrderStatusHistory::class)->orderBy('changed_at');
     }
 }

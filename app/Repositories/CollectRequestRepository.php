@@ -8,6 +8,7 @@ use App\Interfaces\CollectRequestRepositoryInterface;
 use App\Models\CollectRequest;
 use App\Models\Order;
 use App\Models\Sample;
+use App\Services\OrderStatusRecorder;
 use App\Services\UploadFileService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
@@ -95,11 +96,22 @@ class CollectRequestRepository extends BaseRepository implements CollectRequestR
             $collectRequest->save();
             $collectRequest->refresh();
 
-            Order::whereIn('id', $collectRequestDetails['selectedOrders'])
+            $attachable = Order::whereIn('id', $collectRequestDetails['selectedOrders'])
                 ->where('user_id', $userId)
                 ->where('status', OrderStatus::REQUESTED)
-                ->whereNull('collect_request_id')
-                ->update(['collect_request_id' => $collectRequest->id, 'status' => OrderStatus::LOGISTIC_REQUESTED]);
+                ->whereNull('collect_request_id');
+
+            // Captured before the update -- it bypasses the model layer, so the
+            // timeline would otherwise miss this step entirely.
+            $before = (clone $attachable)->get(['id', 'status']);
+
+            $attachable->update([
+                'collect_request_id' => $collectRequest->id,
+                'status' => OrderStatus::LOGISTIC_REQUESTED,
+            ]);
+
+            app(OrderStatusRecorder::class)
+                ->recordMany($before, OrderStatus::LOGISTIC_REQUESTED->value, $userId);
 
             // Tag the samples of the orders that were actually attached above.
             $attachedOrderIds = Order::where('collect_request_id', $collectRequest->id)->pluck('id');

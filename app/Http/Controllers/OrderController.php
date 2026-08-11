@@ -83,6 +83,7 @@ class OrderController extends Controller
             'OrderItems.Samples.Patient',
             'OrderItems.Samples.Material',
             'OrderItems.Samples.SampleType',
+            'statusHistories.user:id,name',
         ]);
 
         // Get all patients from patient_ids

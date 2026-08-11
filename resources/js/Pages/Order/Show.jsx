@@ -12,6 +12,7 @@ import PatientTestAssignmentCard from "@/Pages/Order/Components/Show/PatientTest
 import RequestFormCard from "@/Pages/Order/Components/Show/RequestFormCard";
 import ClinicalFilesCard from "@/Pages/Order/Components/Show/ClinicalFilesCard";
 import ConsentCard from "@/Pages/Order/Components/Show/ConsentCard";
+import StatusTimelineCard from "@/Pages/Order/Components/Show/StatusTimelineCard";
 
 /**
  * Order Show page with A5 print optimization. The page composes focused,
@@ -97,6 +98,8 @@ const Show = ({ order: { consents, ...restOrder }, patients = [] }) => {
                 )}
 
                 <ConsentCard restConsents={restConsents} consentForm={consentForm} />
+
+                <StatusTimelineCard histories={restOrder.status_histories} />
             </Paper>
         </Box>
     );
