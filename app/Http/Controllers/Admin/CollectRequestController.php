@@ -39,11 +39,30 @@ class CollectRequestController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Show the form for raising a collect request on a provider's behalf.
+     *
+     * @throws AuthorizationException
      */
-    public function store(StoreCollectRequestRequest $request)
+    public function create(): Response
     {
-        //
+        $this->authorize('create', CollectRequest::class);
+
+        return Inertia::render('CollectRequest/Add');
+    }
+
+    /**
+     * Store a collect request raised by an admin for a provider, attaching the
+     * provider's selected (still collectable) orders to it.
+     */
+    public function store(StoreCollectRequestRequest $request): RedirectResponse
+    {
+        $collectRequest = $this->collectRequestRepository->create($request->validated());
+
+        SendCollectionRequest::dispatch($collectRequest);
+
+        return redirect()
+            ->route('admin.collectRequests.show', $collectRequest->id)
+            ->with(['status' => __('The collection request has been created.')]);
     }
 
     /**

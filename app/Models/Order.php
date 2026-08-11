@@ -9,6 +9,7 @@ use App\Traits\Statusable;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Gate;
 
 class Order extends Model
@@ -123,7 +124,10 @@ class Order extends Model
         return $this->belongsToMany(Test::class, 'order_items');
     }
 
-    public function CollectRequest()
+    /**
+     * @return BelongsTo<CollectRequest, $this>
+     */
+    public function CollectRequest(): BelongsTo
     {
         return $this->belongsTo(CollectRequest::class);
     }

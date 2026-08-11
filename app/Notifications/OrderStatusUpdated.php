@@ -74,7 +74,7 @@ class OrderStatusUpdated extends Notification implements ShouldQueue
             'reported' => 'Great news! Your test results for order **%s** are now available for review.',
             'received' => 'We have successfully received your sample for order **%s** and it\'s being prepared for analysis.',
             'processing' => 'Your sample for order **%s** is currently being analyzed by our laboratory team.',
-            'waiting for financial approval' => 'The report for order **%s** is ready, but its release is on hold pending financial approval. We will publish it as soon as the payment has been settled.',
+            'waiting for financial approval' => 'The report for order **%s** is ready and is now waiting for financial approval. We will release it as soon as that approval is granted.',
         ];
 
         $defaultMessage = 'Your order **%s** status has been updated to **%s**.';
@@ -124,18 +124,7 @@ class OrderStatusUpdated extends Notification implements ShouldQueue
      */
     protected function getMainMessage(): string
     {
-        $messages = [
-            'reported' => 'Great news! Your test results for order **%s** are now available for review.',
-            'received' => 'We have successfully received your sample for order **%s** and it\'s being prepared for analysis.',
-            'processing' => 'Your sample for order **%s** is currently being analyzed by our laboratory team.',
-            'waiting for financial approval' => 'The report for order **%s** is ready, but its release is on hold pending financial approval. We will publish it as soon as the payment has been settled.',
-        ];
-
-        $defaultMessage = 'Your order **%s** status has been updated to **%s**.';
-
-        $template = $messages[$this->order->status->value] ?? $defaultMessage;
-
-        return sprintf($template, $this->order->orderId, ucwords($this->order->status->value));
+        return $this->getMessage();
     }
 
     /**
@@ -147,6 +136,7 @@ class OrderStatusUpdated extends Notification implements ShouldQueue
             'received',
             'processing',
             'reported',
+            'waiting for financial approval',
         ]);
     }
 
@@ -225,7 +215,7 @@ class OrderStatusUpdated extends Notification implements ShouldQueue
             ],
             'waiting for financial approval' => [
                 'action' => 'View Order',
-                'footer' => 'Please contact our finance team if you believe this hold is a mistake.',
+                'footer' => 'Please contact our finance team if you have any questions about this approval.',
             ],
         ];
 

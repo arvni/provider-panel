@@ -18,6 +18,7 @@ import {
     Typography,
 } from "@mui/material";
 import {
+    Add as AddIcon,
     RemoveRedEye,
     LocalShipping,
     FilterAlt,
@@ -38,7 +39,7 @@ import PageHeader from "@/Components/PageHeader";
 import TableLayout from "@/Layouts/TableLayout";
 import { usePageReload } from "@/Services/api";
 import AdminLayout from "@/Layouts/AuthenticatedLayout";
-import { router } from "@inertiajs/react";
+import { router, usePage } from "@inertiajs/react";
 import DeleteButton from "@/Components/DeleteButton.jsx";
 import { isValid } from "date-fns";
 import { formatInTimeZone } from "date-fns-tz";
@@ -57,6 +58,10 @@ function Index({ collectRequests: { data: collectRequestsData, ...pagination }, 
         onFilterChange,
         onPageChange,
     } = usePageReload(request, ["collectRequests", "status", "success", "request"]);
+
+    const { auth } = usePage().props;
+    // Whether the admin may raise a collection request on a provider's behalf
+    const canCreate = auth.permissions?.includes("Admin.CollectRequest.Create");
 
     const [searchTerm, setSearchTerm] = useState("");
     const [showFilters, setShowFilters] = useState(false);
@@ -294,6 +299,22 @@ function Index({ collectRequests: { data: collectRequestsData, ...pagination }, 
             <PageHeader
                 title="Collection Requests"
                 subtitle="Manage pickup and delivery requests"
+                actions={
+                    canCreate
+                        ? [
+                              <Button
+                                  key="create"
+                                  variant="contained"
+                                  startIcon={<AddIcon />}
+                                  onClick={() =>
+                                      router.visit(route("admin.collectRequests.create"))
+                                  }
+                              >
+                                  New Request
+                              </Button>,
+                          ]
+                        : []
+                }
             />
 
             <Paper

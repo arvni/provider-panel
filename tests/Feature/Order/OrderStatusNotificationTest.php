@@ -1,0 +1,60 @@
+<?php
+
+namespace Tests\Feature\Order;
+
+use App\Enums\OrderStatus;
+use App\Models\Order;
+use App\Models\User;
+use App\Notifications\OrderStatusUpdated;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
+use Tests\TestCase;
+
+/**
+ * The status email announces a transition, not a state. Orders are written to
+ * repeatedly while parked on a notifiable status — sync:orders runs every five
+ * minutes and refreshes server_id/received_at — so the observer must key off
+ * the status actually changing or providers get the same mail over and over.
+ */
+class OrderStatusNotificationTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_status_transition_notifies_the_owner_once(): void
+    {
+        Notification::fake();
+        $owner = User::factory()->create();
+        $order = Order::create(['user_id' => $owner->id, 'status' => OrderStatus::RECEIVED]);
+
+        $order->update(['status' => OrderStatus::PROCESSING]);
+
+        Notification::assertSentToTimes($owner, OrderStatusUpdated::class, 1);
+    }
+
+    public function test_unrelated_writes_while_parked_on_a_status_do_not_renotify(): void
+    {
+        $owner = User::factory()->create();
+        $order = Order::create(['user_id' => $owner->id, 'status' => OrderStatus::RECEIVED]);
+        $order->update(['status' => OrderStatus::PROCESSING]);
+
+        Notification::fake();
+
+        // What sync:orders does on every pass once the status has settled.
+        $order->update(['server_id' => '12345']);
+        $order->update(['received_at' => now()]);
+
+        Notification::assertNothingSent();
+    }
+
+    public function test_resaving_the_same_status_does_not_renotify(): void
+    {
+        $owner = User::factory()->create();
+        $order = Order::create(['user_id' => $owner->id, 'status' => OrderStatus::PROCESSING]);
+
+        Notification::fake();
+
+        $order->update(['status' => OrderStatus::PROCESSING]);
+
+        Notification::assertNothingSent();
+    }
+}
