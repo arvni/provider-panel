@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\OrderMaterialStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Gate;
 
 class OrderMaterial extends Model
@@ -15,6 +16,7 @@ class OrderMaterial extends Model
         'amount',
         'server_id',
         'status',
+        'collect_request_id',
     ];
 
     protected $casts = [
@@ -43,5 +45,17 @@ class OrderMaterial extends Model
     public function Materials()
     {
         return $this->hasMany(Material::class);
+    }
+
+    /**
+     * The logistic request this kit was asked for on, when it came from that
+     * form rather than from the Order Materials page.
+     */
+    /**
+     * @return BelongsTo<CollectRequest, $this>
+     */
+    public function CollectRequest(): BelongsTo
+    {
+        return $this->belongsTo(CollectRequest::class);
     }
 }

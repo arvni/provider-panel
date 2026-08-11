@@ -17,6 +17,7 @@ import {
     IconButton,
     InputAdornment,
     Paper,
+    Radio,
     Stack,
     TextField,
     Typography,
@@ -24,11 +25,14 @@ import {
     useTheme,
 } from "@mui/material";
 import {
+    Add as AddIcon,
     CheckCircle as CheckCircleIcon,
     Close as CloseIcon,
     Event as EventIcon,
+    Inventory2 as KitIcon,
     LocalShipping as ShippingIcon,
     Notes as NotesIcon,
+    Remove as RemoveIcon,
     Science as ScienceIcon,
     Search as SearchIcon,
 } from "@mui/icons-material";
@@ -37,6 +41,14 @@ const COMMENT_MAX_LENGTH = 1000;
 
 // A search box only earns its place once the list stops fitting at a glance.
 const SEARCH_THRESHOLD = 8;
+
+// Mirrors StoreStandaloneCollectRequestRequest::MAX_KIT_AMOUNT.
+const MAX_KIT_AMOUNT = 100;
+
+// The two things a provider can ask for. Nothing is preselected: the choice
+// decides what the rest of the form asks, so it has to be made deliberately.
+const COLLECT = "collect";
+const ORDER = "order";
 
 /** Local-time YYYY-MM-DD, the format the date input speaks. */
 const toInputDate = (date) =>
@@ -63,46 +75,174 @@ const formatInputDate = (value) => {
     });
 };
 
+/** Shared shell for every selectable card, so the two lists read as one family. */
+const cardSx = (checked) => ({
+    display: "flex",
+    alignItems: "center",
+    flexWrap: "wrap",
+    gap: 1,
+    height: "100%",
+    borderRadius: 2,
+    borderColor: checked ? "primary.main" : "divider",
+    bgcolor: (theme) => (checked ? alpha(theme.palette.primary.main, 0.08) : "background.paper"),
+    transition: "border-color .15s, background-color .15s",
+    "&:hover": { borderColor: "primary.main" },
+});
+
 /**
- * A sample type rendered as a tappable card. It is a real checkbox inside a
- * label, so the whole card is clickable and it stays keyboard accessible.
+ * The opening question, as two cards rather than a dropdown: each one says what
+ * it means, so the fork is readable before it is taken.
  */
-const SampleTypeCard = ({ sampleType, checked, onChange }) => (
+const ModeCard = ({ icon, title, hint, checked, onSelect }) => (
     <Paper
         component="label"
         variant="outlined"
         sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 1,
-            px: 1.5,
-            py: 1,
-            height: "100%",
+            ...cardSx(checked),
+            // The radio always sits beside the wording, never above it.
+            flexWrap: "nowrap",
+            alignItems: "flex-start",
+            p: 2,
             cursor: "pointer",
-            borderRadius: 2,
-            borderColor: checked ? "primary.main" : "divider",
-            bgcolor: (theme) =>
-                checked ? alpha(theme.palette.primary.main, 0.08) : "background.paper",
-            transition: "border-color .15s, background-color .15s",
-            "&:hover": {
-                borderColor: "primary.main",
-            },
         }}
+    >
+        <Radio
+            checked={checked}
+            onChange={onSelect}
+            size="small"
+            sx={{ p: 0.5 }}
+            slotProps={{ input: { "aria-label": title } }}
+        />
+        <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+            <Stack direction="row" spacing={0.75} alignItems="center">
+                {icon}
+                <Typography variant="body2" sx={{ fontWeight: 700, lineHeight: 1.3 }}>
+                    {title}
+                </Typography>
+            </Stack>
+            <Typography variant="caption" color="text.secondary">
+                {hint}
+            </Typography>
+        </Box>
+    </Paper>
+);
+
+/**
+ * A kit rendered as a tappable card. The label wraps only the radio and the
+ * name, so the quantity stepper next to it can be clicked without re-picking
+ * the kit; the card stays keyboard accessible either way.
+ */
+const KitCard = ({ label, checked, onSelect, quantity }) => (
+    <Paper
+        variant="outlined"
+        sx={{
+            ...cardSx(checked),
+            // The stepper drops onto its own line rather than squeezing the kit
+            // name into an ellipsis when the card is too narrow for both.
+            pr: quantity && checked ? 1 : 1.5,
+            pb: quantity && checked ? 1 : 0,
+        }}
+    >
+        <Box
+            component="label"
+            sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+                flexGrow: 1,
+                minWidth: 0,
+                px: 1.5,
+                py: 1,
+                cursor: "pointer",
+            }}
+        >
+            <Radio
+                checked={checked}
+                onChange={onSelect}
+                size="small"
+                sx={{ p: 0.5 }}
+                slotProps={{ input: { "aria-label": label } }}
+            />
+            <Typography variant="body2" sx={{ fontWeight: checked ? 600 : 400, lineHeight: 1.3 }}>
+                {label}
+            </Typography>
+        </Box>
+        {checked && quantity}
+    </Paper>
+);
+
+/**
+ * A collectable sample type. Several can be waiting for the same pickup, so
+ * this one is a checkbox: the whole card is a label and stays keyboard
+ * accessible.
+ */
+const SampleTypeCard = ({ label, checked, onChange }) => (
+    <Paper
+        component="label"
+        variant="outlined"
+        sx={{ ...cardSx(checked), px: 1.5, py: 1, cursor: "pointer" }}
     >
         <Checkbox
             checked={checked}
             onChange={onChange}
             size="small"
             sx={{ p: 0.5 }}
-            slotProps={{ input: { "aria-label": sampleType.name } }}
+            slotProps={{ input: { "aria-label": label } }}
         />
         <Typography variant="body2" sx={{ fontWeight: checked ? 600 : 400, lineHeight: 1.3 }}>
-            {sampleType.name}
+            {label}
         </Typography>
     </Paper>
 );
 
-/** A numbered section heading, so the three things being asked for are obvious. */
+/**
+ * The "how many" control, shown only on the chosen kit so the question is
+ * asked exactly once and right where the answer belongs.
+ */
+const QuantityStepper = ({ value, onChange, disabled }) => {
+    const step = (delta) => () => onChange(Math.min(MAX_KIT_AMOUNT, Math.max(1, value + delta)));
+
+    return (
+        <Stack direction="row" alignItems="center" spacing={0.5} sx={{ flexShrink: 0 }}>
+            <IconButton
+                size="small"
+                onClick={step(-1)}
+                disabled={disabled || value <= 1}
+                aria-label="One fewer kit"
+            >
+                <RemoveIcon fontSize="small" />
+            </IconButton>
+            <TextField
+                value={value}
+                onChange={(e) => {
+                    const next = parseInt(e.target.value, 10);
+                    onChange(Number.isNaN(next) ? 1 : Math.min(MAX_KIT_AMOUNT, Math.max(1, next)));
+                }}
+                size="small"
+                type="number"
+                disabled={disabled}
+                slotProps={{
+                    htmlInput: {
+                        min: 1,
+                        max: MAX_KIT_AMOUNT,
+                        "aria-label": "Number of kits",
+                        style: { textAlign: "center", padding: "4px 0", width: 40 },
+                    },
+                }}
+            />
+            <IconButton
+                size="small"
+                onClick={step(1)}
+                disabled={disabled || value >= MAX_KIT_AMOUNT}
+                aria-label="One more kit"
+            >
+                <AddIcon fontSize="small" />
+            </IconButton>
+        </Stack>
+    );
+};
+
+/** A numbered section heading, so the things being asked for are obvious. */
 const Section = ({ step, title, hint, action, children }) => (
     <Box>
         <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 1.5 }}>
@@ -134,37 +274,66 @@ const Section = ({ step, title, hint, action, children }) => (
 );
 
 /**
- * Dialog for requesting a collection without an order: the provider picks the
- * sample types they have ready, a preferred date and an optional comment.
+ * Dialog for a logistic request raised without an order. The provider first
+ * says what they need — a pickup for samples they already have, or kits sent
+ * out to them — and only the matching list is then shown.
  */
-const StandaloneRequestForm = ({ open, onClose, sampleTypes = [] }) => {
+const StandaloneRequestForm = ({
+    open,
+    onClose,
+    sampleTypes = [],
+    collectableSampleTypes = [],
+    canRequestKit = true,
+}) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
     const [search, setSearch] = useState("");
 
-    const { data, setData, post, processing, errors, reset, clearErrors } = useForm({
+    // Without the kit permission there is no fork left to take, so the request
+    // is a collection and the question is never asked.
+    const initial = {
+        mode: canRequestKit ? "" : COLLECT,
+        kit_sample_type: "",
+        kit_amount: 1,
         sample_types: [],
         preferred_date: "",
         comment: "",
-    });
+    };
 
+    const { data, setData, post, processing, errors, reset, clearErrors } = useForm(initial);
+
+    const isOrder = data.mode === ORDER;
+    const choices = isOrder ? sampleTypes : collectableSampleTypes;
+
+    const selectedKit = useMemo(
+        () => sampleTypes.find((sampleType) => sampleType.id === data.kit_sample_type) ?? null,
+        [sampleTypes, data.kit_sample_type]
+    );
     const selectedCount = data.sample_types.length;
 
-    const visibleSampleTypes = useMemo(() => {
+    const visibleChoices = useMemo(() => {
         const term = search.trim().toLowerCase();
-        if (!term) return sampleTypes;
+        if (!term) return choices;
 
-        return sampleTypes.filter((sampleType) => sampleType.name.toLowerCase().includes(term));
-    }, [sampleTypes, search]);
+        return choices.filter((sampleType) => sampleType.name.toLowerCase().includes(term));
+    }, [choices, search]);
 
-    const toggleSampleType = (id) => () => {
+    // Switching what you are asking for clears the other branch's answer, so a
+    // half-filled question can never be submitted from behind the scenes.
+    const selectMode = (mode) => () =>
+        setData({ ...data, mode, kit_sample_type: "", kit_amount: 1, sample_types: [] });
+
+    // Picking a kit always restarts the quantity at one, so a leftover number
+    // from a kit the provider changed their mind about is never submitted.
+    const selectKit = (id) => () => setData({ ...data, kit_sample_type: id, kit_amount: 1 });
+
+    const toggleSampleType = (id) => () =>
         setData(
             "sample_types",
             data.sample_types.includes(id)
                 ? data.sample_types.filter((item) => item !== id)
                 : [...data.sample_types, id]
         );
-    };
 
     const handleClose = () => {
         reset();
@@ -191,7 +360,25 @@ const StandaloneRequestForm = ({ open, onClose, sampleTypes = [] }) => {
         { label: "Next week", value: addDays(7) },
     ];
 
-    const canSubmit = selectedCount > 0 && !!data.preferred_date && !processing;
+    const hasChoice = isOrder ? !!data.kit_sample_type : selectedCount > 0;
+    const canSubmit = !!data.mode && hasChoice && !!data.preferred_date && !processing;
+
+    // The mode question only exists for providers allowed to order materials;
+    // without it the remaining steps move up rather than starting at two.
+    const stepOffset = canRequestKit ? 1 : 0;
+
+    const summary = () => {
+        if (!data.mode) return "Tell us what you need";
+        if (isOrder && !selectedKit) return "Choose a kit";
+        if (!isOrder && selectedCount === 0) return "Select at least one sample type";
+        if (!data.preferred_date) return "Pick a collection date";
+
+        const what = isOrder
+            ? `${data.kit_amount} × ${selectedKit.name} kit`
+            : `${selectedCount} sample type${selectedCount > 1 ? "s" : ""}`;
+
+        return `${isOrder ? "Delivery" : "Pickup"} ${formatInputDate(data.preferred_date)} · ${what}`;
+    };
 
     return (
         <Dialog
@@ -209,10 +396,10 @@ const StandaloneRequestForm = ({ open, onClose, sampleTypes = [] }) => {
                     </Avatar>
                     <Box sx={{ flexGrow: 1 }}>
                         <Typography variant="h6" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
-                            New Collection Request
+                            New Logistic Request
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                            For samples you already have — no order needed.
+                            For samples you have, or kits you need — no order required.
                         </Typography>
                     </Box>
                     <IconButton onClick={handleClose} size="small" aria-label="Close">
@@ -222,98 +409,229 @@ const StandaloneRequestForm = ({ open, onClose, sampleTypes = [] }) => {
             </DialogTitle>
             <Divider />
 
-            {/* Two columns from md up: the sample types (the long part) on the
-                left, the date and comment on the right, so the whole form is
-                visible at once instead of scrolling. */}
+            {/* Two columns from md up: what is being asked for (the long part)
+                on the left, the date and comment on the right, so the whole form
+                is visible at once instead of scrolling. */}
             <DialogContent sx={{ pt: 3 }}>
                 <Grid container spacing={4}>
                     <Grid size={{ xs: 12, md: 7 }}>
-                        <Section
-                            step="1"
-                            title="Which samples do you have?"
-                            hint="Select every type waiting for pickup."
-                            action={
-                                selectedCount > 0 && (
-                                    <Chip
-                                        size="small"
-                                        color="primary"
-                                        icon={<CheckCircleIcon />}
-                                        label={`${selectedCount} selected`}
-                                        onDelete={() => setData("sample_types", [])}
-                                    />
-                                )
-                            }
-                        >
-                            {sampleTypes.length === 0 ? (
-                                <Alert severity="warning">
-                                    No sample types are available yet. Please contact the
-                                    laboratory.
-                                </Alert>
-                            ) : (
-                                <Stack spacing={1.5}>
-                                    {sampleTypes.length > SEARCH_THRESHOLD && (
-                                        <TextField
-                                            size="small"
-                                            placeholder="Search sample types…"
-                                            value={search}
-                                            onChange={(e) => setSearch(e.target.value)}
-                                            fullWidth
-                                            slotProps={{
-                                                input: {
-                                                    startAdornment: (
-                                                        <InputAdornment position="start">
-                                                            <SearchIcon fontSize="small" />
-                                                        </InputAdornment>
-                                                    ),
-                                                },
-                                            }}
-                                        />
-                                    )}
+                        <Stack spacing={3.5}>
+                            {canRequestKit && (
+                                <Section step="1" title="What do you need?">
+                                    <Grid container spacing={1} role="radiogroup" aria-label="Need">
+                                        <Grid size={{ xs: 12, sm: 6 }}>
+                                            <ModeCard
+                                                icon={
+                                                    <ShippingIcon fontSize="small" color="action" />
+                                                }
+                                                title="Collect my samples"
+                                                hint="Samples are ready for pickup."
+                                                checked={data.mode === COLLECT}
+                                                onSelect={selectMode(COLLECT)}
+                                            />
+                                        </Grid>
+                                        <Grid size={{ xs: 12, sm: 6 }}>
+                                            <ModeCard
+                                                icon={<KitIcon fontSize="small" color="action" />}
+                                                title="Order kits"
+                                                hint="Send me sampling materials."
+                                                checked={isOrder}
+                                                onSelect={selectMode(ORDER)}
+                                            />
+                                        </Grid>
+                                    </Grid>
 
-                                    {visibleSampleTypes.length === 0 ? (
+                                    {errors.mode && (
+                                        <Alert severity="error" sx={{ mt: 1.5 }}>
+                                            {errors.mode}
+                                        </Alert>
+                                    )}
+                                </Section>
+                            )}
+
+                            {/* Step two keeps its place before the fork is taken,
+                                so the numbering never skips a beat. */}
+                            {!data.mode ? (
+                                <Section step="2" title="Then pick what you need">
+                                    <Paper
+                                        variant="outlined"
+                                        sx={{
+                                            borderRadius: 2,
+                                            borderStyle: "dashed",
+                                            p: 3,
+                                            textAlign: "center",
+                                        }}
+                                    >
                                         <Typography variant="body2" color="text.secondary">
-                                            No sample type matches “{search}”.
+                                            Choose an option above and the list appears here.
                                         </Typography>
+                                    </Paper>
+                                </Section>
+                            ) : (
+                                <Section
+                                    step={`${stepOffset + 1}`}
+                                    title={
+                                        isOrder
+                                            ? "Which kit do you want?"
+                                            : "Which samples do you have?"
+                                    }
+                                    hint={
+                                        isOrder
+                                            ? "One kit type per request."
+                                            : "Select every type waiting for pickup."
+                                    }
+                                    action={
+                                        isOrder
+                                            ? selectedKit && (
+                                                  <Chip
+                                                      size="small"
+                                                      color="primary"
+                                                      icon={<KitIcon />}
+                                                      label={`${data.kit_amount} × ${selectedKit.name}`}
+                                                      onDelete={selectKit("")}
+                                                  />
+                                              )
+                                            : selectedCount > 0 && (
+                                                  <Chip
+                                                      size="small"
+                                                      color="primary"
+                                                      icon={<CheckCircleIcon />}
+                                                      label={`${selectedCount} selected`}
+                                                      onDelete={() => setData("sample_types", [])}
+                                                  />
+                                              )
+                                    }
+                                >
+                                    {choices.length === 0 ? (
+                                        <Alert severity="warning">
+                                            {isOrder
+                                                ? "No kits are available yet. Please contact the laboratory."
+                                                : "No sample types are collectable yet. Please contact the laboratory."}
+                                        </Alert>
                                     ) : (
-                                        // A very long list scrolls on its own rather
-                                        // than pushing the rest of the form off screen.
-                                        <Box sx={{ maxHeight: 360, overflowY: "auto", pr: 0.5 }}>
-                                            <Grid container spacing={1}>
-                                                {visibleSampleTypes.map((sampleType) => (
-                                                    <Grid
-                                                        size={{ xs: 12, sm: 6 }}
-                                                        key={sampleType.id}
-                                                    >
-                                                        <SampleTypeCard
-                                                            sampleType={sampleType}
-                                                            checked={data.sample_types.includes(
-                                                                sampleType.id
-                                                            )}
-                                                            onChange={toggleSampleType(
-                                                                sampleType.id
-                                                            )}
-                                                        />
-                                                    </Grid>
-                                                ))}
-                                            </Grid>
-                                        </Box>
-                                    )}
-                                </Stack>
-                            )}
+                                        <Stack spacing={1.5}>
+                                            {choices.length > SEARCH_THRESHOLD && (
+                                                <TextField
+                                                    size="small"
+                                                    placeholder={
+                                                        isOrder
+                                                            ? "Search kits…"
+                                                            : "Search sample types…"
+                                                    }
+                                                    value={search}
+                                                    onChange={(e) => setSearch(e.target.value)}
+                                                    fullWidth
+                                                    slotProps={{
+                                                        input: {
+                                                            startAdornment: (
+                                                                <InputAdornment position="start">
+                                                                    <SearchIcon fontSize="small" />
+                                                                </InputAdornment>
+                                                            ),
+                                                        },
+                                                    }}
+                                                />
+                                            )}
 
-                            {errors.sample_types && (
-                                <Alert severity="error" sx={{ mt: 1.5 }}>
-                                    {errors.sample_types}
-                                </Alert>
+                                            {visibleChoices.length === 0 ? (
+                                                <Typography variant="body2" color="text.secondary">
+                                                    Nothing matches “{search}”.
+                                                </Typography>
+                                            ) : (
+                                                // A very long list scrolls on its own rather
+                                                // than pushing the rest of the form off screen.
+                                                <Box
+                                                    sx={{
+                                                        maxHeight: 320,
+                                                        overflowY: "auto",
+                                                        pr: 0.5,
+                                                    }}
+                                                >
+                                                    <Grid
+                                                        container
+                                                        spacing={1}
+                                                        role={isOrder ? "radiogroup" : undefined}
+                                                        aria-label={isOrder ? "Kit" : undefined}
+                                                    >
+                                                        {visibleChoices.map((sampleType) =>
+                                                            isOrder ? (
+                                                                <Grid
+                                                                    size={{ xs: 12, sm: 6 }}
+                                                                    key={sampleType.id}
+                                                                >
+                                                                    <KitCard
+                                                                        label={sampleType.name}
+                                                                        checked={
+                                                                            data.kit_sample_type ===
+                                                                            sampleType.id
+                                                                        }
+                                                                        onSelect={selectKit(
+                                                                            sampleType.id
+                                                                        )}
+                                                                        quantity={
+                                                                            <QuantityStepper
+                                                                                value={
+                                                                                    data.kit_amount
+                                                                                }
+                                                                                onChange={(
+                                                                                    amount
+                                                                                ) =>
+                                                                                    setData(
+                                                                                        "kit_amount",
+                                                                                        amount
+                                                                                    )
+                                                                                }
+                                                                                disabled={
+                                                                                    processing
+                                                                                }
+                                                                            />
+                                                                        }
+                                                                    />
+                                                                </Grid>
+                                                            ) : (
+                                                                <Grid
+                                                                    size={{ xs: 12, sm: 6 }}
+                                                                    key={sampleType.id}
+                                                                >
+                                                                    <SampleTypeCard
+                                                                        label={sampleType.name}
+                                                                        checked={data.sample_types.includes(
+                                                                            sampleType.id
+                                                                        )}
+                                                                        onChange={toggleSampleType(
+                                                                            sampleType.id
+                                                                        )}
+                                                                    />
+                                                                </Grid>
+                                                            )
+                                                        )}
+                                                    </Grid>
+                                                </Box>
+                                            )}
+                                        </Stack>
+                                    )}
+
+                                    {(errors.kit_sample_type ||
+                                        errors.kit_amount ||
+                                        errors.sample_types) && (
+                                        <Alert severity="error" sx={{ mt: 1.5 }}>
+                                            {errors.kit_sample_type ||
+                                                errors.kit_amount ||
+                                                errors.sample_types}
+                                        </Alert>
+                                    )}
+                                </Section>
                             )}
-                        </Section>
+                        </Stack>
                     </Grid>
 
                     <Grid size={{ xs: 12, md: 5 }}>
                         <Stack spacing={3.5}>
                             <Section
-                                step="2"
-                                title="When should we collect them?"
+                                step={`${stepOffset + 2}`}
+                                title={
+                                    isOrder ? "When should we deliver?" : "When should we collect?"
+                                }
                                 hint="Pick a day that suits you — we confirm the exact time."
                             >
                                 <Stack spacing={1.5}>
@@ -366,7 +684,11 @@ const StandaloneRequestForm = ({ open, onClose, sampleTypes = [] }) => {
                                 </Stack>
                             </Section>
 
-                            <Section step="3" title="Anything we should know?" hint="Optional.">
+                            <Section
+                                step={`${stepOffset + 3}`}
+                                title="Anything we should know?"
+                                hint="Optional."
+                            >
                                 <TextField
                                     label="Comment"
                                     value={data.comment}
@@ -409,15 +731,13 @@ const StandaloneRequestForm = ({ open, onClose, sampleTypes = [] }) => {
                     alignItems="center"
                     sx={{ flexGrow: 1, minWidth: 0 }}
                 >
-                    <ScienceIcon fontSize="small" color={selectedCount ? "primary" : "disabled"} />
+                    {isOrder ? (
+                        <KitIcon fontSize="small" color={canSubmit ? "primary" : "disabled"} />
+                    ) : (
+                        <ScienceIcon fontSize="small" color={canSubmit ? "primary" : "disabled"} />
+                    )}
                     <Typography variant="body2" color="text.secondary" noWrap>
-                        {selectedCount === 0
-                            ? "Select at least one sample type"
-                            : `${selectedCount} sample type${selectedCount > 1 ? "s" : ""}${
-                                  data.preferred_date
-                                      ? ` · ${formatInputDate(data.preferred_date)}`
-                                      : ""
-                              }`}
+                        {summary()}
                     </Typography>
                 </Stack>
                 <Button onClick={handleClose} color="inherit" disabled={processing}>

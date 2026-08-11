@@ -16,12 +16,14 @@ class SampleType extends Model
         'name',
         'sample_id_required',
         'orderable',
+        'collectable',
         'server_id',
     ];
 
-    protected $casts = ['
-    sample_id_required' => 'boolean',
+    protected $casts = [
+        'sample_id_required' => 'boolean',
         'orderable' => 'boolean',
+        'collectable' => 'boolean',
     ];
 
     public function Tests()

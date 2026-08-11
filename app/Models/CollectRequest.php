@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Gate;
 
 class CollectRequest extends Model
@@ -62,6 +63,15 @@ class CollectRequest extends Model
         return $this->hasMany(Sample::class);
     }
 
+    /**
+     * The kit asked for while raising this request, if any. Only one can be
+     * chosen on the form, so this reads as a single material.
+     */
+    public function orderMaterial(): HasOne
+    {
+        return $this->hasOne(OrderMaterial::class);
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -90,6 +100,20 @@ class CollectRequest extends Model
     }
 
     // Helper methods
+
+    /**
+     * A request raised without an order, where the provider asked for kits to be
+     * sent out rather than for samples to be picked up.
+     *
+     * Nothing about it belongs on the logistics endpoint: what the lab has to
+     * act on is the OrderMaterial, which syncs on its own. Never send one of
+     * these as a collect request.
+     */
+    public function isKitOrder(): bool
+    {
+        return ($this->details['mode'] ?? null) === 'order';
+    }
+
     public function canBeDeleted(): bool
     {
         return $this->status === CollectRequestStatus::REQUESTED;
