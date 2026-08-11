@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\Order;
+use App\Models\Patient;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -104,7 +105,7 @@ class OrderStatusUpdated extends Notification implements ShouldQueue
         $statusHeadline = $statusMessages[$this->order->status->value]
             ?? 'Status Update: '.ucwords($this->order->status->value);
 
-        $patientName = $this->order->Patient?->fullName;
+        $patientName = $this->mainPatient()?->fullName;
 
         if (! $patientName) {
             return sprintf('%s (Order %s)', $statusHeadline, $this->order->orderId);
@@ -152,16 +153,27 @@ class OrderStatusUpdated extends Notification implements ShouldQueue
     }
 
     /**
+     * The order's main patient, or null when the order has no main_patient_id.
+     *
+     * Both the subject line and the details block need it, so the relation is
+     * reached through here rather than being read dynamically in two places.
+     */
+    protected function mainPatient(): ?Patient
+    {
+        return $this->order->Patient;
+    }
+
+    /**
      * Get order details as HTML
      */
     protected function getOrderDetailsHtml(): string
     {
         $details = [];
 
-        if ($this->order->Patient) {
-            $details[] = "Patient: {$this->order->Patient->fullName}";
-            if ($this->order->Patient->reference_id) {
-                $details[] = "Reference: {$this->order->Patient->reference_id}";
+        if ($patient = $this->mainPatient()) {
+            $details[] = "Patient: {$patient->fullName}";
+            if ($patient->reference_id) {
+                $details[] = "Reference: {$patient->reference_id}";
             }
         }
 
