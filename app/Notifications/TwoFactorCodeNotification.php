@@ -7,6 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\HtmlString;
 use Throwable;
 
 /**
@@ -42,7 +43,7 @@ class TwoFactorCodeNotification extends Notification implements ShouldQueue
             ->line('# '.$this->code)
             ->line("This code expires in {$minutes} minutes and can only be used once.")
             ->line('If you did not try to sign in, you can safely ignore this email and your password should be changed.')
-            ->salutation('Best regards,<br>'.config('app.name'));
+            ->salutation(new HtmlString('Best regards,<br>'.config('app.name')));
     }
 
     /**

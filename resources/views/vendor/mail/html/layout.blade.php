@@ -7,19 +7,45 @@
 <meta name="color-scheme" content="light">
 <meta name="supported-color-schemes" content="light">
 <style>
-@media only screen and (max-width: 600px) {
+@media only screen and (max-width: 640px) {
 .inner-body {
 width: 100% !important;
+border-radius: 0 !important;
+border-left: none !important;
+border-right: none !important;
 }
 
 .footer {
 width: 100% !important;
+}
+
+.content-cell {
+padding: 28px 22px !important;
+}
+
+.logo {
+width: 170px !important;
+max-width: 170px !important;
+}
+
+.header {
+padding: 26px 0 20px !important;
+}
+
+h1 {
+font-size: 21px !important;
+}
+
+.table th,
+.table td {
+padding: 10px 12px !important;
 }
 }
 
 @media only screen and (max-width: 500px) {
 .button {
 width: 100% !important;
+text-align: center !important;
 }
 }
 </style>
@@ -35,7 +61,7 @@ width: 100% !important;
 <!-- Email Body -->
 <tr>
 <td class="body" width="100%" cellpadding="0" cellspacing="0" style="border: hidden !important;">
-<table class="inner-body" align="center" width="570" cellpadding="0" cellspacing="0" role="presentation">
+<table class="inner-body" align="center" width="600" cellpadding="0" cellspacing="0" role="presentation">
 <!-- Body content -->
 <tr>
 <td class="content-cell">

@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\Order;
+use App\Models\Patient;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -51,7 +52,7 @@ class OrderStatusUpdated extends Notification implements ShouldQueue
             })
             ->action($statusConfig['action'], $this->getActionUrl())
             ->line($statusConfig['footer'])
-            ->salutation('Best regards,<br>'.config('app.name'));
+            ->salutation(new HtmlString('Best regards,<br>'.config('app.name')));
     }
 
     /**
@@ -85,7 +86,10 @@ class OrderStatusUpdated extends Notification implements ShouldQueue
     }
 
     /**
-     * Get email subject based on order status
+     * Get email subject based on order status.
+     *
+     * Leads with the main patient so providers can scan their inbox by patient,
+     * then states what changed and which order it belongs to.
      */
     protected function getEmailSubject(): string
     {
@@ -98,13 +102,21 @@ class OrderStatusUpdated extends Notification implements ShouldQueue
             'waiting for financial approval' => 'Your Report Is Awaiting Financial Approval',
         ];
 
-        $defaultSubject = sprintf(
-            'Order %s Status Update: %s',
-            $this->order->orderId,
-            ucwords($this->order->status->value)
-        );
+        $statusHeadline = $statusMessages[$this->order->status->value]
+            ?? 'Status Update: '.ucwords($this->order->status->value);
 
-        return $statusMessages[$this->order->status->value] ?? $defaultSubject;
+        $patientName = $this->mainPatient()?->fullName;
+
+        if (! $patientName) {
+            return sprintf('%s (Order %s)', $statusHeadline, $this->order->orderId);
+        }
+
+        return sprintf(
+            '%s — %s (Order %s)',
+            $patientName,
+            $statusHeadline,
+            $this->order->orderId
+        );
     }
 
     /**
@@ -141,16 +153,27 @@ class OrderStatusUpdated extends Notification implements ShouldQueue
     }
 
     /**
+     * The order's main patient, or null when the order has no main_patient_id.
+     *
+     * Both the subject line and the details block need it, so the relation is
+     * reached through here rather than being read dynamically in two places.
+     */
+    protected function mainPatient(): ?Patient
+    {
+        return $this->order->Patient;
+    }
+
+    /**
      * Get order details as HTML
      */
     protected function getOrderDetailsHtml(): string
     {
         $details = [];
 
-        if ($this->order->Patient) {
-            $details[] = "Patient: {$this->order->Patient->fullName}";
-            if ($this->order->Patient->reference_id) {
-                $details[] = "Reference: {$this->order->Patient->reference_id}";
+        if ($patient = $this->mainPatient()) {
+            $details[] = "Patient: {$patient->fullName}";
+            if ($patient->reference_id) {
+                $details[] = "Reference: {$patient->reference_id}";
             }
         }
 
