@@ -257,10 +257,15 @@ class OrderUpdateWebhookController extends Controller
         if ($status === OrderStatus::SENT->value && is_null($order?->sent_at)) {
             $attributes['sent_at'] = now();
         }
+        // Fallback only. The authoritative received_at comes from the latest
+        // collect request behind the order's samples (see OrderReceivedAtSync);
+        // this keeps a date on orders that never went through a collection.
         if ($status === OrderStatus::RECEIVED->value && is_null($order?->received_at)) {
             $attributes['received_at'] = now();
         }
-        if ($status === OrderStatus::REPORTED->value && is_null($order?->reported_at)) {
+        // reported_at marks the report being ready to release, which is the move
+        // into financial approval -- not the later flip to 'reported'.
+        if ($status === OrderStatus::WAITING_FOR_FINANCIAL_APPROVAL->value && is_null($order?->reported_at)) {
             $attributes['reported_at'] = now();
         }
 

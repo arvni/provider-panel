@@ -165,12 +165,12 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
             }
         }
 
-        if (isset($filters['sent_at'])) {
-            if (! empty($filters['sent_at']['from'])) {
-                $this->query->whereDate('orders.sent_at', '>=', $filters['sent_at']['from']);
+        if (isset($filters['reported_at'])) {
+            if (! empty($filters['reported_at']['from'])) {
+                $this->query->whereDate('orders.reported_at', '>=', $filters['reported_at']['from']);
             }
-            if (! empty($filters['sent_at']['to'])) {
-                $this->query->whereDate('orders.sent_at', '<=', $filters['sent_at']['to']);
+            if (! empty($filters['reported_at']['to'])) {
+                $this->query->whereDate('orders.reported_at', '<=', $filters['reported_at']['to']);
             }
         }
     }

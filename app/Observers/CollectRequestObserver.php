@@ -2,11 +2,13 @@
 
 namespace App\Observers;
 
+use App\Enums\CollectRequestStatus;
 use App\Models\CollectRequest;
 use App\Models\User;
 use App\Notifications\CollectRequestDeleted;
 use App\Notifications\CollectRequestUpdated;
 use App\Services\AdminNotificationService;
+use App\Services\OrderReceivedAtSync;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 
@@ -29,6 +31,8 @@ class CollectRequestObserver
      */
     public function updated(CollectRequest $collectRequest): void
     {
+        $this->stampReceipt($collectRequest);
+
         // Get the changes that were made
         $changes = $this->getRelevantChanges($collectRequest);
 
@@ -76,6 +80,31 @@ class CollectRequestObserver
                 'error' => $e->getMessage(),
             ]);
         }
+    }
+
+    /**
+     * Pin the moment this request was received, and push it out to the orders
+     * whose samples travelled in it.
+     *
+     * Lives here rather than in the webhook because more than one path flips a
+     * request to received -- the logistics webhook, and sync:orders catching up
+     * when an order has already moved past processing upstream. Orders take
+     * their received_at from this, so it has to be stamped wherever it happens.
+     */
+    private function stampReceipt(CollectRequest $collectRequest): void
+    {
+        if (! $collectRequest->wasChanged('status')
+            || $collectRequest->status !== CollectRequestStatus::RECEIVED) {
+            return;
+        }
+
+        if (is_null($collectRequest->received_at)) {
+            // saveQuietly: this is bookkeeping, not a change worth re-notifying on.
+            $collectRequest->received_at = now();
+            $collectRequest->saveQuietly();
+        }
+
+        app(OrderReceivedAtSync::class)->forCollectRequest($collectRequest);
     }
 
     /**

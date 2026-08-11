@@ -8,6 +8,7 @@ use App\Jobs\SendCollectionRequest;
 use App\Models\CollectRequest;
 use App\Models\Order;
 use App\Models\Sample;
+use App\Services\OrderStatusRecorder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -76,10 +77,17 @@ class StoreSampleCollectRequestController extends Controller
             ]);
 
             // Attach the parent orders so the order-structured payload can be built.
+            // Read first: the update bypasses the model layer, so the timeline
+            // has to be told what these orders came from.
+            $before = Order::whereIn('id', $orderIds)->get(['id', 'status']);
+
             Order::whereIn('id', $orderIds)->update([
                 'collect_request_id' => $collectRequest->id,
                 'status' => OrderStatus::LOGISTIC_REQUESTED,
             ]);
+
+            app(OrderStatusRecorder::class)
+                ->recordMany($before, OrderStatus::LOGISTIC_REQUESTED->value, $user->id);
 
             // Tag ONLY the selected samples — this is what makes it per-sample.
             Sample::whereIn('id', $sampleIds)->update([

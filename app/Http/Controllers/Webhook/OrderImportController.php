@@ -263,7 +263,7 @@ class OrderImportController extends Controller
             'created_at' => Carbon::parse($orderData['created_at'] ?? now()),
             'updated_at' => Carbon::parse($orderData['updated_at'] ?? now()),
             'sent_at' => $orderData['status'] === OrderStatus::SENT->value ? now() : null,
-            'reported_at' => $orderData['status'] === OrderStatus::REPORTED->value ? now() : null,
+            'reported_at' => $orderData['status'] === OrderStatus::WAITING_FOR_FINANCIAL_APPROVAL->value ? now() : null,
         ]);
 
         Log::info('Order created', ['order_id' => $order->id]);
@@ -397,7 +397,9 @@ class OrderImportController extends Controller
             $updateFields['sent_at'] = now();
         }
 
-        if ($orderData['status'] === OrderStatus::REPORTED->value && is_null($order->reported_at)) {
+        // reported_at marks the report being ready to release, which is the move
+        // into financial approval -- not the later flip to 'reported'.
+        if ($orderData['status'] === OrderStatus::WAITING_FOR_FINANCIAL_APPROVAL->value && is_null($order->reported_at)) {
             $updateFields['reported_at'] = now();
         }
 

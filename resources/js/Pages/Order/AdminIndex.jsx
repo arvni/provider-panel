@@ -244,30 +244,30 @@ const AdminIndex = ({ orders: { data: ordersData, ...pagination }, request }) =>
                 ),
         },
         {
-            field: "sent_at",
-            title: "Pick Up Date",
+            field: "reported_at",
+            title: "Report Date",
             type: "text",
             sortable: true,
             filter: [
                 {
-                    name: "sent_at.from",
+                    name: "reported_at.from",
                     label: "From",
                     type: "date",
-                    value: data?.filters?.sent_at?.from,
-                    inputProps: { max: data?.filters?.sent_at?.to },
+                    value: data?.filters?.reported_at?.from,
+                    inputProps: { max: data?.filters?.reported_at?.to },
                 },
                 {
-                    name: "sent_at.to",
+                    name: "reported_at.to",
                     label: "To",
                     type: "date",
-                    value: data?.filters?.sent_at?.to,
-                    inputProps: { min: data?.filters?.sent_at?.from },
+                    value: data?.filters?.reported_at?.to,
+                    inputProps: { min: data?.filters?.reported_at?.from },
                 },
             ],
             render: (row) =>
-                row.sent_at ? (
+                row.reported_at ? (
                     <Typography variant="body2">
-                        {new Date(row.sent_at).toLocaleDateString(undefined, {
+                        {new Date(row.reported_at).toLocaleDateString(undefined, {
                             year: "numeric",
                             month: "short",
                             day: "numeric",

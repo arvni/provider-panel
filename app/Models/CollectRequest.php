@@ -29,6 +29,7 @@ class CollectRequest extends Model
         'preferred_date',
         'notes',
         'server_id',
+        'received_at',
     ];
 
     protected $appends = [
@@ -39,6 +40,7 @@ class CollectRequest extends Model
     protected $casts = [
         'details' => 'json',
         'status' => CollectRequestStatus::class,
+        'received_at' => 'datetime',
     ];
 
     // Accessors
