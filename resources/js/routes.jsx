@@ -43,7 +43,7 @@ const routes = [
         icon: <VaccinesSharpIcon/>,
     },
     {
-        title: "Collection Requests",
+        title: "Logistic Requests",
         route: route("collectRequests.index"),
         permission: 'CollectRequest.Index',
         icon: <LocalShippingIcon/>,
@@ -78,7 +78,7 @@ const routes = [
                 icon: <VaccinesIcon/>,
             },
             {
-                title: "Collect Requests",
+                title: "Logistic Requests",
                 route: route("admin.collectRequests.index"),
                 permission: 'Admin.CollectRequest.Index',
                 icon: <LocalShippingIcon/>,

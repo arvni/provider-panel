@@ -34,6 +34,7 @@ import {
     CloudDone,
     CloudOff,
     CloudSync,
+    Inventory2,
 } from "@mui/icons-material";
 import PageHeader from "@/Components/PageHeader";
 import TableLayout from "@/Layouts/TableLayout";
@@ -45,8 +46,14 @@ import { isValid } from "date-fns";
 import { formatInTimeZone } from "date-fns-tz";
 
 const breadcrumbs = [
-    { title: "Collection Requests", link: "", icon: <LocalShipping fontSize="small" /> },
+    { title: "Logistic Requests", link: "", icon: <LocalShipping fontSize="small" /> },
 ];
+
+/**
+ * Kit orders reach the lab as an order material, never through the logistics
+ * endpoint, so they are never "not sent" and can never be sent from here.
+ */
+const isKitOrder = (row) => row.details?.mode === "order";
 
 function Index({ collectRequests: { data: collectRequestsData, ...pagination }, request }) {
     const {
@@ -178,7 +185,18 @@ function Index({ collectRequests: { data: collectRequestsData, ...pagination }, 
                 field: "server_id",
                 title: "Server Sync",
                 render: (row) =>
-                    row.server_id ? (
+                    isKitOrder(row) ? (
+                        <Tooltip title="Kit orders reach the lab as an order material">
+                            <Chip
+                                icon={<Inventory2 fontSize="small" />}
+                                label="Material"
+                                size="small"
+                                color="info"
+                                variant="outlined"
+                                sx={{ fontWeight: 600 }}
+                            />
+                        </Tooltip>
+                    ) : row.server_id ? (
                         <Tooltip title={`Server ID: ${row.server_id}`}>
                             <Chip
                                 icon={<CloudDone fontSize="small" />}
@@ -258,7 +276,7 @@ function Index({ collectRequests: { data: collectRequestsData, ...pagination }, 
                             </IconButton>
                         </Tooltip>
 
-                        {!row.server_id ? (
+                        {isKitOrder(row) ? null : !row.server_id ? (
                             <Tooltip title="Send to Server">
                                 <IconButton
                                     onClick={() => setSendDialog({ open: true, id: row.id })}
@@ -297,7 +315,7 @@ function Index({ collectRequests: { data: collectRequestsData, ...pagination }, 
     return (
         <>
             <PageHeader
-                title="Collection Requests"
+                title="Logistic Requests"
                 subtitle="Manage pickup and delivery requests"
                 actions={
                     canCreate

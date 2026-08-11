@@ -109,6 +109,15 @@ class CollectRequestController extends Controller
             ]);
         }
 
+        // A kit order has nothing to say to the logistics endpoint: the lab acts
+        // on the order material, which syncs itself.
+        if ($collectRequest->isKitOrder()) {
+            return back()->with([
+                'status' => 'This is a kit order — it reaches the server as an order material, not as a collection request.',
+                'error' => true,
+            ]);
+        }
+
         // Dispatch the job
         SendCollectionRequest::dispatch($collectRequest);
 

@@ -8,11 +8,13 @@ import TableLayout from "@/Layouts/TableLayout";
 import StandaloneRequestForm from "./Components/StandaloneRequestForm";
 
 /**
- * User Collect Requests Index component
+ * User Logistic Requests Index component
  */
 const UserIndex = ({
     collectRequests: { data: collectRequestsData, ...pagination },
     sampleTypes = [],
+    collectableSampleTypes = [],
+    canRequestKit = false,
     request,
 }) => {
     const theme = useTheme();
@@ -116,19 +118,29 @@ const UserIndex = ({
             ),
         },
         {
-            field: "sample_types",
-            title: "Sample Types",
+            field: "requested",
+            title: "Requested",
             type: "component",
-            // Only requests raised without an order carry sample types.
+            // Requests raised without an order carry either an ordered kit or
+            // the sample types waiting for pickup, never both.
             render: (row) => {
+                const kit = row.details?.kit;
                 const sampleTypes = row.details?.sample_types || [];
 
-                if (sampleTypes.length === 0) {
+                if (!kit && sampleTypes.length === 0) {
                     return <Typography variant="body2">—</Typography>;
                 }
 
                 return (
                     <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                        {kit && (
+                            <Chip
+                                label={`${kit.amount} × ${kit.name}`}
+                                size="small"
+                                color="primary"
+                                variant="outlined"
+                            />
+                        )}
                         {sampleTypes.map((sampleType, index) => (
                             <Chip
                                 key={sampleType.id ?? index}
@@ -189,7 +201,7 @@ const UserIndex = ({
     return (
         <ClientLayout>
             <PageHeader
-                title="My Collection Requests"
+                title="My Logistic Requests"
                 actions={[
                     <Button
                         key="new-request"
@@ -205,6 +217,8 @@ const UserIndex = ({
                 open={formOpen}
                 onClose={() => setFormOpen(false)}
                 sampleTypes={sampleTypes}
+                collectableSampleTypes={collectableSampleTypes}
+                canRequestKit={canRequestKit}
             />
             <Paper
                 sx={{

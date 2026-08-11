@@ -55,6 +55,25 @@ class RequestLogisticTest extends TestCase
         RequestLogistic::send($collectRequest);
     }
 
+    public function test_it_rejects_a_kit_order_because_that_syncs_as_an_order_material(): void
+    {
+        $user = User::factory()->create(['referrer_id' => 7]);
+        $collectRequest = CollectRequest::create([
+            'user_id' => $user->id,
+            'status' => CollectRequestStatus::REQUESTED,
+            'details' => [
+                'type' => 'standalone',
+                'mode' => 'order',
+                'kit' => ['id' => 1, 'name' => 'Blood', 'amount' => 2],
+            ],
+        ]);
+
+        $this->expectException(ApiServiceException::class);
+        $this->expectExceptionMessage('syncs as an order material');
+
+        RequestLogistic::send($collectRequest);
+    }
+
     public function test_it_rejects_a_request_with_no_orders(): void
     {
         $user = User::factory()->create(['referrer_id' => 7]);

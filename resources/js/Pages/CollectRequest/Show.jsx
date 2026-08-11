@@ -54,6 +54,7 @@ import {
     CloudDone,
     CloudOff,
     CloudSync,
+    Inventory2,
     Send,
     Tag,
     Vaccines,
@@ -95,7 +96,14 @@ const Show = ({ collectRequest }) => {
     const samples = collectRequest.samples ?? [];
 
     // Sample types declared on a request raised without an order.
+    // Requests raised without an order: newer ones name a kit, older ones the
+    // sample types that were waiting for pickup.
     const requestedSampleTypes = collectRequest.details?.sample_types ?? [];
+    const requestedKit = collectRequest.details?.kit ?? null;
+    const isStandalone = collectRequest.details?.type === "standalone";
+    // Kit orders reach the lab as an order material, never through the
+    // logistics endpoint, so the sync affordances do not apply to them.
+    const isKitOrder = collectRequest.details?.mode === "order";
 
     const handleSendToServer = () => {
         setOpenSend(false);
@@ -194,15 +202,25 @@ const Show = ({ collectRequest }) => {
             >
                 <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap">
                     <Typography variant="h5" component="h1">
-                        Collection Request #{collectRequest.id}
+                        Logistic Request #{collectRequest.id}
                     </Typography>
                     <Chip
                         label={collectRequest.status}
                         color={getStatusColor(collectRequest.status)}
                         sx={{ fontWeight: "medium", textTransform: "capitalize" }}
                     />
-                    {/* Server sync badge */}
-                    {collectRequest.server_id ? (
+                    {/* Server sync badge. A kit order never syncs here — the
+                        order material it created is what reaches the lab. */}
+                    {isKitOrder ? (
+                        <Chip
+                            icon={<Inventory2 fontSize="small" />}
+                            label="Syncs as an order material"
+                            size="small"
+                            color="info"
+                            variant="outlined"
+                            sx={{ fontWeight: 600 }}
+                        />
+                    ) : collectRequest.server_id ? (
                         <Tooltip title={`Server ID: ${collectRequest.server_id}`}>
                             <Chip
                                 icon={<CloudDone fontSize="small" />}
@@ -225,7 +243,7 @@ const Show = ({ collectRequest }) => {
                 </Stack>
 
                 <Stack direction="row" spacing={1}>
-                    {!collectRequest.server_id && (
+                    {!collectRequest.server_id && !isKitOrder && (
                         <Button
                             variant="outlined"
                             color="success"
@@ -251,7 +269,19 @@ const Show = ({ collectRequest }) => {
             </Box>
 
             {/* Server sync info banner */}
-            {collectRequest.server_id ? (
+            {isKitOrder ? (
+                <Alert icon={<Inventory2 />} severity="info" sx={{ mb: 3, borderRadius: 2 }}>
+                    This is a kit order, so there is nothing to send to the logistics endpoint. The
+                    lab receives it as order material
+                    {requestedKit?.order_material_id ? (
+                        <>
+                            {" "}
+                            <strong>#{requestedKit.order_material_id}</strong>
+                        </>
+                    ) : null}
+                    , which syncs on its own.
+                </Alert>
+            ) : collectRequest.server_id ? (
                 <Alert icon={<CloudDone />} severity="success" sx={{ mb: 3, borderRadius: 2 }}>
                     This collection request has been synced to the main server with ID{" "}
                     <strong>#{collectRequest.server_id}</strong>. Status updates will be received
@@ -330,27 +360,35 @@ const Show = ({ collectRequest }) => {
                                     <Card
                                         variant="outlined"
                                         sx={{
-                                            borderColor: collectRequest.server_id
-                                                ? "success.light"
-                                                : "warning.light",
+                                            borderColor: isKitOrder
+                                                ? "info.light"
+                                                : collectRequest.server_id
+                                                  ? "success.light"
+                                                  : "warning.light",
                                         }}
                                     >
                                         <CardHeader
                                             title="Server Synchronization"
                                             subheader={
-                                                collectRequest.server_id
-                                                    ? "This request has been successfully sent to the main server."
-                                                    : "This request has not been sent to the main server yet."
+                                                isKitOrder
+                                                    ? "Kit orders are sent as an order material, not through the logistics endpoint."
+                                                    : collectRequest.server_id
+                                                      ? "This request has been successfully sent to the main server."
+                                                      : "This request has not been sent to the main server yet."
                                             }
                                             avatar={
                                                 <Avatar
                                                     sx={{
-                                                        bgcolor: collectRequest.server_id
-                                                            ? "success.main"
-                                                            : "warning.main",
+                                                        bgcolor: isKitOrder
+                                                            ? "info.main"
+                                                            : collectRequest.server_id
+                                                              ? "success.main"
+                                                              : "warning.main",
                                                     }}
                                                 >
-                                                    {collectRequest.server_id ? (
+                                                    {isKitOrder ? (
+                                                        <Inventory2 />
+                                                    ) : collectRequest.server_id ? (
                                                         <CloudDone />
                                                     ) : (
                                                         <CloudOff />
@@ -358,7 +396,8 @@ const Show = ({ collectRequest }) => {
                                                 </Avatar>
                                             }
                                             action={
-                                                !collectRequest.server_id && (
+                                                !collectRequest.server_id &&
+                                                !isKitOrder && (
                                                     <Button
                                                         variant="contained"
                                                         color="success"
@@ -410,11 +449,15 @@ const Show = ({ collectRequest }) => {
                                 {/* Requested sample types: only present on requests
                                     raised without an order, where they (and the
                                     provider's comment) are all that was asked for. */}
-                                {requestedSampleTypes.length > 0 && (
+                                {isStandalone && (
                                     <Grid size={12}>
                                         <Card variant="outlined">
                                             <CardHeader
-                                                title="Requested Sample Types"
+                                                title={
+                                                    requestedKit
+                                                        ? "Requested Kit"
+                                                        : "Requested Sample Types"
+                                                }
                                                 subheader="Requested without an order"
                                                 avatar={
                                                     <Avatar sx={{ bgcolor: "primary.main" }}>
@@ -430,6 +473,15 @@ const Show = ({ collectRequest }) => {
                                                     useFlexGap
                                                     flexWrap="wrap"
                                                 >
+                                                    {requestedKit && (
+                                                        <Chip
+                                                            color="primary"
+                                                            label={`${requestedKit.amount} × ${requestedKit.name}`}
+                                                            variant="outlined"
+                                                        />
+                                                    )}
+                                                    {/* Older requests named the sample types
+                                                        waiting for pickup instead of a kit. */}
                                                     {requestedSampleTypes.map(
                                                         (sampleType, index) => (
                                                             <Chip
@@ -439,6 +491,13 @@ const Show = ({ collectRequest }) => {
                                                             />
                                                         )
                                                     )}
+                                                    {!requestedKit &&
+                                                        requestedSampleTypes.length === 0 && (
+                                                            <Chip
+                                                                label="Pickup only — no kit requested"
+                                                                variant="outlined"
+                                                            />
+                                                        )}
                                                 </Stack>
                                                 {collectRequest?.details?.comment && (
                                                     <Typography
@@ -1143,9 +1202,9 @@ const Show = ({ collectRequest }) => {
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        This will queue <strong>Collection Request #{collectRequest.id}</strong> to
-                        be sent to the main server. Once sent, the lab will be notified and the
-                        request will receive a server tracking ID. This action cannot be undone.
+                        This will queue <strong>Logistic Request #{collectRequest.id}</strong> to be
+                        sent to the main server. Once sent, the lab will be notified and the request
+                        will receive a server tracking ID. This action cannot be undone.
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
@@ -1171,7 +1230,7 @@ const Show = ({ collectRequest }) => {
 // Breadcrumbs for layout
 const breadCrumbs = [
     {
-        title: "Collect Requests",
+        title: "Logistic Requests",
         link: "/admin/collectRequests",
         icon: <LocalShipping fontSize="small" />,
     },
@@ -1184,7 +1243,7 @@ Show.layout = (page) => (
         breadcrumbs={[
             ...breadCrumbs,
             {
-                title: "Collection Request #" + page.props.collectRequest.id,
+                title: "Logistic Request #" + page.props.collectRequest.id,
                 link: null,
                 icon: <Receipt fontSize="small" />,
             },

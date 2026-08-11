@@ -28,7 +28,7 @@ const AddForm = ({ values, setValues, submit, open, setOpen, title, loading, res
                             />
                         </Grid>
 
-                        <Grid size={{ xs: 12, md: 3 }}>
+                        <Grid size={{ xs: 12, md: 4 }}>
                             <FormControlLabel
                                 label="Orderable"
                                 control={<Switch />}
@@ -36,6 +36,19 @@ const AddForm = ({ values, setValues, submit, open, setOpen, title, loading, res
                                 name="orderable"
                                 onChange={handleSwitchChange}
                                 checked={values.orderable}
+                            />
+                        </Grid>
+
+                        <Grid size={{ xs: 12, md: 4 }}>
+                            {/* Offered on the logistic request form as a sample
+                                the provider can hand over for pickup. */}
+                            <FormControlLabel
+                                label="Collectable"
+                                control={<Switch />}
+                                labelPlacement="start"
+                                name="collectable"
+                                onChange={handleSwitchChange}
+                                checked={values.collectable ?? false}
                             />
                         </Grid>
 

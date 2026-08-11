@@ -133,6 +133,16 @@ class RequestLogistic
      */
     private static function validateCollectRequest(CollectRequest $collectRequest): void
     {
+        // A kit order belongs to the order materials endpoint, not this one. It
+        // should never be dispatched here; fail loudly rather than post a
+        // request with nothing in it.
+        if ($collectRequest->isKitOrder()) {
+            throw new ApiServiceException(
+                'Collect request is a kit order and syncs as an order material',
+                400
+            );
+        }
+
         if (! $collectRequest->User || ! $collectRequest->User->referrer_id) {
             throw new ApiServiceException('Collect request user or referrer_id is missing', 400);
         }
@@ -183,11 +193,13 @@ class RequestLogistic
     /**
      * A standalone request is raised without any order: the provider only
      * declares which sample types they have ready for pickup, so the request
-     * carries them in its details and has no order graph to send.
+     * carries them in its details and has no order graph to send. Kit orders
+     * are excluded above and never reach this point.
      */
     private static function isStandalone(CollectRequest $collectRequest): bool
     {
-        return ! empty($collectRequest->details['sample_types']);
+        return ($collectRequest->details['type'] ?? null) === 'standalone'
+            || ! empty($collectRequest->details['sample_types']);
     }
 
     /**

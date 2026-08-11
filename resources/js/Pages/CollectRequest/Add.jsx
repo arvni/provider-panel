@@ -35,11 +35,11 @@ import AdminLayout from "@/Layouts/AuthenticatedLayout";
 
 const breadcrumbs = [
     {
-        title: "Collection Requests",
+        title: "Logistic Requests",
         link: "/admin/collectRequests",
         icon: <LocalShipping fontSize="small" />,
     },
-    { title: "New Collection Request", link: null, icon: null },
+    { title: "New Logistic Request", link: null, icon: null },
 ];
 
 /**
@@ -139,7 +139,7 @@ const Add = () => {
     return (
         <>
             <PageHeader
-                title="New Collection Request"
+                title="New Logistic Request"
                 subtitle="Raise a pickup request on behalf of a provider and attach their requested orders"
             />
 
@@ -374,9 +374,7 @@ const Add = () => {
                         <Button
                             type="submit"
                             variant="contained"
-                            startIcon={
-                                processing ? <CircularProgress size={18} /> : <SendIcon />
-                            }
+                            startIcon={processing ? <CircularProgress size={18} /> : <SendIcon />}
                             disabled={processing || !data.user_id || !data.selectedOrders.length}
                         >
                             {processing ? "Creating…" : "Create Request"}

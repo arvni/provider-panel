@@ -23,6 +23,7 @@ import {
     Event,
     ExpandMore,
     Info,
+    Inventory2,
     LocalShipping,
     LocationOn,
     Notes,
@@ -97,7 +98,10 @@ const UserShow = ({ collectRequest }) => {
 
     // Order-less requests only declare the sample types waiting for pickup,
     // with the provider's comment kept alongside them in details.
+    // Requests raised before the kit picker replaced the sample type checkboxes
+    // still carry the old selection, so both are rendered when present.
     const requestedSampleTypes = details.sample_types ?? [];
+    const requestedKit = details.kit ?? null;
     const notes = collectRequest.notes || details.comment;
 
     // Only the pieces the summary card and page header need; the tracking panel
@@ -119,7 +123,7 @@ const UserShow = ({ collectRequest }) => {
                         flexWrap="wrap"
                     >
                         <Typography variant="h5" component="span">
-                            Collection Request #{collectRequest.id}
+                            Logistic Request #{collectRequest.id}
                         </Typography>
                         <Chip
                             label={getStatusLabel(collectRequest.status)}
@@ -329,6 +333,25 @@ const UserShow = ({ collectRequest }) => {
                                                     />
                                                 ))}
                                             </Stack>
+                                        </Paper>
+                                    </Grid>
+                                )}
+
+                                {requestedKit && (
+                                    <Grid size={12}>
+                                        <Typography
+                                            variant="h6"
+                                            gutterBottom
+                                            sx={{ fontWeight: 600, mt: 2 }}
+                                        >
+                                            Requested Kit
+                                        </Typography>
+                                        <Paper variant="outlined" sx={{ p: 2.5 }}>
+                                            <Chip
+                                                icon={<Inventory2 />}
+                                                label={`${requestedKit.amount} × ${requestedKit.name}`}
+                                                variant="outlined"
+                                            />
                                         </Paper>
                                     </Grid>
                                 )}

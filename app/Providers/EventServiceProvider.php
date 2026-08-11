@@ -5,7 +5,9 @@ namespace App\Providers;
 use App\Listeners\FlushPermissionCache;
 use App\Models\CollectRequest;
 use App\Models\Order;
+use App\Models\OrderMaterial;
 use App\Observers\CollectRequestObserver;
+use App\Observers\OrderMaterialObserver;
 use App\Observers\OrderObserver;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -42,6 +44,7 @@ class EventServiceProvider extends ServiceProvider
     protected $observers = [
         CollectRequest::class => [CollectRequestObserver::class],
         Order::class => [OrderObserver::class],
+        OrderMaterial::class => [OrderMaterialObserver::class],
     ];
 
     /**

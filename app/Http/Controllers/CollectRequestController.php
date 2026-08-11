@@ -35,11 +35,16 @@ class CollectRequestController extends Controller
 
         return Inertia::render('CollectRequest/UserIndex', [
             'collectRequests' => $collectRequests,
-            // Choices for the standalone (order-less) collect request form: only
-            // the types a provider is allowed to order.
+            // The two branches of the standalone (order-less) logistic request
+            // form: kits a provider may order, and types they may hand over.
             'sampleTypes' => fn () => SampleType::where('orderable', true)
                 ->orderBy('name')
                 ->get(['id', 'name']),
+            'collectableSampleTypes' => fn () => SampleType::where('collectable', true)
+                ->orderBy('name')
+                ->get(['id', 'name']),
+            // Asking for a kit is a separate permission from asking for a pickup.
+            'canRequestKit' => $request->user()->hasAccess('OrderMaterial.Create'),
             'request' => $requestInputs,
         ]);
     }
