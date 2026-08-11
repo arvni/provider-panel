@@ -23,6 +23,13 @@ class OrderObserver
      */
     public function updated(Order $order): void
     {
+        // Only announce a status transition. Without this guard any unrelated
+        // write -- a webhook stamping server_id, an edit, a sync pass -- re-sends
+        // the same email while the status sits on one of the notifiable values.
+        if (! $order->wasChanged('status')) {
+            return;
+        }
+
         if (in_array($order->status->value, [OrderStatus::REPORTED->value, OrderStatus::RECEIVED->value, OrderStatus::PROCESSING->value, OrderStatus::WAITING_FOR_FINANCIAL_APPROVAL->value])) {
             $order->load('User');
             $users = [$order->User];
