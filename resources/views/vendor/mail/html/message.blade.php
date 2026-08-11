@@ -2,10 +2,8 @@
     {{-- Header --}}
     <x-slot:header>
         <x-mail::header :url="config('app.url')">
-            <div style="display: flex;flex-direction: column;justify-content: center;gap: 10px;align-items: center">
-                <img src="{{url("images/logo.png")}}" width="50" alt="{{config('app.name')}}">
-                <span>{{ config('app.name') }}</span>
-            </div>
+            <img src="{{ url('images/logo.png') }}" class="logo" width="220" alt="{{ config('app.name') }}">
+            <span class="header-title">{{ config('app.name') }}</span>
         </x-mail::header>
     </x-slot:header>
 
@@ -16,7 +14,7 @@
     @isset($subcopy)
         <x-slot:subcopy>
             <x-mail::subcopy>
-                {{ $subcopy }}
+{{ $subcopy }}
             </x-mail::subcopy>
         </x-slot:subcopy>
     @endisset
@@ -24,7 +22,9 @@
     {{-- Footer --}}
     <x-slot:footer>
         <x-mail::footer>
-            © {{ date('Y') }} {{ config('app.name') }}. @lang('All rights reserved.')
+[{{ config('app.name') }}]({{ config('app.url') }})
+
+© {{ date('Y') }} {{ config('app.name') }}. @lang('All rights reserved.')
         </x-mail::footer>
     </x-slot:footer>
 </x-mail::layout>

@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Notifications\OrderStatusUpdated;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 /**
@@ -56,5 +57,33 @@ class OrderStatusNotificationTest extends TestCase
         $order->update(['status' => OrderStatus::PROCESSING]);
 
         Notification::assertNothingSent();
+    }
+
+    /**
+     * These two statuses are bookkeeping, not news the provider needs mailed:
+     * "report downloaded" is stamped by the provider's own download click, and
+     * "logistic requested" by their own collection request. Both are excluded
+     * from the observer's allow-list; this pins that down so widening the list
+     * later doesn't quietly start mailing them.
+     */
+    #[DataProvider('nonNotifiableStatuses')]
+    public function test_bookkeeping_statuses_do_not_notify(OrderStatus $status): void
+    {
+        $owner = User::factory()->create();
+        $order = Order::create(['user_id' => $owner->id, 'status' => OrderStatus::REPORTED]);
+
+        Notification::fake();
+
+        $order->update(['status' => $status]);
+
+        Notification::assertNothingSent();
+    }
+
+    public static function nonNotifiableStatuses(): array
+    {
+        return [
+            'report downloaded' => [OrderStatus::REPORT_DOWNLOADED],
+            'logistic requested' => [OrderStatus::LOGISTIC_REQUESTED],
+        ];
     }
 }

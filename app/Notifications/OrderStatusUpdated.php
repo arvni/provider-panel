@@ -51,7 +51,7 @@ class OrderStatusUpdated extends Notification implements ShouldQueue
             })
             ->action($statusConfig['action'], $this->getActionUrl())
             ->line($statusConfig['footer'])
-            ->salutation('Best regards,<br>'.config('app.name'));
+            ->salutation(new HtmlString('Best regards,<br>'.config('app.name')));
     }
 
     /**
@@ -85,7 +85,10 @@ class OrderStatusUpdated extends Notification implements ShouldQueue
     }
 
     /**
-     * Get email subject based on order status
+     * Get email subject based on order status.
+     *
+     * Leads with the main patient so providers can scan their inbox by patient,
+     * then states what changed and which order it belongs to.
      */
     protected function getEmailSubject(): string
     {
@@ -98,13 +101,21 @@ class OrderStatusUpdated extends Notification implements ShouldQueue
             'waiting for financial approval' => 'Your Report Is Awaiting Financial Approval',
         ];
 
-        $defaultSubject = sprintf(
-            'Order %s Status Update: %s',
-            $this->order->orderId,
-            ucwords($this->order->status->value)
-        );
+        $statusHeadline = $statusMessages[$this->order->status->value]
+            ?? 'Status Update: '.ucwords($this->order->status->value);
 
-        return $statusMessages[$this->order->status->value] ?? $defaultSubject;
+        $patientName = $this->order->Patient?->fullName;
+
+        if (! $patientName) {
+            return sprintf('%s (Order %s)', $statusHeadline, $this->order->orderId);
+        }
+
+        return sprintf(
+            '%s — %s (Order %s)',
+            $patientName,
+            $statusHeadline,
+            $this->order->orderId
+        );
     }
 
     /**
