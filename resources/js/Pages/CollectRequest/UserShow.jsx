@@ -38,6 +38,7 @@ import {
 import { router } from "@inertiajs/react";
 import PageHeader from "@/Components/PageHeader";
 import LogisticsTracking, { StatTile } from "./Components/LogisticsTracking";
+import { kitLabel, requestedKits } from "./kits";
 import { buildLogisticsModel, formatDate, formatDateTime } from "./Components/logisticsUtils";
 
 const getStatusColor = (status) => {
@@ -101,7 +102,7 @@ const UserShow = ({ collectRequest }) => {
     // Requests raised before the kit picker replaced the sample type checkboxes
     // still carry the old selection, so both are rendered when present.
     const requestedSampleTypes = details.sample_types ?? [];
-    const requestedKit = details.kit ?? null;
+    const kits = useMemo(() => requestedKits(details), [details]);
     const notes = collectRequest.notes || details.comment;
 
     // Only the pieces the summary card and page header need; the tracking panel
@@ -337,21 +338,33 @@ const UserShow = ({ collectRequest }) => {
                                     </Grid>
                                 )}
 
-                                {requestedKit && (
+                                {kits.length > 0 && (
                                     <Grid size={12}>
                                         <Typography
                                             variant="h6"
                                             gutterBottom
                                             sx={{ fontWeight: 600, mt: 2 }}
                                         >
-                                            Requested Kit
+                                            {kits.length === 1 ? "Requested Kit" : "Requested Kits"}
                                         </Typography>
                                         <Paper variant="outlined" sx={{ p: 2.5 }}>
-                                            <Chip
-                                                icon={<Inventory2 />}
-                                                label={`${requestedKit.amount} × ${requestedKit.name}`}
-                                                variant="outlined"
-                                            />
+                                            <Stack
+                                                direction="row"
+                                                spacing={1}
+                                                useFlexGap
+                                                flexWrap="wrap"
+                                            >
+                                                {kits.map((kit, index) => (
+                                                    <Chip
+                                                        key={
+                                                            kit.order_material_id ?? kit.id ?? index
+                                                        }
+                                                        icon={<Inventory2 />}
+                                                        label={kitLabel(kit)}
+                                                        variant="outlined"
+                                                    />
+                                                ))}
+                                            </Stack>
                                         </Paper>
                                     </Grid>
                                 )}

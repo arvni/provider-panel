@@ -45,7 +45,7 @@ class AdminSendKitOrderTest extends TestCase
         $admin = $this->admin();
         $collectRequest = $this->standaloneRequest([
             'mode' => 'order',
-            'kit' => ['id' => 1, 'name' => 'Blood', 'amount' => 2, 'order_material_id' => 9],
+            'kits' => [['id' => 1, 'name' => 'Blood', 'amount' => 2, 'order_material_id' => 9]],
         ]);
 
         $this->actingAs($admin)

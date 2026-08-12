@@ -9,7 +9,9 @@ use App\Models\CollectRequest;
 use App\Models\OrderMaterial;
 use App\Models\SampleType;
 use App\Models\User;
+use App\Notifications\KitOrderRequested;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Queue;
 use Spatie\Permission\Models\Permission;
@@ -19,7 +21,7 @@ use Tests\TestCase;
 /**
  * Logistic requests raised from the logistic request index without any order.
  * The provider chooses what they need: a pickup for the collectable sample
- * types they have ready, or one kit sent out — which becomes a real
+ * types they have ready, or kits sent out — each of which becomes a real
  * OrderMaterial linked back to the request.
  */
 class StandaloneCollectRequestTest extends TestCase
@@ -103,8 +105,7 @@ class StandaloneCollectRequestTest extends TestCase
         $this->actingAs($provider)
             ->post(route('collectRequests.store'), [
                 'mode' => 'order',
-                'kit_sample_type' => $blood->id,
-                'kit_amount' => 3,
+                'kits' => [['sample_type' => $blood->id, 'amount' => 3]],
                 'preferred_date' => now()->addDay()->format('Y-m-d'),
             ])
             ->assertSessionHasNoErrors();
@@ -120,16 +121,112 @@ class StandaloneCollectRequestTest extends TestCase
 
         // The kit is snapshotted into details, so the request keeps describing
         // what was asked for even if the sample type is later renamed.
-        $this->assertSame([
+        $this->assertSame([[
             'id' => $blood->id,
             'server_id' => 55,
             'name' => 'Blood',
             'amount' => 3,
             'order_material_id' => $orderMaterial->id,
-        ], $collectRequest->details['kit']);
+        ]], $collectRequest->details['kits']);
 
         // Ordering a kit does not also claim samples are waiting for pickup.
         $this->assertArrayNotHasKey('sample_types', $collectRequest->details);
+    }
+
+    public function test_several_kits_can_be_ordered_on_one_request(): void
+    {
+        Queue::fake();
+        Notification::fake();
+
+        $provider = $this->provider();
+        $blood = $this->sampleType('Blood', 55);
+        $saliva = $this->sampleType('Saliva', 56);
+
+        $this->actingAs($provider)
+            ->post(route('collectRequests.store'), [
+                'mode' => 'order',
+                'kits' => [
+                    ['sample_type' => $blood->id, 'amount' => 3],
+                    ['sample_type' => $saliva->id, 'amount' => 7],
+                ],
+                'preferred_date' => now()->addDay()->format('Y-m-d'),
+            ])
+            ->assertSessionHasNoErrors();
+
+        $collectRequest = CollectRequest::firstOrFail();
+
+        // Each kit is made up separately, so each one is its own material.
+        $this->assertSame(2, $collectRequest->orderMaterials()->count());
+        $this->assertSame(
+            [$blood->id => 3, $saliva->id => 7],
+            $collectRequest->orderMaterials()
+                ->pluck('amount', 'sample_type_id')
+                ->all()
+        );
+
+        // Every kit is snapshotted, in the order it was asked for.
+        $this->assertSame([
+            ['id' => $blood->id, 'server_id' => 55, 'name' => 'Blood', 'amount' => 3],
+            ['id' => $saliva->id, 'server_id' => 56, 'name' => 'Saliva', 'amount' => 7],
+        ], array_map(
+            fn (array $kit) => Arr::except($kit, 'order_material_id'),
+            $collectRequest->details['kits']
+        ));
+
+        // The snapshot points at the material each kit became.
+        $this->assertSame(
+            $collectRequest->orderMaterials()->orderBy('id')->pluck('id')->all(),
+            array_column($collectRequest->details['kits'], 'order_material_id')
+        );
+    }
+
+    public function test_every_ordered_kit_syncs_but_the_provider_hears_back_once(): void
+    {
+        Queue::fake();
+        Notification::fake();
+
+        $provider = $this->provider();
+        $blood = $this->sampleType('Blood', 55);
+        $saliva = $this->sampleType('Saliva', 56);
+
+        $this->actingAs($provider)
+            ->post(route('collectRequests.store'), [
+                'mode' => 'order',
+                'kits' => [
+                    ['sample_type' => $blood->id, 'amount' => 1],
+                    ['sample_type' => $saliva->id, 'amount' => 1],
+                ],
+                'preferred_date' => now()->addDay()->format('Y-m-d'),
+            ])
+            ->assertSessionHasNoErrors();
+
+        // Each material still reaches the central server on its own.
+        Queue::assertPushed(SendOrderMaterial::class, 2);
+
+        // But one form filled in is one confirmation, not one per kit.
+        Notification::assertSentToTimes($provider, KitOrderRequested::class, 1);
+    }
+
+    public function test_the_same_kit_cannot_be_asked_for_twice_on_one_request(): void
+    {
+        Queue::fake();
+
+        $provider = $this->provider();
+        $blood = $this->sampleType('Blood', 55);
+
+        $this->actingAs($provider)
+            ->post(route('collectRequests.store'), [
+                'mode' => 'order',
+                'kits' => [
+                    ['sample_type' => $blood->id, 'amount' => 3],
+                    ['sample_type' => $blood->id, 'amount' => 4],
+                ],
+                'preferred_date' => now()->addDay()->format('Y-m-d'),
+            ])
+            ->assertSessionHasErrors('kits.0.sample_type');
+
+        $this->assertSame(0, CollectRequest::count());
+        $this->assertSame(0, OrderMaterial::count());
     }
 
     public function test_a_kit_order_syncs_as_a_material_and_never_as_a_collect_request(): void
@@ -143,8 +240,7 @@ class StandaloneCollectRequestTest extends TestCase
         $this->actingAs($provider)
             ->post(route('collectRequests.store'), [
                 'mode' => 'order',
-                'kit_sample_type' => $blood->id,
-                'kit_amount' => 2,
+                'kits' => [['sample_type' => $blood->id, 'amount' => 2]],
                 'preferred_date' => now()->addDay()->format('Y-m-d'),
             ])
             ->assertSessionHasNoErrors();
@@ -241,16 +337,35 @@ class StandaloneCollectRequestTest extends TestCase
                 'mode' => 'order',
                 'preferred_date' => now()->addDay()->format('Y-m-d'),
             ])
-            ->assertSessionHasErrors(['kit_sample_type', 'kit_amount']);
+            ->assertSessionHasErrors('kits');
 
         $this->actingAs($provider)
             ->post(route('collectRequests.store'), [
                 'mode' => 'order',
-                'kit_sample_type' => $blood->id,
-                'kit_amount' => 101,
+                'kits' => [['amount' => 2]],
                 'preferred_date' => now()->addDay()->format('Y-m-d'),
             ])
-            ->assertSessionHasErrors('kit_amount');
+            ->assertSessionHasErrors('kits.0.sample_type');
+
+        $this->actingAs($provider)
+            ->post(route('collectRequests.store'), [
+                'mode' => 'order',
+                'kits' => [['sample_type' => $blood->id, 'amount' => 101]],
+                'preferred_date' => now()->addDay()->format('Y-m-d'),
+            ])
+            ->assertSessionHasErrors('kits.0.amount');
+
+        // One bad kit rejects the whole request rather than quietly dropping it.
+        $this->actingAs($provider)
+            ->post(route('collectRequests.store'), [
+                'mode' => 'order',
+                'kits' => [
+                    ['sample_type' => $blood->id, 'amount' => 2],
+                    ['sample_type' => $blood->id, 'amount' => 0],
+                ],
+                'preferred_date' => now()->addDay()->format('Y-m-d'),
+            ])
+            ->assertSessionHasErrors('kits.1.amount');
 
         $this->assertSame(0, CollectRequest::count());
         $this->assertSame(0, OrderMaterial::count());
@@ -263,19 +378,18 @@ class StandaloneCollectRequestTest extends TestCase
         $provider = $this->provider();
         $blood = $this->sampleType('Blood');
 
-        // A stale kit left over from switching modes must not block a pickup,
+        // Stale kits left over from switching modes must not block a pickup,
         // and must not be recorded either.
         $this->actingAs($provider)
             ->post(route('collectRequests.store'), [
                 'mode' => 'collect',
                 'sample_types' => [$blood->id],
-                'kit_sample_type' => 9999,
-                'kit_amount' => 999,
+                'kits' => [['sample_type' => 9999, 'amount' => 999]],
                 'preferred_date' => now()->addDay()->format('Y-m-d'),
             ])
             ->assertSessionHasNoErrors();
 
-        $this->assertArrayNotHasKey('kit', CollectRequest::firstOrFail()->details);
+        $this->assertArrayNotHasKey('kits', CollectRequest::firstOrFail()->details);
         $this->assertSame(0, OrderMaterial::count());
     }
 
@@ -307,11 +421,10 @@ class StandaloneCollectRequestTest extends TestCase
         $this->actingAs($provider)
             ->post(route('collectRequests.store'), [
                 'mode' => 'order',
-                'kit_sample_type' => $internal->id,
-                'kit_amount' => 1,
+                'kits' => [['sample_type' => $internal->id, 'amount' => 1]],
                 'preferred_date' => now()->addDay()->format('Y-m-d'),
             ])
-            ->assertSessionHasErrors('kit_sample_type');
+            ->assertSessionHasErrors('kits.0.sample_type');
 
         $this->assertSame(0, CollectRequest::count());
     }
@@ -326,8 +439,7 @@ class StandaloneCollectRequestTest extends TestCase
         $this->actingAs($provider)
             ->post(route('collectRequests.store'), [
                 'mode' => 'order',
-                'kit_sample_type' => $blood->id,
-                'kit_amount' => 1,
+                'kits' => [['sample_type' => $blood->id, 'amount' => 1]],
                 'preferred_date' => now()->addDay()->format('Y-m-d'),
             ])
             ->assertSessionHasErrors('mode');

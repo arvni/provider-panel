@@ -2,17 +2,33 @@
 
 namespace App\Observers;
 
+use App\Enums\CollectRequestStatus;
 use App\Models\OrderMaterial;
 
 class OrderMaterialObserver
 {
     /**
+     * The request statuses a material's own progress can account for. Anything
+     * further along was put there by someone else — an admin marking the kits
+     * handed over — and a material has nothing to say about it.
+     */
+    private const MATERIAL_DRIVEN = [
+        CollectRequestStatus::REQUESTED,
+        CollectRequestStatus::SCHEDULED,
+    ];
+
+    /**
      * Handle the OrderMaterial "updated" event.
      *
      * A kit ordered from the logistic request form has a request attached to it
-     * that the logistics endpoint never touches, so the material's progress is
+     * that the logistics endpoint never touches, so the materials' progress is
      * the only progress there is. Mirror it, and the request stops sitting at
      * "requested" forever.
+     *
+     * One request can carry several kits, so the request follows the least
+     * advanced of them: it is not scheduled until every kit has been generated.
+     * Reading them all also keeps the order of the updates from mattering — the
+     * answer is the same whichever kit was saved last.
      */
     public function updated(OrderMaterial $orderMaterial): void
     {
@@ -22,13 +38,18 @@ class OrderMaterialObserver
 
         $collectRequest = $orderMaterial->CollectRequest;
 
-        if (! $collectRequest) {
+        if (! $collectRequest || ! in_array($collectRequest->status, self::MATERIAL_DRIVEN, true)) {
             return;
         }
 
-        $status = $orderMaterial->status->toCollectRequestStatus();
+        $status = $collectRequest->orderMaterials()
+            ->get(['id', 'collect_request_id', 'status'])
+            ->sortBy(fn (OrderMaterial $material) => $material->status->progress())
+            ->first()
+            ?->status
+            ?->toCollectRequestStatus();
 
-        if ($collectRequest->status === $status) {
+        if (! $status || $collectRequest->status === $status) {
             return;
         }
 

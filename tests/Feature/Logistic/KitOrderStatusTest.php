@@ -14,9 +14,10 @@ use Tests\TestCase;
 
 /**
  * A kit order never reaches the logistics endpoint, so no status webhook ever
- * arrives for its logistic request. The material's progress is the only
+ * arrives for its logistic request. The materials' progress is the only
  * progress there is, and the request follows it — using the request statuses
- * that already exist rather than giving materials new ones.
+ * that already exist rather than giving materials new ones. A request carrying
+ * several kits follows the least advanced of them.
  */
 class KitOrderStatusTest extends TestCase
 {
@@ -61,9 +62,11 @@ class KitOrderStatusTest extends TestCase
     }
 
     /**
-     * @return array{0: CollectRequest, 1: OrderMaterial}
+     * A kit order with one material per sample type given, in that order.
+     *
+     * @return array{0: CollectRequest, 1: array<int, OrderMaterial>}
      */
-    private function kitOrder(SampleType $sampleType): array
+    private function kitOrder(SampleType ...$sampleTypes): array
     {
         $user = User::factory()->create();
 
@@ -74,17 +77,26 @@ class KitOrderStatusTest extends TestCase
             'details' => [
                 'type' => 'standalone',
                 'mode' => 'order',
-                'kit' => ['id' => $sampleType->id, 'name' => $sampleType->name, 'amount' => 2],
+                'kits' => array_map(fn (SampleType $sampleType) => [
+                    'id' => $sampleType->id,
+                    'name' => $sampleType->name,
+                    'amount' => 2,
+                ], $sampleTypes),
             ],
         ]);
 
-        return [$collectRequest, $this->material($user, $sampleType, $collectRequest->id)];
+        $materials = array_map(
+            fn (SampleType $sampleType) => $this->material($user, $sampleType, $collectRequest->id),
+            $sampleTypes
+        );
+
+        return [$collectRequest, $materials];
     }
 
     public function test_generating_the_kits_moves_the_request_to_scheduled(): void
     {
         $sampleType = $this->sampleType('Blood', 55);
-        [$collectRequest, $orderMaterial] = $this->kitOrder($sampleType);
+        [$collectRequest, [$orderMaterial]] = $this->kitOrder($sampleType);
 
         $orderMaterial->update(['status' => OrderMaterialStatus::GENERATED]);
 
@@ -94,10 +106,52 @@ class KitOrderStatusTest extends TestCase
         );
     }
 
+    public function test_a_request_waits_for_its_last_kit_before_it_is_scheduled(): void
+    {
+        $blood = $this->sampleType('Blood', 55);
+        $saliva = $this->sampleType('Saliva', 56);
+        [$collectRequest, [$bloodKit, $salivaKit]] = $this->kitOrder($blood, $saliva);
+
+        // One kit made up is not the order made up.
+        $bloodKit->update(['status' => OrderMaterialStatus::GENERATED]);
+        $this->assertSame(CollectRequestStatus::REQUESTED, $collectRequest->fresh()->status);
+
+        $salivaKit->update(['status' => OrderMaterialStatus::GENERATED]);
+        $this->assertSame(CollectRequestStatus::SCHEDULED, $collectRequest->fresh()->status);
+    }
+
+    public function test_a_kit_sent_back_to_ordered_takes_the_request_with_it(): void
+    {
+        $blood = $this->sampleType('Blood', 55);
+        $saliva = $this->sampleType('Saliva', 56);
+        [$collectRequest, [$bloodKit, $salivaKit]] = $this->kitOrder($blood, $saliva);
+
+        $bloodKit->update(['status' => OrderMaterialStatus::GENERATED]);
+        $salivaKit->update(['status' => OrderMaterialStatus::GENERATED]);
+        $this->assertSame(CollectRequestStatus::SCHEDULED, $collectRequest->fresh()->status);
+
+        // The request describes the least advanced kit, whichever way it moved.
+        $salivaKit->update(['status' => OrderMaterialStatus::ORDERED]);
+        $this->assertSame(CollectRequestStatus::REQUESTED, $collectRequest->fresh()->status);
+    }
+
+    public function test_a_late_kit_cannot_drag_a_finished_request_backwards(): void
+    {
+        $blood = $this->sampleType('Blood', 55);
+        [$collectRequest, [$orderMaterial]] = $this->kitOrder($blood);
+
+        // An admin has confirmed the provider has the kits.
+        $collectRequest->update(['status' => CollectRequestStatus::RECEIVED]);
+
+        $orderMaterial->update(['status' => OrderMaterialStatus::GENERATED]);
+
+        $this->assertSame(CollectRequestStatus::RECEIVED, $collectRequest->fresh()->status);
+    }
+
     public function test_the_material_status_webhook_carries_the_request_along(): void
     {
         $sampleType = $this->sampleType('Blood', 55);
-        [$collectRequest, $orderMaterial] = $this->kitOrder($sampleType);
+        [$collectRequest, [$orderMaterial]] = $this->kitOrder($sampleType);
 
         $payload = [
             'materials' => [
@@ -142,7 +196,7 @@ class KitOrderStatusTest extends TestCase
     public function test_a_change_that_is_not_the_status_leaves_the_request_alone(): void
     {
         $sampleType = $this->sampleType('Blood', 55);
-        [$collectRequest, $orderMaterial] = $this->kitOrder($sampleType);
+        [$collectRequest, [$orderMaterial]] = $this->kitOrder($sampleType);
 
         // What MaterialOrder::send does once the central server answers.
         $orderMaterial->update(['server_id' => 4321]);
