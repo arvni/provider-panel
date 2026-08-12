@@ -6,6 +6,7 @@ import PageHeader from "@/Components/PageHeader";
 import { usePageReload } from "@/Services/api";
 import TableLayout from "@/Layouts/TableLayout";
 import StandaloneRequestForm from "./Components/StandaloneRequestForm";
+import { kitLabel, requestedKits } from "./kits";
 
 /**
  * User Logistic Requests Index component
@@ -121,26 +122,27 @@ const UserIndex = ({
             field: "requested",
             title: "Requested",
             type: "component",
-            // Requests raised without an order carry either an ordered kit or
+            // Requests raised without an order carry either the ordered kits or
             // the sample types waiting for pickup, never both.
             render: (row) => {
-                const kit = row.details?.kit;
+                const kits = requestedKits(row.details);
                 const sampleTypes = row.details?.sample_types || [];
 
-                if (!kit && sampleTypes.length === 0) {
+                if (kits.length === 0 && sampleTypes.length === 0) {
                     return <Typography variant="body2">—</Typography>;
                 }
 
                 return (
                     <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                        {kit && (
+                        {kits.map((kit, index) => (
                             <Chip
-                                label={`${kit.amount} × ${kit.name}`}
+                                key={kit.order_material_id ?? kit.id ?? index}
+                                label={kitLabel(kit)}
                                 size="small"
                                 color="primary"
                                 variant="outlined"
                             />
-                        )}
+                        ))}
                         {sampleTypes.map((sampleType, index) => (
                             <Chip
                                 key={sampleType.id ?? index}

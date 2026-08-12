@@ -9,7 +9,7 @@ use Illuminate\Validation\Rule;
 /**
  * Validation for a logistic request raised without an order. The provider first
  * says what they need: a pickup for the collectable sample types they already
- * have, or one kit — with a quantity — sent out to them.
+ * have, or kits — each with its own quantity — sent out to them.
  */
 class StoreStandaloneCollectRequestRequest extends FormRequest
 {
@@ -22,6 +22,13 @@ class StoreStandaloneCollectRequestRequest extends FormRequest
      * Materials form so both routes to a material agree.
      */
     public const MAX_KIT_AMOUNT = 100;
+
+    /**
+     * How many different kits one request may ask for. Every kit becomes its
+     * own order material for the lab to make up, so this is a sanity bound on
+     * a hand-filled form rather than a rule anyone should meet in practice.
+     */
+    public const MAX_KIT_TYPES = 20;
 
     /**
      * Access is gated by the route's providerAccess middleware.
@@ -43,15 +50,22 @@ class StoreStandaloneCollectRequestRequest extends FormRequest
             'preferred_date' => ['required', 'date', 'after_or_equal:today'],
             'comment' => ['nullable', 'string', 'max:1000'],
 
-            // Ordering: exactly one kit, and only a type the lab offers.
-            'kit_sample_type' => [
+            // Ordering: one or more kits, each named once and only from the
+            // types the lab offers, each with its own quantity.
+            'kits' => [
                 'exclude_unless:mode,'.self::MODE_ORDER,
                 'required',
+                'array',
+                'min:1',
+                'max:'.self::MAX_KIT_TYPES,
+            ],
+            'kits.*.sample_type' => [
+                'required',
                 'integer',
+                'distinct',
                 Rule::exists('sample_types', 'id')->where('orderable', true),
             ],
-            'kit_amount' => [
-                'exclude_unless:mode,'.self::MODE_ORDER,
+            'kits.*.amount' => [
                 'required',
                 'integer',
                 'min:1',
@@ -86,8 +100,12 @@ class StoreStandaloneCollectRequestRequest extends FormRequest
     {
         return [
             'mode.required' => __('Please choose what you need.'),
-            'kit_sample_type.required' => __('Please choose a kit.'),
-            'kit_amount.required' => __('Please choose how many kits you need.'),
+            'kits.required' => __('Please choose at least one kit.'),
+            'kits.min' => __('Please choose at least one kit.'),
+            'kits.max' => __('Please choose no more than :max kits.'),
+            'kits.*.sample_type.required' => __('Please choose a kit.'),
+            'kits.*.sample_type.distinct' => __('Please choose each kit only once.'),
+            'kits.*.amount.required' => __('Please choose how many kits you need.'),
             'sample_types.required' => __('Please select at least one sample type.'),
             'sample_types.min' => __('Please select at least one sample type.'),
         ];

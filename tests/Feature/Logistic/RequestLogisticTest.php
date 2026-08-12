@@ -64,7 +64,7 @@ class RequestLogisticTest extends TestCase
             'details' => [
                 'type' => 'standalone',
                 'mode' => 'order',
-                'kit' => ['id' => 1, 'name' => 'Blood', 'amount' => 2],
+                'kits' => [['id' => 1, 'name' => 'Blood', 'amount' => 2]],
             ],
         ]);
 

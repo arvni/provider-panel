@@ -84,8 +84,8 @@ describe("StandaloneRequestForm", () => {
         renderForm();
         chooseOrder();
 
-        expect(screen.getByText(/which kit do you want\?/i)).toBeInTheDocument();
-        expect(screen.getByRole("radio", { name: "Blood" })).toBeInTheDocument();
+        expect(screen.getByText(/which kits do you want\?/i)).toBeInTheDocument();
+        expect(screen.getByRole("checkbox", { name: "Blood" })).toBeInTheDocument();
         // The collectable types belong to the other branch.
         expect(screen.queryByRole("checkbox", { name: "Serum" })).not.toBeInTheDocument();
     });
@@ -96,22 +96,21 @@ describe("StandaloneRequestForm", () => {
 
         expect(screen.getByText(/which samples do you have\?/i)).toBeInTheDocument();
         expect(screen.getByRole("checkbox", { name: "Serum" })).toBeInTheDocument();
-        expect(screen.queryByRole("radio", { name: "Blood" })).not.toBeInTheDocument();
+        expect(screen.queryByRole("checkbox", { name: "Blood" })).not.toBeInTheDocument();
     });
 
     it("collects one kit, its quantity, the date and the comment", () => {
         renderForm();
         chooseOrder();
 
-        fireEvent.click(screen.getByRole("radio", { name: "Blood" }));
+        fireEvent.click(screen.getByRole("checkbox", { name: "Blood" }));
         fireEvent.click(screen.getByRole("button", { name: /one more kit/i }));
         fireEvent.click(screen.getByText("Today"));
         fireEvent.change(screen.getByLabelText(/comment/i), { target: { value: "Running low" } });
 
         expect(formData).toEqual({
             mode: "order",
-            kit_sample_type: 1,
-            kit_amount: 2,
+            kits: [{ sample_type: 1, amount: 2 }],
             sample_types: [],
             preferred_date: todayValue(),
             comment: "Running low",
@@ -119,6 +118,42 @@ describe("StandaloneRequestForm", () => {
 
         fireEvent.click(screen.getByRole("button", { name: /submit request/i }));
         expect(post).toHaveBeenCalledWith("/collectRequests", expect.any(Object));
+    });
+
+    it("collects several kits, each with its own quantity", () => {
+        renderForm();
+        chooseOrder();
+
+        fireEvent.click(screen.getByRole("checkbox", { name: "Blood" }));
+        fireEvent.click(screen.getByRole("checkbox", { name: "Tissue" }));
+
+        // Each chosen kit gets its own stepper, in the order they were ticked.
+        const steppers = screen.getAllByRole("button", { name: /one more kit/i });
+        expect(steppers).toHaveLength(2);
+        fireEvent.click(steppers[1]);
+        fireEvent.click(steppers[1]);
+
+        expect(formData.kits).toEqual([
+            { sample_type: 1, amount: 1 },
+            { sample_type: 3, amount: 3 },
+        ]);
+
+        // Un-ticking one leaves the other, and its quantity, alone.
+        fireEvent.click(screen.getByRole("checkbox", { name: "Blood" }));
+        expect(formData.kits).toEqual([{ sample_type: 3, amount: 3 }]);
+    });
+
+    it("re-ticking a kit starts its quantity over", () => {
+        renderForm();
+        chooseOrder();
+
+        fireEvent.click(screen.getByRole("checkbox", { name: "Saliva" }));
+        fireEvent.click(screen.getByRole("button", { name: /one more kit/i }));
+        expect(formData.kits).toEqual([{ sample_type: 2, amount: 2 }]);
+
+        fireEvent.click(screen.getByRole("checkbox", { name: "Saliva" }));
+        fireEvent.click(screen.getByRole("checkbox", { name: "Saliva" }));
+        expect(formData.kits).toEqual([{ sample_type: 2, amount: 1 }]);
     });
 
     it("collects several sample types for a pickup", () => {
@@ -145,12 +180,12 @@ describe("StandaloneRequestForm", () => {
         expect(formData.sample_types).toEqual([4]);
 
         chooseOrder();
-        expect(formData).toMatchObject({ mode: "order", sample_types: [], kit_sample_type: "" });
+        expect(formData).toMatchObject({ mode: "order", sample_types: [], kits: [] });
 
-        fireEvent.click(screen.getByRole("radio", { name: "Blood" }));
+        fireEvent.click(screen.getByRole("checkbox", { name: "Blood" }));
         fireEvent.click(screen.getByRole("button", { name: /one more kit/i }));
         chooseCollect();
-        expect(formData).toMatchObject({ kit_sample_type: "", kit_amount: 1 });
+        expect(formData.kits).toEqual([]);
     });
 
     it("cannot be submitted until a choice and a date are made", () => {
@@ -159,9 +194,9 @@ describe("StandaloneRequestForm", () => {
         const submit = screen.getByRole("button", { name: /submit request/i });
         chooseOrder();
         expect(submit).toBeDisabled();
-        expect(screen.getByText(/choose a kit/i)).toBeInTheDocument();
+        expect(screen.getByText(/choose at least one kit/i)).toBeInTheDocument();
 
-        fireEvent.click(screen.getByRole("radio", { name: "Blood" }));
+        fireEvent.click(screen.getByRole("checkbox", { name: "Blood" }));
         expect(submit).toBeDisabled();
         expect(screen.getByText(/pick a collection date/i)).toBeInTheDocument();
 
@@ -169,43 +204,34 @@ describe("StandaloneRequestForm", () => {
         expect(submit).toBeEnabled();
     });
 
-    it("only one kit can be chosen, and switching resets the quantity", () => {
-        renderForm();
-        chooseOrder();
-
-        fireEvent.click(screen.getByRole("radio", { name: "Blood" }));
-        fireEvent.click(screen.getByRole("button", { name: /one more kit/i }));
-        expect(formData).toMatchObject({ kit_sample_type: 1, kit_amount: 2 });
-
-        fireEvent.click(screen.getByRole("radio", { name: "Tissue" }));
-        expect(formData).toMatchObject({ kit_sample_type: 3, kit_amount: 1 });
-        expect(screen.getByRole("radio", { name: "Blood" })).not.toBeChecked();
-    });
-
     it("the quantity stays within one and a hundred", () => {
         renderForm();
         chooseOrder();
 
-        fireEvent.click(screen.getByRole("radio", { name: "Saliva" }));
+        fireEvent.click(screen.getByRole("checkbox", { name: "Saliva" }));
         expect(screen.getByRole("button", { name: /one fewer kit/i })).toBeDisabled();
 
         fireEvent.change(screen.getByRole("spinbutton", { name: /number of kits/i }), {
             target: { value: "500" },
         });
-        expect(formData.kit_amount).toBe(100);
+        expect(formData.kits).toEqual([{ sample_type: 2, amount: 100 }]);
         expect(screen.getByRole("button", { name: /one more kit/i })).toBeDisabled();
     });
 
-    it("drops the kit again from the summary chip", () => {
+    it("drops every kit again from the summary chip", () => {
         renderForm();
         chooseOrder();
 
-        fireEvent.click(screen.getByRole("radio", { name: "Blood" }));
+        // While there is only one, the chip spells it out.
+        fireEvent.click(screen.getByRole("checkbox", { name: "Blood" }));
+        expect(screen.getByText("1 × Blood")).toBeInTheDocument();
 
-        const chip = screen.getByText("1 × Blood").closest(".MuiChip-root");
+        fireEvent.click(screen.getByRole("checkbox", { name: "Tissue" }));
+
+        const chip = screen.getByText("2 kits selected").closest(".MuiChip-root");
         fireEvent.click(within(chip).getByTestId("CancelIcon"));
 
-        expect(formData.kit_sample_type).toBe("");
+        expect(formData.kits).toEqual([]);
     });
 
     it("says so when the laboratory has marked nothing collectable", () => {

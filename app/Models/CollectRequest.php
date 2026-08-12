@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Gate;
 
 class CollectRequest extends Model
@@ -66,14 +65,19 @@ class CollectRequest extends Model
     }
 
     /**
-     * The kit asked for while raising this request, if any. Only one can be
-     * chosen on the form, so this reads as a single material.
+     * The kits asked for while raising this request. Each one the provider
+     * picked became its own material, since the lab makes them up separately.
+     *
+     * @return HasMany<OrderMaterial, $this>
      */
-    public function orderMaterial(): HasOne
+    public function orderMaterials(): HasMany
     {
-        return $this->hasOne(OrderMaterial::class);
+        return $this->hasMany(OrderMaterial::class);
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -114,6 +118,25 @@ class CollectRequest extends Model
     public function isKitOrder(): bool
     {
         return ($this->details['mode'] ?? null) === 'order';
+    }
+
+    /**
+     * The kits this request asked for, as they were snapshotted at the time.
+     *
+     * Requests raised before a request could carry more than one kit hold a
+     * single `kit` object instead of a `kits` list. The backfill migration
+     * rewrote those, but reading both shapes costs nothing and means a row
+     * that slipped past it still describes itself.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function requestedKits(): array
+    {
+        if (isset($this->details['kits'])) {
+            return $this->details['kits'];
+        }
+
+        return isset($this->details['kit']) ? [$this->details['kit']] : [];
     }
 
     public function canBeDeleted(): bool

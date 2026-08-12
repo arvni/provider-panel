@@ -128,8 +128,8 @@ const ModeCard = ({ icon, title, hint, checked, onSelect }) => (
 );
 
 /**
- * A kit rendered as a tappable card. The label wraps only the radio and the
- * name, so the quantity stepper next to it can be clicked without re-picking
+ * A kit rendered as a tappable card. The label wraps only the checkbox and the
+ * name, so the quantity stepper next to it can be clicked without un-picking
  * the kit; the card stays keyboard accessible either way.
  */
 const KitCard = ({ label, checked, onSelect, quantity }) => (
@@ -156,7 +156,7 @@ const KitCard = ({ label, checked, onSelect, quantity }) => (
                 cursor: "pointer",
             }}
         >
-            <Radio
+            <Checkbox
                 checked={checked}
                 onChange={onSelect}
                 size="small"
@@ -196,8 +196,8 @@ const SampleTypeCard = ({ label, checked, onChange }) => (
 );
 
 /**
- * The "how many" control, shown only on the chosen kit so the question is
- * asked exactly once and right where the answer belongs.
+ * The "how many" control, shown only on a chosen kit so the question is asked
+ * once per kit and right where the answer belongs.
  */
 const QuantityStepper = ({ value, onChange, disabled }) => {
     const step = (delta) => () => onChange(Math.min(MAX_KIT_AMOUNT, Math.max(1, value + delta)));
@@ -293,8 +293,9 @@ const StandaloneRequestForm = ({
     // is a collection and the question is never asked.
     const initial = {
         mode: canRequestKit ? "" : COLLECT,
-        kit_sample_type: "",
-        kit_amount: 1,
+        // Each entry is one kit with its own quantity, so several types can be
+        // asked for on the same request.
+        kits: [],
         sample_types: [],
         preferred_date: "",
         comment: "",
@@ -305,11 +306,30 @@ const StandaloneRequestForm = ({
     const isOrder = data.mode === ORDER;
     const choices = isOrder ? sampleTypes : collectableSampleTypes;
 
-    const selectedKit = useMemo(
-        () => sampleTypes.find((sampleType) => sampleType.id === data.kit_sample_type) ?? null,
-        [sampleTypes, data.kit_sample_type]
+    // Quantities are looked up by sample type rather than by position, so the
+    // cards stay independent of the order they were ticked in.
+    const kitAmounts = useMemo(
+        () => new Map(data.kits.map((kit) => [kit.sample_type, kit.amount])),
+        [data.kits]
     );
+    const kitCount = data.kits.length;
     const selectedCount = data.sample_types.length;
+
+    // Named for the summary chip, which spells the kit out while there is only
+    // one of them and falls back to counting once there are more.
+    const soleKit = useMemo(
+        () =>
+            kitCount === 1
+                ? (sampleTypes.find((sampleType) => sampleType.id === data.kits[0].sample_type) ??
+                  null)
+                : null,
+        [sampleTypes, data.kits, kitCount]
+    );
+
+    // Every kit field validates under its own index, so any of them standing in
+    // for the group is more use than showing none of them.
+    const kitError =
+        errors.kits ?? Object.entries(errors).find(([key]) => key.startsWith("kits."))?.[1];
 
     const visibleChoices = useMemo(() => {
         const term = search.trim().toLowerCase();
@@ -320,12 +340,23 @@ const StandaloneRequestForm = ({
 
     // Switching what you are asking for clears the other branch's answer, so a
     // half-filled question can never be submitted from behind the scenes.
-    const selectMode = (mode) => () =>
-        setData({ ...data, mode, kit_sample_type: "", kit_amount: 1, sample_types: [] });
+    const selectMode = (mode) => () => setData({ ...data, mode, kits: [], sample_types: [] });
 
-    // Picking a kit always restarts the quantity at one, so a leftover number
-    // from a kit the provider changed their mind about is never submitted.
-    const selectKit = (id) => () => setData({ ...data, kit_sample_type: id, kit_amount: 1 });
+    // Un-ticking a kit drops its quantity with it, so a number left over from a
+    // kit the provider changed their mind about is never submitted.
+    const toggleKit = (id) => () =>
+        setData(
+            "kits",
+            kitAmounts.has(id)
+                ? data.kits.filter((kit) => kit.sample_type !== id)
+                : [...data.kits, { sample_type: id, amount: 1 }]
+        );
+
+    const setKitAmount = (id) => (amount) =>
+        setData(
+            "kits",
+            data.kits.map((kit) => (kit.sample_type === id ? { ...kit, amount } : kit))
+        );
 
     const toggleSampleType = (id) => () =>
         setData(
@@ -360,7 +391,7 @@ const StandaloneRequestForm = ({
         { label: "Next week", value: addDays(7) },
     ];
 
-    const hasChoice = isOrder ? !!data.kit_sample_type : selectedCount > 0;
+    const hasChoice = isOrder ? kitCount > 0 : selectedCount > 0;
     const canSubmit = !!data.mode && hasChoice && !!data.preferred_date && !processing;
 
     // The mode question only exists for providers allowed to order materials;
@@ -369,13 +400,14 @@ const StandaloneRequestForm = ({
 
     const summary = () => {
         if (!data.mode) return "Tell us what you need";
-        if (isOrder && !selectedKit) return "Choose a kit";
+        if (isOrder && kitCount === 0) return "Choose at least one kit";
         if (!isOrder && selectedCount === 0) return "Select at least one sample type";
         if (!data.preferred_date) return "Pick a collection date";
 
-        const what = isOrder
-            ? `${data.kit_amount} × ${selectedKit.name} kit`
-            : `${selectedCount} sample type${selectedCount > 1 ? "s" : ""}`;
+        const kits = soleKit
+            ? `${data.kits[0].amount} × ${soleKit.name} kit`
+            : `${kitCount} kit types`;
+        const what = isOrder ? kits : `${selectedCount} sample type${selectedCount > 1 ? "s" : ""}`;
 
         return `${isOrder ? "Delivery" : "Pickup"} ${formatInputDate(data.preferred_date)} · ${what}`;
     };
@@ -472,23 +504,27 @@ const StandaloneRequestForm = ({
                                     step={`${stepOffset + 1}`}
                                     title={
                                         isOrder
-                                            ? "Which kit do you want?"
+                                            ? "Which kits do you want?"
                                             : "Which samples do you have?"
                                     }
                                     hint={
                                         isOrder
-                                            ? "One kit type per request."
+                                            ? "Select every kit you need, with how many of each."
                                             : "Select every type waiting for pickup."
                                     }
                                     action={
                                         isOrder
-                                            ? selectedKit && (
+                                            ? kitCount > 0 && (
                                                   <Chip
                                                       size="small"
                                                       color="primary"
                                                       icon={<KitIcon />}
-                                                      label={`${data.kit_amount} × ${selectedKit.name}`}
-                                                      onDelete={selectKit("")}
+                                                      label={
+                                                          soleKit
+                                                              ? `${data.kits[0].amount} × ${soleKit.name}`
+                                                              : `${kitCount} kits selected`
+                                                      }
+                                                      onDelete={() => setData("kits", [])}
                                                   />
                                               )
                                             : selectedCount > 0 && (
@@ -547,12 +583,7 @@ const StandaloneRequestForm = ({
                                                         pr: 0.5,
                                                     }}
                                                 >
-                                                    <Grid
-                                                        container
-                                                        spacing={1}
-                                                        role={isOrder ? "radiogroup" : undefined}
-                                                        aria-label={isOrder ? "Kit" : undefined}
-                                                    >
+                                                    <Grid container spacing={1}>
                                                         {visibleChoices.map((sampleType) =>
                                                             isOrder ? (
                                                                 <Grid
@@ -561,26 +592,22 @@ const StandaloneRequestForm = ({
                                                                 >
                                                                     <KitCard
                                                                         label={sampleType.name}
-                                                                        checked={
-                                                                            data.kit_sample_type ===
+                                                                        checked={kitAmounts.has(
                                                                             sampleType.id
-                                                                        }
-                                                                        onSelect={selectKit(
+                                                                        )}
+                                                                        onSelect={toggleKit(
                                                                             sampleType.id
                                                                         )}
                                                                         quantity={
                                                                             <QuantityStepper
                                                                                 value={
-                                                                                    data.kit_amount
+                                                                                    kitAmounts.get(
+                                                                                        sampleType.id
+                                                                                    ) ?? 1
                                                                                 }
-                                                                                onChange={(
-                                                                                    amount
-                                                                                ) =>
-                                                                                    setData(
-                                                                                        "kit_amount",
-                                                                                        amount
-                                                                                    )
-                                                                                }
+                                                                                onChange={setKitAmount(
+                                                                                    sampleType.id
+                                                                                )}
                                                                                 disabled={
                                                                                     processing
                                                                                 }
@@ -611,13 +638,9 @@ const StandaloneRequestForm = ({
                                         </Stack>
                                     )}
 
-                                    {(errors.kit_sample_type ||
-                                        errors.kit_amount ||
-                                        errors.sample_types) && (
+                                    {(kitError || errors.sample_types) && (
                                         <Alert severity="error" sx={{ mt: 1.5 }}>
-                                            {errors.kit_sample_type ||
-                                                errors.kit_amount ||
-                                                errors.sample_types}
+                                            {kitError || errors.sample_types}
                                         </Alert>
                                     )}
                                 </Section>

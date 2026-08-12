@@ -28,4 +28,17 @@ enum OrderMaterialStatus: string
             self::GENERATED => CollectRequestStatus::SCHEDULED,
         };
     }
+
+    /**
+     * How far along this status is, so a request carrying several kits can be
+     * described by its least advanced one: the order is not finished until the
+     * last kit is.
+     */
+    public function progress(): int
+    {
+        return match ($this) {
+            self::ORDERED => 0,
+            self::GENERATED => 1,
+        };
+    }
 }

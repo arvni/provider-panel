@@ -493,12 +493,6 @@ parameters:
 			path: app/Models/User.php
 
 		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
-			identifier: property.notFound
-			count: 4
-			path: app/Notifications/AdminCollectRequestNotification.php
-
-		-
 			message: '#^If condition is always true\.$#'
 			identifier: if.alwaysTrue
 			count: 1
@@ -571,7 +565,7 @@ parameters:
 			path: app/Notifications/OrderStatusUpdated.php
 
 		-
-			message: '#^Parameter \#1 \$array \(array\{\}\|array\{Illuminate\\Database\\Eloquent\\Model\}\) to function array_filter does not contain falsy values, the array will always stay the same\.$#'
+			message: '#^Parameter \#1 \$array \(array\{\}\|array\{App\\Models\\User\}\) to function array_filter does not contain falsy values, the array will always stay the same\.$#'
 			identifier: arrayFilter.same
 			count: 1
 			path: app/Observers/CollectRequestObserver.php
@@ -739,27 +733,15 @@ parameters:
 			path: app/Services/RequestLogistic.php
 
 		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$email\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Services/RequestLogistic.php
-
-		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 7
+			count: 6
 			path: app/Services/RequestLogistic.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
 			identifier: property.notFound
-			count: 2
-			path: app/Services/RequestLogistic.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$referrer_id\.$#'
-			identifier: property.notFound
-			count: 4
+			count: 1
 			path: app/Services/RequestLogistic.php
 
 		-

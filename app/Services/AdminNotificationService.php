@@ -7,8 +7,10 @@ use App\Models\CollectRequest;
 use App\Models\OrderMaterial;
 use App\Models\User;
 use App\Notifications\AdminCollectRequestNotification;
+use App\Notifications\AdminKitOrderNotification;
 use App\Notifications\AdminOrderMaterialNotification;
 use Exception;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 
@@ -129,6 +131,57 @@ class AdminNotificationService
                 'reason' => $reason,
                 'error' => $e->getMessage(),
             ]);
+        }
+    }
+
+    /**
+     * Announce the kits ordered on one logistic request.
+     *
+     * The admins hear about the request once however many kits it carries, but
+     * every material still syncs on its own: the lab makes each kit up
+     * separately, so each one has to reach the central server as its own
+     * record.
+     *
+     * @param  Collection<int, OrderMaterial>  $orderMaterials
+     */
+    public static function sendKitOrderNotification(
+        CollectRequest $collectRequest,
+        Collection $orderMaterials,
+        string $reason
+    ): void {
+        try {
+            Notification::send(
+                self::getAdminUsers(),
+                new AdminKitOrderNotification($collectRequest)
+            );
+        } catch (Exception $e) {
+            Log::error('Failed to send admin kit order notification', [
+                'collect_request_id' => $collectRequest->id,
+                'reason' => $reason,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        // Its own try, deliberately, rather than sharing the one above: a mail
+        // server that is down must not keep the kits from reaching the lab, and
+        // a lab that will not take them must not be reported to the provider as
+        // a request that was never raised. Both are already recorded; getting
+        // them out is the part that is allowed to fail quietly and be retried.
+        //
+        // Each kit is dispatched on its own so one refusal does not strand the
+        // rest, and the loop is inside the try because a sync queue runs the
+        // job right here — on a queued one, dispatch cannot throw at all.
+        foreach ($orderMaterials as $orderMaterial) {
+            try {
+                SendOrderMaterial::dispatch($orderMaterial);
+            } catch (Exception $e) {
+                Log::error('Failed to send order material to the lab', [
+                    'collect_request_id' => $collectRequest->id,
+                    'order_material_id' => $orderMaterial->id,
+                    'reason' => $reason,
+                    'error' => $e->getMessage(),
+                ]);
+            }
         }
     }
 }

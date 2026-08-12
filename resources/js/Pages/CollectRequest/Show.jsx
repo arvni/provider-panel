@@ -64,6 +64,7 @@ import {
 import { useForm, router } from "@inertiajs/react";
 import Form from "./Components/Form";
 import LogisticsTracking from "./Components/LogisticsTracking";
+import { kitLabel, requestedKits } from "./kits";
 import DeleteButton from "@/Components/DeleteButton.jsx";
 import TabContext from "@mui/lab/TabContext";
 import TabList from "@mui/lab/TabList";
@@ -96,14 +97,15 @@ const Show = ({ collectRequest }) => {
     const samples = collectRequest.samples ?? [];
 
     // Sample types declared on a request raised without an order.
-    // Requests raised without an order: newer ones name a kit, older ones the
-    // sample types that were waiting for pickup.
+    // Requests raised without an order: newer ones name the kits, older ones
+    // the sample types that were waiting for pickup.
     const requestedSampleTypes = collectRequest.details?.sample_types ?? [];
-    const requestedKit = collectRequest.details?.kit ?? null;
+    const kits = requestedKits(collectRequest.details);
     const isStandalone = collectRequest.details?.type === "standalone";
-    // Kit orders reach the lab as an order material, never through the
-    // logistics endpoint, so the sync affordances do not apply to them.
+    // Kit orders reach the lab as order materials, never through the logistics
+    // endpoint, so the sync affordances do not apply to them.
     const isKitOrder = collectRequest.details?.mode === "order";
+    const materialIds = kits.map((kit) => kit.order_material_id).filter(Boolean);
 
     const handleSendToServer = () => {
         setOpenSend(false);
@@ -273,13 +275,13 @@ const Show = ({ collectRequest }) => {
                 <Alert icon={<Inventory2 />} severity="info" sx={{ mb: 3, borderRadius: 2 }}>
                     This is a kit order, so there is nothing to send to the logistics endpoint. The
                     lab receives it as order material
-                    {requestedKit?.order_material_id ? (
+                    {materialIds.length > 0 ? (
                         <>
-                            {" "}
-                            <strong>#{requestedKit.order_material_id}</strong>
+                            {materialIds.length > 1 ? "s " : " "}
+                            <strong>{materialIds.map((id) => `#${id}`).join(", ")}</strong>
                         </>
                     ) : null}
-                    , which syncs on its own.
+                    , which {materialIds.length > 1 ? "sync on their own" : "syncs on its own"}.
                 </Alert>
             ) : collectRequest.server_id ? (
                 <Alert icon={<CloudDone />} severity="success" sx={{ mb: 3, borderRadius: 2 }}>
@@ -454,9 +456,11 @@ const Show = ({ collectRequest }) => {
                                         <Card variant="outlined">
                                             <CardHeader
                                                 title={
-                                                    requestedKit
-                                                        ? "Requested Kit"
-                                                        : "Requested Sample Types"
+                                                    kits.length === 0
+                                                        ? "Requested Sample Types"
+                                                        : kits.length === 1
+                                                          ? "Requested Kit"
+                                                          : "Requested Kits"
                                                 }
                                                 subheader="Requested without an order"
                                                 avatar={
@@ -473,15 +477,20 @@ const Show = ({ collectRequest }) => {
                                                     useFlexGap
                                                     flexWrap="wrap"
                                                 >
-                                                    {requestedKit && (
+                                                    {kits.map((kit, index) => (
                                                         <Chip
+                                                            key={
+                                                                kit.order_material_id ??
+                                                                kit.id ??
+                                                                index
+                                                            }
                                                             color="primary"
-                                                            label={`${requestedKit.amount} × ${requestedKit.name}`}
+                                                            label={kitLabel(kit)}
                                                             variant="outlined"
                                                         />
-                                                    )}
+                                                    ))}
                                                     {/* Older requests named the sample types
-                                                        waiting for pickup instead of a kit. */}
+                                                        waiting for pickup instead of kits. */}
                                                     {requestedSampleTypes.map(
                                                         (sampleType, index) => (
                                                             <Chip
@@ -491,7 +500,7 @@ const Show = ({ collectRequest }) => {
                                                             />
                                                         )
                                                     )}
-                                                    {!requestedKit &&
+                                                    {kits.length === 0 &&
                                                         requestedSampleTypes.length === 0 && (
                                                             <Chip
                                                                 label="Pickup only — no kit requested"
