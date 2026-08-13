@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import useSWR from "swr";
 import {
     Popover,
     Paper,
@@ -11,68 +12,44 @@ import {
     Tab,
     IconButton,
     Tooltip,
-    Chip,
-    LinearProgress,
 } from "@mui/material";
-import {
-    MarkEmailRead as MarkAllReadIcon,
-    Refresh as RefreshIcon,
-    Schedule as ScheduleIcon,
-} from "@mui/icons-material";
+import { MarkEmailRead as MarkAllReadIcon, Refresh as RefreshIcon } from "@mui/icons-material";
+import { formatDistanceToNow } from "date-fns";
 import NotificationItem from "./NotificationItem";
-import { useNotifications } from "./hooks/useNotifications";
+import { UNREAD_NOTIFICATIONS_KEY, useNotifications } from "./NotificationsProvider";
+import { fetcher } from "./lib/swrConfig";
 
 const NotificationDropdown = ({ anchorEl, open, onClose }) => {
     const [tabValue, setTabValue] = useState(0);
-    const [lastRefresh, setLastRefresh] = useState(() => Date.now());
-    const [refreshCountdown, setRefreshCountdown] = useState(60);
 
     const {
         notifications,
         unreadCount,
         isLoading,
+        lastUpdatedAt,
         markAsRead,
         markAllAsRead,
         deleteNotification,
         refresh,
-    } = useNotifications({
-        unreadOnly: tabValue === 1,
-        refreshInterval: 60000, // 1 minute
-    });
+    } = useNotifications();
 
-    // Countdown timer for next refresh
-    useEffect(() => {
-        const interval = setInterval(() => {
-            const now = Date.now();
-            const timeSinceLastRefresh = Math.floor((now - lastRefresh) / 1000);
-            const timeUntilRefresh = Math.max(0, 60 - timeSinceLastRefresh);
-            setRefreshCountdown(timeUntilRefresh);
+    // The unread list is only fetched while its tab is actually on screen; the provider
+    // stays the single poller for the badge and for announcing new notifications.
+    const showUnread = open && tabValue === 1;
+    const { data: unreadData, isLoading: unreadLoading } = useSWR(
+        showUnread ? UNREAD_NOTIFICATIONS_KEY : null,
+        fetcher,
+        { revalidateOnFocus: false }
+    );
 
-            if (timeUntilRefresh === 0) {
-                setLastRefresh(now);
-                setRefreshCountdown(60);
-            }
-        }, 1000);
-
-        return () => clearInterval(interval);
-    }, [lastRefresh]);
-
-    const handleTabChange = (event, newValue) => {
-        setTabValue(newValue);
-    };
-
-    const handleMarkAllAsRead = async () => {
-        await markAllAsRead();
-    };
+    const visibleNotifications = showUnread ? unreadData?.notifications || [] : notifications;
+    const listLoading = showUnread
+        ? unreadLoading && !unreadData
+        : isLoading && !notifications.length;
 
     const handleRefresh = () => {
         refresh();
-        setLastRefresh(Date.now());
-        setRefreshCountdown(60);
     };
-
-    const filteredNotifications = notifications || [];
-    const progressValue = ((60 - refreshCountdown) / 60) * 100;
 
     return (
         <Popover
@@ -99,15 +76,16 @@ const NotificationDropdown = ({ anchorEl, open, onClose }) => {
                 {/* Header */}
                 <Box p={2} pb={0}>
                     <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-                        <Typography variant="h6">Notifications</Typography>
+                        <Box>
+                            <Typography variant="h6">Notifications</Typography>
+                            {lastUpdatedAt && (
+                                <Typography variant="caption" color="text.secondary">
+                                    Updated{" "}
+                                    {formatDistanceToNow(lastUpdatedAt, { addSuffix: true })}
+                                </Typography>
+                            )}
+                        </Box>
                         <Box display="flex" gap={1} alignItems="center">
-                            <Chip
-                                icon={<ScheduleIcon />}
-                                label={`${refreshCountdown}s`}
-                                size="small"
-                                variant="outlined"
-                                sx={{ fontSize: "0.75rem" }}
-                            />
                             <Tooltip title="Refresh now">
                                 <IconButton size="small" onClick={handleRefresh}>
                                     <RefreshIcon />
@@ -115,7 +93,7 @@ const NotificationDropdown = ({ anchorEl, open, onClose }) => {
                             </Tooltip>
                             {unreadCount > 0 && (
                                 <Tooltip title="Mark all as read">
-                                    <IconButton size="small" onClick={handleMarkAllAsRead}>
+                                    <IconButton size="small" onClick={markAllAsRead}>
                                         <MarkAllReadIcon />
                                     </IconButton>
                                 </Tooltip>
@@ -123,24 +101,10 @@ const NotificationDropdown = ({ anchorEl, open, onClose }) => {
                         </Box>
                     </Box>
 
-                    {/* Progress bar for refresh countdown */}
-                    <LinearProgress
-                        variant="determinate"
-                        value={progressValue}
-                        sx={{
-                            height: 2,
-                            mb: 1,
-                            backgroundColor: "action.hover",
-                            "& .MuiLinearProgress-bar": {
-                                backgroundColor: "primary.main",
-                            },
-                        }}
-                    />
-
                     {/* Tabs */}
                     <Tabs
                         value={tabValue}
-                        onChange={handleTabChange}
+                        onChange={(event, newValue) => setTabValue(newValue)}
                         variant="fullWidth"
                         sx={{ minHeight: 40 }}
                     >
@@ -156,13 +120,13 @@ const NotificationDropdown = ({ anchorEl, open, onClose }) => {
 
                 {/* Content */}
                 <Box sx={{ maxHeight: 350, overflow: "auto" }}>
-                    {isLoading ? (
+                    {listLoading ? (
                         <Box display="flex" justifyContent="center" p={3}>
                             <CircularProgress size={24} />
                         </Box>
-                    ) : filteredNotifications.length > 0 ? (
+                    ) : visibleNotifications.length > 0 ? (
                         <List disablePadding>
-                            {filteredNotifications.map((notification) => (
+                            {visibleNotifications.map((notification) => (
                                 <NotificationItem
                                     key={notification.id}
                                     notification={notification}
@@ -174,30 +138,11 @@ const NotificationDropdown = ({ anchorEl, open, onClose }) => {
                     ) : (
                         <Box p={3} textAlign="center">
                             <Typography color="text.secondary">
-                                {tabValue === 1 ? "No unread notifications" : "No notifications"}
+                                {showUnread ? "No unread notifications" : "No notifications"}
                             </Typography>
                         </Box>
                     )}
                 </Box>
-
-                {/* Footer */}
-                {filteredNotifications.length > 0 && (
-                    <>
-                        <Divider />
-                        <Box p={2}>
-                            {/*<Button*/}
-                            {/*    fullWidth*/}
-                            {/*    variant="text"*/}
-                            {/*    size="small"*/}
-                            {/*    onClick={() => {*/}
-                            {/*        window.location.href = '/notifications';*/}
-                            {/*    }}*/}
-                            {/*>*/}
-                            {/*    View All Notifications*/}
-                            {/*</Button>*/}
-                        </Box>
-                    </>
-                )}
             </Paper>
         </Popover>
     );
