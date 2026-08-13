@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from "react";
 import {
     Tooltip,
     IconButton,
@@ -13,25 +13,36 @@ import {
     Divider,
     Slider,
     Typography,
-    Box
-} from '@mui/material';
+    Box,
+} from "@mui/material";
 import {
     NotificationsNone,
     VolumeUp,
     VolumeOff,
+    DesktopWindows,
     Settings as SettingsIcon,
-    Refresh as RefreshIcon
-} from '@mui/icons-material';
-import NotificationDropdown from './NotificationDropdown';
-import { useNotifications } from './hooks/useNotifications';
+    Refresh as RefreshIcon,
+} from "@mui/icons-material";
+import NotificationDropdown from "./NotificationDropdown";
+import { useNotifications } from "./NotificationsProvider";
+import { soundManager } from "./utils/soundManager";
 
 const NotificationButton = () => {
     const theme = useTheme();
+    const buttonRef = useRef(null);
     const [anchorEl, setAnchorEl] = useState(null);
     const [settingsAnchorEl, setSettingsAnchorEl] = useState(null);
-    const { unreadCount, refresh, soundManager } = useNotifications();
+    const { unreadCount, refresh, openRequest, desktopEnabled, toggleDesktopNotifications } =
+        useNotifications();
     const [soundEnabled, setSoundEnabled] = useState(soundManager.isSoundEnabled());
     const [volume, setVolume] = useState(soundManager.getVolume());
+
+    // "View" on a new-notification snackbar opens the panel on the bell.
+    useEffect(() => {
+        if (openRequest > 0) {
+            setAnchorEl(buttonRef.current);
+        }
+    }, [openRequest]);
 
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
@@ -70,19 +81,20 @@ const NotificationButton = () => {
 
     return (
         <>
-            <Box sx={{ position: 'relative', display: 'inline-flex' }}>
+            <Box sx={{ position: "relative", display: "inline-flex" }}>
                 <Tooltip title="Notifications">
                     <IconButton
+                        ref={buttonRef}
                         size="medium"
                         color="inherit"
                         onClick={handleClick}
                         aria-label="Notifications"
                         sx={{
                             borderRadius: 1.5,
-                            transition: 'all 0.2s',
-                            '&:hover': {
+                            transition: "all 0.2s",
+                            "&:hover": {
                                 backgroundColor: alpha(theme.palette.primary.main, 0.1),
-                            }
+                            },
                         }}
                     >
                         <Badge
@@ -90,13 +102,12 @@ const NotificationButton = () => {
                             color="error"
                             max={99}
                             sx={{
-                                '& .MuiBadge-badge': {
+                                "& .MuiBadge-badge": {
                                     top: 5,
                                     right: 5,
-                                    animation: unreadCount > 0 ? 'pulse 2s infinite' : 'none',
-                                    fontSize: '0.75rem',
+                                    fontSize: "0.75rem",
                                     fontWeight: 600,
-                                }
+                                },
                             }}
                         >
                             <NotificationsNone />
@@ -109,16 +120,16 @@ const NotificationButton = () => {
                     size="small"
                     onClick={handleSettingsClick}
                     sx={{
-                        position: 'absolute',
+                        position: "absolute",
                         top: 0,
                         right: 0,
                         width: 16,
                         height: 16,
                         backgroundColor: alpha(theme.palette.background.paper, 0.9),
                         boxShadow: theme.shadows[2],
-                        '&:hover': {
+                        "&:hover": {
                             backgroundColor: theme.palette.background.paper,
-                        }
+                        },
                     }}
                 >
                     <SettingsIcon sx={{ fontSize: 10 }} />
@@ -130,13 +141,13 @@ const NotificationButton = () => {
                 anchorEl={settingsAnchorEl}
                 open={settingsOpen}
                 onClose={handleSettingsClose}
-                transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-                anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                transformOrigin={{ horizontal: "right", vertical: "top" }}
+                anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
                 PaperProps={{
                     sx: {
                         minWidth: 250,
-                        p: 1
-                    }
+                        p: 1,
+                    },
                 }}
             >
                 <MenuItem onClick={handleSoundToggle}>
@@ -169,6 +180,23 @@ const NotificationButton = () => {
                     </Box>
                 )}
 
+                <MenuItem onClick={toggleDesktopNotifications}>
+                    <ListItemIcon>
+                        <DesktopWindows color={desktopEnabled ? "primary" : "inherit"} />
+                    </ListItemIcon>
+                    <ListItemText
+                        primary="Desktop Notifications"
+                        secondary="Only while this tab is in the background"
+                        slotProps={{ secondary: { variant: "caption" } }}
+                    />
+                    <Switch
+                        checked={desktopEnabled}
+                        size="small"
+                        onClick={(e) => e.stopPropagation()}
+                        onChange={toggleDesktopNotifications}
+                    />
+                </MenuItem>
+
                 <Divider sx={{ my: 1 }} />
 
                 <MenuItem onClick={handleRefresh}>
@@ -179,20 +207,7 @@ const NotificationButton = () => {
                 </MenuItem>
             </Menu>
 
-            <NotificationDropdown
-                anchorEl={anchorEl}
-                open={open}
-                onClose={handleClose}
-            />
-
-            {/* CSS for badge animation */}
-            <style>{`
-                @keyframes pulse {
-                    0% { transform: scale(1); }
-                    50% { transform: scale(1.1); }
-                    100% { transform: scale(1); }
-                }
-            `}</style>
+            <NotificationDropdown anchorEl={anchorEl} open={open} onClose={handleClose} />
         </>
     );
 };

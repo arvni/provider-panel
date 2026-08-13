@@ -1,5 +1,6 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import { Head, usePage, useRemember } from "@inertiajs/react";
+import { useSnackbar } from "notistack";
 import { createTheme, ThemeProvider, alpha } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import Box from "@mui/material/Box";
@@ -9,8 +10,6 @@ import Paper from "@mui/material/Paper";
 import {
     Backdrop,
     CircularProgress,
-    Snackbar,
-    Alert,
     Fade,
     IconButton,
     Tooltip,
@@ -20,6 +19,7 @@ import {
 import Drawer from "./Components/Drawer";
 import Copyright from "./Components/Copyright";
 import Header from "./Components/Header";
+import { NotificationsProvider } from "./Components/Notification/NotificationsProvider";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import BrightnessAutoIcon from "@mui/icons-material/BrightnessAuto";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
@@ -32,13 +32,10 @@ export default function Authenticated({ auth: authProp, breadcrumbs, children, t
     const [_scrollPosition, setScrollPosition] = useState(0);
     const [colorMode, setColorMode] = useRemember("light", "color-mode");
     const [showScrollTop, setShowScrollTop] = useState(false);
-    const [notification, setNotification] = useState({
-        open: false,
-        message: "",
-        severity: "info",
-    });
     const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
     const { flash, auth: globalAuth } = usePage().props;
+    const { enqueueSnackbar } = useSnackbar();
+    const shownFlashRef = useRef(null);
 
     // Use auth from props or fall back to global auth from usePage
     const auth = authProp || globalAuth;
@@ -101,18 +98,7 @@ export default function Authenticated({ auth: authProp, breadcrumbs, children, t
     // Inertia loading events
     useEffect(() => {
         const handleStart = () => setLoading(true);
-        const handleFinish = () => {
-            setLoading(false);
-
-            // Show flash messages as notifications
-            if (flash && flash.message) {
-                setNotification({
-                    open: true,
-                    message: flash.message,
-                    severity: flash.type || "info",
-                });
-            }
-        };
+        const handleFinish = () => setLoading(false);
 
         document.addEventListener("inertia:start", handleStart);
         document.addEventListener("inertia:finish", handleFinish);
@@ -121,7 +107,23 @@ export default function Authenticated({ auth: authProp, breadcrumbs, children, t
             document.removeEventListener("inertia:start", handleStart);
             document.removeEventListener("inertia:finish", handleFinish);
         };
-    }, [flash]);
+    }, []);
+
+    // Flash messages go through the same snackbar stack as everything else, once per
+    // server response — `flash` is a fresh object per Inertia visit, so re-renders and
+    // remounts of this layout can't replay a message the user already dismissed.
+    useEffect(() => {
+        if (!flash?.message) return;
+        if (shownFlashRef.current === flash) return;
+
+        shownFlashRef.current = flash;
+        enqueueSnackbar(flash.message, {
+            variant: ["success", "error", "warning", "info"].includes(flash.type)
+                ? flash.type
+                : "info",
+            autoHideDuration: 5000,
+        });
+    }, [flash, enqueueSnackbar]);
 
     // Scroll position tracking
     useEffect(() => {
@@ -181,165 +183,141 @@ export default function Authenticated({ auth: authProp, breadcrumbs, children, t
 
     return (
         <ThemeProvider theme={theme}>
-            <Box sx={{ display: "flex", height: "100vh", overflow: "hidden" }}>
-                <CssBaseline />
-                {title && <Head title={title} />}
+            <NotificationsProvider>
+                <Box sx={{ display: "flex", height: "100vh", overflow: "hidden" }}>
+                    <CssBaseline />
+                    {title && <Head title={title} />}
 
-                <Header
-                    breadcrumbs={breadcrumbs}
-                    toggleDrawer={toggleDrawer}
-                    auth={auth}
-                    open={open}
-                    colorMode={colorMode}
-                    toggleColorMode={toggleColorMode}
-                />
-
-                <Drawer open={open} toggleDrawer={toggleDrawer} auth={auth} colorMode={colorMode} />
-
-                <Box
-                    component="main"
-                    id="main-content"
-                    sx={{
-                        backgroundColor: (theme) => theme.palette.background.default,
-                        flexGrow: 1,
-                        height: "100vh",
-                        overflow: "auto",
-                        transition: "background-color 0.3s ease",
-                        scrollBehavior: "smooth",
-                        position: "relative",
-                    }}
-                >
-                    <Toolbar
-                        sx={{
-                            "@media print": {
-                                display: "none !important",
-                            },
-                        }}
+                    <Header
+                        breadcrumbs={breadcrumbs}
+                        toggleDrawer={toggleDrawer}
+                        auth={auth}
+                        open={open}
+                        colorMode={colorMode}
+                        toggleColorMode={toggleColorMode}
                     />
 
-                    <Container
-                        sx={{
-                            mt: { xs: 2, sm: 3, md: 4 },
-                            mb: { xs: 2, sm: 3, md: 4 },
-                            px: { xs: 2, sm: 3, md: 4 },
-                            "@media print": {
-                                p: 0,
-                                m: 0,
-                            },
-                        }}
-                        maxWidth={false}
-                        component={motion.div}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.4 }}
-                    >
-                        <Paper
-                            elevation={colorMode === "dark" ? 4 : 2}
-                            sx={{
-                                p: { xs: 2, sm: 3, md: 5 },
-                                borderRadius: "1rem",
-                                boxShadow:
-                                    colorMode === "dark"
-                                        ? "0 6px 16px rgba(0,0,0,0.6)"
-                                        : "0 4px 20px rgba(0,0,0,0.08)",
-                                overflow: "hidden",
-                                position: "relative",
-                                "&:hover": {
-                                    boxShadow:
-                                        colorMode === "dark"
-                                            ? "0 8px 24px rgba(0,0,0,0.7)"
-                                            : "0 8px 32px rgba(0,0,0,0.12)",
-                                },
-                                "@media print": {
-                                    p: 0,
-                                    m: 0,
-                                    boxShadow: "none",
-                                    borderRadius: 0,
-                                },
-                            }}
-                            component={motion.div}
-                            layout
-                        >
-                            <AnimatePresence mode="wait">
-                                <motion.div
-                                    key={title || "content"}
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    exit={{ opacity: 0 }}
-                                    transition={{ duration: 0.3 }}
-                                >
-                                    {children}
-                                </motion.div>
-                            </AnimatePresence>
-                        </Paper>
+                    <Drawer
+                        open={open}
+                        toggleDrawer={toggleDrawer}
+                        auth={auth}
+                        colorMode={colorMode}
+                    />
 
-                        <Copyright
+                    <Box
+                        component="main"
+                        id="main-content"
+                        sx={{
+                            backgroundColor: (theme) => theme.palette.background.default,
+                            flexGrow: 1,
+                            height: "100vh",
+                            overflow: "auto",
+                            transition: "background-color 0.3s ease",
+                            scrollBehavior: "smooth",
+                            position: "relative",
+                        }}
+                    >
+                        <Toolbar
                             sx={{
-                                pt: 4,
-                                opacity: 0.8,
-                                textAlign: "center",
-                                color: theme.palette.text.secondary,
                                 "@media print": {
                                     display: "none !important",
                                 },
                             }}
                         />
-                    </Container>
 
-                    {/* Floating action buttons */}
-                    <Box
-                        sx={{
-                            position: "fixed",
-                            bottom: 24,
-                            right: 24,
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: 1,
-                            zIndex: 1000,
-                            "@media print": {
-                                display: "none !important",
-                            },
-                        }}
-                    >
-                        {/* Color mode toggle */}
-                        <Tooltip
-                            title={getColorModeTooltip()}
-                            placement="left"
-                            slots={{ transition: Zoom }}
+                        <Container
+                            sx={{
+                                mt: { xs: 2, sm: 3, md: 4 },
+                                mb: { xs: 2, sm: 3, md: 4 },
+                                px: { xs: 2, sm: 3, md: 4 },
+                                "@media print": {
+                                    p: 0,
+                                    m: 0,
+                                },
+                            }}
+                            maxWidth={false}
+                            component={motion.div}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.4 }}
                         >
-                            <IconButton
-                                color="primary"
-                                onClick={toggleColorMode}
+                            <Paper
+                                elevation={colorMode === "dark" ? 4 : 2}
                                 sx={{
-                                    backgroundColor: theme.palette.background.paper,
-                                    boxShadow: theme.shadows[4],
+                                    p: { xs: 2, sm: 3, md: 5 },
+                                    borderRadius: "1rem",
+                                    boxShadow:
+                                        colorMode === "dark"
+                                            ? "0 6px 16px rgba(0,0,0,0.6)"
+                                            : "0 4px 20px rgba(0,0,0,0.08)",
+                                    overflow: "hidden",
+                                    position: "relative",
                                     "&:hover": {
-                                        backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                                        boxShadow:
+                                            colorMode === "dark"
+                                                ? "0 8px 24px rgba(0,0,0,0.7)"
+                                                : "0 8px 32px rgba(0,0,0,0.12)",
+                                    },
+                                    "@media print": {
+                                        p: 0,
+                                        m: 0,
+                                        boxShadow: "none",
+                                        borderRadius: 0,
                                     },
                                 }}
-                                size="medium"
+                                component={motion.div}
+                                layout
                             >
-                                {getColorModeIcon()}
-                            </IconButton>
-                        </Tooltip>
+                                <AnimatePresence mode="wait">
+                                    <motion.div
+                                        key={title || "content"}
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        exit={{ opacity: 0 }}
+                                        transition={{ duration: 0.3 }}
+                                    >
+                                        {children}
+                                    </motion.div>
+                                </AnimatePresence>
+                            </Paper>
 
-                        {/* Scroll to top button */}
-                        <Fade
-                            in={showScrollTop}
+                            <Copyright
+                                sx={{
+                                    pt: 4,
+                                    opacity: 0.8,
+                                    textAlign: "center",
+                                    color: theme.palette.text.secondary,
+                                    "@media print": {
+                                        display: "none !important",
+                                    },
+                                }}
+                            />
+                        </Container>
+
+                        {/* Floating action buttons */}
+                        <Box
                             sx={{
+                                position: "fixed",
+                                bottom: 24,
+                                right: 24,
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: 1,
+                                zIndex: 1000,
                                 "@media print": {
                                     display: "none !important",
                                 },
                             }}
                         >
+                            {/* Color mode toggle */}
                             <Tooltip
-                                title="Scroll to top"
+                                title={getColorModeTooltip()}
                                 placement="left"
                                 slots={{ transition: Zoom }}
                             >
                                 <IconButton
                                     color="primary"
-                                    onClick={scrollToTop}
+                                    onClick={toggleColorMode}
                                     sx={{
                                         backgroundColor: theme.palette.background.paper,
                                         boxShadow: theme.shadows[4],
@@ -349,44 +327,60 @@ export default function Authenticated({ auth: authProp, breadcrumbs, children, t
                                     }}
                                     size="medium"
                                 >
-                                    <ArrowUpwardIcon />
+                                    {getColorModeIcon()}
                                 </IconButton>
                             </Tooltip>
-                        </Fade>
+
+                            {/* Scroll to top button */}
+                            <Fade
+                                in={showScrollTop}
+                                sx={{
+                                    "@media print": {
+                                        display: "none !important",
+                                    },
+                                }}
+                            >
+                                <Tooltip
+                                    title="Scroll to top"
+                                    placement="left"
+                                    slots={{ transition: Zoom }}
+                                >
+                                    <IconButton
+                                        color="primary"
+                                        onClick={scrollToTop}
+                                        sx={{
+                                            backgroundColor: theme.palette.background.paper,
+                                            boxShadow: theme.shadows[4],
+                                            "&:hover": {
+                                                backgroundColor: alpha(
+                                                    theme.palette.primary.main,
+                                                    0.1
+                                                ),
+                                            },
+                                        }}
+                                        size="medium"
+                                    >
+                                        <ArrowUpwardIcon />
+                                    </IconButton>
+                                </Tooltip>
+                            </Fade>
+                        </Box>
                     </Box>
                 </Box>
-            </Box>
 
-            {/* Loading overlay */}
-            <Backdrop
-                open={loading}
-                sx={{
-                    zIndex: theme.zIndex.modal + 1,
-                    color: "#fff",
-                    backgroundColor: alpha(theme.palette.background.paper, 0.7),
-                    backdropFilter: "blur(4px)",
-                }}
-            >
-                <CircularProgress color="primary" size={60} thickness={4} />
-            </Backdrop>
-
-            {/* Notification snackbar */}
-            <Snackbar
-                open={notification.open}
-                autoHideDuration={6000}
-                onClose={() => setNotification({ ...notification, open: false })}
-                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                slots={{ transition: Fade }}
-            >
-                <Alert
-                    onClose={() => setNotification({ ...notification, open: false })}
-                    severity={notification.severity}
-                    variant="filled"
-                    sx={{ width: "100%", boxShadow: theme.shadows[6] }}
+                {/* Loading overlay */}
+                <Backdrop
+                    open={loading}
+                    sx={{
+                        zIndex: theme.zIndex.modal + 1,
+                        color: "#fff",
+                        backgroundColor: alpha(theme.palette.background.paper, 0.7),
+                        backdropFilter: "blur(4px)",
+                    }}
                 >
-                    {notification.message}
-                </Alert>
-            </Snackbar>
+                    <CircularProgress color="primary" size={60} thickness={4} />
+                </Backdrop>
+            </NotificationsProvider>
         </ThemeProvider>
     );
 }
