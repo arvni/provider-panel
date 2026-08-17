@@ -64,6 +64,7 @@ class PatientWebhookController extends Controller
                 $patient = $this->createOrUpdatePatient($data['patient'], $user->id);
 
                 $order = $this->linkToOrder(
+                    $data['acceptance_id'] ?? null,
                     $data['order_id'] ?? null,
                     $user->id,
                     $patient,
@@ -95,6 +96,7 @@ class PatientWebhookController extends Controller
     {
         return Validator::make($request->all(), [
             'order_id' => 'nullable|integer',
+            'acceptance_id' => 'nullable|integer',
             'referrer_id' => 'required|integer|exists:users,referrer_id',
 
             'patient' => 'required|array',
@@ -112,18 +114,26 @@ class PatientWebhookController extends Controller
     /**
      * Link the patient to the referrer's local order when it has already synced.
      *
+     * Resolved the same way as the order webhooks: by the acceptance id held in
+     * server_id, falling back to the provider's own order id. Either way the
+     * order must belong to the referrer the webhook was signed for -- a patient
+     * sync must never reach across tenants.
+     *
      * The order may not exist yet (the patient can be created before the order
      * reaches the provider); in that case the upsert above still stands and the
      * later order webhook will carry the patient in its own payload.
      */
-    private function linkToOrder(?int $orderId, int $userId, Patient $patient, bool $isMain): ?Order
+    private function linkToOrder(?int $acceptanceId, ?int $orderId, int $userId, Patient $patient, bool $isMain): ?Order
     {
-        if (! $orderId) {
-            return null;
+        $order = $acceptanceId
+            ? Order::where('server_id', $acceptanceId)->first()
+            : null;
+
+        if (! $order && $orderId) {
+            $order = Order::where('id', $orderId)->first();
         }
 
-        $order = Order::where('id', $orderId)->where('user_id', $userId)->first();
-        if (! $order) {
+        if (! $order || $order->user_id !== $userId) {
             return null;
         }
 

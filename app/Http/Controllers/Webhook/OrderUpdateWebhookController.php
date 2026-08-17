@@ -242,8 +242,10 @@ class OrderUpdateWebhookController extends Controller
 
         $status = $orderData['status'];
 
+        // user_id is deliberately absent: an existing order stays with the
+        // provider that raised it. A webhook must never move an order between
+        // tenants, so ownership is set once, on create, and never rewritten.
         $attributes = [
-            'user_id' => $userId,
             'server_id' => $orderData['id'],
             'status' => $status,
             'orderForms' => $orderData['orderForms'] ?? [],
@@ -277,6 +279,7 @@ class OrderUpdateWebhookController extends Controller
 
         return Order::create([
             ...$attributes,
+            'user_id' => $userId,
             'step' => 'finalize',
             'files' => [],
             'created_at' => Carbon::parse($orderData['created_at'] ?? now()),
