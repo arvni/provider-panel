@@ -159,6 +159,26 @@ class OrderWebhookSyncTest extends TestCase
         $this->assertNotNull(Order::where('server_id', 1001)->first()->sent_at);
     }
 
+    /**
+     * Ownership is set once, on create. A later delivery quoting a different
+     * referrer must not hand the order to that referrer's user -- that is how an
+     * order disappears from one provider's panel and turns up in another's.
+     */
+    public function test_update_never_moves_an_existing_order_to_another_referrer(): void
+    {
+        $owner = User::factory()->create(['referrer_id' => 42]);
+        $other = User::factory()->create(['referrer_id' => 43]);
+
+        $this->postSigned('api.orders.update-by-webhook', $this->orderPayload(42))->assertOk();
+
+        $this->postSigned('api.orders.update-by-webhook', $this->orderPayload(43, 'sent'))->assertOk();
+
+        $order = Order::where('server_id', 1001)->first();
+        $this->assertSame($owner->id, $order->user_id);
+        $this->assertNotSame($other->id, $order->user_id);
+        $this->assertSame('sent', $order->status->value);
+    }
+
     public function test_update_refreshes_an_existing_patients_changed_fields(): void
     {
         $user = User::factory()->create(['referrer_id' => 42]);
