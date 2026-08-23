@@ -9,6 +9,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Str;
 
 class AdminCollectRequestNotification extends Notification implements ShouldQueue
 {
@@ -75,12 +76,7 @@ class AdminCollectRequestNotification extends Notification implements ShouldQueu
             $message->line('**Additional Details:**');
             if (is_array($this->collectRequest->details)) {
                 foreach ($this->collectRequest->details as $key => $value) {
-                    if (is_array($value)) {
-                        $value = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-                    } elseif (is_bool($value)) {
-                        $value = $value ? 'Yes' : 'No';
-                    }
-                    $message->line('• '.ucfirst((string) $key).': '.$value);
+                    $message->line('• '.ucfirst((string) $key).': '.$this->summariseValue($value));
                 }
             } else {
                 $message->line($this->collectRequest->details);
@@ -108,12 +104,63 @@ class AdminCollectRequestNotification extends Notification implements ShouldQueu
             'status' => $this->collectRequest->status->value,
             'status_label' => $this->collectRequest->status->getLabel(),
             'preferred_date' => Carbon::parse($this->collectRequest->preferred_date, 'Asia/Muscat')?->toDateString(),
-            'changes' => $this->changes,
+            'changes' => $this->summariseChanges(),
             'message' => $this->getActionMessage(),
             'url' => $this->getAdminUrl(),
             'priority' => $this->getPriority(),
             'timestamp' => now()->toISOString(),
         ];
+    }
+
+    /**
+     * Reduce the recorded changes to something a notification row can hold.
+     *
+     * details carries the whole logistic payload -- barcodes, both locations,
+     * and a temperature reading a minute for as long as the box was out -- so
+     * keeping an old and a new copy of it ran past the notifications.data TEXT
+     * column and killed the queue worker mid-delivery. Nothing reads the values
+     * back (the bell renders message, priority and url), so a field whose value
+     * is a structure is recorded as having changed, without its contents.
+     */
+    private function summariseChanges(): ?array
+    {
+        if (! $this->changes) {
+            return $this->changes;
+        }
+
+        return array_map(function ($change) {
+            if (! is_array($change)) {
+                return $this->summariseValue($change);
+            }
+
+            // An old/new pair whose values are structures says nothing useful
+            // once flattened; that it changed at all is the whole message.
+            if (is_array($change['old'] ?? null) || is_array($change['new'] ?? null)) {
+                return ['changed' => true];
+            }
+
+            return array_map(fn ($value) => $this->summariseValue($value), $change);
+        }, $this->changes);
+    }
+
+    /**
+     * Render a single value short enough to sit in an email line or a payload.
+     */
+    private function summariseValue(mixed $value): string
+    {
+        if (is_array($value)) {
+            // A list of readings is worth a count; a small structure such as a
+            // location is worth reading, up to a point.
+            return array_is_list($value)
+                ? count($value).' '.Str::plural('entry', count($value))
+                : Str::limit((string) json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), 200);
+        }
+
+        if (is_bool($value)) {
+            return $value ? 'Yes' : 'No';
+        }
+
+        return Str::limit((string) $value, 255);
     }
 
     /**
@@ -150,8 +197,8 @@ class AdminCollectRequestNotification extends Notification implements ShouldQueu
     private function formatChange(string $field, array $change): string
     {
         $fieldName = ucfirst(str_replace('_', ' ', $field));
-        $old = $change['old'] ?? 'Not set';
-        $new = $change['new'] ?? 'Not set';
+        $old = isset($change['old']) ? $this->summariseValue($change['old']) : 'Not set';
+        $new = isset($change['new']) ? $this->summariseValue($change['new']) : 'Not set';
 
         // Special formatting for specific fields
         return match ($field) {
