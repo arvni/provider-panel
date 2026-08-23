@@ -31,10 +31,12 @@ class CollectRequestObserver
      */
     public function updated(CollectRequest $collectRequest): void
     {
-        $this->stampReceipt($collectRequest);
-
-        // Get the changes that were made
+        // Read the changes before stamping: stampReceipt saves the request
+        // again, and a save resets what the model reports as changed, so asking
+        // afterwards would lose the very status change that triggered it.
         $changes = $this->getRelevantChanges($collectRequest);
+
+        $this->stampReceipt($collectRequest);
 
         if (! empty($changes)) {
             // Send notification to customer and notify user
@@ -145,6 +147,13 @@ class CollectRequestObserver
 
     /**
      * Get relevant changes for notification
+     *
+     * wasChanged() is taken as a hint, not an answer: details is a JSON column
+     * rewritten wholesale on every logistics poll, and a value that comes back
+     * from the webhook as a number where it was stored as a string counts as
+     * written even though nothing about the request moved. Comparing the old
+     * value against the new one keeps those polls from mailing the admins about
+     * a request that stood still.
      */
     private function getRelevantChanges(CollectRequest $collectRequest): array
     {
@@ -152,17 +161,25 @@ class CollectRequestObserver
         $watchedFields = ['status', 'preferred_date', 'details'];
 
         foreach ($watchedFields as $field) {
-            if ($collectRequest->wasChanged($field)) {
-                $changes[$field] = [
-                    'old' => $collectRequest->getOriginal($field),
-                    'new' => $collectRequest->getAttribute($field),
-                ];
+            if (! $collectRequest->wasChanged($field)) {
+                continue;
+            }
 
-                // Special handling for enum values
-                if ($field === 'status') {
-                    $changes[$field]['old'] = $collectRequest->getOriginal($field)?->getLabel() ?? 'Not set';
-                    $changes[$field]['new'] = $collectRequest->status->getLabel();
-                }
+            $old = $collectRequest->getOriginal($field);
+            $new = $collectRequest->getAttribute($field);
+
+            // Loose, so that a re-encoded 23.58 and "23.58" read as the same
+            // reading; enums of the same case compare equal too.
+            if ($old == $new) {
+                continue;
+            }
+
+            $changes[$field] = ['old' => $old, 'new' => $new];
+
+            // Special handling for enum values
+            if ($field === 'status') {
+                $changes[$field]['old'] = $old?->getLabel() ?? 'Not set';
+                $changes[$field]['new'] = $collectRequest->status->getLabel();
             }
         }
 
