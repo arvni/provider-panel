@@ -42,6 +42,12 @@ class HandleInertiaRequests extends Middleware
         if ($request->session()->has('status')) {
             $props['status'] = $request->session()->get('status');
         }
+        // Controllers have long flashed `error` alongside `status` to mark a
+        // message as a failure; without sharing it the page could only ever
+        // report the message as good news.
+        if ($request->session()->has('error')) {
+            $props['error'] = $request->session()->get('error');
+        }
 
         return $props;
     }

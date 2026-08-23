@@ -1,10 +1,17 @@
-import React from "react";
+import React, { useState } from "react";
 import {
     Button,
     IconButton,
     Typography,
     Box,
     Chip,
+    CircularProgress,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    Stack,
     Tooltip,
     useTheme,
     alpha,
@@ -13,7 +20,11 @@ import {
     RemoveRedEye,
     Download as DownloadIcon,
     Schedule as ScheduleIcon,
+    ForwardToInbox as ForwardToInboxIcon,
+    CloudDownload as CloudDownloadIcon,
 } from "@mui/icons-material";
+import { router, usePage } from "@inertiajs/react";
+import { useSnackbar } from "notistack";
 import ClientLayout from "@/Layouts/AuthenticatedLayout";
 import PageHeader from "@/Components/PageHeader";
 import { usePageReload } from "@/Services/api";
@@ -24,6 +35,33 @@ import TableLayout from "@/Layouts/TableLayout";
  */
 const AdminIndex = ({ orders: { data: ordersData, ...pagination }, request }) => {
     const theme = useTheme();
+    const { auth } = usePage().props;
+    const { enqueueSnackbar } = useSnackbar();
+
+    // Both row actions are gated on the same admin permission as their policies.
+    const canAdminister = auth?.permissions?.includes("Admin.Order.Update");
+
+    // Mirrors OrderPolicy::resendNotification — a pending order is a draft the
+    // provider has not submitted yet, so it has no state worth announcing.
+    const isNotifiable = (row) => row.status !== "pending";
+
+    // Mirrors OrderPolicy::fetchStatus — anything the lab has never been handed
+    // cannot be looked up there.
+    const NEVER_SENT_TO_LAB = ["pending", "requested"];
+    const isLookupable = (row) => !NEVER_SENT_TO_LAB.includes(row.status);
+
+    // The row awaiting confirmation, or null when the dialog is closed.
+    const [resendTarget, setResendTarget] = useState(null);
+    const [resending, setResending] = useState(false);
+    // Id of the order currently being looked up at the lab, or null.
+    const [fetchingId, setFetchingId] = useState(null);
+
+    // Both actions report through the flash message the controller set, so the
+    // page never has to guess at an outcome only the server knows.
+    const announce = (page) =>
+        enqueueSnackbar(page.props.status, {
+            variant: page.props.error ? "warning" : "success",
+        });
 
     const {
         data,
@@ -46,6 +84,53 @@ const AdminIndex = ({ orders: { data: ordersData, ...pagination }, request }) =>
     const handlePage = (e) => {
         e.preventDefault();
         reload();
+    };
+
+    // Re-send the notification for the status the order is on right now. The
+    // list is left untouched -- nothing about the order changes -- so the visit
+    // preserves state and only reports back through the snackbar.
+    const handleResendNotification = () => {
+        if (!resendTarget) return;
+
+        router.post(
+            route("admin.orders.resendNotification", resendTarget.id),
+            {},
+            {
+                preserveScroll: true,
+                preserveState: true,
+                onStart: () => setResending(true),
+                onSuccess: (page) => {
+                    setResendTarget(null);
+                    announce(page);
+                },
+                onError: () =>
+                    enqueueSnackbar("The notification could not be sent.", {
+                        variant: "error",
+                    }),
+                onFinish: () => setResending(false),
+            }
+        );
+    };
+
+    // Ask the lab where this order stands rather than waiting for the
+    // five-minute sweep. Read-only at the lab's end and the outcome is reported
+    // either way, so this needs no confirmation step.
+    const handleFetchStatus = (row) => {
+        router.post(
+            route("admin.orders.fetchStatus", row.id),
+            {},
+            {
+                preserveScroll: true,
+                preserveState: true,
+                onStart: () => setFetchingId(row.id),
+                onSuccess: announce,
+                onError: () =>
+                    enqueueSnackbar("The order status could not be fetched.", {
+                        variant: "error",
+                    }),
+                onFinish: () => setFetchingId(null),
+            }
+        );
     };
 
     // Get status color
@@ -306,36 +391,81 @@ const AdminIndex = ({ orders: { data: ordersData, ...pagination }, request }) =>
             field: "id",
             title: "Actions",
             type: "actions",
-            width: "80px",
+            width: "160px",
             render: (row) =>
                 row.status !== "pending" ? (
-                    <Tooltip title="View Details">
-                        <IconButton
-                            href={route("orders.show", row.id)}
-                            color="info"
-                            size="small"
-                            onClick={gotoPage(route("orders.show", row.id))}
-                            sx={{
-                                border: "1px solid",
-                                borderColor: alpha(theme.palette.info.main, 0.3),
-                                "&:hover": {
-                                    backgroundColor: alpha(theme.palette.info.main, 0.1),
-                                },
-                            }}
-                        >
-                            <RemoveRedEye fontSize="small" />
-                        </IconButton>
-                    </Tooltip>
+                    <Stack direction="row" spacing={0.5}>
+                        <Tooltip title="View Details">
+                            <IconButton
+                                href={route("orders.show", row.id)}
+                                color="info"
+                                size="small"
+                                onClick={gotoPage(route("orders.show", row.id))}
+                                sx={{
+                                    border: "1px solid",
+                                    borderColor: alpha(theme.palette.info.main, 0.3),
+                                    "&:hover": {
+                                        backgroundColor: alpha(theme.palette.info.main, 0.1),
+                                    },
+                                }}
+                            >
+                                <RemoveRedEye fontSize="small" />
+                            </IconButton>
+                        </Tooltip>
+                        {canAdminister && isLookupable(row) && (
+                            <Tooltip title="Fetch the lab's current status for this order">
+                                <span>
+                                    <IconButton
+                                        color="primary"
+                                        size="small"
+                                        disabled={fetchingId === row.id}
+                                        onClick={() => handleFetchStatus(row)}
+                                        sx={{
+                                            border: "1px solid",
+                                            borderColor: alpha(theme.palette.primary.main, 0.3),
+                                            "&:hover": {
+                                                backgroundColor: alpha(
+                                                    theme.palette.primary.main,
+                                                    0.1
+                                                ),
+                                            },
+                                        }}
+                                    >
+                                        {fetchingId === row.id ? (
+                                            <CircularProgress size={16} color="inherit" />
+                                        ) : (
+                                            <CloudDownloadIcon fontSize="small" />
+                                        )}
+                                    </IconButton>
+                                </span>
+                            </Tooltip>
+                        )}
+                        {canAdminister && isNotifiable(row) && (
+                            <Tooltip title="Resend status notification to provider">
+                                <IconButton
+                                    color="success"
+                                    size="small"
+                                    onClick={() => setResendTarget(row)}
+                                    sx={{
+                                        border: "1px solid",
+                                        borderColor: alpha(theme.palette.success.main, 0.3),
+                                        "&:hover": {
+                                            backgroundColor: alpha(theme.palette.success.main, 0.1),
+                                        },
+                                    }}
+                                >
+                                    <ForwardToInboxIcon fontSize="small" />
+                                </IconButton>
+                            </Tooltip>
+                        )}
+                    </Stack>
                 ) : null,
         },
     ];
 
     return (
         <>
-            <PageHeader
-                title="All Orders"
-                subtitle="View and track orders across every provider"
-            />
+            <PageHeader title="All Orders" subtitle="View and track orders across every provider" />
 
             <Box sx={{ my: 3 }}>
                 <TableLayout
@@ -364,6 +494,48 @@ const AdminIndex = ({ orders: { data: ordersData, ...pagination }, request }) =>
                     }}
                 />
             </Box>
+
+            {/* Resend notification confirmation dialog */}
+            <Dialog
+                open={Boolean(resendTarget)}
+                onClose={() => setResendTarget(null)}
+                maxWidth="xs"
+                fullWidth
+            >
+                <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <ForwardToInboxIcon color="success" />
+                    Resend Status Notification
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        This emails <strong>{resendTarget?.user_name}</strong> the notification for
+                        order <strong>#{resendTarget?.id}</strong>&apos;s current status (
+                        <strong>{resendTarget?.status}</strong>) and adds it to their in-app
+                        notifications again. The order itself is not changed.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
+                    <Button
+                        onClick={() => setResendTarget(null)}
+                        variant="outlined"
+                        size="small"
+                        disabled={resending}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={handleResendNotification}
+                        variant="contained"
+                        color="success"
+                        size="small"
+                        startIcon={<ForwardToInboxIcon />}
+                        disabled={resending}
+                        autoFocus
+                    >
+                        Resend
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </>
     );
 };

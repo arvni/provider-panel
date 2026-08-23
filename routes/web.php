@@ -91,6 +91,8 @@ Route::middleware('auth')->group(function () {
         Route::resource('tests', TestController::class)->except('show');
         Route::resource('orderMaterials', OrderMaterialAdminController::class)->only(['show', 'index', 'destroy']);
         Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
+        Route::post('/orders/{order}/resend-notification', [AdminOrderController::class, 'resendNotification'])->name('orders.resendNotification');
+        Route::post('/orders/{order}/fetch-status', [AdminOrderController::class, 'fetchStatus'])->name('orders.fetchStatus');
         Route::get('/materials', ExportExcelMaterialsController::class)->name('materials');
     });
     Route::get('patient-list', PatientListController::class)->name('api.patients.list');
