@@ -96,7 +96,10 @@ class Order extends Model
         return Patient::whereIn('id', $this->patient_ids ?? [])->get();
     }
 
-    public function User()
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function User(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }

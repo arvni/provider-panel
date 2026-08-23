@@ -571,12 +571,6 @@ parameters:
 			path: app/Observers/CollectRequestObserver.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\Order\:\:\$User\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Observers/OrderObserver.php
-
-		-
 			message: '#^Attribute class JetBrains\\PhpStorm\\ArrayShape does not exist\.$#'
 			identifier: attribute.notFound
 			count: 1
