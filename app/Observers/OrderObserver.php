@@ -12,6 +12,38 @@ use Illuminate\Support\Facades\Notification;
 class OrderObserver
 {
     /**
+     * While true the observer still records transitions but announces none.
+     */
+    private static bool $notificationsSuppressed = false;
+
+    /**
+     * Run $callback with the status email suppressed.
+     *
+     * The timeline is still written -- it is a log of what happened, and a
+     * catch-up pass is something that happened. Only the announcement is held
+     * back, because a backfill working through transitions the provider was
+     * never told about must not mail them once per missed step.
+     *
+     * @template TReturn
+     *
+     * @param  callable(): TReturn  $callback
+     * @return TReturn
+     */
+    public static function withoutNotifications(callable $callback): mixed
+    {
+        $previous = self::$notificationsSuppressed;
+        self::$notificationsSuppressed = true;
+
+        try {
+            return $callback();
+        } finally {
+            // Restored rather than set false so nesting cannot switch
+            // notifications back on for an outer caller that suppressed them.
+            self::$notificationsSuppressed = $previous;
+        }
+    }
+
+    /**
      * Handle the Order "created" event.
      */
     public function created(Order $order): void
@@ -34,6 +66,10 @@ class OrderObserver
         // Every transition is recorded, including the ones that are not mailed --
         // the timeline is a log of what happened, not of what was announced.
         $this->recordStatusChange($order, $order->getOriginal('status'));
+
+        if (self::$notificationsSuppressed) {
+            return;
+        }
 
         if (in_array($order->status->value, [OrderStatus::REPORTED->value, OrderStatus::RECEIVED->value, OrderStatus::PROCESSING->value, OrderStatus::WAITING_FOR_FINANCIAL_APPROVAL->value])) {
             $order->load('User');
