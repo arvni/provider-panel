@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Interfaces\HasNotificationVariant;
 use App\Models\Order;
 use App\Models\Patient;
 use Illuminate\Bus\Queueable;
@@ -10,7 +11,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\HtmlString;
 
-class OrderStatusUpdated extends Notification implements ShouldQueue
+class OrderStatusUpdated extends Notification implements HasNotificationVariant, ShouldQueue
 {
     use Queueable;
 
@@ -32,6 +33,17 @@ class OrderStatusUpdated extends Notification implements ShouldQueue
     public function via(object $notifiable): array
     {
         return ['mail', 'database'];
+    }
+
+    /**
+     * Which status this announcement is about, so the recipient's per-status
+     * switches can be applied. Orders created without a status leave the
+     * attribute null in memory, which reads as "no particular status" and is
+     * delivered rather than matched against a switch.
+     */
+    public function notificationVariant(): ?string
+    {
+        return $this->order->getAttribute('status')?->value;
     }
 
     /**

@@ -15,7 +15,13 @@ import {
     useTheme,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-import { Brightness4, Brightness7, LockOutlined, ExitToApp } from "@mui/icons-material";
+import {
+    Brightness4,
+    Brightness7,
+    LockOutlined,
+    ExitToApp,
+    NotificationsOutlined,
+} from "@mui/icons-material";
 import AppBar from "@/Layouts/Components/AppBar";
 import Breadcrumb from "@/Layouts/Components/Breadcrumb";
 import ChangePassword from "@/Pages/User/Components/ChangePassword";
@@ -312,14 +318,6 @@ export default function Header({
                                     <Divider />
 
                                     <Box sx={{ display: "flex", gap: 1 }}>
-                                        {/*<Button*/}
-                                        {/*    startIcon={<Person/>}*/}
-                                        {/*    variant="outlined"*/}
-                                        {/*    size="small"*/}
-                                        {/*    sx={{flex: 1, textTransform: 'none'}}*/}
-                                        {/*>*/}
-                                        {/*    Profile*/}
-                                        {/*</Button>*/}
                                         <Button
                                             startIcon={<LockOutlined />}
                                             variant="outlined"
@@ -328,6 +326,16 @@ export default function Header({
                                             sx={{ flex: 1, textTransform: "none" }}
                                         >
                                             Password
+                                        </Button>
+                                        <Button
+                                            startIcon={<NotificationsOutlined />}
+                                            variant="outlined"
+                                            size="small"
+                                            component={Link}
+                                            href={route("settings.notifications.edit")}
+                                            sx={{ flex: 1, textTransform: "none" }}
+                                        >
+                                            Alerts
                                         </Button>
                                     </Box>
 

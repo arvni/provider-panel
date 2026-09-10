@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Listeners\ApplyNotificationPreferences;
 use App\Listeners\FlushPermissionCache;
 use App\Models\CollectRequest;
 use App\Models\Order;
@@ -12,6 +13,7 @@ use App\Observers\OrderObserver;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
+use Illuminate\Notifications\Events\NotificationSending;
 use Illuminate\Support\Facades\Event;
 use Spatie\Permission\Events\PermissionAttached;
 use Spatie\Permission\Events\PermissionDetached;
@@ -34,6 +36,10 @@ class EventServiceProvider extends ServiceProvider
         RoleDetached::class => [FlushPermissionCache::class],
         PermissionAttached::class => [FlushPermissionCache::class],
         PermissionDetached::class => [FlushPermissionCache::class],
+        // Every notification passes through here on its way out, whichever of
+        // the scattered dispatch sites raised it, so per-user switches are
+        // honoured in one place rather than in each notification's via().
+        NotificationSending::class => [ApplyNotificationPreferences::class],
     ];
 
     /**
