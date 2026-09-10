@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Traits\Searchable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
@@ -111,6 +112,36 @@ class User extends Authenticatable implements MustVerifyEmail
     public function Tests()
     {
         return $this->belongsToMany(Test::class);
+    }
+
+    /**
+     * The notification switches this user has explicitly set. Absent rows mean
+     * "not configured", which reads as enabled.
+     */
+    public function notificationPreferences(): HasMany
+    {
+        return $this->hasMany(NotificationPreference::class);
+    }
+
+    /**
+     * Whether this user is on the receiving end of the lab-wide admin
+     * notifications, and so should be offered switches for them.
+     *
+     * Mirrors the recipient query in AdminNotificationService::getAdminUsers():
+     * the dedicated 'notify' account plus anyone holding the admin role.
+     *
+     * The name comparison is deliberately case-insensitive. That query asks for
+     * 'admin' while the seeder creates the role as 'Admin', and it only ever
+     * matches because MySQL compares strings case-insensitively by default.
+     * hasRole() compares in PHP, where it would not -- so an actual admin would
+     * be told they receive nothing.
+     */
+    public function receivesAdminNotifications(): bool
+    {
+        return $this->userName === 'notify'
+            || $this->getRoleNames()->contains(
+                fn (string $role) => strcasecmp($role, 'admin') === 0
+            );
     }
 
     /**

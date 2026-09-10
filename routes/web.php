@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\SyncReferrersController;
 use App\Http\Controllers\Admin\TestController;
 use App\Http\Controllers\Admin\UpdateUserTestsListController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\UserNotificationPreferenceController;
 use App\Http\Controllers\Api\ListTestsByBarcodeController;
 use App\Http\Controllers\Api\ListUserTestsController;
 use App\Http\Controllers\Api\PatientListController;
@@ -30,6 +31,7 @@ use App\Http\Controllers\DownloadReportController;
 use App\Http\Controllers\GetFileController;
 use App\Http\Controllers\ListTestController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\NotificationPreferenceController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrderMaterialController;
 use App\Http\Controllers\PatientController;
@@ -67,11 +69,16 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{id}', [NotificationController::class, 'destroy']);
     });
 
+    Route::get('/settings/notifications', [NotificationPreferenceController::class, 'edit'])->name('settings.notifications.edit');
+    Route::put('/settings/notifications', [NotificationPreferenceController::class, 'update'])->name('settings.notifications.update');
+
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
     Route::prefix('admin')->as('admin.')->group(function () {
         Route::post('/users/sync', SyncReferrersController::class)->name('users.sync');
         Route::post('/users/{user}/send-reset-password', [UserController::class, 'sendResetPassword'])->name('users.sendResetPassword');
         Route::get('/users/{user}/tests', EditUserTestsListController::class)->name('users.tests.edit');
+        Route::get('/users/{user}/notifications', [UserNotificationPreferenceController::class, 'edit'])->name('users.notifications.edit');
+        Route::put('/users/{user}/notifications', [UserNotificationPreferenceController::class, 'update'])->name('users.notifications.update');
         Route::put('/users/{user}/tests', UpdateUserTestsListController::class)->name('users.tests.update');
         Route::resource('/users', UserController::class);
         Route::put('/change-password/{user}', ChangePasswordController::class)->name('users.updatePassword');

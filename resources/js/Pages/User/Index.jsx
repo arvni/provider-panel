@@ -12,7 +12,14 @@ import {
     Tooltip,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import { Edit, EditCalendar, LockReset, PasswordOutlined, Sync } from "@mui/icons-material";
+import {
+    Edit,
+    EditCalendar,
+    LockReset,
+    NotificationsOutlined,
+    PasswordOutlined,
+    Sync,
+} from "@mui/icons-material";
 import PageHeader from "@/Components/PageHeader";
 import TableLayout from "@/Layouts/TableLayout";
 import { usePageReload } from "@/Services/api";
@@ -128,6 +135,16 @@ function Index({ users: { data: usersData, ...pagination }, request }) {
                     <Tooltip title="Send Reset Password Email">
                         <IconButton onClick={handleOpenResetPassword(row)}>
                             <LockReset />
+                        </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Notification Settings">
+                        <IconButton
+                            onClick={() =>
+                                router.get(route("admin.users.notifications.edit", row.id))
+                            }
+                            href={route("admin.users.notifications.edit", row.id)}
+                        >
+                            <NotificationsOutlined />
                         </IconButton>
                     </Tooltip>
                 </Stack>
