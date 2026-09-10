@@ -89,8 +89,8 @@ class NotificationPreferences
      * Record a set of answers, replacing whatever the user had before.
      *
      * Everything outside what this user may configure is dropped rather than
-     * rejected -- a type they cannot receive, a channel the type never uses, a
-     * variant that type does not split into. The screen cannot produce those, so
+     * rejected -- a type they cannot receive, a variant that type does not split
+     * into, a channel that variant never uses. The screen cannot produce those, so
      * their presence means a hand-made request, and silently ignoring them keeps
      * junk out of the table without failing a save whose legitimate half is
      * perfectly good.
@@ -112,8 +112,8 @@ class NotificationPreferences
             $variant = $answer['variant'] ?? '';
 
             if ($type === null
-                || ! $type->supports($answer['channel'])
-                || ! $type->supportsVariant($variant)) {
+                || ! $type->supportsVariant($variant)
+                || ! $type->supports($answer['channel'], $variant)) {
                 continue;
             }
 
@@ -170,7 +170,7 @@ class NotificationPreferences
         $channels = [];
 
         foreach (NotificationType::allChannels() as $channel) {
-            $channels[$channel] = $type->supports($channel)
+            $channels[$channel] = $type->supports($channel, $variant)
                 ? ['supported' => true, 'enabled' => $stored[$this->key($type, $variant, $channel)] ?? true]
                 : ['supported' => false, 'enabled' => false];
         }

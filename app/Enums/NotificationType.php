@@ -104,7 +104,7 @@ enum NotificationType: string
         return match ($this) {
             self::ORDER_STATUS_UPDATED => 'Choose which stages of an order you want to hear about.',
             self::ORDER_REMOVED_BY_ADMIN => 'One of your orders was removed by the lab after it had been sent.',
-            self::COLLECT_REQUEST_UPDATED => 'A collection request you raised was created or moved to a new status.',
+            self::COLLECT_REQUEST_UPDATED => 'Choose which steps of a collection request you want to hear about.',
             self::COLLECT_REQUEST_DELETED => 'A collection request you raised was cancelled.',
             self::ORDER_MATERIAL_REQUESTED => 'Confirmation that your request for sampling materials reached the lab.',
             self::ORDER_MATERIAL_UPDATED => 'A kit you ordered was prepared, dispatched, or delivered.',
@@ -149,10 +149,24 @@ enum NotificationType: string
      * worth offering a switch for. Mirrors each class's via(); a switch for a
      * channel the notification never uses would be a control that does nothing.
      *
+     * Support can narrow per variant. A collection request is mailed when it is
+     * first raised and then goes quiet -- every later step is in-app only (see
+     * CollectRequestUpdated::via()) -- so those rows show no email switch at
+     * all rather than one that could never take effect.
+     *
+     * Called with no variant it answers for the type as a whole: the union,
+     * which is what the settings screen's column headings describe.
+     *
      * @return array<int, string>
      */
-    public function channels(): array
+    public function channels(string $variant = ''): array
     {
+        if ($this === self::COLLECT_REQUEST_UPDATED && $variant !== '') {
+            return $variant === CollectRequestUpdated::VARIANT_CREATED
+                ? ['mail', 'database']
+                : ['database'];
+        }
+
         return match ($this) {
             self::COLLECT_REQUEST_DELETED => ['database'],
             self::ORDER_MATERIAL_REQUESTED,
@@ -161,9 +175,9 @@ enum NotificationType: string
         };
     }
 
-    public function supports(string $channel): bool
+    public function supports(string $channel, string $variant = ''): bool
     {
-        return in_array($channel, $this->channels(), true);
+        return in_array($channel, $this->channels($variant), true);
     }
 
     /**
@@ -180,14 +194,45 @@ enum NotificationType: string
      */
     public function variants(): array
     {
-        if ($this !== self::ORDER_STATUS_UPDATED) {
-            return [];
-        }
+        return match ($this) {
+            self::ORDER_STATUS_UPDATED => $this->orderStatusVariants(),
+            self::COLLECT_REQUEST_UPDATED => $this->collectRequestVariants(),
+            default => [],
+        };
+    }
 
+    /**
+     * @return array<string, string>
+     */
+    private function orderStatusVariants(): array
+    {
         $variants = [];
         foreach (OrderStatus::notifiable() as $status) {
             $variants[$status->value] = $status->label();
         }
+
+        return $variants;
+    }
+
+    /**
+     * The steps of a collection request, in the order it travels through them.
+     *
+     * Two of these are not statuses. Being raised is its own announcement --
+     * and the only one that is emailed -- and a preferred date or kit details
+     * edit moves no status at all but still reaches the provider, so it needs a
+     * switch of its own rather than being lumped in with the transitions.
+     *
+     * @return array<string, string>
+     */
+    private function collectRequestVariants(): array
+    {
+        $variants = [CollectRequestUpdated::VARIANT_CREATED => 'Request raised'];
+
+        foreach (CollectRequestStatus::notifiable() as $status) {
+            $variants[$status->value] = $status->getLabel();
+        }
+
+        $variants[CollectRequestUpdated::VARIANT_DETAILS] = 'Date or details changed';
 
         return $variants;
     }
