@@ -29,6 +29,28 @@ enum CollectRequestStatus: string
     }
 
     /**
+     * The statuses a request can actually move into after it is raised, in the
+     * order it moves through them.
+     *
+     * REQUESTED is deliberately absent: it is where a request opens, and
+     * nothing transitions back into it (see getNextStatuses), so a switch for
+     * it would never have anything to silence. Ordered by the lifecycle rather
+     * than by case order -- the cases list PICKED_UP before ON_THE_WAY, which
+     * is not the order a request travels in.
+     *
+     * @return array<int, self>
+     */
+    public static function notifiable(): array
+    {
+        return [
+            self::SCHEDULED,
+            self::ON_THE_WAY,
+            self::PICKED_UP,
+            self::RECEIVED,
+        ];
+    }
+
+    /**
      * Get color class for UI display
      */
     public function getColor(): string

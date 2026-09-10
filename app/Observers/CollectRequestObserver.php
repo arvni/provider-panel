@@ -39,8 +39,9 @@ class CollectRequestObserver
         $this->stampReceipt($collectRequest);
 
         if (! empty($changes)) {
-            // Send notification to customer and notify user
-            $this->sendCustomerNotification($collectRequest, 'updated');
+            // The changed field names travel with the notification: they decide
+            // which of the recipient's per-step switches it is matched against.
+            $this->sendCustomerNotification($collectRequest, 'updated', array_keys($changes));
 
             // Send notification to admins with change details
             AdminNotificationService::sendCollectRequestNotification(
@@ -112,14 +113,24 @@ class CollectRequestObserver
     /**
      * Send notification to customer and designated notify user
      */
-    private function sendCustomerNotification(CollectRequest $collectRequest, string $action): void
-    {
+    /**
+     * @param  array<int, string>  $changedFields  Which watched fields moved. Empty on a
+     *                                             creation, which is its own announcement.
+     */
+    private function sendCustomerNotification(
+        CollectRequest $collectRequest,
+        string $action,
+        array $changedFields = []
+    ): void {
         try {
             $collectRequest->load('user');
             $users = $this->getCustomerNotificationRecipients($collectRequest);
 
             if (! empty($users)) {
-                Notification::send($users, new CollectRequestUpdated($collectRequest, $action));
+                Notification::send(
+                    $users,
+                    new CollectRequestUpdated($collectRequest, $action, $changedFields)
+                );
             }
         } catch (\Exception $e) {
             Log::error('Failed to send collect request customer notification', [

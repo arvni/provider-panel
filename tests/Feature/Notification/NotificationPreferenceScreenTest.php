@@ -281,6 +281,68 @@ class NotificationPreferenceScreenTest extends TestCase
         ]);
     }
 
+    /**
+     * The collection request row is offered as one switch per step, and the
+     * email column is only live on the step that is actually emailed.
+     */
+    public function test_the_collect_request_row_is_offered_per_step(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->get(route('settings.notifications.edit'));
+
+        $row = collect($response->viewData('page')['props']['preferences'])
+            ->firstWhere('type', NotificationType::COLLECT_REQUEST_UPDATED->value);
+
+        $this->assertSame(
+            ['created', 'scheduled', 'sample_collector_on_the_way', 'picked_up', 'received', 'details'],
+            array_column($row['variants'], 'key')
+        );
+
+        $byKey = collect($row['variants'])->keyBy('key');
+
+        $this->assertTrue($byKey['created']['channels']['mail']['supported']);
+        $this->assertFalse(
+            $byKey['received']['channels']['mail']['supported'],
+            'Later steps are in-app only, so the email column must render as a dash.'
+        );
+        $this->assertTrue($byKey['received']['channels']['database']['supported']);
+    }
+
+    /**
+     * Email is not offered on the later steps, so an answer naming it is a
+     * hand-made request and must not reach the table.
+     */
+    public function test_email_cannot_be_stored_for_a_step_that_is_never_mailed(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->put(route('settings.notifications.update'), [
+                'preferences' => [
+                    [
+                        'type' => NotificationType::COLLECT_REQUEST_UPDATED->value,
+                        'variant' => 'received',
+                        'channel' => 'mail',
+                        'enabled' => false,
+                    ],
+                    [
+                        'type' => NotificationType::COLLECT_REQUEST_UPDATED->value,
+                        'variant' => 'received',
+                        'channel' => 'database',
+                        'enabled' => false,
+                    ],
+                ],
+            ])
+            ->assertSessionHasNoErrors();
+
+        $this->assertDatabaseCount('notification_preferences', 1);
+        $this->assertDatabaseHas('notification_preferences', [
+            'variant' => 'received',
+            'channel' => 'database',
+        ]);
+    }
+
     public function test_an_admin_can_edit_another_users_preferences(): void
     {
         $admin = $this->admin();
