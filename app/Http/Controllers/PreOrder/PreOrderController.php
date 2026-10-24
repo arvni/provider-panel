@@ -144,7 +144,7 @@ class PreOrderController extends Controller
     /**
      * @param  array<int, array<string, mixed>>  $tests
      * @param  array<int, int>  $serverIds  panel test id => LIS test id
-     * @return array<int, array<string, mixed>>  LIS test id => answers; ids are never 0, so this encodes as a JSON object
+     * @return array<int, array<string, mixed>> LIS test id => answers; ids are never 0, so this encodes as a JSON object
      */
     private function scopeAnswers(array $tests, array $serverIds): array
     {
