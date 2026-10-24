@@ -21,6 +21,7 @@ import { AccountTree as AccountTreeIcon } from "@mui/icons-material";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import RequestCard from "./Components/RequestCard";
 import Messages from "./Components/Messages";
+import Documents from "./Components/Documents";
 import ReasonDialog from "./Components/ReasonDialog";
 import { exceptionLabel, ownerColor, ownerLabel } from "./Components/stage";
 
@@ -218,6 +219,16 @@ const Show = () => {
                                 ))}
                             </Stack>
                         )}
+
+                        <Stack spacing={1}>
+                            <Typography variant="subtitle1">Files</Typography>
+                            <Documents
+                                preOrderId={preOrder.id}
+                                documents={preOrder.documents ?? []}
+                                requests={preOrder.requests}
+                                canAct={canAct}
+                            />
+                        </Stack>
 
                         <Stack spacing={1}>
                             <Typography variant="subtitle1">Messages</Typography>

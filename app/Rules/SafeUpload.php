@@ -151,6 +151,17 @@ final class SafeUpload
     }
 
     /**
+     * Rules for a file a center attaches to a pre-order: PDF, PNG or JPEG up to 20 MB, the
+     * types the LIS can inspect (it re-encodes the images and refuses active PDFs).
+     *
+     * @return array<int, mixed>
+     */
+    public static function preOrderRules(): array
+    {
+        return self::rulesFor(['pdf', 'png', 'jpg', 'jpeg'], 20480);
+    }
+
+    /**
      * @param  array<int, string>  $extensions
      * @return array<int, mixed>
      */
