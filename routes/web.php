@@ -35,6 +35,8 @@ use App\Http\Controllers\NotificationPreferenceController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrderMaterialController;
 use App\Http\Controllers\PatientController;
+use App\Http\Controllers\PreOrder\PreOrderActionController;
+use App\Http\Controllers\PreOrder\PreOrderController;
 use App\Http\Controllers\SampleController;
 use App\Http\Controllers\StoreCollectRequestController;
 use App\Http\Controllers\StoreSampleCollectRequestController;
@@ -118,6 +120,21 @@ Route::middleware('auth')->group(function () {
     Route::get('orders', [OrderController::class, 'index'])->name('orders.index')->middleware('providerAccess:Order.Index');
     Route::resource('orders', OrderController::class)->only(['create', 'store'])->middleware('providerAccess:Order.Create');
     Route::resource('orders', OrderController::class)->only(['show', 'destroy']);
+    // Pre-orders: BION reviews the case before the center places the order(s).
+    Route::prefix('pre-orders')->as('preOrders.')->group(function () {
+        Route::get('/', [PreOrderController::class, 'index'])->name('index')->middleware('providerAccess:PreOrder.Index');
+        Route::get('create', [PreOrderController::class, 'create'])->name('create')->middleware('providerAccess:PreOrder.Create');
+        Route::post('/', [PreOrderController::class, 'store'])->name('store')->middleware('providerAccess:PreOrder.Create');
+        Route::get('{preOrder}', [PreOrderController::class, 'show'])->name('show')->middleware('providerAccess:PreOrder.Index');
+        Route::middleware('providerAccess:PreOrder.Create')->group(function () {
+            Route::post('{preOrder}/answer', [PreOrderActionController::class, 'answer'])->name('answer');
+            Route::post('{preOrder}/messages', [PreOrderActionController::class, 'message'])->name('message');
+            Route::post('{preOrder}/hold', [PreOrderActionController::class, 'hold'])->name('hold');
+            Route::post('{preOrder}/resume', [PreOrderActionController::class, 'resume'])->name('resume');
+            Route::post('{preOrder}/cancel', [PreOrderActionController::class, 'cancel'])->name('cancel');
+        });
+    });
+
     Route::get('orderMaterials', [OrderMaterialController::class, 'index'])->name('orderMaterials.index')->middleware('providerAccess:OrderMaterial.Index');
     Route::resource('orderMaterials', OrderMaterialController::class)->only(['store'])->middleware('providerAccess:OrderMaterial.Create');
     Route::resource('orderMaterials', OrderMaterialController::class)->only(['show']);

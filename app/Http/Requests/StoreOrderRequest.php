@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\DirectOrderTest;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -24,6 +25,7 @@ class StoreOrderRequest extends FormRequest
     {
         return [
             'test_method.*.id' => 'required|exists:tests,id',
+            'tests.*.id' => [new DirectOrderTest],
         ];
     }
 }

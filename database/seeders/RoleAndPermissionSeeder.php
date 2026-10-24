@@ -124,6 +124,10 @@ class RoleAndPermissionSeeder extends Seeder
             'Test' => [
                 'Index',
             ],
+            'PreOrder' => [
+                'Index',
+                'Create',
+            ],
         ];
         $q = [];
         foreach ($permissions as $key => $value) {

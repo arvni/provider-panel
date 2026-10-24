@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\OrderStep;
 use App\Interfaces\OrderRepositoryInterface;
 use App\Models\Material;
+use App\Rules\DirectOrderTest;
 use Illuminate\Http\Request;
 
 class AddOrderByBarcodeController extends Controller
@@ -37,6 +38,7 @@ class AddOrderByBarcodeController extends Controller
             'test.id' => [
                 'required',
                 'exists:tests,id',
+                new DirectOrderTest,
             ],
         ]
         );

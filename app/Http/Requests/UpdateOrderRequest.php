@@ -6,6 +6,7 @@ use App\Enums\Nationality;
 use App\Enums\OrderStep;
 use App\Rules\CheckSampleMaterial;
 use App\Rules\CheckSamples;
+use App\Rules\DirectOrderTest;
 use App\Rules\SafeUpload;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -74,6 +75,16 @@ class UpdateOrderRequest extends FormRequest
                 return [
                     'files' => ['nullable', 'array', 'max:10'],
                     'files.*' => Rule::forEach($this->uploadOrExistingPath(...)),
+                ];
+            case OrderStep::TEST_METHOD:
+                return [
+                    // BION chose the tests of an order placed from a pre-order.
+                    'tests' => [function ($attribute, $value, $fail) {
+                        if ($this->route('order')?->pre_order_id) {
+                            $fail('The tests of a pre-order are chosen with BION. Message BION on the pre-order to change them.');
+                        }
+                    }],
+                    'tests.*.id' => [new DirectOrderTest],
                 ];
             case OrderStep::CONSENT_FORM:
                 return [

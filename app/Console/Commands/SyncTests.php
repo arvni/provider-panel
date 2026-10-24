@@ -54,6 +54,8 @@ class SyncTests extends Command
                         'description' => $test['description'],
                         'turnaroundTime' => $test['methods_max_turnaround_time'] / 24 ?? 0,
                         'is_active' => $isActive,
+                        'flow_id' => $test['flow_id'] ?? null,
+                        'preorder' => $test['preorder'] ?? null,
                     ]
                 );
             } else {
@@ -64,6 +66,9 @@ class SyncTests extends Command
                     'description' => $test['description'],
                     'turnaroundTime' => $test['methods_max_turnaround_time'] ?? 1,
                     'is_active' => $isActive,
+                    // The pre-order switch is owned by the LIS (Test list → Pre-order settings).
+                    'flow_id' => $test['flow_id'] ?? null,
+                    'preorder' => $test['preorder'] ?? null,
                 ]);
             }
             if ($t->isDirty()) {

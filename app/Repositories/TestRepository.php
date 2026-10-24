@@ -48,6 +48,9 @@ class TestRepository extends BaseRepository implements TestRepositoryInterface
         if (isset($queryData['active'])) {
             $this->query->active();
         }
+        if (isset($queryData['direct'])) {
+            $this->query->direct();
+        }
         $this->applyQueries($queryData);
 
         return $this->applyPagination($queryData['pageSize'] ?? $this->pageSize);
@@ -55,8 +58,10 @@ class TestRepository extends BaseRepository implements TestRepositoryInterface
 
     public function getAll(array $queryData): Collection|array
     {
+        // Used by the add-by-barcode picker, which places a direct order.
         $this->query = auth()->user()->Tests()
             ->active()
+            ->direct()
             ->select(DB::raw('*'));
         $this->applyQueries($queryData);
 

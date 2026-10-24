@@ -15,6 +15,7 @@ import PlaylistAddCheckIcon from '@mui/icons-material/PlaylistAddCheck';
 import VaccinesIcon from '@mui/icons-material/Vaccines';
 import ImportContactsIcon from '@mui/icons-material/ImportContacts';
 import PeopleIcon from '@mui/icons-material/People';
+import AccountTreeIcon from '@mui/icons-material/AccountTree';
 
 
 
@@ -29,6 +30,12 @@ const routes = [
         route: route("orders.index"),
         permission: 'Order.Index',
         icon: <AssignmentIcon/>,
+    },
+    {
+        title: "Pre-orders",
+        route: route("preOrders.index"),
+        permission: 'PreOrder.Index',
+        icon: <AccountTreeIcon/>,
     },
     {
         title: "Patients",

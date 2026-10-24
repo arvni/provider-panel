@@ -40,6 +40,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'OrderMaterial.Index',
         'OrderMaterial.Create',
         'Test.Index',
+        'PreOrder.Index',
+        'PreOrder.Create',
     ];
 
     /**

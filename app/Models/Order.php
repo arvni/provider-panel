@@ -37,6 +37,8 @@ class Order extends Model
         'patient_ids',
         'user_id',
         'collect_request_id',
+        'pre_order_id',
+        'pre_order_release_key',
         'created_at',
         'updated_at',
     ];
@@ -126,6 +128,14 @@ class Order extends Model
     public function Tests()
     {
         return $this->belongsToMany(Test::class, 'order_items');
+    }
+
+    /**
+     * @return BelongsTo<PreOrder, $this>
+     */
+    public function PreOrder(): BelongsTo
+    {
+        return $this->belongsTo(PreOrder::class);
     }
 
     /**

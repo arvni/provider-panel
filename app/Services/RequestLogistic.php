@@ -275,6 +275,9 @@ class RequestLogistic
             'main_patient_id' => $order->main_patient_id,
             'tests' => self::prepareTestsData($order),
             'orderItems' => $orderItems,
+            // Placed from a pre-order release: the LIS links the order back by these.
+            'pre_order_id' => $order->PreOrder?->server_id,
+            'pre_order_release_key' => $order->pre_order_release_key,
             'created_at' => $order->created_at,
             'updated_at' => $order->updated_at,
         ];
