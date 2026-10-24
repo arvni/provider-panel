@@ -74,6 +74,16 @@ export default function QuotationCard({ preOrderId, quotation, patientName, canA
                     color={STATUS_COLOR[quotation.status] ?? "default"}
                     label={quotation.status_label}
                 />
+                {quotation.pdf && (
+                    <Button
+                        size="small"
+                        href={route("preOrders.documents.show", [preOrderId, quotation.pdf])}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        Download PDF
+                    </Button>
+                )}
                 {open && quotation.expires_at && (
                     <Typography variant="caption" color="text.secondary">
                         valid until {new Date(quotation.expires_at).toLocaleDateString()}

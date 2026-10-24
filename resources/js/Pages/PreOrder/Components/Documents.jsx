@@ -25,7 +25,8 @@ export const TAGS = [
     ["PRESCRIPTION", "Prescription"],
     ["DOCUMENT", "Other"],
 ];
-const TAG_LABEL = Object.fromEntries(TAGS);
+// Quotation PDFs come from BION; a center never uploads with that tag.
+const TAG_LABEL = { ...Object.fromEntries(TAGS), QUOTATION: "Quotation" };
 
 /**
  * Files sent to BION. Only PDF, PNG and JPEG: BION checks each file before adding it, so a new
