@@ -218,6 +218,88 @@ class PreOrderTest extends TestCase
         $this->assertSame('Request R1 is closed.', $action->error);
     }
 
+    private function withQuotation(): PreOrder
+    {
+        $this->upsert($this->snapshot([
+            'stage' => ['code' => 'AWAITING_FINANCE', 'label' => 'Waiting for financial approval', 'next_action' => 'Approve the quotation', 'owner' => 'center'],
+            'quotations' => [[
+                'number' => 'Q-26-0501', 'request' => null, 'status' => 'awaiting_center', 'status_label' => 'Awaiting center approval',
+                'total' => '950.000', 'discount' => '0.000', 'subtotal' => '950.000',
+                'lines' => [['id' => 11, 'test_name' => 'PGT-M', 'qty' => 1, 'unit_price' => '900.000', 'line_total' => '900.000'], ['id' => 12, 'test_name' => 'Karyotype', 'qty' => 1, 'unit_price' => '50.000', 'line_total' => '50.000']],
+            ]],
+        ]))->assertOk();
+
+        return PreOrder::firstOrFail();
+    }
+
+    private function approver(): User
+    {
+        Permission::findOrCreate('PreOrder.Approve Finance');
+        $this->center->givePermissionTo('PreOrder.Approve Finance');
+
+        return $this->center->refresh();
+    }
+
+    public function test_only_a_user_with_approve_finance_decides_on_a_quotation(): void
+    {
+        Http::fake(['*' => Http::response(['status' => 'pending'], 202)]);
+        $preOrder = $this->withQuotation();
+        $body = ['quotation' => 'Q-26-0501', 'decision' => 'approve'];
+
+        $this->actingAs($this->center)->get(route('preOrders.show', $preOrder))
+            ->assertInertia(fn ($page) => $page->where('canApproveFinance', false)->where('preOrder.quotations.0.number', 'Q-26-0501'));
+        $this->actingAs($this->center)->post(route('preOrders.finance.decide', $preOrder), $body)->assertForbidden();
+        $this->assertSame(0, PreOrderAction::count());
+
+        $approver = $this->approver();
+        $this->actingAs($approver)->get(route('preOrders.show', $preOrder))->assertInertia(fn ($page) => $page->where('canApproveFinance', true));
+        $this->actingAs($approver)
+            ->post(route('preOrders.finance.decide', $preOrder), ['quotation' => 'Q-26-0501', 'decision' => 'partial', 'items' => [11], 'center_reference' => 'PO-7781'])
+            ->assertSessionHasNoErrors();
+
+        Http::assertSent(function (HttpRequest $r) {
+            $body = json_decode($r->body(), true);
+
+            return str_ends_with($r->url(), 'pre-orders/77/501/actions')
+                && $body['type'] === 'decide_finance'
+                && $body['payload']['items'] === [11]
+                && $body['payload']['center_reference'] === 'PO-7781';
+        });
+    }
+
+    public function test_a_finance_decision_is_checked_before_it_is_sent(): void
+    {
+        Http::fake();
+        $preOrder = $this->withQuotation();
+        $approver = $this->approver();
+        $decide = fn (array $body) => $this->actingAs($approver)->post(route('preOrders.finance.decide', $preOrder), $body);
+
+        $decide(['quotation' => 'Q-26-9999', 'decision' => 'approve'])->assertSessionHasErrors('quotation');
+        $decide(['quotation' => 'Q-26-0501', 'decision' => 'reject'])->assertSessionHasErrors('note');
+        $decide(['quotation' => 'Q-26-0501', 'decision' => 'partial'])->assertSessionHasErrors('items');
+        Http::assertNothingSent();
+    }
+
+    public function test_scope_answers_go_to_the_lis_keyed_by_its_test_id(): void
+    {
+        Http::fake(['*' => Http::response(['status' => 'pending'], 202)]);
+        $test = Test::factory()->create(['server_id' => 9001, 'flow_id' => 3, 'is_active' => true, 'preorder' => [
+            'can_be_main' => true,
+            'scope' => [['key' => 'genes', 'label' => 'Genes', 'type' => 'number', 'needs_finance' => true, 'threshold' => 2]],
+        ]]);
+        $this->center->Tests()->attach($test->id);
+
+        $this->actingAs($this->center)->get(route('preOrders.create'))
+            ->assertInertia(fn ($page) => $page->where('tests.0.scope.0.key', 'genes'));
+        $this->actingAs($this->center)->post(route('preOrders.store'), [
+            'start_mode' => 'tests',
+            'patients' => [['fullName' => 'Invented Mother', 'gender' => '0', 'dateOfBirth' => '1990-05-01', 'nationality' => ['code' => 'OM']]],
+            'tests' => [['id' => $test->id, 'scope' => ['genes' => 2]]],
+        ])->assertSessionHasNoErrors();
+
+        Http::assertSent(fn (HttpRequest $r) => json_decode($r->body(), true)['payload']['scope'] === ['9001' => ['genes' => 2]]);
+    }
+
     public function test_an_unreachable_api_is_reported_to_the_user(): void
     {
         Http::fake(['*' => Http::response('down', 503)]);

@@ -47,6 +47,21 @@ class PreOrderActionController extends Controller
         return $this->send($request, $preOrder, 'cancel', $this->reason($request, ['patient_withdrew', 'cycle_cancelled', 'sent_elsewhere', 'duplicate', 'other']));
     }
 
+    public function decideFinance(Request $request, PreOrder $preOrder): RedirectResponse
+    {
+        $this->authorize('approveFinance', $preOrder);
+        $data = $request->validate([
+            'quotation' => ['required', 'string', 'max:32', Rule::in(array_column($preOrder->snapshot['quotations'] ?? [], 'number'))],
+            'decision' => ['required', Rule::in(['approve', 'partial', 'reject'])],
+            'items' => ['nullable', 'required_if:decision,partial', 'array', 'max:50'],
+            'items.*' => ['integer', 'distinct'],
+            'note' => ['nullable', 'required_if:decision,reject', 'string', 'max:2000'],
+            'center_reference' => ['nullable', 'string', 'max:64'],
+        ]);
+
+        return $this->send($request, $preOrder, 'decide_finance', $data, 'approveFinance');
+    }
+
     private function reason(Request $request, array $reasons): array
     {
         return $request->validate([
@@ -55,9 +70,9 @@ class PreOrderActionController extends Controller
         ]);
     }
 
-    private function send(Request $request, PreOrder $preOrder, string $type, array $payload): RedirectResponse
+    private function send(Request $request, PreOrder $preOrder, string $type, array $payload, string $ability = 'act'): RedirectResponse
     {
-        $this->authorize('act', $preOrder);
+        $this->authorize($ability, $preOrder);
         abort_if($preOrder->closed_at !== null && $type !== 'message', 422, 'This pre-order is closed.');
 
         $this->outbox->action($request->user(), $preOrder, $type, $payload);

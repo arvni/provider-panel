@@ -17,4 +17,10 @@ class PreOrderPolicy
     {
         return $user->hasAccess('PreOrder.Create') && $preOrder->user_id === $user->id;
     }
+
+    /** Approve, partly approve or reject a quotation. Granted per user, not by the provider role. */
+    public function approveFinance(User $user, PreOrder $preOrder): bool
+    {
+        return $user->hasAccess('PreOrder.Approve Finance') && $preOrder->user_id === $user->id;
+    }
 }

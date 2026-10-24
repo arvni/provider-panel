@@ -128,6 +128,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/', [PreOrderController::class, 'store'])->name('store')->middleware('providerAccess:PreOrder.Create');
         Route::get('{preOrder}', [PreOrderController::class, 'show'])->name('show')->middleware('providerAccess:PreOrder.Index');
         Route::get('{preOrder}/documents/{hash}', [PreOrderDocumentController::class, 'show'])->whereUuid('hash')->name('documents.show')->middleware('providerAccess:PreOrder.Index');
+        // The approver may not hold PreOrder.Create; the policy checks PreOrder.Approve Finance.
+        Route::post('{preOrder}/finance', [PreOrderActionController::class, 'decideFinance'])->name('finance.decide')->middleware('providerAccess:PreOrder.Index');
         Route::middleware('providerAccess:PreOrder.Create')->group(function () {
             Route::post('{preOrder}/answer', [PreOrderActionController::class, 'answer'])->name('answer');
             Route::post('{preOrder}/messages', [PreOrderActionController::class, 'message'])->name('message');

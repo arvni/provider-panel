@@ -5,9 +5,11 @@ import {
     Autocomplete,
     Box,
     Button,
+    FormControlLabel,
     MenuItem,
     Paper,
     Stack,
+    Switch,
     TextField,
     ToggleButton,
     ToggleButtonGroup,
@@ -43,6 +45,13 @@ const Create = () => {
             data.patients.map((p, j) => (j === i ? value : p))
         );
     const selected = tests.filter((t) => data.tests.some((s) => s.id === t.id));
+    const setAnswer = (testId, key, value) =>
+        setData(
+            "tests",
+            data.tests.map((t) =>
+                t.id === testId ? { ...t, scope: { ...(t.scope ?? {}), [key]: value } } : t
+            )
+        );
 
     const submit = (e) => {
         e.preventDefault();
@@ -89,7 +98,9 @@ const Create = () => {
                             onChange={(_, v) =>
                                 setData(
                                     "tests",
-                                    v.map((t) => ({ id: t.id }))
+                                    v.map(
+                                        (t) => data.tests.find((s) => s.id === t.id) ?? { id: t.id }
+                                    )
                                 )
                             }
                             renderInput={(params) => (
@@ -132,6 +143,65 @@ const Create = () => {
                             />
                         </Stack>
                     )}
+                    {data.start_mode === "tests" &&
+                        selected
+                            .filter((t) => t.scope?.length)
+                            .map((t) => (
+                                <Stack key={t.id} spacing={1} sx={{ mt: 2 }}>
+                                    <Typography variant="body2" fontWeight={600}>
+                                        {t.name}
+                                    </Typography>
+                                    <Stack direction="row" spacing={2} flexWrap="wrap" useFlexGap>
+                                        {t.scope.map((q) => {
+                                            const answer = data.tests.find((s) => s.id === t.id)
+                                                ?.scope?.[q.key];
+                                            return q.type === "number" ? (
+                                                <TextField
+                                                    key={q.key}
+                                                    size="small"
+                                                    type="number"
+                                                    label={q.label}
+                                                    value={answer ?? ""}
+                                                    onChange={(e) =>
+                                                        setAnswer(
+                                                            t.id,
+                                                            q.key,
+                                                            e.target.value === ""
+                                                                ? null
+                                                                : Number(e.target.value)
+                                                        )
+                                                    }
+                                                    inputProps={{ min: 0, max: 99 }}
+                                                    sx={{ width: 140 }}
+                                                />
+                                            ) : (
+                                                <FormControlLabel
+                                                    key={q.key}
+                                                    control={
+                                                        <Switch
+                                                            checked={Boolean(answer)}
+                                                            onChange={(e) =>
+                                                                setAnswer(
+                                                                    t.id,
+                                                                    q.key,
+                                                                    e.target.checked
+                                                                )
+                                                            }
+                                                        />
+                                                    }
+                                                    label={q.label}
+                                                />
+                                            );
+                                        })}
+                                    </Stack>
+                                    {t.scope.some((q) => q.needs_finance) && (
+                                        <Typography variant="caption" color="text.secondary">
+                                            Some answers change the price: BION will send a
+                                            quotation for your approval first.
+                                        </Typography>
+                                    )}
+                                </Stack>
+                            ))}
                     <TextField
                         fullWidth
                         multiline
