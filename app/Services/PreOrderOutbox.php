@@ -35,15 +35,18 @@ class PreOrderOutbox
         return $this->send($user, $preOrder, 'resync', [], "pre-orders/{$user->referrer_id}/{$serverId}/actions");
     }
 
-    /** A file for BION. The LIS inspects it before it becomes a document of the pre-order. */
-    public function upload(User $user, PreOrder $preOrder, UploadedFile $file, string $tag, ?int $request): PreOrderAction
+    /**
+     * A file for BION, with the name and details the center gave it. The LIS inspects it before it
+     * becomes a document of the pre-order.
+     */
+    public function upload(User $user, PreOrder $preOrder, UploadedFile $file, string $tag, ?int $request, ?string $title = null, ?string $description = null): PreOrderAction
     {
         $action = PreOrderAction::create([
             'uuid' => (string) Str::uuid(),
             'user_id' => $user->id,
             'pre_order_id' => $preOrder->id,
             'type' => 'upload_document',
-            'payload' => ['name' => $file->getClientOriginalName(), 'tag' => $tag, 'request' => $request],
+            'payload' => ['name' => $file->getClientOriginalName(), 'title' => $title, 'description' => $description, 'tag' => $tag, 'request' => $request],
             'status' => PreOrderAction::PENDING,
         ]);
 
@@ -56,6 +59,8 @@ class PreOrderOutbox
                     'actor[name]' => $user->name,
                     'tag' => $tag,
                     'request' => $request,
+                    'title' => $title,
+                    'description' => $description,
                 ], fn ($v) => $v !== null),
                 'file',
                 (string) file_get_contents($file->getRealPath()),

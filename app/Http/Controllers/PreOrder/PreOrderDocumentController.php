@@ -29,9 +29,11 @@ class PreOrderDocumentController extends Controller
             'file' => ['required', ...SafeUpload::preOrderRules()],
             'tag' => ['required', Rule::in(['MEDICAL_HISTORY', 'ID_CARD', 'CONSENT_FORM', 'REQUEST_FORM', 'PRESCRIPTION', 'DOCUMENT'])],
             'request' => ['nullable', 'integer', Rule::in($openRequests)],
+            'title' => ['required', 'string', 'max:150'],
+            'description' => ['nullable', 'string', 'max:2000'],
         ]);
 
-        $outbox->upload($request->user(), $preOrder, $data['file'], $data['tag'], isset($data['request']) ? (int) $data['request'] : null);
+        $outbox->upload($request->user(), $preOrder, $data['file'], $data['tag'], isset($data['request']) ? (int) $data['request'] : null, $data['title'], $data['description'] ?? null);
 
         return back()->with(['success' => true, 'status' => 'File sent to BION. It is checked before it is added.']);
     }
