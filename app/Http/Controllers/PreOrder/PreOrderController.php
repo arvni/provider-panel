@@ -173,7 +173,7 @@ class PreOrderController extends Controller
                     'status' => $o->status->value,
                     'step' => $o->step->value,
                 ]),
-            'actions' => $preOrder->Actions()->where('status', '!=', PreOrderAction::DONE)->latest()->limit(10)->get(['id', 'type', 'status', 'error', 'created_at']),
+            'actions' => $preOrder->Actions()->where('status', '!=', PreOrderAction::DONE)->where('type', '!=', 'resync')->latest()->limit(10)->get(['id', 'type', 'status', 'error', 'created_at']),
             'canAct' => $request->user()->can('act', $preOrder) && $preOrder->closed_at === null,
             'canApproveFinance' => $request->user()->can('approveFinance', $preOrder) && $preOrder->closed_at === null,
         ]);

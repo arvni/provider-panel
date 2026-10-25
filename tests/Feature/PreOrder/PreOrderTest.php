@@ -347,6 +347,43 @@ class PreOrderTest extends TestCase
         $this->assertArrayHasKey('reminder', NotificationType::PRE_ORDER_STAGE->variants());
     }
 
+    public function test_the_nightly_sync_asks_the_lis_to_resend_only_the_pre_orders_the_mirror_missed(): void
+    {
+        $this->upsert($this->snapshot(['id' => 501, 'version' => 4]))->assertOk();
+        $this->upsert($this->snapshot(['id' => 502, 'code' => 'PO-26-0502', 'version' => 2]))->assertOk();
+        Http::fake([
+            '*pre-orders/77?*' => Http::response(['data' => [
+                ['id' => 501, 'version' => 4],
+                ['id' => 502, 'version' => 5],
+                ['id' => 503, 'version' => 1],
+            ], 'last_page' => 1]),
+            '*' => Http::response(['status' => 'pending'], 202),
+        ]);
+
+        $this->artisan('sync:pre-orders')->assertSuccessful();
+
+        $resent = collect(Http::recorded())->map(fn ($pair) => $pair[0])
+            ->filter(fn (HttpRequest $r) => $r->method() === 'POST' && $r['type'] === 'resync')
+            ->map(fn (HttpRequest $r) => (int) explode('/', $r->url())[count(explode('/', $r->url())) - 2])
+            ->values()->all();
+        $this->assertSame([502, 503], $resent, 'behind and missing, not the one up to date');
+
+        // A resend still on its way is not asked for again; the center never sees these rows.
+        $this->artisan('sync:pre-orders')->assertSuccessful();
+        $this->assertSame(1, PreOrderAction::query()->where('type', 'resync')->where('pre_order_id', PreOrder::where('server_id', 502)->value('id'))->count());
+        $this->actingAs($this->center)->get(route('preOrders.show', PreOrder::where('server_id', 502)->first()))
+            ->assertInertia(fn ($page) => $page->where('actions', []));
+    }
+
+    public function test_the_nightly_sync_reports_a_center_it_could_not_reach(): void
+    {
+        Http::fake(['*' => Http::response([], 500)]);
+        $this->upsert($this->snapshot())->assertOk();
+
+        $this->artisan('sync:pre-orders')->assertFailed();
+        $this->assertSame(0, PreOrderAction::query()->where('type', 'resync')->count());
+    }
+
     public function test_the_dashboard_counts_pre_orders_waiting_on_the_center(): void
     {
         $this->upsert($this->snapshot(['stage' => ['code' => 'AWAITING_INFO', 'label' => 'Waiting', 'owner' => 'center']]))->assertOk();

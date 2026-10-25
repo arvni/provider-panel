@@ -31,3 +31,5 @@ Artisan::command('inspire', function () {
 Schedule::command('sync:orders')->everyFiveMinutes();
 Schedule::command('sync:referrers')->hourly();
 Schedule::command('sync:tests')->hourly();
+// Catch up pre-order mirrors that missed a webhook.
+Schedule::command('sync:pre-orders')->dailyAt('02:30')->withoutOverlapping();
