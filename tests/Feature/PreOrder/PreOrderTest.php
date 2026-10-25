@@ -9,6 +9,7 @@ use App\Models\PreOrder;
 use App\Models\PreOrderAction;
 use App\Models\Test;
 use App\Models\User;
+use App\Services\RequestLogistic;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request as HttpRequest;
 use Illuminate\Http\UploadedFile;
@@ -278,6 +279,43 @@ class PreOrderTest extends TestCase
         $decide(['quotation' => 'Q-26-0501', 'decision' => 'reject'])->assertSessionHasErrors('note');
         $decide(['quotation' => 'Q-26-0501', 'decision' => 'partial'])->assertSessionHasErrors('items');
         Http::assertNothingSent();
+    }
+
+    public function test_batch_actions_go_to_the_api_and_a_replacement_must_name_a_batch_on_the_case(): void
+    {
+        Http::fake(['*' => Http::response(['status' => 'pending'], 202)]);
+        $this->upsert($this->snapshot([
+            'stage' => ['code' => 'BATCH_OPEN', 'label' => 'Samples received – more batches expected', 'next_action' => 'Add another batch', 'owner' => 'center'],
+            'batch_mode' => 'per_batch',
+            'batches' => [['key' => 'PO-26-0501-M1', 'label' => 'Batch 1', 'purpose' => 'main', 'order_key' => 'PO-26-0501-M1', 'issue' => null, 'order' => null]],
+            'center_can' => ['confirm_next_step' => false, 'add_batch' => true, 'close_batches' => true, 'replace_batch' => null],
+        ]))->assertOk();
+        $preOrder = PreOrder::firstOrFail();
+
+        $this->actingAs($this->center)->get(route('preOrders.show', $preOrder))
+            ->assertInertia(fn ($page) => $page->where('preOrder.batches.0.label', 'Batch 1')->where('preOrder.center_can.add_batch', true));
+
+        $this->actingAs($this->center)->post(route('preOrders.batches.store', $preOrder), ['replaces' => 'PO-99-0001-M1'])->assertSessionHasErrors('replaces');
+        Http::assertNothingSent();
+
+        $this->actingAs($this->center)->post(route('preOrders.batches.store', $preOrder), ['label' => 'Embryo cycle 2'])->assertSessionHasNoErrors();
+        $this->actingAs($this->center)->post(route('preOrders.batches.close', $preOrder))->assertSessionHasNoErrors();
+        $this->actingAs($this->center)->post(route('preOrders.nextStep', $preOrder), ['note' => 'IVF cycle planned'])->assertSessionHasNoErrors();
+
+        $sent = collect(Http::recorded())->map(fn ($pair) => json_decode($pair[0]->body(), true));
+        $this->assertSame(['add_batch', 'close_batches', 'confirm_next_step'], $sent->pluck('type')->all());
+        $this->assertSame(['label' => 'Embryo cycle 2'], $sent[0]['payload']);
+    }
+
+    public function test_an_order_from_a_pooled_pre_order_reaches_the_lis_as_pooling(): void
+    {
+        $this->upsert($this->snapshot(['batch_mode' => 'pooled']))->assertOk();
+        $mother = Patient::factory()->create(['user_id' => $this->center->id]);
+        $order = Order::factory()->create(['user_id' => $this->center->id, 'main_patient_id' => $mother->id, 'patient_ids' => [$mother->id], 'pre_order_id' => PreOrder::firstOrFail()->id]);
+
+        $data = (new \ReflectionMethod(RequestLogistic::class, 'prepareOrderData'))->invoke(null, $order->load('OrderItems.Samples'));
+
+        $this->assertTrue($data['pooling']);
     }
 
     public function test_scope_answers_go_to_the_lis_keyed_by_its_test_id(): void

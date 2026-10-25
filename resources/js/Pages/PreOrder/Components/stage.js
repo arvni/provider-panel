@@ -11,6 +11,7 @@ export const exceptionLabel = (exception) =>
               hold_center: "On hold (your request)",
               hold_bion: "On hold by BION",
               finance_rejected: "Quotation rejected or expired",
+              sample_issue: "Sample issue – replacement required",
               not_eligible: "Not eligible",
               not_proceeding: "Not proceeding",
               cancelled: "Cancelled",

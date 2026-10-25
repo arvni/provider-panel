@@ -24,6 +24,7 @@ import Messages from "./Components/Messages";
 import Documents from "./Components/Documents";
 import ReasonDialog from "./Components/ReasonDialog";
 import QuotationCard from "./Components/QuotationCard";
+import BatchesCard from "./Components/BatchesCard";
 import { exceptionLabel, ownerColor, ownerLabel } from "./Components/stage";
 
 const Show = () => {
@@ -226,6 +227,8 @@ const Show = () => {
                                 </Table>
                             </Paper>
                         )}
+
+                        <BatchesCard preOrder={preOrder} orders={orders} canAct={Boolean(canAct)} />
 
                         {preOrder.requests.length > 0 && (
                             <Stack spacing={1}>
