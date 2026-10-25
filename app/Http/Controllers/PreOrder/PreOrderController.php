@@ -78,7 +78,8 @@ class PreOrderController extends Controller
             ->get(['tests.id', 'tests.name', 'tests.code', 'tests.shortName', 'tests.preorder'])
             // A test that can't be the main test (an add-on) is picked by BION, not here.
             ->filter(fn ($t) => $t->preorder['can_be_main'] ?? true)
-            ->map(fn ($t) => $t->only(['id', 'name', 'code', 'shortName']))
+            // The test's scope questions (genes, HLA…), answered on the pre-order.
+            ->map(fn ($t) => [...$t->only(['id', 'name', 'code', 'shortName']), 'scope' => $t->preorder['scope'] ?? []])
             ->values();
 
         return Inertia::render('PreOrder/Create', ['tests' => $tests]);
@@ -131,11 +132,30 @@ class PreOrderController extends Controller
                 'test_id' => $testServerIds[$t['id']],
                 'patient_ref' => $refs[$t['patient_index'] ?? 0] ?? $refs[0],
             ], $data['tests'] ?? []),
+            // Keyed by the LIS test id, which is what its finance rules read.
+            'scope' => $this->scopeAnswers($data['tests'] ?? [], $testServerIds->all()) ?: null,
             'clinical' => $data['clinical'] ?? null,
             'submit' => true,
         ]);
 
         return redirect()->route('preOrders.index')->with(['success' => true, 'status' => 'Sent to BION. It will appear here in a moment.']);
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $tests
+     * @param  array<int, int>  $serverIds  panel test id => LIS test id
+     * @return array<int, array<string, mixed>> LIS test id => answers; ids are never 0, so this encodes as a JSON object
+     */
+    private function scopeAnswers(array $tests, array $serverIds): array
+    {
+        $answers = [];
+        foreach ($tests as $test) {
+            if (! empty($test['scope'])) {
+                $answers[$serverIds[$test['id']]] = $test['scope'];
+            }
+        }
+
+        return $answers;
     }
 
     public function show(Request $request, PreOrder $preOrder): Response
@@ -155,6 +175,7 @@ class PreOrderController extends Controller
                 ]),
             'actions' => $preOrder->Actions()->where('status', '!=', PreOrderAction::DONE)->latest()->limit(10)->get(['id', 'type', 'status', 'error', 'created_at']),
             'canAct' => $request->user()->can('act', $preOrder) && $preOrder->closed_at === null,
+            'canApproveFinance' => $request->user()->can('approveFinance', $preOrder) && $preOrder->closed_at === null,
         ]);
     }
 

@@ -23,15 +23,20 @@ import RequestCard from "./Components/RequestCard";
 import Messages from "./Components/Messages";
 import Documents from "./Components/Documents";
 import ReasonDialog from "./Components/ReasonDialog";
+import QuotationCard from "./Components/QuotationCard";
 import { exceptionLabel, ownerColor, ownerLabel } from "./Components/stage";
 
 const Show = () => {
-    const { preOrder, orders, actions, canAct, errors, status, success } = usePage().props;
+    const { preOrder, orders, actions, canAct, canApproveFinance, errors, status, success } =
+        usePage().props;
     const [dialog, setDialog] = useState(null);
     const patientName = (ref) => preOrder.patients.find((p) => p.ref === ref)?.fullName ?? "—";
     const onHold = preOrder.exception?.type === "hold_center";
     const isClosed = Boolean(preOrder.closed_at);
     const orderFor = (key) => orders.find((o) => o.release_key === key);
+    const quotations = preOrder.quotations ?? [];
+    const mainQuotations = quotations.filter((q) => !q.request).reverse();
+    const quotationFor = (number) => quotations.find((q) => q.request === number);
 
     return (
         <>
@@ -137,6 +142,22 @@ const Show = () => {
             <Grid container spacing={2}>
                 <Grid size={{ xs: 12, md: 7 }}>
                     <Stack spacing={2}>
+                        {mainQuotations.length > 0 && (
+                            <Stack spacing={1}>
+                                <Typography variant="subtitle1">
+                                    Recommendation and finance
+                                </Typography>
+                                {mainQuotations.map((q) => (
+                                    <QuotationCard
+                                        key={q.number}
+                                        preOrderId={preOrder.id}
+                                        quotation={q}
+                                        patientName={patientName}
+                                        canApprove={Boolean(canApproveFinance)}
+                                    />
+                                ))}
+                            </Stack>
+                        )}
                         {preOrder.orders_to_place.length > 0 && (
                             <Paper variant="outlined" sx={{ p: 2 }}>
                                 <Typography variant="subtitle1" sx={{ mb: 1 }}>
@@ -215,7 +236,16 @@ const Show = () => {
                                         preOrderId={preOrder.id}
                                         request={r}
                                         canAct={canAct}
-                                    />
+                                    >
+                                        {quotationFor(r.number) && (
+                                            <QuotationCard
+                                                preOrderId={preOrder.id}
+                                                quotation={quotationFor(r.number)}
+                                                patientName={patientName}
+                                                canApprove={Boolean(canApproveFinance)}
+                                            />
+                                        )}
+                                    </RequestCard>
                                 ))}
                             </Stack>
                         )}

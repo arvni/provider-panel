@@ -41,6 +41,9 @@ class StorePreOrderRequest extends FormRequest
             // Only this center's tests that are switched on for pre-orders.
             'tests.*.id' => ['required', 'integer', Rule::exists('test_user', 'test_id')->where('user_id', $userId), Rule::exists('tests', 'id')->whereNotNull('flow_id')],
             'tests.*.patient_index' => ['nullable', 'integer', 'min:0', 'max:9'],
+            // Answers to the test's scope questions, e.g. {genes: 2, hla: true}.
+            'tests.*.scope' => ['nullable', 'array', 'max:10'],
+            'tests.*.scope.*' => ['nullable', 'max:64'],
             'clinical' => ['nullable', 'array'],
             'clinical.indication' => ['nullable', 'string', 'max:2000'],
             'clinical.history' => ['nullable', 'string', 'max:5000'],

@@ -4,8 +4,20 @@ import { useForm } from "@inertiajs/react";
 import { Box, Button, Chip, Paper, Stack, TextField, Typography } from "@mui/material";
 import { when } from "./stage";
 
-/** A request from BION. While it is open the center answers it here. */
-export default function RequestCard({ preOrderId, request, canAct }) {
+const STATUS_LABEL = {
+    open: "open",
+    answered: "answered",
+    awaiting_finance: "waiting for your approval",
+    order_created: "order to place",
+    closed: "closed",
+    declined: "declined",
+};
+
+/**
+ * A request from BION. While it is open the center answers it here; an additional-test request
+ * carries its own quotation (passed as children).
+ */
+export default function RequestCard({ preOrderId, request, canAct, children }) {
     const { data, setData, post, processing, errors, reset } = useForm({
         request: request.number,
         answer: "",
@@ -22,7 +34,11 @@ export default function RequestCard({ preOrderId, request, canAct }) {
         <Paper variant="outlined" sx={{ p: 2, borderColor: open ? "warning.main" : "divider" }}>
             <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap>
                 <Typography fontWeight={600}>{request.label}</Typography>
-                <Chip size="small" color={open ? "warning" : "default"} label={request.status} />
+                <Chip
+                    size="small"
+                    color={open || request.status === "awaiting_finance" ? "warning" : "default"}
+                    label={STATUS_LABEL[request.status] ?? request.status}
+                />
                 {request.blocking && open && (
                     <Chip
                         size="small"
@@ -50,6 +66,7 @@ export default function RequestCard({ preOrderId, request, canAct }) {
                     </Typography>
                 </Box>
             )}
+            {children && <Box sx={{ mt: 2 }}>{children}</Box>}
             {open && canAct && (
                 <Stack spacing={1} sx={{ mt: 2 }}>
                     <TextField
@@ -81,4 +98,5 @@ RequestCard.propTypes = {
     preOrderId: PropTypes.number.isRequired,
     request: PropTypes.object.isRequired,
     canAct: PropTypes.bool,
+    children: PropTypes.node,
 };

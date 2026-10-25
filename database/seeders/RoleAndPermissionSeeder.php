@@ -127,6 +127,8 @@ class RoleAndPermissionSeeder extends Seeder
             'PreOrder' => [
                 'Index',
                 'Create',
+                // Not in the provider role: the center's admin gives it to the approver.
+                'Approve Finance',
             ],
         ];
         $q = [];
