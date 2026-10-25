@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\PreOrder;
 
+use App\Enums\NotificationType;
 use App\Enums\OrderStatus;
 use App\Models\Order;
 use App\Models\Patient;
@@ -9,12 +10,14 @@ use App\Models\PreOrder;
 use App\Models\PreOrderAction;
 use App\Models\Test;
 use App\Models\User;
+use App\Notifications\PreOrderStageChanged;
 use App\Services\RequestLogistic;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request as HttpRequest;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Notification;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
@@ -316,6 +319,40 @@ class PreOrderTest extends TestCase
         $data = (new \ReflectionMethod(RequestLogistic::class, 'prepareOrderData'))->invoke(null, $order->load('OrderItems.Samples'));
 
         $this->assertTrue($data['pooling']);
+    }
+
+    public function test_the_center_hears_about_stages_it_cares_about_and_reminders_but_not_every_snapshot(): void
+    {
+        Notification::fake();
+        $stage = fn (string $code, string $owner = 'center', ?string $reminded = null) => ['code' => $code, 'label' => $code, 'next_action' => 'Approve the quotation', 'owner' => $owner, 'reminded_at' => $reminded];
+
+        $this->upsert($this->snapshot(['version' => 2]))->assertOk();
+        Notification::assertNothingSent();
+
+        $this->upsert($this->snapshot(['version' => 3, 'stage' => $stage('AWAITING_FINANCE')]))->assertOk();
+        Notification::assertSentTo($this->center, PreOrderStageChanged::class, fn ($n) => $n->notificationVariant() === 'AWAITING_FINANCE');
+
+        // A newer snapshot at the same stage is no news; a reminder from BION is.
+        $this->upsert($this->snapshot(['version' => 4, 'stage' => $stage('AWAITING_FINANCE')]))->assertOk();
+        $this->upsert($this->snapshot(['version' => 5, 'stage' => $stage('AWAITING_FINANCE', reminded: '2026-10-27T09:00:00+04:00')]))->assertOk();
+        Notification::assertSentToTimes($this->center, PreOrderStageChanged::class, 2);
+        Notification::assertSentTo($this->center, PreOrderStageChanged::class, fn ($n) => $n->notificationVariant() === 'reminder');
+
+        // The message names the pre-order and the next step, never the patient.
+        $mail = (new PreOrderStageChanged(PreOrder::firstOrFail()))->toMail($this->center);
+        $this->assertStringContainsString('PO-26-0501', $mail->subject);
+        $this->assertStringNotContainsString('Invented Mother', implode(' ', $mail->introLines));
+
+        $this->assertArrayHasKey('AWAITING_FINANCE', NotificationType::PRE_ORDER_STAGE->variants());
+        $this->assertArrayHasKey('reminder', NotificationType::PRE_ORDER_STAGE->variants());
+    }
+
+    public function test_the_dashboard_counts_pre_orders_waiting_on_the_center(): void
+    {
+        $this->upsert($this->snapshot(['stage' => ['code' => 'AWAITING_INFO', 'label' => 'Waiting', 'owner' => 'center']]))->assertOk();
+
+        $this->actingAs($this->center)->get(route('dashboard'))
+            ->assertInertia(fn ($page) => $page->where('preOrdersNeedingAction', 1));
     }
 
     public function test_scope_answers_go_to_the_lis_keyed_by_its_test_id(): void
