@@ -136,6 +136,9 @@ Route::middleware('auth')->group(function () {
             Route::post('{preOrder}/hold', [PreOrderActionController::class, 'hold'])->name('hold');
             Route::post('{preOrder}/resume', [PreOrderActionController::class, 'resume'])->name('resume');
             Route::post('{preOrder}/cancel', [PreOrderActionController::class, 'cancel'])->name('cancel');
+            Route::post('{preOrder}/next-step', [PreOrderActionController::class, 'confirmNextStep'])->name('nextStep');
+            Route::post('{preOrder}/batches', [PreOrderActionController::class, 'addBatch'])->name('batches.store');
+            Route::post('{preOrder}/batches/close', [PreOrderActionController::class, 'closeBatches'])->name('batches.close');
             Route::post('{preOrder}/documents', [PreOrderDocumentController::class, 'store'])->name('documents.store');
         });
     });

@@ -25,7 +25,7 @@ import {
 } from "@mui/icons-material";
 import ClientLayout from "@/Layouts/AuthenticatedLayout";
 import PageHeader from "@/Components/PageHeader";
-import { usePage } from "@inertiajs/react";
+import { Link, usePage } from "@inertiajs/react";
 import { usePageReload } from "@/Services/api";
 import TableLayout from "@/Layouts/TableLayout";
 import DeleteButton from "@/Components/DeleteButton.jsx";
@@ -156,9 +156,21 @@ const Index = ({ orders: { data: ordersData, ...pagination }, request }) => {
                         }}
                     />
                 ) : (
-                    <Typography variant="body2" fontWeight={500}>
-                        #{row.id}
-                    </Typography>
+                    <>
+                        <Typography variant="body2" fontWeight={500}>
+                            #{row.id}
+                        </Typography>
+                        {row.pre_order && (
+                            <Typography
+                                variant="caption"
+                                component={Link}
+                                href={route("preOrders.show", row.pre_order.id)}
+                                sx={{ whiteSpace: "nowrap" }}
+                            >
+                                from {row.pre_order.code}
+                            </Typography>
+                        )}
+                    </>
                 ),
         },
         {

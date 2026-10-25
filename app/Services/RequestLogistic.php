@@ -258,8 +258,10 @@ class RequestLogistic
             ->mapWithKeys(fn ($item) => [$item['name'] => $item['formData'] ?? []])
             ->toArray();
 
-        // Whether any sample in the order is pooled.
-        $pooling = $order->OrderItems->pluck('Samples')->flatten()->contains('pooling', true);
+        // Whether any sample in the order is pooled, or the order belongs to a pre-order whose
+        // flow pools its batches: the LIS then holds the acceptance until pooling ends.
+        $pooling = $order->OrderItems->pluck('Samples')->flatten()->contains('pooling', true)
+            || ($order->pre_order_id && ($order->PreOrder?->snapshot['batch_mode'] ?? null) === 'pooled');
 
         return [
             'id' => $order->id,

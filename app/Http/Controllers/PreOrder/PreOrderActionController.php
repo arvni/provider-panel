@@ -62,6 +62,30 @@ class PreOrderActionController extends Controller
         return $this->send($request, $preOrder, 'decide_finance', $data, 'approveFinance');
     }
 
+    /** After the pre-test workup: the center is ready for the main tests (e.g. the IVF cycle is planned). */
+    public function confirmNextStep(Request $request, PreOrder $preOrder): RedirectResponse
+    {
+        return $this->send($request, $preOrder, 'confirm_next_step', $request->validate(['note' => 'nullable|string|max:2000']));
+    }
+
+    /** Another shipment, or the replacement for the batch BION found a sample issue on. */
+    public function addBatch(Request $request, PreOrder $preOrder): RedirectResponse
+    {
+        $batches = array_column($preOrder->snapshot['batches'] ?? [], 'key');
+        $data = $request->validate([
+            'label' => 'nullable|string|max:64',
+            'replaces' => ['nullable', 'string', 'max:32', Rule::in($batches)],
+        ]);
+
+        return $this->send($request, $preOrder, 'add_batch', array_filter($data, fn ($v) => $v !== null));
+    }
+
+    /** "No more batches – proceed". */
+    public function closeBatches(Request $request, PreOrder $preOrder): RedirectResponse
+    {
+        return $this->send($request, $preOrder, 'close_batches', []);
+    }
+
     private function reason(Request $request, array $reasons): array
     {
         return $request->validate([
