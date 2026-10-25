@@ -11,6 +11,7 @@ use App\Models\Test;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request as HttpRequest;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Spatie\Permission\Models\Permission;
@@ -252,5 +253,102 @@ class PreOrderTest extends TestCase
         $this->actingAs($this->center)
             ->put(route('orders.update', ['order' => $order, 'step' => 'test method']), ['tests' => [['id' => $direct->id]]])
             ->assertSessionHasErrors('tests');
+    }
+
+    private function pdf(string $name = 'pedigree.pdf'): UploadedFile
+    {
+        return UploadedFile::fake()->createWithContent($name, "%PDF-1.4\n1 0 obj\n<< >>\nendobj\n%%EOF\n");
+    }
+
+    private function withOpenRequest(): PreOrder
+    {
+        $this->upsert($this->snapshot([
+            'stage' => ['code' => 'AWAITING_INFO', 'owner' => 'center'],
+            'requests' => [['number' => 1, 'label' => 'R1 · Information', 'status' => 'open', 'message' => 'Pedigree please']],
+            'documents' => [['hash' => '1b4e28ba-2fa1-11d2-883f-0016d3cca427', 'name' => 'scan.pdf', 'tag' => 'MEDICAL_HISTORY']],
+        ]))->assertOk();
+
+        return PreOrder::firstOrFail();
+    }
+
+    public function test_a_file_is_sent_to_the_api_as_multipart_with_its_action_id(): void
+    {
+        Http::fake(['*' => Http::response(['status' => 'pending'], 202)]);
+        $preOrder = $this->withOpenRequest();
+
+        $this->actingAs($this->center)
+            ->post(route('preOrders.documents.store', $preOrder), ['file' => $this->pdf(), 'tag' => 'MEDICAL_HISTORY', 'request' => 1])
+            ->assertSessionHasNoErrors();
+
+        $action = PreOrderAction::where('type', 'upload_document')->firstOrFail();
+        Http::assertSent(fn (HttpRequest $r) => str_ends_with($r->url(), 'pre-orders/77/501/documents')
+            && $r->isMultipart()
+            && collect($r->data())->contains(fn ($part) => $part['name'] === 'id' && $part['contents'] === $action->uuid)
+            && collect($r->data())->contains(fn ($part) => $part['name'] === 'file' && $part['filename'] === 'pedigree.pdf'));
+    }
+
+    public function test_only_pdf_png_and_jpeg_leave_the_panel(): void
+    {
+        Http::fake();
+        $preOrder = $this->withOpenRequest();
+        // A real file, not UploadedFile::fake(): the fake reports a type from its name, a real
+        // upload is typed from its bytes.
+        $path = (string) tempnam(sys_get_temp_dir(), 'svg');
+        file_put_contents($path, '<svg xmlns="http://www.w3.org/2000/svg" onload="alert(1)"/>');
+        $svg = new UploadedFile($path, 'scan.png', null, null, true);
+
+        $this->actingAs($this->center)
+            ->post(route('preOrders.documents.store', $preOrder), ['file' => $svg, 'tag' => 'DOCUMENT'])
+            ->assertSessionHasErrors('file');
+        $this->actingAs($this->center)
+            ->post(route('preOrders.documents.store', $preOrder), ['file' => $this->pdf(), 'tag' => 'DOCUMENT', 'request' => 9])
+            ->assertSessionHasErrors('request');
+
+        Http::assertNothingSent();
+        $this->assertSame(0, PreOrderAction::count());
+    }
+
+    public function test_a_file_refused_by_the_api_is_reported(): void
+    {
+        Http::fake(['*' => Http::response(['errors' => ['file' => ['x']]], 422)]);
+        $preOrder = $this->withOpenRequest();
+
+        $this->actingAs($this->center)
+            ->post(route('preOrders.documents.store', $preOrder), ['file' => $this->pdf(), 'tag' => 'DOCUMENT'])
+            ->assertSessionHasErrors(['file' => 'The file was not accepted. Only PDF, PNG and JPEG files up to 20 MB can be sent.']);
+        $this->assertSame(PreOrderAction::FAILED, PreOrderAction::firstOrFail()->status);
+    }
+
+    public function test_a_center_downloads_only_files_listed_on_its_pre_order_with_safe_headers(): void
+    {
+        $preOrder = $this->withOpenRequest();
+        $hash = '1b4e28ba-2fa1-11d2-883f-0016d3cca427';
+        Http::fake(['*documents/'.$hash => Http::response("%PDF-1.4\n%%EOF\n", 200)]);
+
+        $this->actingAs($this->center)
+            ->get(route('preOrders.documents.show', [$preOrder, '9b4e28ba-2fa1-11d2-883f-0016d3cca427']))
+            ->assertNotFound();
+        $this->actingAs($this->provider(['referrer_id' => 88]))
+            ->get(route('preOrders.documents.show', [$preOrder, $hash]))
+            ->assertForbidden();
+
+        $this->actingAs($this->center)
+            ->get(route('preOrders.documents.show', [$preOrder, $hash]))
+            ->assertOk()
+            ->assertHeader('Content-Type', 'application/pdf')
+            ->assertHeader('X-Content-Type-Options', 'nosniff');
+    }
+
+    public function test_a_stored_file_that_is_not_pdf_or_an_image_is_only_ever_a_download(): void
+    {
+        $preOrder = $this->withOpenRequest();
+        Http::fake(['*' => Http::response('<html><script>alert(1)</script></html>', 200)]);
+
+        $response = $this->actingAs($this->center)
+            ->get(route('preOrders.documents.show', [$preOrder, '1b4e28ba-2fa1-11d2-883f-0016d3cca427']))
+            ->assertOk()
+            ->assertHeader('Content-Type', 'application/octet-stream');
+        $this->assertStringStartsWith('attachment', (string) $response->headers->get('Content-Disposition'));
+        $this->assertStringContainsString('sandbox', (string) $response->headers->get('Content-Security-Policy'));
     }
 }

@@ -64,6 +64,40 @@ class ApiService
     }
 
     /**
+     * POST one file with form fields. The client's default JSON content type would break a
+     * multipart body, so this builds its own request. A stale token is refreshed once.
+     *
+     * @throws ApiServiceException
+     */
+    public static function postFile(string $url, array $fields, string $field, string $contents, string $fileName): Response
+    {
+        for ($attempt = 0; $attempt < 2; $attempt++) {
+            try {
+                $response = Http::withToken(self::getApiToken())
+                    ->timeout(self::REQUEST_TIMEOUT)
+                    ->asMultipart()
+                    ->attach($field, $contents, $fileName)
+                    ->post($url, $fields);
+            } catch (ConnectionException $e) {
+                throw new ApiServiceException('API connection failed: '.$e->getMessage(), 503, $e);
+            }
+
+            if ($response->status() === 401 && $attempt === 0) {
+                self::clearTokenCache();
+
+                continue;
+            }
+            if ($response->successful()) {
+                return $response;
+            }
+
+            throw new ApiServiceException("API request failed with status {$response->status()}", $response->status());
+        }
+
+        throw new ApiServiceException('Max retry attempts exceeded', 503);
+    }
+
+    /**
      * Make an authenticated HTTP request with retry logic
      *
      * @throws ApiServiceException
