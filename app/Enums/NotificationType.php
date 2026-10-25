@@ -13,6 +13,7 @@ use App\Notifications\OrderMaterialRequested;
 use App\Notifications\OrderMaterialUpdated;
 use App\Notifications\OrderRemovedByAdmin;
 use App\Notifications\OrderStatusUpdated;
+use App\Notifications\PreOrderStageChanged;
 
 /**
  * The notifications a user is allowed to switch off, and the channels each one
@@ -31,6 +32,7 @@ use App\Notifications\OrderStatusUpdated;
 enum NotificationType: string
 {
     case ORDER_STATUS_UPDATED = 'order_status_updated';
+    case PRE_ORDER_STAGE = 'pre_order_stage';
     case ORDER_REMOVED_BY_ADMIN = 'order_removed_by_admin';
     case COLLECT_REQUEST_UPDATED = 'collect_request_updated';
     case COLLECT_REQUEST_DELETED = 'collect_request_deleted';
@@ -56,6 +58,7 @@ enum NotificationType: string
     {
         return match ($this) {
             self::ORDER_STATUS_UPDATED => OrderStatusUpdated::class,
+            self::PRE_ORDER_STAGE => PreOrderStageChanged::class,
             self::ORDER_REMOVED_BY_ADMIN => OrderRemovedByAdmin::class,
             self::COLLECT_REQUEST_UPDATED => CollectRequestUpdated::class,
             self::COLLECT_REQUEST_DELETED => CollectRequestDeleted::class,
@@ -87,6 +90,7 @@ enum NotificationType: string
     {
         return match ($this) {
             self::ORDER_STATUS_UPDATED => 'Order status changes',
+            self::PRE_ORDER_STAGE => 'Pre-order progress',
             self::ORDER_REMOVED_BY_ADMIN => 'Order removed by the lab',
             self::COLLECT_REQUEST_UPDATED => 'Collection request updates',
             self::COLLECT_REQUEST_DELETED => 'Collection request cancelled',
@@ -103,6 +107,7 @@ enum NotificationType: string
     {
         return match ($this) {
             self::ORDER_STATUS_UPDATED => 'Choose which stages of an order you want to hear about.',
+            self::PRE_ORDER_STAGE => 'Choose which pre-order stages you want to hear about, and whether BION may remind you.',
             self::ORDER_REMOVED_BY_ADMIN => 'One of your orders was removed by the lab after it had been sent.',
             self::COLLECT_REQUEST_UPDATED => 'Choose which steps of a collection request you want to hear about.',
             self::COLLECT_REQUEST_DELETED => 'A collection request you raised was cancelled.',
@@ -123,6 +128,7 @@ enum NotificationType: string
         return match ($this) {
             self::ORDER_STATUS_UPDATED,
             self::ORDER_REMOVED_BY_ADMIN => 'Orders',
+            self::PRE_ORDER_STAGE => 'Pre-orders',
             self::COLLECT_REQUEST_UPDATED,
             self::COLLECT_REQUEST_DELETED => 'Collection requests',
             self::ORDER_MATERIAL_REQUESTED,
@@ -196,6 +202,7 @@ enum NotificationType: string
     {
         return match ($this) {
             self::ORDER_STATUS_UPDATED => $this->orderStatusVariants(),
+            self::PRE_ORDER_STAGE => [...PreOrderStageChanged::STAGES, PreOrderStageChanged::VARIANT_REMINDER => 'Reminders from BION'],
             self::COLLECT_REQUEST_UPDATED => $this->collectRequestVariants(),
             default => [],
         };

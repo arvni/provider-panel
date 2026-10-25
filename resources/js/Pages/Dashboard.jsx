@@ -151,7 +151,12 @@ export const Greeting = () => {
 /**
  * Enhanced Dashboard component with improved layout and visualizations
  */
-export default function Dashboard({ auth, recentlyOrders = [], notDownloadedReports = 0 }) {
+export default function Dashboard({
+    auth,
+    recentlyOrders = [],
+    notDownloadedReports = 0,
+    preOrdersNeedingAction = 0,
+}) {
     const theme = useTheme();
     const [isRefreshing, setIsRefreshing] = useState(false);
     const canCreateOrder = auth?.permissions?.includes("Order.Create");
@@ -320,6 +325,45 @@ export default function Dashboard({ auth, recentlyOrders = [], notDownloadedRepo
                                     </Typography>
                                 </Paper>
                             </Grid>
+                            {preOrdersNeedingAction > 0 && (
+                                <Grid size={12} component={motion.div} variants={itemVariants}>
+                                    <Paper
+                                        elevation={0}
+                                        sx={{
+                                            p: 3,
+                                            borderRadius: 2,
+                                            border: "1px solid",
+                                            borderColor: theme.palette.warning.main,
+                                            textAlign: "center",
+                                        }}
+                                    >
+                                        <Typography
+                                            variant="h3"
+                                            sx={{
+                                                fontWeight: 700,
+                                                color: theme.palette.warning.main,
+                                            }}
+                                        >
+                                            {preOrdersNeedingAction}
+                                        </Typography>
+                                        <Typography
+                                            variant="body1"
+                                            sx={{ color: theme.palette.text.secondary, mb: 2 }}
+                                        >
+                                            {preOrdersNeedingAction === 1
+                                                ? "Pre-order needs your action"
+                                                : "Pre-orders need your action"}
+                                        </Typography>
+                                        <Button
+                                            component={Link}
+                                            href={route("preOrders.index", { waiting: "center" })}
+                                            endIcon={<ArrowForwardIcon />}
+                                        >
+                                            Open
+                                        </Button>
+                                    </Paper>
+                                </Grid>
+                            )}
                         </Grid>
                     </Grid>
                     <Grid

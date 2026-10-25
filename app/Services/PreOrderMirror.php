@@ -10,6 +10,7 @@ use App\Models\Patient;
 use App\Models\PreOrder;
 use App\Models\Test;
 use App\Models\User;
+use App\Notifications\PreOrderStageChanged;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -37,6 +38,7 @@ class PreOrderMirror
                 return false;
             }
 
+            $before = $preOrder ? [$preOrder->stage, $preOrder->snapshot['stage']['reminded_at'] ?? null] : [null, null];
             $preOrder ??= new PreOrder(['server_id' => $snapshot['id']]);
             $preOrder->fill([
                 'user_id' => $user->id,
@@ -51,9 +53,24 @@ class PreOrderMirror
             foreach ($snapshot['orders_to_place'] ?? [] as $release) {
                 $this->placeRelease($preOrder, $user, $release, $snapshot['main_patient_ref'] ?? null);
             }
+            DB::afterCommit(fn () => $this->announce($preOrder, $user, ...$before));
 
             return true;
         });
+    }
+
+    /**
+     * Tell the center when its pre-order reaches a stage it cares about, or when BION reminds it
+     * to act. Each user's switches decide whether it arrives, and on which channels.
+     */
+    private function announce(PreOrder $preOrder, User $user, ?string $stageBefore, ?string $remindedBefore): void
+    {
+        $reminded = $preOrder->snapshot['stage']['reminded_at'] ?? null;
+        if ($preOrder->stage !== $stageBefore && array_key_exists($preOrder->stage, PreOrderStageChanged::STAGES)) {
+            $user->notify(new PreOrderStageChanged($preOrder));
+        } elseif ($reminded !== null && $reminded !== $remindedBefore && $preOrder->action_owner === 'center') {
+            $user->notify(new PreOrderStageChanged($preOrder, reminder: true));
+        }
     }
 
     /**
