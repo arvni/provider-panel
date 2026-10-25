@@ -16,6 +16,7 @@ use App\Http\Controllers\Webhook\OrderMaterialImportWebhookController;
 use App\Http\Controllers\Webhook\OrderMaterialUpdateWebhookController;
 use App\Http\Controllers\Webhook\OrderUpdateWebhookController;
 use App\Http\Controllers\Webhook\PatientWebhookController;
+use App\Http\Controllers\Webhook\PreOrderWebhookController;
 use App\Http\Controllers\Webhook\SampleTypeUpdateWebhookController;
 use Illuminate\Support\Facades\Route;
 
@@ -70,4 +71,7 @@ Route::middleware('verify.webhook:raw')->group(function () {
     Route::post('/orders/webhook/update', [OrderUpdateWebhookController::class, 'update'])->name('api.orders.update-by-webhook');
     // Patient webhook (upserts a referrer-order patient and links it to the local order)
     Route::post('/patients/webhook', [PatientWebhookController::class, 'store'])->name('api.patients.update-by-webhook');
+    // Pre-orders: the full center-visible snapshot after every change, and action results.
+    Route::post('/webhooks/pre-orders/upsert', [PreOrderWebhookController::class, 'upsert'])->name('api.webhooks.pre-orders.upsert');
+    Route::post('/webhooks/pre-orders/action-result', [PreOrderWebhookController::class, 'actionResult'])->name('api.webhooks.pre-orders.action-result');
 });

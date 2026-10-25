@@ -21,7 +21,8 @@ class ListUserTestsController extends Controller
      */
     public function __invoke(Request $request)
     {
-        $tests = $this->testRepository->listUserTests(['filters' => $request->all()]);
+        // The order wizard's test picker: pre-order tests are started from Pre-orders instead.
+        $tests = $this->testRepository->listUserTests(['filters' => $request->all(), 'direct' => true]);
 
         return TestResource::collection($tests);
     }

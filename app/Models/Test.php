@@ -23,12 +23,15 @@ class Test extends Model
         'is_active',
         'multi_add',
         'gender',
+        'flow_id',
+        'preorder',
     ];
 
     protected $casts = [
         'multi_add' => 'boolean',
         'is_active' => 'boolean',
         'gender' => 'json',
+        'preorder' => 'array',
     ];
 
     public function Instruction()
@@ -68,6 +71,17 @@ class Test extends Model
             ->one()
             ->where('is_default', true)
             ->with(['SampleType']);
+    }
+
+    /** Tests with a pre-order flow are ordered through a pre-order, never the order wizard. */
+    public function scopeDirect($query)
+    {
+        return $query->whereNull('tests.flow_id');
+    }
+
+    public function scopePreOrderable($query)
+    {
+        return $query->whereNotNull('tests.flow_id');
     }
 
     public function scopeActive($query)
