@@ -26,6 +26,15 @@ class PreOrderOutbox
         return $this->send($user, $preOrder, $type, $payload, "pre-orders/{$user->referrer_id}/{$preOrder->server_id}/actions");
     }
 
+    /**
+     * Ask the LIS to send a pre-order's snapshot again: the nightly sync found the mirror behind
+     * it, or missing ($preOrder null).
+     */
+    public function resync(User $user, int $serverId, ?PreOrder $preOrder): PreOrderAction
+    {
+        return $this->send($user, $preOrder, 'resync', [], "pre-orders/{$user->referrer_id}/{$serverId}/actions");
+    }
+
     /** A file for BION. The LIS inspects it before it becomes a document of the pre-order. */
     public function upload(User $user, PreOrder $preOrder, UploadedFile $file, string $tag, ?int $request): PreOrderAction
     {
@@ -81,7 +90,8 @@ class PreOrderOutbox
             'actor' => ['user_id' => $user->id, 'name' => $user->name],
             'payload' => (object) $payload,
         ];
-        if ($preOrder) {
+        // Create has its own endpoint; every other action names its type.
+        if ($type !== 'create') {
             $body['type'] = $type;
         }
 
