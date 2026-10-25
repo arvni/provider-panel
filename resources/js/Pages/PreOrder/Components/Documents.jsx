@@ -2,6 +2,7 @@ import React, { useRef } from "react";
 import PropTypes from "prop-types";
 import { useForm } from "@inertiajs/react";
 import {
+    Chip,
     Button,
     Link,
     MenuItem,
@@ -73,6 +74,15 @@ export default function Documents({ preOrderId, documents, requests, canAct }) {
                                     >
                                         {d.name}
                                     </Link>
+                                    {d.from === "bion" && (
+                                        <Chip
+                                            size="small"
+                                            variant="outlined"
+                                            color="primary"
+                                            label="From BION"
+                                            sx={{ ml: 1 }}
+                                        />
+                                    )}
                                 </TableCell>
                                 <TableCell>{TAG_LABEL[d.tag] ?? d.tag}</TableCell>
                                 <TableCell>{when(d.created_at)}</TableCell>
