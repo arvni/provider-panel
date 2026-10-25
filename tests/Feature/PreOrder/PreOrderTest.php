@@ -471,14 +471,32 @@ class PreOrderTest extends TestCase
         $preOrder = $this->withOpenRequest();
 
         $this->actingAs($this->center)
-            ->post(route('preOrders.documents.store', $preOrder), ['file' => $this->pdf(), 'tag' => 'MEDICAL_HISTORY', 'request' => 1])
+            ->post(route('preOrders.documents.store', $preOrder), [
+                'file' => $this->pdf(), 'tag' => 'MEDICAL_HISTORY', 'request' => 1,
+                'title' => 'Pedigree', 'description' => "Three generations.\nFather's side incomplete.",
+            ])
             ->assertSessionHasNoErrors();
 
         $action = PreOrderAction::where('type', 'upload_document')->firstOrFail();
+        $part = fn (HttpRequest $r, string $name) => collect($r->data())->firstWhere('name', $name)['contents'] ?? null;
         Http::assertSent(fn (HttpRequest $r) => str_ends_with($r->url(), 'pre-orders/77/501/documents')
             && $r->isMultipart()
-            && collect($r->data())->contains(fn ($part) => $part['name'] === 'id' && $part['contents'] === $action->uuid)
+            && $part($r, 'id') === $action->uuid
+            && $part($r, 'title') === 'Pedigree'
+            && $part($r, 'description') === "Three generations.\nFather's side incomplete."
             && collect($r->data())->contains(fn ($part) => $part['name'] === 'file' && $part['filename'] === 'pedigree.pdf'));
+    }
+
+    public function test_a_file_needs_a_name_before_it_is_sent(): void
+    {
+        Http::fake();
+        $preOrder = $this->withOpenRequest();
+
+        $this->actingAs($this->center)
+            ->post(route('preOrders.documents.store', $preOrder), ['file' => $this->pdf(), 'tag' => 'DOCUMENT', 'title' => ''])
+            ->assertSessionHasErrors('title');
+
+        Http::assertNothingSent();
     }
 
     public function test_only_pdf_png_and_jpeg_leave_the_panel(): void
@@ -508,7 +526,7 @@ class PreOrderTest extends TestCase
         $preOrder = $this->withOpenRequest();
 
         $this->actingAs($this->center)
-            ->post(route('preOrders.documents.store', $preOrder), ['file' => $this->pdf(), 'tag' => 'DOCUMENT'])
+            ->post(route('preOrders.documents.store', $preOrder), ['file' => $this->pdf(), 'tag' => 'DOCUMENT', 'title' => 'Scan'])
             ->assertSessionHasErrors(['file' => 'The file was not accepted. Only PDF, PNG and JPEG files up to 20 MB can be sent.']);
         $this->assertSame(PreOrderAction::FAILED, PreOrderAction::firstOrFail()->status);
     }

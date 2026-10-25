@@ -38,16 +38,26 @@ export default function Documents({ preOrderId, documents, requests, canAct }) {
     const openRequests = requests.filter((r) => r.status === "open");
     const { data, setData, post, processing, errors, reset, progress } = useForm({
         file: null,
+        title: "",
+        description: "",
         tag: "MEDICAL_HISTORY",
         request: openRequests.length === 1 ? openRequests[0].number : "",
     });
+
+    // Start the name from the file name; the center can make it clearer.
+    const pickFile = (file) =>
+        setData((d) => ({
+            ...d,
+            file,
+            title: d.title || (file?.name ?? "").replace(/\.[^.]+$/, "").slice(0, 150),
+        }));
 
     const send = () =>
         post(route("preOrders.documents.store", preOrderId), {
             preserveScroll: true,
             forceFormData: true,
             onSuccess: () => {
-                reset("file");
+                reset("file", "title", "description");
                 if (input.current) input.current.value = "";
             },
         });
@@ -83,6 +93,24 @@ export default function Documents({ preOrderId, documents, requests, canAct }) {
                                             sx={{ ml: 1 }}
                                         />
                                     )}
+                                    {d.description && (
+                                        <Typography
+                                            variant="body2"
+                                            color="text.secondary"
+                                            sx={{ whiteSpace: "pre-wrap", mt: 0.25 }}
+                                        >
+                                            {d.description}
+                                        </Typography>
+                                    )}
+                                    {d.file_name && d.file_name !== d.name && (
+                                        <Typography
+                                            variant="caption"
+                                            color="text.secondary"
+                                            sx={{ display: "block" }}
+                                        >
+                                            {d.file_name}
+                                        </Typography>
+                                    )}
                                 </TableCell>
                                 <TableCell>{TAG_LABEL[d.tag] ?? d.tag}</TableCell>
                                 <TableCell>{when(d.created_at)}</TableCell>
@@ -92,7 +120,8 @@ export default function Documents({ preOrderId, documents, requests, canAct }) {
                 </Table>
             )}
             {canAct && (
-                <Stack spacing={1} sx={{ mt: 2 }}>
+                <Stack spacing={1.5} sx={{ mt: 2 }}>
+                    <Typography variant="subtitle2">Send a file to BION</Typography>
                     <Stack
                         direction={{ xs: "column", sm: "row" }}
                         spacing={1}
@@ -105,9 +134,19 @@ export default function Documents({ preOrderId, documents, requests, canAct }) {
                                 hidden
                                 type="file"
                                 accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg"
-                                onChange={(e) => setData("file", e.target.files?.[0] ?? null)}
+                                onChange={(e) => pickFile(e.target.files?.[0] ?? null)}
                             />
                         </Button>
+                        <TextField
+                            size="small"
+                            label="Name"
+                            required
+                            value={data.title}
+                            onChange={(e) => setData("title", e.target.value)}
+                            error={Boolean(errors.title)}
+                            inputProps={{ maxLength: 150 }}
+                            sx={{ flex: 1, minWidth: 200 }}
+                        />
                         <TextField
                             select
                             size="small"
@@ -139,20 +178,43 @@ export default function Documents({ preOrderId, documents, requests, canAct }) {
                                 ))}
                             </TextField>
                         )}
+                    </Stack>
+                    <TextField
+                        size="small"
+                        label="Details (optional)"
+                        placeholder="What is this file? e.g. the 12-week ultrasound report"
+                        multiline
+                        minRows={2}
+                        fullWidth
+                        value={data.description}
+                        onChange={(e) => setData("description", e.target.value)}
+                        error={Boolean(errors.description)}
+                        inputProps={{ maxLength: 2000 }}
+                    />
+                    <Stack direction="row" spacing={2} alignItems="center">
                         <Button
                             variant="contained"
                             onClick={send}
-                            disabled={processing || !data.file}
+                            disabled={processing || !data.file || !data.title.trim()}
                         >
                             {progress ? `Sending ${progress.percentage}%` : "Send"}
                         </Button>
+                        <Typography
+                            variant="caption"
+                            color={
+                                errors.file || errors.title || errors.description
+                                    ? "error"
+                                    : "text.secondary"
+                            }
+                        >
+                            {errors.file ||
+                                errors.title ||
+                                errors.description ||
+                                errors.tag ||
+                                errors.request ||
+                                "PDF, PNG or JPEG, up to 20 MB."}
+                        </Typography>
                     </Stack>
-                    <Typography variant="caption" color={errors.file ? "error" : "text.secondary"}>
-                        {errors.file ||
-                            errors.tag ||
-                            errors.request ||
-                            "PDF, PNG or JPEG, up to 20 MB."}
-                    </Typography>
                 </Stack>
             )}
         </Paper>
