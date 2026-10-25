@@ -166,7 +166,8 @@ export default function QuotationCard({ preOrderId, quotation, patientName, canA
 
             {open && !canApprove && (
                 <Alert severity="info" sx={{ mt: 2 }}>
-                    Waiting for your center&apos;s approver.
+                    Waiting for your center&apos;s approver. Only users allowed to approve costs can
+                    approve or reject this; ask your account admin if that should be you.
                 </Alert>
             )}
 
