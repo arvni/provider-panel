@@ -7,6 +7,7 @@ use App\Enums\OrderStep;
 use App\Traits\Searchable;
 use App\Traits\Statusable;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -64,6 +65,25 @@ class Order extends Model
     public function getOrderIdAttribute()
     {
         return 'OR'.Carbon::parse($this->created_at)->format('.Ymd.').$this->id;
+    }
+
+    /**
+     * An order placed from a pre-order that was later cancelled (or found not eligible / not
+     * proceeding): nothing more is added to it and its samples are never sent for collection.
+     */
+    public function cancelledByPreOrder(): bool
+    {
+        return $this->pre_order_id !== null && $this->PreOrder?->hasEnded() === true;
+    }
+
+    /**
+     * Orders that may still go ahead: not placed from a pre-order that has ended.
+     *
+     * @param  Builder<Order>  $query
+     */
+    public function scopeNotCancelledByPreOrder(Builder $query): void
+    {
+        $query->whereDoesntHave('PreOrder', fn (Builder $q) => $q->whereIn('snapshot->exception->type', PreOrder::ENDED));
     }
 
     public function getEditableAttribute(): bool

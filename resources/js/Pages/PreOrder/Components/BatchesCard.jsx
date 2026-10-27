@@ -16,6 +16,7 @@ import {
     TextField,
     Typography,
 } from "@mui/material";
+import { hasEnded } from "./stage";
 
 const post = (name, preOrder, data = {}) =>
     router.post(route(name, preOrder.id), data, { preserveScroll: true });
@@ -101,7 +102,7 @@ export default function BatchesCard({ preOrder, orders, canAct }) {
                                                 size="small"
                                                 component={Link}
                                                 href={
-                                                    order.status === "pending"
+                                                    order.status === "pending" && order.editable
                                                         ? route("orders.edit", {
                                                               order: order.id,
                                                               step: order.step,
@@ -109,9 +110,9 @@ export default function BatchesCard({ preOrder, orders, canAct }) {
                                                         : route("orders.show", order.id)
                                                 }
                                             >
-                                                {order.status === "pending"
+                                                {order.status === "pending" && order.editable
                                                     ? "Complete order"
-                                                    : `${order.orderId} · ${order.status}`}
+                                                    : `${order.orderId} · ${hasEnded(preOrder) ? "cancelled" : order.status}`}
                                             </Button>
                                         ) : (
                                             <Typography variant="caption" color="text.secondary">

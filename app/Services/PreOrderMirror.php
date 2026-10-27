@@ -50,7 +50,7 @@ class PreOrderMirror
                 'closed_at' => $snapshot['closed_at'] ?? null,
             ])->save();
 
-            foreach ($snapshot['orders_to_place'] ?? [] as $release) {
+            foreach ($preOrder->hasEnded() ? [] : $snapshot['orders_to_place'] ?? [] as $release) {
                 $this->placeRelease($preOrder, $user, $release, $snapshot['main_patient_ref'] ?? null);
             }
             DB::afterCommit(fn () => $this->announce($preOrder, $user, ...$before));

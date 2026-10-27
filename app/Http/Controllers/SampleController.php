@@ -19,8 +19,9 @@ class SampleController extends Controller
         // Samples are linked to orders through the order_item_sample pivot, so we
         // walk Sample -> OrderItems -> Order to both authorise and group them.
         $samples = Sample::whereNull('collect_request_id')
+            // A cancelled pre-order's samples are never collected.
             ->whereHas('OrderItems.Order', function ($query) use ($user) {
-                $query->where('user_id', $user->id);
+                $query->where('user_id', $user->id)->notCancelledByPreOrder();
             })
             ->with([
                 'SampleType',

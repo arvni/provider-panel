@@ -19,7 +19,9 @@ class CheckOrderForLogistic implements ValidationRule
     {
         $orderRepository = app(OrderRepositoryInterface::class);
         $order = $orderRepository->getById($value);
-        if ($order->status !== OrderStatus::REQUESTED) {
+        if ($order->cancelledByPreOrder()) {
+            $fail('Order '.$order->orderId.' belongs to a cancelled pre-order and cannot be collected.');
+        } elseif ($order->status !== OrderStatus::REQUESTED) {
             $fail('the order status must be in requested');
         }
     }

@@ -14,6 +14,7 @@ use App\Models\SampleType;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -104,6 +105,10 @@ class OrderController extends Controller
      */
     public function edit(Order $order, OrderStep $step)
     {
+        if ($order->cancelledByPreOrder() && Gate::allows('view', $order)) {
+            return redirect()->route('orders.show', $order)
+                ->with(['status' => 'Its pre-order '.$order->PreOrder->code.' was cancelled or closed, so this order can no longer be completed.', 'error' => true]);
+        }
         $this->authorize('update', $order);
         $data = ['order', 'step'];
         if ($step == OrderStep::SAMPLE_DETAILS) {

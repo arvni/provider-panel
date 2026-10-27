@@ -18,4 +18,8 @@ export const exceptionLabel = (exception) =>
           }[exception.type] ?? exception.type)
         : null;
 
+// Cancelled, or found not eligible / not proceeding: its orders never go ahead.
+export const hasEnded = (preOrder) =>
+    ["cancelled", "not_eligible", "not_proceeding"].includes(preOrder.exception?.type);
+
 export const when = (iso) => (iso ? new Date(iso).toLocaleString() : "");
