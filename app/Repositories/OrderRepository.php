@@ -68,7 +68,7 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         $this->query
             ->with('Tests:id,name')
             ->with('OrderItems.Samples')
-            ->with('PreOrder:id,code')
+            ->with('PreOrder:id,code,snapshot')
             ->withAggregate('User', 'name')
             ->leftJoin('patients', 'patients.id', '=', 'orders.main_patient_id')
             ->addSelect([

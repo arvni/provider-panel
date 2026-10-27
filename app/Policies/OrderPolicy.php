@@ -37,6 +37,11 @@ class OrderPolicy
      */
     public function update(User $user, Order $order): bool
     {
+        // Its pre-order was cancelled: no one adds samples or details, or submits it.
+        if ($order->cancelledByPreOrder()) {
+            return false;
+        }
+
         return $user->can('Admin.Order.Update') || (($order->status === OrderStatus::PENDING || $order->status === OrderStatus::REQUESTED) && $user->id == $order->user_id);
     }
 

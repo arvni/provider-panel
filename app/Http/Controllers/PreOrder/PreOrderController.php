@@ -172,6 +172,7 @@ class PreOrderController extends Controller
                     'release_key' => $o->pre_order_release_key,
                     'status' => $o->status->value,
                     'step' => $o->step->value,
+                    'editable' => $request->user()->can('update', $o->setRelation('PreOrder', $preOrder)),
                 ]),
             'actions' => $preOrder->Actions()->where('status', '!=', PreOrderAction::DONE)->where('type', '!=', 'resync')->latest()->limit(10)->get(['id', 'type', 'status', 'error', 'created_at']),
             'canAct' => $request->user()->can('act', $preOrder) && $preOrder->closed_at === null,

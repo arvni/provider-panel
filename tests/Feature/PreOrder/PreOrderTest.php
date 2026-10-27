@@ -4,10 +4,14 @@ namespace Tests\Feature\PreOrder;
 
 use App\Enums\NotificationType;
 use App\Enums\OrderStatus;
+use App\Enums\OrderStep;
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Patient;
 use App\Models\PreOrder;
 use App\Models\PreOrderAction;
+use App\Models\Sample;
+use App\Models\SampleType;
 use App\Models\Test;
 use App\Models\User;
 use App\Notifications\PreOrderStageChanged;
@@ -447,6 +451,45 @@ class PreOrderTest extends TestCase
         $this->actingAs($this->center)
             ->put(route('orders.update', ['order' => $order, 'step' => 'test method']), ['tests' => [['id' => $direct->id]]])
             ->assertSessionHasErrors('tests');
+    }
+
+    public function test_a_cancelled_pre_orders_orders_and_samples_cannot_go_ahead(): void
+    {
+        $patient = Patient::factory()->create(['user_id' => $this->center->id]);
+        Test::factory()->create(['server_id' => 9001, 'flow_id' => 3]);
+        $this->upsert($this->snapshot())->assertOk();
+        $preOrder = PreOrder::firstOrFail();
+        $pending = Order::factory()->create(['user_id' => $this->center->id, 'main_patient_id' => $patient->id, 'patient_ids' => [$patient->id],
+            'pre_order_id' => $preOrder->id, 'pre_order_release_key' => 'PO-26-0501-M1', 'status' => OrderStatus::PENDING, 'step' => OrderStep::SAMPLE_DETAILS]);
+        $requested = Order::factory()->create(['user_id' => $this->center->id, 'main_patient_id' => $patient->id, 'patient_ids' => [$patient->id],
+            'pre_order_id' => $preOrder->id, 'pre_order_release_key' => 'PO-26-0501-M2', 'status' => OrderStatus::REQUESTED, 'step' => OrderStep::FINALIZE]);
+        $item = OrderItem::create(['order_id' => $requested->id, 'test_id' => Test::factory()->create()->id]);
+        $sample = Sample::create(['sample_type_id' => SampleType::create(['name' => 'Blood', 'server_id' => 55, 'sample_id_required' => false])->id,
+            'patient_id' => $patient->id, 'collectionDate' => '2026-10-20', 'pooling' => false]);
+        $item->Samples()->attach($sample->id);
+
+        $this->actingAs($this->center)->get(route('samples.index'))->assertInertia(fn ($page) => $page->has('orders', 1));
+
+        $this->upsert($this->snapshot([
+            'version' => 3,
+            'exception' => ['type' => 'cancelled', 'reason' => 'patient_withdrew'],
+            'closed_at' => now()->toIso8601String(),
+            'orders_to_place' => [['release_key' => 'PO-26-0501-M3', 'purpose' => 'main', 'items' => [['test_id' => 9001, 'patient_ref' => (string) $patient->id, 'qty' => 1]]]],
+        ]))->assertOk();
+
+        $this->assertSame(0, Order::where('pre_order_release_key', 'PO-26-0501-M3')->count(), 'nothing new is placed');
+        $this->actingAs($this->center)->get(route('preOrders.show', $preOrder))
+            ->assertInertia(fn ($page) => $page->where('orders.0.editable', false)->where('orders.1.editable', false));
+        $this->get(route('orders.edit', ['order' => $pending, 'step' => 'sample details']))
+            ->assertRedirect(route('orders.show', $pending))->assertSessionHas('error', true);
+        $this->put(route('orders.update', ['order' => $pending, 'step' => 'finalize']), [])->assertForbidden();
+        $this->post(route('orders.logistic'), ['selectedOrders' => [$requested->id], 'preferred_date' => today()->toDateString()])
+            ->assertSessionHasErrors('selectedOrders.0');
+        $this->post(route('samples.collect-request'), ['samples' => [$sample->id], 'preferred_date' => today()->toDateString()])
+            ->assertSessionHasErrors('samples');
+        $this->get(route('samples.index'))->assertInertia(fn ($page) => $page->has('orders', 0));
+        $this->assertSame(OrderStatus::REQUESTED, $requested->fresh()->status);
+        $this->assertNull($sample->fresh()->collect_request_id);
     }
 
     private function pdf(string $name = 'pedigree.pdf'): UploadedFile

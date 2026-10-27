@@ -41,7 +41,7 @@ class StoreSampleCollectRequestController extends Controller
         $samples = Sample::whereIn('id', $sampleIds)
             ->whereNull('collect_request_id')
             ->whereHas('OrderItems.Order', function ($query) use ($user) {
-                $query->where('user_id', $user->id);
+                $query->where('user_id', $user->id)->notCancelledByPreOrder();
             })
             ->with('OrderItems')
             ->get();

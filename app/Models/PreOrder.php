@@ -12,6 +12,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class PreOrder extends Model
 {
+    /** LIS exceptions that end a pre-order for good: its orders never go ahead. */
+    public const ENDED = ['cancelled', 'not_eligible', 'not_proceeding'];
+
     protected $fillable = ['server_id', 'user_id', 'code', 'version', 'stage', 'action_owner', 'snapshot', 'closed_at'];
 
     protected $casts = [
@@ -19,6 +22,12 @@ class PreOrder extends Model
         'version' => 'integer',
         'closed_at' => 'datetime',
     ];
+
+    /** Cancelled, or found not eligible / not proceeding. */
+    public function hasEnded(): bool
+    {
+        return in_array($this->snapshot['exception']['type'] ?? null, self::ENDED, true);
+    }
 
     /**
      * @return BelongsTo<User, $this>

@@ -5,6 +5,7 @@ import { Alert, AlertTitle, Box, Button, Paper, Stack, Typography } from "@mui/m
 import { CheckCircleOutline as DoneIcon } from "@mui/icons-material";
 import QuotationCard from "./QuotationCard";
 import RequestCard from "./RequestCard";
+import { hasEnded } from "./stage";
 
 /**
  * The one place a center looks first: everything BION is waiting for from them right now, each
@@ -22,10 +23,13 @@ export default function NextSteps({
     const quotations = (preOrder.quotations ?? []).filter((q) => q.status === "awaiting_center");
     const requests = preOrder.requests.filter((r) => r.status === "open");
     const orderFor = (key) => orders.find((o) => o.release_key === key);
-    const ordersToComplete = preOrder.orders_to_place.filter((r) => {
-        const order = orderFor(r.release_key);
-        return !order || order.status === "pending";
-    });
+    // A cancelled pre-order's orders are never completed.
+    const ordersToComplete = hasEnded(preOrder)
+        ? []
+        : preOrder.orders_to_place.filter((r) => {
+              const order = orderFor(r.release_key);
+              return !order || (order.status === "pending" && order.editable);
+          });
     const samplesNeeded = can.confirm_next_step || can.add_batch || Boolean(can.replace_batch);
     const onHold = preOrder.exception?.type === "hold_center";
     const requestLabel = (number) => preOrder.requests.find((r) => r.number === number)?.label;
